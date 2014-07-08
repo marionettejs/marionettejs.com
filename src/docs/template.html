@@ -1,0 +1,18 @@
+<h1>Documentation</h1>
+
+<div class="sidebar">
+  <select>
+    <% tags.forEach(function(tag) { %>
+      <option value="<%- tag %>"><%- tag %></option>
+    <% }); %>
+  </select>
+  <nav>
+    <% files.forEach(function(file) { %>
+      <a href="<%- file.basename %>.html"><%- file.basename %></a>
+    <% }); %>
+  </nav>
+</div>
+
+<div class="content">
+  <%= content %>
+</div>
