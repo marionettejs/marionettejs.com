@@ -9,8 +9,27 @@ var rimraf       = Promise.promisify(require('rimraf'));
 var marked       = require('marked');
 var highlight    = require('highlight.js');
 
+var renderer = new marked.Renderer();
+
+renderer.heading = function(text, level, raw) {
+  var escapedText = raw
+    .toLowerCase()
+    .replace(/[']/g, '') // Add edge cases: /[1|2|3]/g
+    .replace(/[^\w]+/g, '-')
+    .replace(/-$/, '');;
+
+  return (
+    '<h'+level+'>'+
+      '<a name="'+escapedText+'" class="anchor" href="#'+escapedText+'">'+
+        '<span class="header-link"></span>'+
+      '</a>'+
+      text+
+    '</h'+level+'>'
+  );
+};
+
 marked.setOptions({
-  renderer: new marked.Renderer(),
+  renderer: renderer,
   gfm: true,
   tables: true,
   breaks: false,
