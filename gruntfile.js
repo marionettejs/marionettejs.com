@@ -3,6 +3,14 @@ module.exports = function(grunt) {
   grunt.loadTasks('tasks');
 
   grunt.initConfig({
+    less: {
+      marionette: {
+        files: {
+          'dist/styles/main.css': 'src/styles/main.less'
+        }
+      }
+    },
+
     compileDocs: {
       marionette: {
         options: {
@@ -16,6 +24,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('default', [
-    'compileDocs'
+    'compileDocs',
+    'less'
   ]);
 };

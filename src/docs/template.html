@@ -1,18 +1,26 @@
-<h1>Documentation</h1>
-
-<div class="sidebar">
-  <select>
-    <% tags.forEach(function(tag) { %>
-      <option value="<%- tag %>"><%- tag %></option>
-    <% }); %>
-  </select>
-  <nav>
-    <% files.forEach(function(file) { %>
-      <a href="<%- file.basename %>.html"><%- file.basename %></a>
-    <% }); %>
-  </nav>
-</div>
-
-<div class="content">
-  <%= content %>
-</div>
+<html>
+  <head>
+    <title><%- file.basename %> - Marionette.js Docs</title>
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <div class="docs">
+      <div class="docs__sidebar">
+        <select>
+          <% tags.forEach(function(tag) { %>
+            <option value="<%- tag %>"><%- tag %></option>
+          <% }); %>
+        </select>
+        <nav>
+          <% files.forEach(function(file) { %>
+            <a href="<%- file.basename %>.html"><%- file.basename %></a>
+          <% }); %>
+        </nav>
+      </div>
+      <div class="docs__content">
+        <pre><%- JSON.stringify(file, null, 2) %></pre>
+        <%= content %>
+      </div>
+    </div>
+  </body>
+</html>

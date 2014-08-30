@@ -7,6 +7,21 @@ var gitty        = require('gitty');
 var mkdirp       = Promise.promisify(require('mkdirp'));
 var rimraf       = Promise.promisify(require('rimraf'));
 var marked       = require('marked');
+var highlight    = require('highlight.js');
+
+marked.setOptions({
+  renderer: new marked.Renderer(),
+  gfm: true,
+  tables: true,
+  breaks: false,
+  pedantic: false,
+  sanitize: true,
+  smartLists: true,
+  smartypants: false,
+  highlight: function (code, lang) {
+    return highlight.highlightAuto(code, [lang]).value;
+  }
+});
 
 var Compiler = function(paths) {
   this.paths = paths;
@@ -54,7 +69,11 @@ _.extend(Compiler.prototype, {
             contents : marked(contents.toString())
           };
         });
+      }).catch(function(err) {
+        return false;
       });
+    }, { concurrency: 1 }).filter(function(files) {
+      return files;
     }).then(function(files) {
       this.files = files;
     });
@@ -83,21 +102,25 @@ _.extend(Compiler.prototype, {
   },
 
   cleanup: function() {
+    var tmpDir = path.resolve(this.paths.tmp, '..');
     return Promise.bind(this).then(function() {
       return rimraf(this.paths.dest);
     }).then(function() {
       this.emit('rimraf', { dir: this.paths.dest });
+      return mkdirp(path.resolve(this.paths.dest, '..'));
+    }).then(function() {
+      this.emit('mkdirp', { dir: this.paths.dest });
       return fs.symlinkAsync(this.paths.tmp, this.paths.dest);
     }).then(function() {
       this.emit('symlink', { from: this.paths.tmp, to: this.paths.dest });
-      return fs.readdirAsync(this.paths.tmpDir);
+      return fs.readdirAsync(tmpDir);
     }).filter(function(dir) {
-      dir = path.resolve(this.paths.tmpDir, dir);
+      dir = path.resolve(tmpDir, dir);
       return fs.statAsync(dir).bind(this).then(function(stats) {
         return stats.isDirectory() && dir !== this.paths.tmp;
       });
     }).map(function(dir) {
-      dir = path.resolve(this.paths.tmpDir, dir);
+      dir = path.resolve(tmpDir, dir);
       return rimraf(dir).bind(this).then(function() {
         this.emit('rimraf', { dir: dir });
       });
@@ -125,7 +148,6 @@ module.exports = function(grunt) {
     var compiler = new Compiler({
       repo     : path.resolve(options.repo),
       template : path.resolve(options.template),
-      tmpDir   : path.resolve('./.grunt/compileDocs'),
       tmp      : path.resolve('./.grunt/compileDocs/' + Date.now()),
       src      : path.resolve(files.orig.src[0]),
       dest     : path.resolve(files.dest)
@@ -154,8 +176,6 @@ module.exports = function(grunt) {
     compiler.compile().then(function() {
       compiler.removeAllListeners();
       grunt.log.ok('Success!');
-    }).catch(function(err) {
-      grunt.fail.warn('Fail!', err);
     }).then(this.async());
   });
 };
