@@ -1,0 +1,38 @@
+section.code-samples.column-contain.hidden-xs
+  .code-sample-block.first-sample-block
+      h4.code-header Setup
+      pre.prettyprint
+        code.
+          var SingleLink = Backbone.Marionette.ItemView.extend({
+            tagName: "li",
+            template: _.template("&lt;a href='<%%-path%>'><%%-path%>&lt;/a>")
+          });
+
+          var ListView = Backbone.Marionette.CollectionView.extend({
+            tagName: 'ul',
+            childView: SingleLink
+          });
+
+  .code-sample-block.second-sample-block
+    h4.code-header Using
+    pre.prettyprint
+      code.
+        var list = new Backbone.Collection([
+          {path: 'http://google.com'},
+          {path: 'http://mojotech.com'},
+        ]);
+
+        (new ListView({
+          collection: list,
+          el: '.link-area'
+        })).render();
+
+  .code-sample-block.code-results-block
+    h4.code-header.code-header-results Results
+    .result
+      ul
+        li
+          a(href="http://google.com", target="_blank") http://google.com
+        li
+          a(href="http://mojotech.com", target="_blank") http://mojotech.com
+    .cl
