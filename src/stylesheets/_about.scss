@@ -1,0 +1,46 @@
+.about {
+  border-top: 0;
+}
+
+.top-quick-links {
+  background-color: darken($light-blue, 3%);
+}
+
+.about article {
+  width: 60%;
+
+  @include below(815px) {
+    width: 100%;
+  }
+}
+
+.quick-links {
+  width:            30%;
+  border:           solid 1px darken($light-blue, 3%);
+  overflow:         hidden;
+  background-color: lighten($light-blue, 3%);
+
+  @include border-radius(5px);
+  @include below(815px) {
+    width: 100%;
+  }
+
+  nav {
+    padding: 15px;
+  }
+
+  a {
+    color:           $seafoam;
+    text-decoration: none;
+
+    font: {
+      size:   $mid-font;
+      weight: 500;
+      family: $sans;
+    }
+  }
+}
+
+.note {
+  font-size: $small-font;
+}
