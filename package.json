@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "compile": "grunt"
+    "compile": "grunt",
+    "dev": "grunt dev"
   },
   "author": "",
   "license": "ISC",

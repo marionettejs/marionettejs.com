@@ -1,7 +1,7 @@
 marionettejs.com
 ================
 
-[Experimental]
+##### [Experimental]
 
 ### Deving
 
@@ -11,18 +11,27 @@ marionettejs.com
     cd marionettejs.com
     npm install
 
-> Then we need to get the Marionette Repo to generate the build from:
+#### Deving the main WWW
 
-    git clone git@github.com:marionettejs/backbone.marionette.git
+    npm run dev
 
-> Then we just have to compile:
+> Then open dist/index.html
 
-    npm run compile
 
-> Start up a static server
+#### Building the docs
 
-    python -m SimpleHTTPServer
+  > Then we need to get the Marionette Repo to generate the build from:
 
-> Checkout some sweet docs
+      git clone git@github.com:marionettejs/backbone.marionette.git
 
-    http://localhost:8000/dist/docs/v2.2.0-pre/marionette.collectionview.html
+  > Then we just have to compile:
+
+      npm run compile
+
+  > Start up a static server
+
+      python -m SimpleHTTPServer
+
+  > Checkout some sweet docs
+
+      http://localhost:8000/dist/docs/v2.2.0-pre/marionette.collectionview.html
