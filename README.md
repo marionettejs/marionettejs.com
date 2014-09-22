@@ -29,7 +29,7 @@ marionettejs.com
 
   > Then we just have to compile:
 
-      npm run compile
+      npm run build-docs
 
   > Start up a static server
 

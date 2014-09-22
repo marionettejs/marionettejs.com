@@ -94,7 +94,7 @@ module.exports = function(grunt) {
     'jade'
   ]);
 
-  grunt.registerTask('default', [
+  grunt.registerTask('compile-docs', [
     'compileDocs',
     'less'
   ]);
