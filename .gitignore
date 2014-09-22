@@ -4,3 +4,4 @@ dist
 .grunt
 backbone.marionette
 .sass-cache
+bower_components

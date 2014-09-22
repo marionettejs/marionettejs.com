@@ -1,0 +1,9 @@
+{
+  "name": "marionette.js",
+  "dependencies": {
+    "jquery.cycle2.min": "https://raw.github.com/malsup/malsup.github.com/master/min/jquery.cycle2.min.js",
+    "jQuery.equalHeights": "mattbanks/jQuery.equalHeights#~1.5.2",
+    "jquery.fitvids": "davatron5000/FitVids.js#~1.1.0",
+    "google-code-prettify": "~1.0.3"
+  }
+}
