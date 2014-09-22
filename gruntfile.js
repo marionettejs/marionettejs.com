@@ -88,6 +88,12 @@ module.exports = function(grunt) {
     'watch'
   ]);
 
+  grunt.registerTask('compile-site', [
+    'sass',
+    'copy',
+    'jade'
+  ]);
+
   grunt.registerTask('default', [
     'compileDocs',
     'less'

@@ -17,6 +17,9 @@ marionettejs.com
 
 > Then open dist/index.html
 
+#### Deploying the main WWW
+
+    ./ship
 
 #### Building the docs
 
