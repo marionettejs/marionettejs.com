@@ -1,3 +1,11 @@
+a {
+  color: #00a6fc;
+
+  &:hover {
+    color: #0084c9
+  }
+}
+
 a.btn {
   color:            #fff;
   height:           $button-size;
