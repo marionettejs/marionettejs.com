@@ -21,6 +21,11 @@ marionettejs.com
 
     ./ship
 
+
+#### Building the annotated source
+
+    npm run compile-docco
+
 #### Building the docs
 
   > Then we need to get the Marionette Repo to generate the build from:

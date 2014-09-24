@@ -18,6 +18,16 @@ module.exports = function(grunt) {
         }
       }
     },
+
+    docco: {
+      build: {
+        src: ['backbone.marionette/lib/backbone.marionette.js'],
+        options: {
+          output: 'dist/annotated-src/'
+        }
+      }
+    },
+
     copy: {
       assets: {
         files: [
@@ -105,4 +115,10 @@ module.exports = function(grunt) {
     'compileDocs',
     'less'
   ]);
+
+  grunt.registerTask('compile-docco', [
+    'gitty:latestTag:marionette',
+    'docco:build'
+  ]);
+
 };
