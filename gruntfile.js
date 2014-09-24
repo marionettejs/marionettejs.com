@@ -11,6 +11,13 @@ module.exports = function(grunt) {
       }
     },
 
+    'gitty:latestTag': {
+      marionette: {
+        options: {
+          repo: 'backbone.marionette',
+        }
+      }
+    },
     copy: {
       assets: {
         files: [
