@@ -9,6 +9,7 @@ marionettejs.com
 
     git clone git@github.com:thejameskyle/marionettejs.com.git
     cd marionettejs.com
+    bower install
     npm install
     gem install compass
 
