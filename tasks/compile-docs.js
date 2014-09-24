@@ -8,6 +8,7 @@ var mkdirp       = Promise.promisify(require('mkdirp'));
 var rimraf       = Promise.promisify(require('rimraf'));
 var marked       = require('marked');
 var highlight    = require('highlight.js');
+var mv           = Promise.promisify(require('mv'));
 
 var renderer = new marked.Renderer();
 
@@ -156,15 +157,23 @@ _.extend(Compiler.prototype, {
 
   _writeFile: function(file, contents) {
     return fs.writeFileAsync(path.resolve(file), contents);
+  },
+
+  finializeBuild: function() {
+    return rimraf(this.paths.dest)
+    .then(function() {
+      this.emit('mv', { from: this.tmpDir, to: this.paths.dest });
+      return mv(this.tmpDir, this.paths.dest, {mkdirp: true})
+    }.bind(this))
   }
 });
 
 module.exports = function(grunt) {
   grunt.registerMultiTask('compileDocs', function() {
-    var options = this.options();
-    var files = this.files[0];
+    var options   = this.options();
+    var files     = this.files[0];
 
-    var compiler = new Compiler({
+    var compiler  = new Compiler({
       repo     : path.resolve(options.repo),
       template : path.resolve(options.template),
       tmp      : path.resolve('./.grunt/compileDocs/' + Date.now()),
@@ -192,9 +201,18 @@ module.exports = function(grunt) {
       grunt.verbose.writeln('writeFile: ' + data.file);
     });
 
-    compiler.compile().then(function() {
+    compiler.on('mv', function(data) {
+      grunt.verbose.writeln('moving: ' + JSON.stringify(data));
+    });
+
+    compiler.compile()
+    .then(function() {
+      return compiler.finializeBuild();
+    })
+    .then(function() {
       compiler.removeAllListeners();
       grunt.log.ok('Success!');
-    }).then(this.async());
+    })
+    .then(this.async());
   });
 };
