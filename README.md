@@ -10,6 +10,7 @@ marionettejs.com
     git clone git@github.com:thejameskyle/marionettejs.com.git
     cd marionettejs.com
     npm install
+    gem install compass
 
 #### Deving the main WWW
 
