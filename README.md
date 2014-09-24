@@ -19,8 +19,7 @@ marionettejs.com
 
 #### Deploying the main WWW
 
-    ./ship
-
+    npm run deploy
 
 #### Building the annotated source
 

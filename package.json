@@ -7,7 +7,8 @@
     "dev": "grunt dev",
     "compile-docs": "grunt compile-docs",
     "compile-all": "grunt compile-all",
-    "compile-docco": "grunt compile-docco"
+    "compile-docco": "grunt compile-docco",
+    "deploy": "./ship.sh"
   },
   "author": "",
   "license": "ISC",
