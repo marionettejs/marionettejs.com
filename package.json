@@ -6,8 +6,8 @@
   "scripts": {
     "build-docs": "grunt compile-docs",
     "dev": "grunt dev",
+    "compile-all": "grunt compile-all",
     "compile-docco": "grunt compile-docco"
-    "build": "grunt compile-site"
   },
   "author": "",
   "license": "ISC",

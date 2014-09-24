@@ -1,4 +1,4 @@
-npm run compile-site
+npm run compile-all
 cd dist
 git init
 git add .
