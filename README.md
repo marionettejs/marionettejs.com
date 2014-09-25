@@ -12,6 +12,7 @@ marionettejs.com
     bower install
     npm install
     gem install compass
+    git clone git@github.com:marionettejs/backbone.marionette.git
 
 #### Deving the main WWW
 
