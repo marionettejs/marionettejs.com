@@ -8,6 +8,7 @@
     "compile-docs": "grunt compile-docs",
     "compile-all": "grunt compile-all",
     "compile-docco": "grunt compile-docco",
+    "compile-downloads": "grunt compile-downloads",
     "deploy": "./ship.sh"
   },
   "author": "",

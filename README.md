@@ -27,6 +27,10 @@ marionettejs.com
 
     npm run compile-docco
 
+#### Building the downloads
+
+    npm run compile-downloads
+
 #### Building the docs
 
   > Then we need to get the Marionette Repo to generate the build from:

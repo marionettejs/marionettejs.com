@@ -121,9 +121,14 @@ module.exports = function(grunt) {
     'docco:build'
   ]);
 
+  grunt.registerTask('compile-downloads', [
+    'compileDownloads'
+  ]);
+
   grunt.registerTask('compile-all', [
     'compile-site',
     'compile-docs',
-    'compile-docco'
+    'compile-docco',
+    'compile-downloads'
   ]);
 };
