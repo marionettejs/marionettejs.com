@@ -26,13 +26,12 @@ a.btn {
 
   @include border-radius($button-size);
 
-  &.btn-donate {
-    padding: 0 50px;
-    background-color: $orange;
-    color: #003366;
-    font-style: italic;
+  &.btn-issues {
+    padding: 0 20px;
+    background-color: $light-grey;
+    color: #555;
     &:hover {
-      background: darken($orange, 3%);
+      background: darken($light-grey, 3%);
     }
   }
 }
