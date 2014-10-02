@@ -148,17 +148,10 @@
       width: 100%;
     }
   }
-  .donate {
-    .btn-donate {
-      display: inline-block;
-    }
-    p {
-      margin-left: 12px;
-      display: inline-block;
-      font-size: $small-font;
-      line-height: 16px;
-      color: #a7a9ac;
-    }
+  .btn-issues {
+    display: inline-block;
+    float: right;
+    margin-top: 10px;
   }
 }
 
