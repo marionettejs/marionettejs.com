@@ -20,10 +20,13 @@ $(document).ready(function() {
         }
     });
 
-    // fitVids
-    $('.vid').fitVids();
-
     // Google Prettify syntax highlighting
     prettyPrint();
 
+    // Toggle company logos
+    $('.show-more').on('click', function(e) {
+      e.preventDefault();
+      $(this).parent().toggleClass('active');
+      $('.slider').toggleClass('closed');
+    });
 });
