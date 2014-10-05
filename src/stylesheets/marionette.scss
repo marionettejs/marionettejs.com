@@ -82,7 +82,7 @@
 
 .slider {
   overflow-y: hidden;
-  max-height: 1600px;
+  max-height: 2000px;
 
   transition-property: all;
   transition-duration: .5s;
@@ -167,6 +167,13 @@
         color: darken($seafoam, 5%);
         text-decoration: none;
       }
+    }
+    .gitter-logo {
+      vertical-align: text-top;
+    }
+    .gitter {
+      display: inline;
+      padding-left: 12px;
     }
     i {
       float: left;
