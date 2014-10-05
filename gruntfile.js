@@ -14,7 +14,7 @@ module.exports = function(grunt) {
     'gitty:latestTag': {
       marionette: {
         options: {
-          repo: 'backbone.marionette',
+          repo: 'backbone.marionette'
         }
       }
     },
@@ -48,6 +48,12 @@ module.exports = function(grunt) {
             src: ["bower_components/**/*"],
             dest: 'dist/'
           },
+          {
+            expand: true,
+            cwd: 'src/stylesheets',
+            src: ["fonts/icons/*"],
+            dest: 'dist/styles'
+          }
         ]
       }
     },
