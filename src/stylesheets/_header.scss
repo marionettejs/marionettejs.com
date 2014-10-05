@@ -33,8 +33,12 @@
   margin-top: 10px;
 }
 
-.twitter-follow-button {
+.twitter-follow-button, .gitter-button {
   margin-left: 2rem;
+}
+
+.gitter-button img {
+  height: 25px;
 }
 
 .masthead {
