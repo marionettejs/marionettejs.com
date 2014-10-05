@@ -1,34 +1,34 @@
 doctype html
 
 head
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  meta(charset='utf-8')
+  meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
   title Marionette.js
   //- <meta content="<%= data.page.description || "" %>" name="description">
-  <meta name="viewport" content="width=device-width">
-  <link rel="stylesheet" href="styles/marionette.css">
-  <link rel="author" href="humans.txt">
-  <link rel="publisher" href="https://plus.google.com/101060306397560578875/">
-  <meta name="twitter:card" value="Make your backbone applications dance with a composite application architecture">
-  <meta name="twitter:site" value="@marionettejs">
-  <meta property="og:site_name" content="Marionette.js – Make your backbone applications dance with a composite application architecture!">
-  <meta property="og:image" content="<%= data.global.baseURL %>/images/og-standard.jpg">
-  <meta property="og:url" content="<%= data.global.baseURL %><%= data.page.og_url || '/' %>">
-  <meta property="og:description" content="<%= data.page.og_description || data.page.description %>">
-  <meta property="og:type" content="<%= data.page.og_type || 'article' %>">
-  <meta property="og:title" content="<%= data.page.og_title || data.page.title %>">
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
-  <script src="/downloads/backbone.marionette.js"></script>
+  meta(name='viewport', content='width=device-width')
+  link(rel='stylesheet', href='styles/marionette.css')
+  link(rel='author', href='humans.txt')
+  link(rel='publisher', href='https://plus.google.com/101060306397560578875/')
+  meta(name='twitter:card', value='Make your backbone applications dance with a composite application architecture')
+  meta(name='twitter:site', value='@marionettejs')
+  meta(property='og:site_name', content='Marionette.js – Make your backbone applications dance with a composite application architecture!')
+  meta(property='og:image', content='<%= data.global.baseURL %>/images/og-standard.jpg')
+  meta(property='og:url', content='<%= data.global.baseURL %><%= data.page.og_url || '/' %>')
+  meta(property='og:description', content='<%= data.page.og_description || data.page.description %>')
+  meta(property='og:type', content='<%= data.page.og_type || "article" %>')
+  meta(property='og:title', content='<%= data.page.og_title || data.page.title %>')
+  link(rel='shortcut icon', href='favicon.ico', type='image/x-icon')
+  link(rel='apple-touch-icon', href='apple-touch-icon.png')
+  script(src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js")
+  script(src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js")
+  script(src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js")
+  script(src="/downloads/backbone.marionette.js")
 
 body
   block content
   include ../sections/_google_analytics
 
-script(src="bower_components/jquery.cycle2.min/index.js")
+script(src="bower_components/jquery-cycle2/build/jquery.cycle2.min.js")
 script(src="bower_components/jQuery.equalHeights/jquery.equalheights.min.js")
 script(src="bower_components/google-code-prettify/bin/prettify.min.js")
 
