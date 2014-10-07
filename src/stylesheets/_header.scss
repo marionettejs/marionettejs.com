@@ -29,6 +29,18 @@
   }
 }
 
+.star-button {
+  margin-top: 10px;
+}
+
+.twitter-follow-button, .gitter-button {
+  margin-left: 2rem;
+}
+
+.gitter-button img {
+  height: 28px;
+}
+
 .masthead {
   padding:    0 $center_pad 40px;
   overflow:   hidden;
