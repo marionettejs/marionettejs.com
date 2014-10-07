@@ -1,8 +1,11 @@
 module.exports = function(grunt) {
   require('load-grunt-tasks')(grunt);
-  grunt.loadTasks('tasks');
 
-  grunt.initConfig({
+  grunt.initConfig({});
+  grunt.loadTasks('tasks');
+  grunt.loadTasks("backbone.marionette/tasks");
+
+  grunt.config.merge({
     less: {
       marionette: {
         files: {
@@ -58,7 +61,8 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          "dist/styles/marionette.css": "src/stylesheets/marionette.scss"
+          "dist/styles/marionette.css": "src/stylesheets/marionette.scss",
+          "dist/styles/api.css": "src/stylesheets/api.scss"
         }
       }
     },
@@ -98,8 +102,18 @@ module.exports = function(grunt) {
         src  : 'backbone.marionette/docs',
         dest : 'dist/docs'
       }
+    },
+
+    compileApi: {
+      marionette: {
+        options: {
+          repo : 'backbone.marionette',
+        },
+        src  : 'src/api',
+        dest : 'dist/api'
+      }
     }
-  });
+});
 
   grunt.registerTask('dev', [
     'watch'
@@ -116,6 +130,11 @@ module.exports = function(grunt) {
     'less'
   ]);
 
+  grunt.registerTask('compile-api', [
+    'compileApi',
+    'less'
+  ]);
+
   grunt.registerTask('compile-docco', [
     'gitty:latestTag:marionette',
     'docco:build'
@@ -129,6 +148,7 @@ module.exports = function(grunt) {
     'compile-site',
     'compile-docs',
     'compile-docco',
-    'compile-downloads'
+    'compile-downloads',
+    'compile-api'
   ]);
 };
