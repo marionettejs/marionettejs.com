@@ -25,8 +25,13 @@ $(document).ready(function() {
 
     // Toggle company logos
     $('.show-more').on('click', function(e) {
+      var $this = $(this);
+
       e.preventDefault();
-      $(this).parent().toggleClass('active');
+      $this.parent().toggleClass('active');
       $('.slider').toggleClass('closed');
+
+      var txt = $this.text() === 'more'? 'less': 'more';
+      $this.text(txt);
     });
 });
