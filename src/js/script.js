@@ -7,6 +7,9 @@ $(document).ready(function() {
         paused: true
     });
 
+    // Unveil.js (lazy loader for logos)
+    $('img').unveil();
+
     // equalHeights
     if($(window).width() > 705) {
         $('.code_examples > div').equalHeights();
