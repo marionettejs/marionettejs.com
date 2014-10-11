@@ -7,9 +7,6 @@ $(document).ready(function() {
         paused: true
     });
 
-    // Unveil.js (lazy loader for logos)
-    $('img').unveil();
-
     // equalHeights
     if($(window).width() > 705) {
         $('.code_examples > div').equalHeights();
@@ -25,6 +22,9 @@ $(document).ready(function() {
 
     // Google Prettify syntax highlighting
     prettyPrint();
+
+    // Unveil.js (lazy loader for company logos)
+    $('.company-logo-list img').unveil();
 
     // Toggle company logos
     $('.show-more').on('click', function(e) {
