@@ -1,0 +1,56 @@
+/* Modified version of http://codyhouse.co/gem/back-to-top */
+
+.top {
+  display: inline-block;
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+
+  position: fixed;
+  bottom: 40px;
+  right: 10px;
+
+  box-shadow: 0 0 10px rgba(#000, .05);
+  z-index: 900;
+
+  /* image replacement properties */
+  overflow: hidden;
+  text-indent: 100%;
+  white-space: nowrap;
+
+  background: rgba($med-gray, .8) url(../images/top-arrow.svg) no-repeat center 50%;
+
+  visibility: hidden;
+  opacity: 0;
+
+  -webkit-transition: opacity .3s 0s, visibility 0s .3s;
+  -moz-transition: opacity .3s 0s, visibility 0s .3s;
+  transition: opacity .3s 0s, visibility 0s .3s;
+
+  &.is-visible, &.fade-out {
+    -webkit-transition: opacity .3s 0s, visibility 0s 0s;
+    -moz-transition: opacity .3s 0s, visibility 0s 0s;
+    transition: opacity .3s 0s, visibility 0s 0s;
+  }
+
+  &.is-visible { /* the button becomes visible */
+    visibility: visible;
+    opacity: 1;
+  }
+
+  &.fade-out { /* if the user keeps scrolling down, the button is out of focus and becomes less visible */
+    opacity: .5;
+  }
+
+  @media only screen and (min-width: $med-breakpoint) {
+    right: 20px;
+    bottom: 20px;
+  }
+
+  @media only screen and (min-width: $large-breakpoint) {
+    height: 50px;
+    width: 50px;
+    right: 30px;
+    bottom: 30px;
+  }
+}
