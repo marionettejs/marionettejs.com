@@ -3,13 +3,18 @@
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
+  "repository" : {
+    "type" : "git",
+    "url" : "http://github.com/marionettejs/marionettejs.com"
+  },
   "scripts": {
     "dev": "grunt dev",
     "compile-docs": "grunt compile-docs",
     "compile-all": "grunt compile-all",
     "compile-docco": "grunt compile-docco",
     "compile-downloads": "grunt compile-downloads",
-    "deploy": "./ship.sh"
+    "deploy": "./ship.sh",
+    "setup": "./setup.sh"
   },
   "author": "",
   "license": "ISC",
