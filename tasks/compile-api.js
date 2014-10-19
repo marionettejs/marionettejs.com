@@ -101,6 +101,10 @@ _.extend(Task.prototype, {
       }
     });
 
+    if (!fs.existsSync(path.resolve(this.files.dest))) {
+      fs.mkdirSync(path.resolve(this.files.dest));
+    }
+
     // console.log('json', apiJson);
     var apiFilePath = path.resolve(this.files.dest, 'api.json');
     fs.writeFileSync(apiFilePath, JSON.stringify(apiJson, null, '  '));
