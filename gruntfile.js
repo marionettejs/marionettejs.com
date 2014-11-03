@@ -95,6 +95,11 @@ module.exports = function(grunt) {
       compile : {
         files: {
           "dist/index.html": "src/index.jade"
+        },
+        options: {
+          data: {
+            VERSION: grunt.option("VERSION") || "V.X.X.X"
+          }
         }
       }
     },

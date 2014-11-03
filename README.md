@@ -22,7 +22,7 @@ marionettejs.com
 
 #### Deploying the main WWW
 
-    npm run deploy
+    npm run deploy --version v2.X.X
 
 #### Building the annotated source
 
