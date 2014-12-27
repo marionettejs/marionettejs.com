@@ -8,6 +8,7 @@
     "url": "http://github.com/marionettejs/marionettejs.com"
   },
   "scripts": {
+    "postinstall": "bower prune && bower install && npm prune",
     "dev": "grunt dev",
     "compile-docs": "grunt compile-docs",
     "compile-all": "grunt compile-all",
