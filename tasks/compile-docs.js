@@ -71,6 +71,15 @@ _.extend(Compiler.prototype, {
     });
   },
 
+  compileContents: function(contents) {
+    var compiledContents = marked(contents);
+
+    // Strip out view the docs headline from each doc
+    compiledContents = compiledContents.replace(/<h2\>.*View the new docs.*<\/h2>/, '');
+
+    return compiledContents;
+  },
+
   readFiles: function() {
     return Promise.bind(this).return(this.tags).map(function(tag) {
       return this.repo.checkoutAsync(tag).bind(this).then(function() {
@@ -86,7 +95,7 @@ _.extend(Compiler.prototype, {
             basename : path.basename(filename, '.md'),
             filenane : filename,
             pathname : path.resolve(this.paths.tmp, tag),
-            contents : marked(contents.toString())
+            contents : this.compileContents(contents.toString())
           };
         });
       }).catch(function(err) {
