@@ -41,7 +41,7 @@ marionettejs.com
 
   > Then we just have to compile:
 
-      npm run build-docs
+      npm run compile-docs
 
   > Start up a static server
 
