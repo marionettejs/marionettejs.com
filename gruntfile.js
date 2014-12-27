@@ -1,3 +1,5 @@
+var autoprefixer = require('autoprefixer-core');
+
 module.exports = function(grunt) {
   require('load-grunt-tasks')(grunt);
 
@@ -62,9 +64,6 @@ module.exports = function(grunt) {
     },
 
     sass: {
-      options: {
-        compass: true
-      },
       dist: {
         files: {
           "dist/styles/marionette.css": "src/stylesheets/marionette.scss",
@@ -73,13 +72,22 @@ module.exports = function(grunt) {
       }
     },
 
+    postcss: {
+      options: {
+        processors: [
+          autoprefixer({ browsers: ['last 2 version'] }).postcss
+        ]
+      },
+      dist: { src: 'dist/styles/*.css' }
+    },
+
     watch: {
       options: {
         atBegin: true
       },
       styles: {
         files: "src/stylesheets/**/*.scss",
-        tasks: ['sass']
+        tasks: ['sass', 'postcss']
       },
       assets: {
         files: "src/images/**/*",
@@ -133,7 +141,8 @@ module.exports = function(grunt) {
   grunt.registerTask('compile-site', [
     'sass',
     'copy',
-    'jade'
+    'jade',
+    'postcss'
   ]);
 
   grunt.registerTask('compile-docs', [

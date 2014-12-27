@@ -24,7 +24,7 @@ a.btn {
     background: darken($seafoam, 5%);
   }
 
-  @include border-radius($button-size);
+  border-radius: $button-size;
 
   &.btn-issues {
     padding: 0 20px;

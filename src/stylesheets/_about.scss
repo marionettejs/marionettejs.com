@@ -20,7 +20,7 @@
   overflow:         hidden;
   background-color: lighten($light-blue, 3%);
 
-  @include border-radius(5px);
+  border-radius: 5px;
   @include below(815px) {
     width: 100%;
   }

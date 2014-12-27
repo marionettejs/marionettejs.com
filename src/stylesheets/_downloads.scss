@@ -10,7 +10,7 @@
     family: monospace;
   }
 
-  @include border-radius(10px);
+  border-radius: 10px;
 }
 
 .download-group {
