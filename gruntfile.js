@@ -8,14 +8,6 @@ module.exports = function(grunt) {
   grunt.loadTasks("backbone.marionette/tasks");
 
   grunt.config.merge({
-    less: {
-      marionette: {
-        files: {
-          'dist/styles/main.css': 'src/styles/main.less'
-        }
-      }
-    },
-
     'gitty:latestTag': {
       marionette: {
         options: {
@@ -67,7 +59,8 @@ module.exports = function(grunt) {
       dist: {
         files: {
           "dist/styles/marionette.css": "src/stylesheets/marionette.scss",
-          "dist/styles/api.css": "src/stylesheets/api.scss"
+          "dist/styles/api.css": "src/stylesheets/api.scss",
+          'dist/styles/main.css': 'src/styles/main.scss'
         }
       }
     },
@@ -147,14 +140,14 @@ module.exports = function(grunt) {
 
   grunt.registerTask('compile-docs', [
     'compileDocs',
-    'less',
+    'sass',
     'copy',
     'gitty:latestTag'
   ]);
 
   grunt.registerTask('compile-api', [
     'compileApi',
-    'less'
+    'sass'
   ]);
 
   grunt.registerTask('compile-docco', [
