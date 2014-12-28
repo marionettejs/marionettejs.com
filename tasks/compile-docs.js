@@ -11,6 +11,7 @@ var highlight    = require('highlight.js');
 var mv           = Promise.promisify(require('mv'));
 
 var renderer = new marked.Renderer();
+var BLACKLIST_FILES = ['readme.md']
 
 renderer.heading = function(text, level, raw) {
   var escapedText = raw
@@ -85,8 +86,13 @@ _.extend(Compiler.prototype, {
       return this.repo.checkoutAsync(tag).bind(this).then(function() {
         return fs.readdirAsync(this.paths.src);
       }).filter(function(filename) {
+        // first we want to extract only markdown files
         return path.extname(filename) === '.md';
-      }).map(function(filename) {
+      }).filter(function(filename) {
+        // Omit files that are blacklisted
+        return BLACKLIST_FILES.indexOf(path.basename(filename)) == -1;
+      })
+      .map(function(filename) {
         var src = path.resolve(this.paths.src, filename);
         return fs.readFileAsync(src).bind(this).then(function(contents) {
           this.emit('readFile', { file: src });
