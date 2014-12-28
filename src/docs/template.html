@@ -6,7 +6,7 @@
   <body>
     <div class="docs">
       <div class="docs__sidebar">
-        <select>
+        <select id="version-dropdown">
           <% tags.forEach(function(tag) { %>
             <% if (file.tag == tag) { %>
               <option value="<%- tag %>" selected="selected"><%- tag %></option>
@@ -26,4 +26,5 @@
       </div>
     </div>
   </body>
+  <script src="../../js/docs.js" type="text/javascript"></script>
 </html>
