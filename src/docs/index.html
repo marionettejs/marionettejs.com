@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <title><%- file.basename %> - Marionette.js Docs</title>
+    <link rel="stylesheet" href="../../styles/docs.css">
+  </head>
+  <body>
+    <div class="docs">
+      <div class="docs__sidebar">
+        <select id="version-dropdown">
+          <% tags.forEach(function(tag) { %>
+            <% if (file.tag == tag) { %>
+              <option value="<%- tag %>" selected="selected"><%- tag %></option>
+            <% } else { %>
+              <option value="<%- tag %>"><%- tag %></option>
+            <% } %>
+          <% }); %>
+        </select>
+        <nav>
+          <% files.forEach(function(file) { %>
+            <a href="<%- file.basename %>.html"><%- file.basename %></a>
+          <% }); %>
+        </nav>
+      </div>
+      <div class="docs__content">
+        <h1> Backbone.Marionette <%- tag %> Documentation.</h1>
+        <p> Please use the links in the sidebar or below to find what you are looking for. </p>
+        <h2> Table of Contents </h2>
+        <ul>
+          <% files.forEach(function(file) { %>
+            <li>
+              <a href="<%- file.basename %>.html"><%- file.basename %></a>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+    </div>
+  </body>
+  <script src="../../js/docs.js" type="text/javascript"></script>
+</html>

@@ -57,16 +57,19 @@ _.extend(Compiler.prototype, {
       .then(this.setup)
       .then(this.readFiles)
       .then(this.writeFiles)
+      .then(this.writeTagIndexes)
       .then(this.cleanup);
   },
 
   setup: function() {
     return Promise.all([
       fs.readFileAsync(this.paths.template).call('toString'),
+      fs.readFileAsync(this.paths.indexTemplate).call('toString'),
       mkdirp(this.paths.tmp),
       this.repo.tagsAsync()
-    ]).bind(this).spread(function(template, dir, tags) {
+    ]).bind(this).spread(function(template, indexTemplate, dir, tags) {
       this.template = _.template(template);
+      this.indexTemplate = _.template(indexTemplate);
       this.tmpDir   = dir;
       this.tags     = tags;
     });
@@ -111,6 +114,21 @@ _.extend(Compiler.prototype, {
       return files;
     }).then(function(files) {
       this.files = files;
+    });
+  },
+
+  // Write out markup for each tag index page
+  writeTagIndexes: function() {
+    return Promise.bind(this).return(this.files).map(function(files) {
+      var indexPath = path.resolve(files[0].pathname, "index.html")
+      var indexMarkup = this.indexTemplate({
+        tags    : this.tags,
+        tag     : files[0].tag,
+        file    : files[0],
+        files   : files
+      });
+
+      return fs.writeFileAsync(indexPath, indexMarkup);
     });
   },
 
@@ -191,6 +209,7 @@ module.exports = function(grunt) {
     var compiler  = new Compiler({
       repo     : path.resolve(options.repo),
       template : path.resolve(options.template),
+      indexTemplate : path.resolve(options.indexTemplate),
       tmp      : path.resolve('./.grunt/compileDocs/' + Date.now()),
       src      : path.resolve(files.orig.src[0]),
       dest     : path.resolve(files.dest)
