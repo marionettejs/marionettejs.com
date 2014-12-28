@@ -8,7 +8,11 @@
       <div class="docs__sidebar">
         <select>
           <% tags.forEach(function(tag) { %>
-            <option value="<%- tag %>"><%- tag %></option>
+            <% if (file.tag == tag) { %>
+              <option value="<%- tag %>" selected="selected"><%- tag %></option>
+            <% } else { %>
+              <option value="<%- tag %>"><%- tag %></option>
+            <% } %>
           <% }); %>
         </select>
         <nav>
