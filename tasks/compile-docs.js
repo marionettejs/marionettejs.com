@@ -9,6 +9,7 @@ var rimraf       = Promise.promisify(require('rimraf'));
 var marked       = require('marked');
 var highlight    = require('highlight.js');
 var mv           = Promise.promisify(require('mv'));
+var semver       = require('semver');
 
 var renderer = new marked.Renderer();
 var BLACKLIST_FILES = ['readme.md']
@@ -61,6 +62,24 @@ _.extend(Compiler.prototype, {
       .then(this.cleanup);
   },
 
+  remapInvalidTag: function(tag) {
+    if (tag == 'v0.4.1a') {
+      tag = 'v0.4.1-a';
+    } else if (tag == 'v1.7') {
+      tag = 'v1.7.0';
+    } else if (tag == 'v1.4.0beta') {
+      tag = 'v1.4.0-beta';
+    }
+
+    return tag;
+  },
+
+  sortTags: function(tags) {
+    return tags.sort(function(v1, v2) {
+      return semver.rcompare(this.remapInvalidTag(v1), this.remapInvalidTag(v2));
+    }.bind(this));
+  },
+
   setup: function() {
     return Promise.all([
       fs.readFileAsync(this.paths.template).call('toString'),
@@ -71,7 +90,7 @@ _.extend(Compiler.prototype, {
       this.template = _.template(template);
       this.indexTemplate = _.template(indexTemplate);
       this.tmpDir   = dir;
-      this.tags     = tags;
+      this.tags     = this.sortTags(tags)
     });
   },
 
