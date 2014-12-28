@@ -60,7 +60,7 @@ module.exports = function(grunt) {
         files: {
           "dist/styles/marionette.css": "src/stylesheets/marionette.scss",
           "dist/styles/api.css": "src/stylesheets/api.scss",
-          'dist/styles/main.css': 'src/styles/main.scss'
+          'dist/styles/docs.css': 'src/stylesheets/docs.scss'
         }
       }
     },
