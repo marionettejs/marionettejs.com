@@ -9,7 +9,7 @@ marionettejs.com
 
 > The Setup
 
-    git clone git@github.com:thejameskyle/marionettejs.com.git
+    git clone git@github.com:marionettejs/marionettejs.com.git
     cd marionettejs.com
     bower install
     npm install
