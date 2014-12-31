@@ -3,7 +3,7 @@ marionettejs.com
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/marionettejs/marionettejs.com?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-##### [Experimental](http://marionettejs.github.io/marionettejs.com/)
+##### [Experimental](http://dev.marionettejs.com/)
 
 ### Deving
 
