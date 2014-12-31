@@ -80,7 +80,7 @@ module.exports = function(grunt) {
       },
       styles: {
         files: "src/stylesheets/**/*.scss",
-        tasks: ['sass', 'postcss']
+        tasks: ['notify:preHTML', 'sass', 'postcss', 'notify:postHTML']
       },
       assets: {
         files: "src/images/**/*",
@@ -88,7 +88,7 @@ module.exports = function(grunt) {
       },
       pages: {
         files: "src/**/*.jade",
-        tasks: ['jade']
+        tasks: ['notify:preHTML', 'jade', 'notify:postHTML']
       }
     },
 
@@ -101,6 +101,36 @@ module.exports = function(grunt) {
           data: {
             VERSION: grunt.option("VERSION") || "V.X.X.X"
           }
+        }
+      }
+    },
+
+    notify: {
+      watch: {
+        options: {
+          message: 'Watching for changes...'
+        }
+      },
+
+      preHTML: {
+        options: {
+          message: 'Compiling HTML files...'
+        }
+      },
+      postHTML: {
+        options: {
+          message: 'HTML files compiled.'
+        }
+      },
+
+      preCSS: {
+        options: {
+          message: 'Compiling CSS files...'
+        }
+      },
+      postCSS: {
+        options: {
+          message: 'CSS files compiled.'
         }
       }
     },
@@ -129,6 +159,7 @@ module.exports = function(grunt) {
 });
 
   grunt.registerTask('dev', [
+    'notify:watch',
     'watch'
   ]);
 
