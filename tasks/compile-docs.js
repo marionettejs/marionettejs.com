@@ -19,7 +19,7 @@ renderer.heading = function(text, level, raw) {
     .toLowerCase()
     .replace(/[']/g, '') // Add edge cases: /[1|2|3]/g
     .replace(/[^\w]+/g, '-')
-    .replace(/-$/, '');;
+    .replace(/-$/, '');
 
   return (
     '<h'+level+'>'+
@@ -32,7 +32,6 @@ renderer.heading = function(text, level, raw) {
 };
 
 marked.setOptions({
-  renderer: renderer,
   gfm: true,
   tables: true,
   breaks: false,
@@ -95,7 +94,7 @@ _.extend(Compiler.prototype, {
   },
 
   compileContents: function(contents) {
-    var compiledContents = marked(contents);
+    var compiledContents = marked(contents, { renderer: renderer });
 
     // Strip out view the docs headline from each doc
     compiledContents = compiledContents.replace(/<h2\>.*View the new docs.*<\/h2>/, '');
