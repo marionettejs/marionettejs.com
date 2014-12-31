@@ -17,7 +17,7 @@
         </select>
         <nav>
           <% files.forEach(function(file) { %>
-            <a href="<%- file.basename %>.html"><%- file.basename %></a>
+            <a href="/docs/<%- tag + '/' + file.basename %>.html"><%- file.basename %></a>
           <% }); %>
         </nav>
       </div>
@@ -28,7 +28,7 @@
         <ul>
           <% files.forEach(function(file) { %>
             <li>
-              <a href="<%- file.basename %>.html"><%- file.basename %></a>
+              <a href="/docs/<%- tag + '/' + file.basename %>.html"><%- file.basename %></a>
             </li>
           <% }); %>
         </ul>

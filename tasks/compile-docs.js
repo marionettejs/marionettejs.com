@@ -126,14 +126,25 @@ _.extend(Compiler.prototype, {
             contents : this.compileContents(contents.toString())
           };
         });
-      }).catch(function(err) {
+      })
+      .catch(function(err) {
         return false;
       });
-    }, { concurrency: 1 }).filter(function(files) {
-      return files;
-    }).then(function(files) {
+    }, { concurrency: 1 })
+    .then(function(files) {
+      // If we failed to readthe md files for a version omit that version
+      return _.filter(files, function(f){return f});
+    })
+    .then(function(files) {
       this.files = files;
     });
+  },
+
+  validTags: function() {
+    return _.chain(this.tags)
+    .map(this.remapInvalidTag)
+    .filter(_.partial(semver.lte, "v0.9.0"))
+    .value();
   },
 
   // Write out markup for each tag index page
@@ -141,7 +152,7 @@ _.extend(Compiler.prototype, {
     return Promise.bind(this).return(this.files).map(function(files) {
       var indexPath = path.resolve(files[0].pathname, "index.html")
       var indexMarkup = this.indexTemplate({
-        tags    : this.tags,
+        tags    : this.validTags(),
         tag     : files[0].tag,
         file    : files[0],
         files   : files
@@ -152,13 +163,14 @@ _.extend(Compiler.prototype, {
   },
 
   writeFiles: function() {
-    return Promise.bind(this).return(this.files).map(function(tag) {
-      return Promise.bind(this).return(tag).map(function(file) {
+    return Promise.bind(this).return(this.files).map(function(files) {
+      return Promise.bind(this).return(files).map(function(file) {
         file.contents = this.template({
           content : file.contents,
-          tags    : this.tags,
+          tags    : this.validTags(),
+          tag     : files[0].tag,
           file    : file,
-          files   : tag
+          files   : files
         });
 
         return mkdirp(file.pathname).bind(this).then(function() {
