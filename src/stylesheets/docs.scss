@@ -13,31 +13,33 @@ html {
 
 body {
   margin: 0;
-  font: normal 1.1em/1.5 Georgia, Times, "Times New Roman", serif;
+  font: normal Georgia, Times, "Times New Roman", serif;
   -webkit-font-smoothing: antialiased;
   color: #56585E;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: 300;
   color: #cf2227;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1.2em;
+  font-weight: 300;
+  margin: 1.6em 0 0.6em;
 
   .anchor {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    margin-left: -40px;
     background: #f1f1f1;
-    outline: none;
-    vertical-align: middle;
     border: 10px solid white;
     border-radius: 20px;
     color: #ccc;
-    text-decoration: none;
-    line-height: 20px;
+    display: inline-block;
     font-size: 18px;
+    height: 40px;
+    line-height: 20px;
+    margin-left: -40px;
+    outline: none;
     text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    width: 40px;
 
     &::before {
       content: "\25B8";
@@ -45,23 +47,37 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+h1 {
+  font-size: 1.6em;
+  margin-top: 0.6em;
+}
+
+strong {
+  font-weight: bold;
+}
+
 a {
   color: #00a6fc;
 }
 
 code {
-  padding: 0 0.2em;
   background: #f1f1f1;
   border-radius: 3px;
-  font-family: Monaco, Consolas, "Lucida Console", monospace;
-  font-size: 0.9em;
+  font-family: Menlo, Monaco, Consolas, "Lucida Console", monospace;
+  font-size: 0.8em;
+  padding: 0 0.2em;
+}
+
+p {
+  margin: 10px 0 25px;
 }
 
 pre {
-  padding: 10px;
   background: #f8f8f8;
   border-radius: 6px;
+  margin-bottom: 25px;
   overflow: auto;
+  padding: 10px;
 }
 
 pre code {
@@ -71,37 +87,67 @@ pre code {
 }
 
 .docs__sidebar {
-  position: fixed;
+  background: #EDF3F6;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   height: 100%;
   left: 0;
-  width: 300px;
   overflow: auto;
-}
-
-.docs__sidebar {
-  left: 0;
-  width: 300px;
   padding: 10px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background: #EDF3F6;
-}
+  position: fixed;
+  width: 300px;
 
-.docs__sidebar select {
-  width: 100%;
-  font: inherit;
-}
+  select {
+    font: inherit;
+    font-size: 1.2em;
+    width: 100%;
+  }
 
-.docs__sidebar nav a {
-  display: block;
+  nav {
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #fff;
+    margin-top: 10px;
+    padding: 10px 0;
+
+    a {
+      display: block;
+      padding: 5px 10px;
+    }
+  }
+
+  .primary-logo{
+    margin: 20px 30%;
+    text-align: center;
+    width: 40%;
+  }
 }
 
 .docs__content {
-  position: relative;
-  margin-left: 300px;
-  padding: 20px 40px;
   background: white;
-}
+  line-height: 1.6;
+  margin-left: 300px;
+  max-width: 950px;
+  padding: 20px 40px;
+  position: relative;
 
+  ul {
+    line-height: 1.8;
+
+    ul { padding: 0 30px; }
+  }
+
+  li {
+    list-style-type: disc;
+    margin-left: 20px;
+
+    li { list-style-type: circle; }
+  }
+
+  blockquote {
+    border-left: 4px solid #ddd;
+    color: #777;
+    padding: 0 15px;
+  }
+}
 
 
 
