@@ -5,7 +5,7 @@ module.exports = function(grunt) {
 
   grunt.initConfig({});
   grunt.loadTasks('tasks');
-  grunt.loadTasks("backbone.marionette/tasks");
+  grunt.loadTasks('backbone.marionette/tasks');
 
   grunt.config.merge({
     'gitty:latestTag': {
@@ -31,24 +31,24 @@ module.exports = function(grunt) {
           {
             expand: true,
             cwd: 'src/',
-            src: ["images/**/*"],
+            src: ['images/**/*'],
             dest: 'dist/'
           },
           {
             expand: true,
             cwd: 'src/',
-            src: ["js/**/*"],
+            src: ['js/**/*'],
             dest: 'dist/'
           },
           {
             expand: true,
-            src: ["bower_components/**/*"],
+            src: ['bower_components/**/*'],
             dest: 'dist/'
           },
           {
             expand: true,
             cwd: 'src/stylesheets',
-            src: ["fonts/icons/*"],
+            src: ['fonts/icons/*'],
             dest: 'dist/styles'
           }
         ]
@@ -58,8 +58,8 @@ module.exports = function(grunt) {
     sass: {
       dist: {
         files: {
-          "dist/styles/marionette.css": "src/stylesheets/marionette.scss",
-          "dist/styles/api.css": "src/stylesheets/api.scss",
+          'dist/styles/marionette.css': 'src/stylesheets/marionette.scss',
+          'dist/styles/api.css': 'src/stylesheets/api.scss',
           'dist/styles/docs.css': 'src/stylesheets/docs.scss'
         }
       }
@@ -79,15 +79,15 @@ module.exports = function(grunt) {
         atBegin: true
       },
       styles: {
-        files: "src/stylesheets/**/*.scss",
+        files: 'src/stylesheets/**/*.scss',
         tasks: ['notify:preHTML', 'sass', 'postcss', 'notify:postHTML']
       },
       assets: {
-        files: "src/images/**/*",
+        files: 'src/images/**/*',
         tasks: ['copy']
       },
       pages: {
-        files: "src/**/*.jade",
+        files: 'src/**/*.jade',
         tasks: ['notify:preHTML', 'jade', 'notify:postHTML']
       }
     },
@@ -95,11 +95,11 @@ module.exports = function(grunt) {
     jade: {
       compile : {
         files: {
-          "dist/index.html": "src/index.jade"
+          'dist/index.html': 'src/index.jade'
         },
         options: {
           data: {
-            VERSION: grunt.option("VERSION") || "V.X.X.X"
+            VERSION: grunt.option('VERSION') || 'V.X.X.X'
           }
         }
       }
@@ -156,7 +156,7 @@ module.exports = function(grunt) {
         dest : 'dist/api'
       }
     }
-});
+  });
 
   grunt.registerTask('dev', [
     'notify:watch',
