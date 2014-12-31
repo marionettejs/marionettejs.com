@@ -1,4 +1,5 @@
 npm run compile-all
+cp CNAME dist
 cd dist
 git init
 git add .
