@@ -9,7 +9,8 @@ var rimraf       = Promise.promisify(require('rimraf'));
 var marked       = require('marked');
 var highlight    = require('highlight.js');
 var mv           = Promise.promisify(require('mv'));
-var semver       = require('semver');
+var validTags    = require('./utils/tags').valid;
+var GittyCache   = require('./utils/gitty-cache');
 
 var renderer = new marked.Renderer();
 var BLACKLIST_FILES = ['readme.md']
@@ -61,35 +62,17 @@ _.extend(Compiler.prototype, {
       .then(this.cleanup);
   },
 
-  remapInvalidTag: function(tag) {
-    if (tag == 'v0.4.1a') {
-      tag = 'v0.4.1-a';
-    } else if (tag == 'v1.7') {
-      tag = 'v1.7.0';
-    } else if (tag == 'v1.4.0beta') {
-      tag = 'v1.4.0-beta';
-    }
-
-    return tag;
-  },
-
-  sortTags: function(tags) {
-    return tags.sort(function(v1, v2) {
-      return semver.rcompare(this.remapInvalidTag(v1), this.remapInvalidTag(v2));
-    }.bind(this));
-  },
-
   setup: function() {
     return Promise.all([
       fs.readFileAsync(this.paths.template).call('toString'),
       fs.readFileAsync(this.paths.indexTemplate).call('toString'),
       mkdirp(this.paths.tmp),
-      this.repo.tagsAsync()
+      GittyCache.getSortedTags(this.repo)
     ]).bind(this).spread(function(template, indexTemplate, dir, tags) {
       this.template = _.template(template);
       this.indexTemplate = _.template(indexTemplate);
       this.tmpDir   = dir;
-      this.tags     = this.sortTags(tags)
+      this.tags     = tags
     });
   },
 
@@ -139,27 +122,24 @@ _.extend(Compiler.prototype, {
     });
   },
 
-  validTags: function() {
-    return _.chain(this.tags)
-    .map(this.remapInvalidTag)
-    .filter(_.partial(semver.lte, "v0.9.0"))
-    .value();
-  },
-
   // Write out markup for each tag index page
   writeTagIndexes: function() {
-    return Promise.bind(this).return(this.files).map(function(files) {
-      var indexPath = path.resolve(files[0].pathname, "index.html")
-      var indexMarkup = this.indexTemplate({
-        tags    : this.validTags(),
-        tag     : files[0].tag,
-        file    : files[0],
-        files   : files
-      });
+    return Promise.bind(this)
+      .then(function(){
+        GittyCache.getReleaseTag(this.repo)
+      })
+      .return(this.files).map(function(files) {
+        var indexPath = path.resolve(files[0].pathname, "index.html")
+        var indexMarkup = this.indexTemplate({
+          tags    : validTags(this.tags),
+          tag     : files[0].tag,
+          file    : files[0],
+          files   : files
+        });
 
-      // If this is the latest release ensure to write the /docs/current file
-      if (files[0].tag == this.tags[0]) {
-        return fs.writeFileAsync(indexPath, indexMarkup)
+        // If this is the latest release ensure to write the /docs/current file
+        if (files[0].tag == GittyCache.releaseTag) {
+          return fs.writeFileAsync(indexPath, indexMarkup)
           .then(function() {
             var currentPath = path.resolve(files[0].pathname, '../current/');
             var currentIndex = path.resolve(currentPath, 'index.html');
@@ -167,10 +147,10 @@ _.extend(Compiler.prototype, {
                 return fs.writeFileAsync(currentIndex, indexMarkup);
               });
           });
-      }
+        }
 
-      return fs.writeFileAsync(indexPath, indexMarkup);
-    });
+        return fs.writeFileAsync(indexPath, indexMarkup);
+      });
   },
 
   writeFiles: function() {
@@ -178,7 +158,7 @@ _.extend(Compiler.prototype, {
       return Promise.bind(this).return(files).map(function(file) {
         file.contents = this.template({
           content : file.contents,
-          tags    : this.validTags(),
+          tags    : validTags(this.tags),
           tag     : files[0].tag,
           file    : file,
           files   : files

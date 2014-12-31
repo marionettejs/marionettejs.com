@@ -1,4 +1,5 @@
 var autoprefixer = require('autoprefixer-core');
+var GittyCache = require('./tasks/utils/gitty-cache');
 
 module.exports = function(grunt) {
   require('load-grunt-tasks')(grunt);
@@ -7,8 +8,17 @@ module.exports = function(grunt) {
   grunt.loadTasks('tasks');
   grunt.loadTasks('backbone.marionette/tasks');
 
+  GittyCache.setReleaseTag(grunt.option('TAG'));
+
   grunt.config.merge({
-    'gitty:latestTag': {
+    'gitty:releaseTag': {
+      marionette: {
+        options: {
+          repo: 'backbone.marionette'
+        }
+      }
+    },
+    'gitty:checkoutTag': {
       marionette: {
         options: {
           repo: 'backbone.marionette'
@@ -88,7 +98,7 @@ module.exports = function(grunt) {
       },
       pages: {
         files: 'src/**/*.jade',
-        tasks: ['notify:preHTML', 'jade', 'notify:postHTML']
+        tasks: ['notify:preHTML', 'compile-templates', 'notify:postHTML']
       }
     },
 
@@ -98,8 +108,10 @@ module.exports = function(grunt) {
           'dist/index.html': 'src/index.jade'
         },
         options: {
-          data: {
-            VERSION: grunt.option('VERSION') || 'V.X.X.X'
+          data: function(){
+            return {
+              VERSION: GittyCache.releaseTag || 'v.X.X.X'
+            };
           }
         }
       }
@@ -156,7 +168,7 @@ module.exports = function(grunt) {
         dest : 'dist/api'
       }
     }
-  });
+});
 
   grunt.registerTask('dev', [
     'notify:watch',
@@ -166,15 +178,20 @@ module.exports = function(grunt) {
   grunt.registerTask('compile-site', [
     'sass',
     'copy',
-    'jade',
+    'compile-templates',
     'postcss'
+  ]);
+
+  grunt.registerTask('compile-templates', [
+    'gitty:releaseTag',
+    'jade'
   ]);
 
   grunt.registerTask('compile-docs', [
     'compileDocs',
     'sass',
     'copy',
-    'gitty:latestTag'
+    'gitty:checkoutTag'
   ]);
 
   grunt.registerTask('compile-api', [
@@ -183,7 +200,7 @@ module.exports = function(grunt) {
   ]);
 
   grunt.registerTask('compile-docco', [
-    'gitty:latestTag:marionette',
+    'gitty:checkoutTag:marionette',
     'docco:build'
   ]);
 
