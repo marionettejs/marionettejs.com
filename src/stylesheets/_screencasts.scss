@@ -6,6 +6,12 @@ $screencast-adaptive-snap: 777px;
     max-width:      740px;
     font-size:      15px;
     padding-bottom: 30px;
+
+    span {
+      display: block;
+      margin-top: 10px;
+      font-style: italic;
+    }
   }
 
   .link {
