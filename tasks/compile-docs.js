@@ -160,10 +160,13 @@ _.extend(Compiler.prototype, {
       // If this is the latest release ensure to write the /docs/current file
       if (files[0].tag == this.tags[0]) {
         return fs.writeFileAsync(indexPath, indexMarkup)
-        .then(function() {
-          var currentPath = path.resolve(files[0].pathname, "../", "current.html");
-          return fs.writeFileAsync(currentPath, indexMarkup);
-        });
+          .then(function() {
+            var currentPath = path.resolve(files[0].pathname, '../current/');
+            var currentIndex = path.resolve(currentPath, 'index.html');
+            return mkdirp(currentPath).bind(this).then(function() {
+                return fs.writeFileAsync(currentIndex, indexMarkup);
+              });
+          });
       }
 
       return fs.writeFileAsync(indexPath, indexMarkup);
