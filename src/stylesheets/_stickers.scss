@@ -5,6 +5,10 @@
 .sticker-pics {
   width:      65%;
   text-align: center;
+
+  .stickers {
+    margin-right: 30px;
+  }
 }
 
 .sticker-order {
@@ -14,9 +18,4 @@
     font-size: $mid-font;
     padding-bottom: 10px;
   }
-}
-
-.tiny-link {
-  color: $seafoam;
-  padding: 0 20px;
 }
