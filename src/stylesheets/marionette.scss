@@ -206,14 +206,14 @@
 }
 
 footer {
-  background-color: lighten($light-blue, 3%);
+  background-color: $med-blue;
   padding-top: 20px;
   padding-bottom: 20px;
-  border-top: 1px solid darken($light-blue, 15%);
+  border-top: 1px solid darken($med-blue, 15%);
   text-align: center;
   p {
     font-size: $mid-font;
-    color: darken($light-blue, 15%);
+    color: white;
   }
 }
 .mt-logo {
