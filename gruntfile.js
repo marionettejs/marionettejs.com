@@ -195,7 +195,6 @@ module.exports = function(grunt) {
     'compile-site',
     'compile-docs',
     'compile-docco',
-    'compile-downloads',
-    'compile-api'
+    'compile-downloads'
   ]);
 };
