@@ -164,13 +164,13 @@
       margin-bottom: 15px;
     }
     a {
-      color: $seafoam;
+      color: $dark-gray;
       display: block;
       margin-bottom: 5px;
       padding-left: 30px;
       transition: all 200ms ease;
       &:hover {
-        color: darken($seafoam, 5%);
+        color: darken($dark-gray, 15%);
         text-decoration: none;
       }
     }

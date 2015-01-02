@@ -47,13 +47,18 @@
   }
 
   a {
-    color:           #555;
+    color: $dark-gray;
     text-decoration: none;
 
     font: {
       size:   $mid-font;
       weight: 500;
       family: $sans;
+    }
+
+    &:hover {
+      color: darken($dark-gray, 15%);
+      text-decoration: underline;
     }
   }
 

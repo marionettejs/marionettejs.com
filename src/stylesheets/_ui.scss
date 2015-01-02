@@ -29,10 +29,10 @@ a.btn {
 
   &.btn-issues {
     padding: 0 20px;
-    background-color: $light-grey;
-    color: #555;
+    background-color: $aqua;
+    color: white;
     &:hover {
-      background: darken($light-grey, 3%);
+      background: darken($aqua, 15%);
     }
   }
 }
