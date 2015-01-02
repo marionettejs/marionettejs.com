@@ -1,9 +1,17 @@
 .about {
   border-top: 0;
+
+  p {
+    margin-bottom: 20px;
+  }
 }
 
 .top-quick-links {
-  background-color: darken($light-blue, 3%);
+  background-color: darken(#c3dfed, 3%);
+
+  h3 {
+    color: white;
+  }
 }
 
 .about article {
@@ -16,9 +24,8 @@
 
 .quick-links {
   width:            30%;
-  border:           solid 1px darken($light-blue, 3%);
   overflow:         hidden;
-  background-color: lighten($light-blue, 3%);
+  background-color: #f0f0ef;
 
   border-radius: 5px;
   @include below(815px) {
@@ -27,10 +34,24 @@
 
   nav {
     padding: 15px;
+
+    span {
+      font-size: $mid-font;
+      font-weight: 800;
+      font-family: $sans;
+    }
+
+    h3 {
+      font-weight: 800;
+    }
+
+    &.bottom-quick-links h3 {
+      color: $aqua;
+    }
   }
 
   a {
-    color:           $seafoam;
+    color: $dark-gray;
     text-decoration: none;
 
     font: {
@@ -38,9 +59,19 @@
       weight: 500;
       family: $sans;
     }
+
+    &:hover {
+      color: darken($dark-gray, 15%);
+      text-decoration: underline;
+    }
+  }
+
+  li {
+    margin-bottom: 10px;
   }
 }
 
 .note {
   font-size: $small-font;
+  font-weight: 500;
 }

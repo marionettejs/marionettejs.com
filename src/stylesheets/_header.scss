@@ -19,7 +19,7 @@
   line-height:  16px;
 
   font: {
-    size:   $small-font;
+    size:   14px;
     family: $sans;
   }
 
@@ -45,5 +45,5 @@
   padding:    0 $center_pad 40px;
   overflow:   hidden;
   text-align: center;
-  background-color: $light-blue;
+  background: linear-gradient(160deg, #dcf1f9 30%,#c3dfed 100%);
 }

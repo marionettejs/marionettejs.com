@@ -1,16 +1,17 @@
 a {
-  color: #00a6fc;
+  color: #378dbe;
 
   &:hover {
-    color: #0084c9
+    color: #106287;
+    text-decoration: none;
   }
 }
 
 a.btn {
-  color:            #fff;
+  color:            $blue;
   height:           $button-size;
   display:          inline-block;
-  background:       $seafoam;
+  background:       white;
   line-height:      $button-size;
   text-decoration:  none;
 
@@ -21,17 +22,18 @@ a.btn {
   }
 
   &:hover {
-    background: darken($seafoam, 5%);
+    background: $blue;
+    color: white;
   }
 
   border-radius: $button-size;
 
   &.btn-issues {
     padding: 0 20px;
-    background-color: $light-grey;
-    color: #555;
+    background-color: $aqua;
+    color: white;
     &:hover {
-      background: darken($light-grey, 3%);
+      background: darken($aqua, 15%);
     }
   }
 }
