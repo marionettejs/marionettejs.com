@@ -146,10 +146,10 @@
       margin-left: 10px;
       display: block;
       border-radius: 999px;
-      border: 1px solid $blue;
+      border: 1px solid $red;
       @include size(10px);
       &.cycle-pager-active, &:hover {
-        background: $blue;
+        background: $red;
       }
     }
   }
