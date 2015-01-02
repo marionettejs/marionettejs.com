@@ -32,9 +32,16 @@
 .book-list {
   text-align: center;
 
-  iframe {
-    margin: 0 2%;
-    background-color: whiteSmoke;
+  a {
+    margin-right: 40px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    img {
+      box-shadow: 2px 2px 4px lighten($gray, 25%);
+    }
   }
 }
 
