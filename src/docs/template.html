@@ -17,9 +17,10 @@
         </select>
         <nav>
           <% files.forEach(function(file) { %>
-            <a href="/docs/<%- tag + '/' + file.basename %>.html"><%- file.basename %></a>
+            <a href="/docs/<%- tag + '/' + file.basename %>.html"><%- file.title %></a>
           <% }); %>
         </nav>
+        <img src="../../images/marionette_logo.png" alt="Marionette.js – A scalable and composite application architecture for Backbone.js" class="primary-logo">
       </div>
       <div class="docs__content">
         <%= content %>

@@ -17,7 +17,7 @@ var BLACKLIST_FILES = ['readme.md']
 renderer.heading = function(text, level, raw) {
   var escapedText = raw
     .toLowerCase()
-    .replace(/[']/g, '') // Add edge cases: /[1|2|3]/g
+    .replace(/['\.]/g, '') // Add edge cases: /[1|2|3]/g
     .replace(/[^\w]+/g, '-')
     .replace(/-$/, '');
 
@@ -99,7 +99,22 @@ _.extend(Compiler.prototype, {
     // Strip out view the docs headline from each doc
     compiledContents = compiledContents.replace(/<h2\>.*View the new docs.*<\/h2>/, '');
 
+    // Attempts to replace extension of content links to other documents
+    compiledContents = compiledContents.replace(/.md/g, '.html');
+
     return compiledContents;
+  },
+
+  getPageTitle: function(compiledContents) {
+    var pageTitle;
+
+    // Grab the text inside the 1st <h1>
+    pageTitle = compiledContents.match(/<h1>([\s\S]*?)<\/h1>/)[1];
+
+    // Remove all other tags
+    pageTitle = pageTitle.replace(/<[^>]*>/g, '');
+
+    return pageTitle;
   },
 
   readFiles: function() {
@@ -116,13 +131,18 @@ _.extend(Compiler.prototype, {
       .map(function(filename) {
         var src = path.resolve(this.paths.src, filename);
         return fs.readFileAsync(src).bind(this).then(function(contents) {
+          var compiled = this.compileContents(contents.toString());
+          var basename = path.basename(filename, '.md');
+          var title = this.getPageTitle(compiled);
+
           this.emit('readFile', { file: src });
           return {
             tag      : tag,
-            basename : path.basename(filename, '.md'),
+            basename : basename,
             filenane : filename,
             pathname : path.resolve(this.paths.tmp, tag),
-            contents : this.compileContents(contents.toString())
+            contents : compiled,
+            title    : title || basename
           };
         });
       })
