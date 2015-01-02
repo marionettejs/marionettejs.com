@@ -12,6 +12,9 @@
     height: 360px;
     border-right: 2px solid darken(#304357, 6%);
     background-color: darken(#304357, 5%);
+    code {
+      white-space: pre-wrap;
+    }
     @include below($large-breakpoint) {
       width: 100%;
     }
