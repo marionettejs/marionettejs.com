@@ -24,7 +24,8 @@
   .code-header {
     background-color: #304357;
     color: #dbe4ea;
-    font-size: $small-font;
+    font-size: $mid-font;
+    font-weight: bold;
     text-transform: uppercase;
     text-align: center;
     margin-bottom: 0;
@@ -42,9 +43,14 @@
     border-radius: 5px 0 0 5px;
   }
 
+  .result {
+    padding: 30px;
+  }
+
   a {
-    color:     $seafoam;
-    padding:   0 10px;
+    color: $seafoam;
+    display: block;
+    padding-bottom: 20px;
     font-size: $mid-font;
   }
 }
