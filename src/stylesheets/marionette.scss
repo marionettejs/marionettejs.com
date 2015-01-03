@@ -119,6 +119,23 @@
     border-radius: 10px;
     width: 45%;
     float: left;
+    position: relative;
+    .vid-screenshot {
+      height: 320px;
+      width: 100%;
+    }
+    .play {
+        background: #000 url('../images/play.png') center center no-repeat;
+        position: absolute;
+        top: 120px;
+        left: 50%;
+        margin-left: -40px;
+        display: inline-block;
+        width: 80px;
+        height: 80px;
+        cursor: pointer;
+        border-radius: 50%;
+    }
     .fluid-width-video-wrapper {
       margin-bottom: $small-font;
     }
