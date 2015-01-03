@@ -95,9 +95,10 @@ _.extend(Compiler.prototype, {
     pageTitle = compiledContents.match(/<h1>([\s\S]*?)<\/h1>/)[1];
 
     // Remove all other tags
-    pageTitle = pageTitle.replace(/<[^>]*>/g, '');
+    pageTitle = pageTitle.replace(/<[^>]*>|Marionette./g, '');
 
-    return pageTitle;
+    //capitalize 1st letter
+    return pageTitle.charAt(0).toUpperCase() + pageTitle.slice(1);
   },
 
   readFiles: function() {
@@ -150,7 +151,15 @@ _.extend(Compiler.prototype, {
       })
       .return(this.files).map(function(files) {
         var indexPath = path.resolve(files[0].pathname, "index.html")
-        var indexMarkup = this.indexTemplate({
+        var indexContentMarkup = this.indexTemplate({
+          tags    : validTags(this.tags),
+          tag     : files[0].tag,
+          file    : files[0],
+          files   : files
+        });
+
+        var indexMarkup = this.template({
+          content : indexContentMarkup,
           tags    : validTags(this.tags),
           tag     : files[0].tag,
           file    : files[0],
@@ -220,18 +229,6 @@ _.extend(Compiler.prototype, {
         this.emit('rimraf', { dir: dir });
       });
     });
-  },
-
-  _readFile: function(file) {
-    return fs.readFileAsync(path.resolve(file)).call('toString');
-  },
-
-  _readDir: function(dir) {
-    return fs.readdirAsync(path.resolve(dir));
-  },
-
-  _writeFile: function(file, contents) {
-    return fs.writeFileAsync(path.resolve(file), contents);
   },
 
   finializeBuild: function() {
