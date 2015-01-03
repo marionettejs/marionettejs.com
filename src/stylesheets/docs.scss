@@ -1,5 +1,7 @@
 @import "reset";
 
+$red : #CF2227;
+
 *,
 ::before,
 ::after {
@@ -19,7 +21,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: #cf2227;
+  color: $red;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 1.2em;
   font-weight: 300;
@@ -57,7 +59,7 @@ strong {
 }
 
 a {
-  color: #00a6fc;
+  color: #4695cb;
 }
 
 code {
@@ -92,41 +94,99 @@ pre code {
   height: 100%;
   left: 0;
   overflow: auto;
-  padding: 10px;
   position: fixed;
-  width: 300px;
+  width: 220px;
 
-  select {
-    font: inherit;
-    font-size: 1.2em;
-    width: 100%;
+  .styled-select {
+    background-color: #fff;
+    background-image: url('data:image/svg+xml;utf8,<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 640 640"><path fill="#888" d="M495.456 274.016c-13.024 13.376-150.24 144.096-150.24 144.096-6.976 7.136-16.096 10.688-25.216 10.688-9.152 0-18.272-3.552-25.216-10.688 0 0-137.216-130.72-150.272-144.096-13.024-13.376-13.92-37.408 0-51.712 13.952-14.272 33.376-15.392 50.432 0l125.056 119.936 125.024-119.904c17.088-15.392 36.544-14.272 50.432 0 13.952 14.272 13.088 38.336 0 51.68z"></path></svg>');
+    background-repeat: no-repeat;
+    background-size: auto 14px;
+    background-position: right 7px top 50%;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0 12%;
+    overflow: hidden;
+    width: 76%;
+
+    select {
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      color: #888;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.8em;
+      padding: 10px 12px;
+      -moz-appearance: window;
+      width: 100%;
+      // get rid of the focus border in Firefox
+      &:-moz-focusring {
+          color: transparent;
+          text-shadow: 0 0 0 #000;
+      }
+
+      -webkit-appearance: none;
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+      &:focus {
+          outline: none;
+      }
+
+      // removes the arrow in IE 10+
+      &::-ms-expand {
+          display: none;
+      }
+    }
   }
 
   nav {
-    border-top: 1px solid #fff;
-    border-bottom: 1px solid #fff;
-    margin-top: 10px;
-    padding: 10px 0;
-
+    margin: 27px 0 45px;
     a {
       display: block;
-      padding: 5px 10px;
+      font-size: 0.8em;
+      padding: 0px 26% 15px;
+
+      &:hover, &.is-selected{
+        color: $red;
+      }
+    }
+  }
+
+  .top-bar{
+    background: $red;
+    height: 36px;
+    text-align: center;
+    a {
+      display: inline-block;
+      padding: 9px 7px;
+      text-decoration: none;
+
+      &:hover{
+        .svg-icon {
+          fill: #fff;
+        }
+      }
+    }
+    .svg-icon {
+      fill: rgba(255,255,255,0.75);
     }
   }
 
   .primary-logo{
-    margin: 20px 30%;
+    margin: 25px 25%;
     text-align: center;
-    width: 40%;
+    width: 50%;
   }
 }
 
 .docs__content {
   background: white;
   line-height: 1.6;
-  margin-left: 300px;
-  max-width: 950px;
-  padding: 20px 40px;
+  margin-left: 220px;
+  max-width: 750px;
+  padding: 20px 45px;
   position: relative;
 
   ul {
@@ -135,12 +195,6 @@ pre code {
     ul { padding: 0 30px; }
   }
 
-  li {
-    list-style-type: disc;
-    margin-left: 20px;
-
-    li { list-style-type: circle; }
-  }
 
   blockquote {
     border-left: 4px solid #ddd;
@@ -149,7 +203,14 @@ pre code {
   }
 }
 
-
+.index-nav{
+  -webkit-columns: 200px 3;
+  -moz-columns: 200px 3;
+  columns: 200px 3;
+  -webkit-column-gap: 10px;
+  -moz-column-gap: 10px;
+  column-gap: 10px;
+}
 
 /* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
 

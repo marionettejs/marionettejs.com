@@ -6,26 +6,42 @@
   <body>
     <div class="docs">
       <div class="docs__sidebar">
-        <select id="version-dropdown">
-          <% tags.forEach(function(tag) { %>
-            <% if (file.tag == tag) { %>
-              <option value="<%- tag %>" selected="selected"><%- tag %></option>
-            <% } else { %>
-              <option value="<%- tag %>"><%- tag %></option>
-            <% } %>
-          <% }); %>
-        </select>
+        <div class="top-bar">
+          <a href="https://github.com/marionettejs/backbone.marionette" title="GitHub">
+              <img src="../../images/github.svg">
+          </a>
+          <a href="https://twitter.com/marionettejs" title="Twitter">
+              <img src="../../images/twitter.svg">
+          </a>
+          <a href="https://gitter.im/marionettejs/backbone.marionette" title="Gitter">
+              <img src="../../images/gitter.svg">
+          </a>
+        </div>
+        <a href="http://marionettejs.com">
+          <img src="../../images/marionette_logo.png" alt="Marionette.js – The Backbone Framework" class="primary-logo">
+        </a>
+        <div class="styled-select">
+          <select id="version-dropdown">
+            <% tags.forEach(function(tag) { %>
+              <% if (file.tag == tag) { %>
+                <option value="<%- tag %>" selected="selected"><%- tag %></option>
+              <% } else { %>
+                <option value="<%- tag %>"><%- tag %></option>
+              <% } %>
+            <% }); %>
+          </select>
+        </div>
         <nav>
           <% files.forEach(function(file) { %>
             <a href="/docs/<%- tag + '/' + file.basename %>.html"><%- file.title %></a>
           <% }); %>
         </nav>
-        <img src="../../images/marionette_logo.png" alt="Marionette.js – A scalable and composite application architecture for Backbone.js" class="primary-logo">
       </div>
       <div class="docs__content">
         <%= content %>
       </div>
     </div>
   </body>
+  <script src="../../bower_components/svg-injector/dist/svg-injector.min.js" type="text/javascript"></script>
   <script src="../../js/docs.js" type="text/javascript"></script>
 </html>

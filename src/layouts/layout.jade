@@ -12,34 +12,52 @@ head
     .
   meta(charset='utf-8')
   meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
-  title Marionette.js
-  //- <meta content="<%= data.page.description || "" %>" name="description">
+  title Marionette.js – The Backbone Framework
+  meta(content='A scalable and composite application architecture.', name='description')
   meta(name='viewport', content='width=device-width')
-  link(rel='stylesheet', href='styles/marionette.css')
-  link(rel='author', href='humans.txt')
-  link(rel='publisher', href='https://plus.google.com/101060306397560578875/')
-  meta(name='twitter:card', value='Make your backbone applications dance with a composite application architecture')
+  meta(name='twitter:card', value='The Backbone Framework')
   meta(name='twitter:site', value='@marionettejs')
-  meta(property='og:site_name', content='Marionette.js – Make your backbone applications dance with a composite application architecture!')
-  meta(property='og:image', content='<%= data.global.baseURL %>/images/og-standard.jpg')
-  meta(property='og:url', content='<%= data.global.baseURL %><%= data.page.og_url || '/' %>')
-  meta(property='og:description', content='<%= data.page.og_description || data.page.description %>')
-  meta(property='og:type', content='<%= data.page.og_type || "article" %>')
-  meta(property='og:title', content='<%= data.page.og_title || data.page.title %>')
+  meta(property='og:site_name', content='Marionette.js')
+  meta(property='og:image', content='images/marionette_logo.png')
+  meta(property='og:url', content='http://marionettejs.com')
+  meta(property='og:description', content='A scalable and composite application architecture.')
+  meta(property='og:title', content='The Backbone Framework')
+  link(rel='stylesheet', href='styles/marionette.css')
   link(rel='shortcut icon', href='images/favicon.ico', type='image/x-icon')
   link(rel='apple-touch-icon', href='images/apple-touch-icon.png')
-  script(src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js")
-  script(src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js")
-  script(src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js")
-  script(src="/downloads/backbone.marionette.js")
+  link(href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css')
 
 body
   block content
-  include ../sections/_google_analytics
 
+  script(src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js")
   script(src="bower_components/jquery-cycle2/build/jquery.cycle2.min.js")
   script(src="bower_components/jQuery.equalHeights/jquery.equalheights.min.js")
   script(src="bower_components/google-code-prettify/bin/prettify.min.js")
   script(src="bower_components/jquery-unveil/jquery.unveil.min.js")
 
   script(src="js/script.js")
+
+  script(src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js")
+  script(src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js")
+  script(src="/downloads/backbone.marionette.js")
+  script.
+    // Flattr
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+
+    // Google Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-34606707-1', 'auto');
+    ga('create', 'UA-52639766-1', {'name':'MnCore'});
+    ga('send', 'pageview');
+    ga('MnCore.send', 'pageview');

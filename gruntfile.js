@@ -188,6 +188,7 @@ module.exports = function(grunt) {
   ]);
 
   grunt.registerTask('compile-docs', [
+    'gitty:releaseTag',
     'compileDocs',
     'sass',
     'copy',
