@@ -47,3 +47,23 @@
   text-align: center;
   background: linear-gradient(160deg, #dcf1f9 30%,#c3dfed 100%);
 }
+
+
+.global-nav {
+  background: $red;
+  height: 40px;
+  section {
+    padding: 0;
+    border: none;
+    a {
+      color: white;
+      text-decoration: none;
+      line-height: 40px;
+    }
+
+    li {
+      margin-left: 10px;
+      font-size: 14px;
+    }
+  }
+}
