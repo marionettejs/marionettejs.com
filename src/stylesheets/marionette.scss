@@ -3,7 +3,6 @@
 @import "vendor/mo";
 @import "vendor/prettify/prettify";
 @import "vendor/prettify/marionette";
-@import "fonts/fonts";
 @import "variables";
 @import "animations";
 @import "base";
@@ -17,7 +16,6 @@
 @import "downloads";
 @import "social_header";
 @import "back_to_top_button";
-@import url(http://fonts.googleapis.com/css?family=Questrial);
 
 .cl {
   clear: both;
@@ -174,6 +172,20 @@
     }
   }
 }
+
+.support-link-icon {
+  vertical-align: text-top;
+}
+.support-link {
+  color: $dark-gray;
+  display: inline;
+  margin: 0 0 5px 12px;
+  transition: all 200ms ease;
+  &:hover {
+    color: darken($dark-gray, 15%);
+    text-decoration: none;
+  }
+}
 .support {
   font-size: 16px;
   line-height: 26px;
@@ -189,30 +201,6 @@
     line-height: 26px;
     li {
       margin-bottom: 15px;
-    }
-    a {
-      color: $dark-gray;
-      display: block;
-      margin-bottom: 5px;
-      padding-left: 30px;
-      transition: all 200ms ease;
-      &:hover {
-        color: darken($dark-gray, 15%);
-        text-decoration: none;
-      }
-    }
-    .gitter-logo {
-      vertical-align: text-top;
-    }
-    .gitter {
-      display: inline;
-      padding-left: 12px;
-    }
-    i {
-      float: left;
-      position: relative;
-      top: 7px;
-      color: #818285;
     }
     @include below(705px) {
       margin-top: 40px;
