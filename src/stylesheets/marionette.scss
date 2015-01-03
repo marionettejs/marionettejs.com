@@ -8,7 +8,6 @@
 @import "base";
 @import "ui";
 @import "header";
-@import "ribbon";
 @import "code_samples";
 @import "about";
 @import "stickers";
@@ -213,7 +212,7 @@
       width: 100%;
     }
   }
-  .btn-issues {
+  .btn-action {
     display: inline-block;
     float: right;
     margin-top: 10px;
