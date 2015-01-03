@@ -38,6 +38,29 @@ $(document).ready(function() {
       $this.text(txt);
     });
 
+    // lazy load youtube videos
+    $('.play').on('click', function(e) {
+        e.preventDefault();
+
+        var $playButton = $(this),
+            $screenshot = $playButton.siblings('.vid-screenshot'),
+            vidId = $screenshot.attr('data-vid-id'),
+            vidParams = $screenshot.attr('data-vid-params'),
+            vidUrl = 'https://www.youtube.com/embed/' + vidId + '?autoplay=1&autohide=1';
+
+        vidUrl += (vidParams) ? '&' + vidParams : '';
+
+        var $iframe = $('<iframe/>', {
+            src: vidUrl,
+            width: '100%',
+            height: '320px',
+            allowFullScreen: '',
+            frameborder: '0'
+        });
+        $playButton.remove();
+        $screenshot.replaceWith($iframe);
+    });
+
     // Back to top button
     var offset = 300; //"back to top" button is shown
     var offset_opacity = 1200; //"back to top" button opacity is reduced
