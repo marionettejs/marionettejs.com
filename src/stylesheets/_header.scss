@@ -20,6 +20,10 @@
       margin-top: 10px;
       text-align: center;
     }
+
+    @include below($sm-breakpoint) {
+      display: none;
+    }
   }
 }
 
