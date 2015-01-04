@@ -2,30 +2,28 @@
   width:    177px;
   margin:   40px auto;
   display:  block;
+
+  @include below(460px) {
+    margin: 80px auto 30px;
+  }
 }
 
 .download-button {
-  width:         177px;
-  margin-bottom: 15px;
+  width: 200px;
+  text-align: center;
 
-  span {
-    font-size: $small-font;
-  }
-}
+  &.btn {
+    margin-top: 30px;
+    display: inline-block;
 
-.on-github {
-  color:        $gray;
-  display:      block;
-  line-height:  16px;
+    @include below($med-breakpoint) {
+      margin-top: 10px;
+      text-align: center;
+    }
 
-  font: {
-    size:   14px;
-    family: $sans;
-  }
-
-  &:hover {
-    text-decoration: none;
-    color: darken($gray, 5%);
+    @include below($sm-breakpoint) {
+      display: none;
+    }
   }
 }
 
@@ -45,25 +43,100 @@
   padding:    0 $center_pad 40px;
   overflow:   hidden;
   text-align: center;
-  background: linear-gradient(160deg, #dcf1f9 30%,#c3dfed 100%);
+  background: $light-blue;
+  border-bottom: 1px solid darken($light-blue, 15%);
+
+  .wrapper {
+    width: 70%;
+    margin: auto;
+    padding: 60px;
+
+    @include below($med-breakpoint) {
+      padding: 30px 0 0;
+    }
+
+    .left {
+      width: 30%;
+
+      @include below(1184px) {
+        width: 20%;
+      }
+
+      @include below($med-breakpoint) {
+        width: 100%;
+      }
+    }
+
+    .right {
+      text-align: left;
+      h1, h2 {
+        text-align: left;
+        color: $dark-gray;
+        display: inline-block;
+      }
+      h1 {
+        font-weight: bold;
+        margin-top: 20px;
+        font-size: $xlarge-font;
+      }
+      h2 {
+        margin-top: 10px;
+        font-size: $large-font;
+      }
+      width: 60%;
+      padding: 40px;
+
+      @include below(1184px) {
+        width: 50%;
+      }
+
+      @include below($med-breakpoint) {
+        width: 100%;
+        padding: 0;
+        text-align: center;
+      }
+    }
+  }
 }
 
 
 .global-nav {
   background: $red;
   height: 40px;
+  position:fixed;
+  top:0;
+  width: 100%;
+  z-index: 999;
+
   section {
     padding: 0;
     border: none;
-    a {
+    a, .left {
       color: white;
       text-decoration: none;
       line-height: 40px;
+
+      &:hover {
+        cursor: pointer;
+      }
     }
 
     li {
-      margin-left: 10px;
       font-size: 14px;
+
+      .middot {
+        font-weight: bold;
+        color: white;
+        padding: 0 14px;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
     }
+  }
+
+  @include below(460px) {
+    height: 80px;
   }
 }

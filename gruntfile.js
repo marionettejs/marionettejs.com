@@ -92,6 +92,10 @@ module.exports = function(grunt) {
         files: 'src/stylesheets/**/*.scss',
         tasks: ['notify:preHTML', 'sass', 'postcss', 'notify:postHTML']
       },
+      scrips: {
+        files: 'src/js/**/*',
+        tasks: ['notify:preHTML', 'copy', 'notify:postHTML']
+      },
       assets: {
         files: 'src/images/**/*',
         tasks: ['copy']

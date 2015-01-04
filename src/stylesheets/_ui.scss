@@ -8,10 +8,10 @@ a {
 }
 
 a.btn {
-  color:            $blue;
+  color:            white;
   height:           $button-size;
   display:          inline-block;
-  background:       white;
+  background:       $blue;
   line-height:      $button-size;
   text-decoration:  none;
 
@@ -22,13 +22,12 @@ a.btn {
   }
 
   &:hover {
-    background: $blue;
-    color: white;
+    background: darken($blue, 15%);
   }
 
   border-radius: $button-size;
 
-  &.btn-issues {
+  &.btn-action {
     padding: 0 20px;
     background-color: $aqua;
     color: white;

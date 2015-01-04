@@ -47,7 +47,7 @@ $screencast-adaptive-snap: 777px;
 .screencast-thumb {
   width:        30%;
   margin-right:  10%;
-  box-shadow: 2px 2px 3px lighten($gray, 25%);
+  box-shadow: 2px 2px 2px lighten($gray, 35%);
 
   @include below($screencast-adaptive-snap) {
     display: none;

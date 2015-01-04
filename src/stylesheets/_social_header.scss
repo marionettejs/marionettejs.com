@@ -2,4 +2,11 @@
   text-align: center;
   padding-top: 30px;
   padding-left: 60px;
+
+  iframe, a {
+    @include below(460px) {
+      float: left;
+      margin-bottom: 12px;
+    }
+  }
 }
