@@ -76,11 +76,16 @@ $(document).ready(function() {
     });
 
     //smooth scroll to top
-    $backToTopBtn.on('click', function(e){
+    function scrollToTop(e) {
         e.preventDefault();
         $('body, html').animate({
               scrollTop: 0
           }, scroll_top_duration
         );
-    });
+    }
+
+    $backToTopBtn.on('click', scrollToTop);
+
+    $logo = $('.left.logo');
+    $logo.on('click', scrollToTop);
 });

@@ -1,23 +1,30 @@
 .global-nav
   section.column-contain
-    a.left(href="#")
+    .left.logo
       | Marionette
 
     ul.right
       li.left
-        a(href="#") Docs
+        a(href="docs/current") Docs
+        span.middot ·
       li.left
-        a(href="#") Community
+        a(href="annotated-src/backbone.marionette.html") Annotated Source
+        span.middot ·
+      li.left
+        a(href="http://marionettejs.github.io") Blog
+        span.middot ·
+      li.left
+        a(href="https://github.com/marionettejs/backbone.marionette", target="_blank") GitHub
       .clear
     .clear
 
 .masthead
-  img(src="images/marionette_logo.png", alt="Marionette.js – A scalable and composite application architecture for Backbone.js", class= "primary-logo")
-  a.btn.download-button(href = "#download")
-    | Download&nbsp;
-    span= VERSION
-    a.on-github(href="https://github.com/marionettejs/backbone.marionette", target="_blank") GitHub
-.ribbon
-  div
-    h1.headline
-      | The Backbone Framework
+  .wrapper
+    .left
+      img(src="images/marionette_logo.png", alt="Marionette.js – A scalable and composite application architecture for Backbone.js", class= "primary-logo")
+    .right
+      h1 The Backbone Framework
+      h2 Marionette simplifies your Backbone application code with robust views and architecture solutions.
+      a.btn.download-button(href = "#download")
+        | Download&nbsp;
+        span= VERSION
