@@ -35,6 +35,10 @@ module.exports = function(grunt) {
       }
     },
 
+    clean: {
+      dist: ['dist']
+    },
+
     copy: {
       assets: {
         files: [
@@ -172,9 +176,10 @@ module.exports = function(grunt) {
         dest : 'dist/api'
       }
     }
-});
+  });
 
   grunt.registerTask('dev', [
+    'clean:dist',
     'notify:watch',
     'watch'
   ]);
