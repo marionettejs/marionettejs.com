@@ -18,9 +18,9 @@ var BLACKLIST_FILES = ['readme.md']
 renderer.heading = function(text, level, raw) {
   var escapedText = raw
     .toLowerCase()
-    .replace(/['\.]/g, '') // Add edge cases: /[1|2|3]/g
-    .replace(/[^\w]+/g, '-')
-    .replace(/-$/, '');
+    .replace(/['\.:]/g, '') // Add edge cases: /[1\.A]/g
+    .replace(/[^\w|$|\/]+/g, '-') // Characters not to dasherize
+    .replace(/\/|^-|-$/g, ''); // Clean up
 
   return (
     '<h'+level+'>'+
