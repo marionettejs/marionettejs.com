@@ -27,13 +27,19 @@ a.btn {
 
   border-radius: $button-size;
 
-  &.btn-action {
+  &.btn-action, &.social {
     padding: 0 20px;
     background-color: $aqua;
     color: white;
     &:hover {
       background: darken($aqua, 15%);
     }
+  }
+
+  &.social {
+    height: 28px;
+    line-height: 29px;
+    padding: 0 10px;
   }
 }
 
