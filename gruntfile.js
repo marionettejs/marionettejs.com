@@ -125,7 +125,7 @@ module.exports = function(grunt) {
       },
       assets: {
         files: 'src/images/**/*',
-        tasks: ['copy']
+        tasks: ['imagemin', 'copy']
       },
       pages: {
         files: 'src/**/*.jade',
