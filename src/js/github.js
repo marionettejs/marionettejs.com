@@ -6,9 +6,9 @@
   starGazers.fetch(function(err, res) {
     if(err) { throw "No stars for you." }
 
-    var count = document.querySelector('.btn.social.github');
+    var count = document.querySelector('.github');
     var span = document.createElement('span');
-    span.innerHTML = res.stargazers_count;
+    span.innerHTML = res.stargazers_count + " stargazers";
     count.appendChild(span);
   });
 
