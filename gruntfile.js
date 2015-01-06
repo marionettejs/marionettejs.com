@@ -91,6 +91,9 @@ module.exports = function(grunt) {
 
     sass: {
       dist: {
+        options:{
+          outputStyle: 'compressed'
+        },
         files: {
           'dist/styles/marionette.css': 'src/stylesheets/marionette.scss',
           'dist/styles/api.css': 'src/stylesheets/api.scss',
