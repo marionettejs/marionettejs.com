@@ -26,12 +26,12 @@ head
   link(rel='stylesheet', href='styles/marionette.css?t=#{Date.now()}')
   link(rel='shortcut icon', href='images/favicon.ico', type='image/x-icon')
   link(rel='apple-touch-icon', href='images/apple-touch-icon.png')
-  link(href='http://fonts.googleapis.com/css?family=Questrial&t=#{Date.now()}' rel='stylesheet' type='text/css')
+  link(href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css')
 
 body
   block content
 
-  script(src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?t=#{Date.now()}")
+  script(src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js")
   script(src="bower_components/gh3/gh3.js?t=#{Date.now()}")
   script(src="bower_components/jquery-cycle2/build/jquery.cycle2.min.js?t=#{Date.now()}")
   script(src="bower_components/jQuery.equalHeights/jquery.equalheights.min.js?t=#{Date.now()}")
@@ -41,9 +41,9 @@ body
   script(src="js/script.js?t=#{Date.now()}")
   script(src="js/github.js?t=#{Date.now()}")
 
-  script(src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js?t=#{Date.now()}")
-  script(src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js?t=#{Date.now()}")
-  script(src="/downloads/backbone.marionette.js?t=#{Date.now()}")
+  script(src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js", defer)
+  script(src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js", defer)
+  script(src="/downloads/backbone.marionette.js?t=#{Date.now()}", defer)
   script.
     // Flattr
     (function() {
