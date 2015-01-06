@@ -3,28 +3,25 @@ marionettejs.com
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/marionettejs/marionettejs.com?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-##### [Experimental](http://dev.marionettejs.com/)
+[Staging Site](http://dev.marionettejs.com/)
 
-### Deving
+## Setup
 
-> The Setup
+To prep your repo, all you need to do is run our `setup` script.
 
-    git clone git@github.com:marionettejs/marionettejs.com.git
-    cd marionettejs.com
     npm run setup
 
-#### Deving the main WWW
+After that, development should be easy! Use our `dev` task to get everything up and running:
 
     npm run dev
-    cd dist && python -m SimpleHTTPServer
 
-> Then visit localhost:8000
+Then visit `[http://localhost:8000](http://localhost:8000)`.
 
-#### Deving the docs
+## Compiling the docs
+
+Working on the docs is just as easy as working on the website. Run the `dev` task as mentioned above but make sure you also compile the docs:
 
     npm run dev
-    npm run compile-docs (you will need to rerun this on template changes)
+    npm run compile-docs
 
-#### Deploying the main WWW
-
-    npm run deploy
+You'll need to rerun this command after template changes.

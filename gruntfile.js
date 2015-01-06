@@ -39,6 +39,15 @@ module.exports = function(grunt) {
       dist: ['dist']
     },
 
+    connect: {
+      server: {
+        options: {
+          base: 'dist',
+          port: 8000
+        }
+      }
+    },
+
     copy: {
       assets: {
         files: [
@@ -180,6 +189,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('dev', [
     'clean:dist',
+    'connect',
     'notify:watch',
     'watch'
   ]);

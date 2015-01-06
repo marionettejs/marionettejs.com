@@ -35,6 +35,7 @@
     "gitty": "samccone/gitty",
     "grunt": "0.4.5",
     "grunt-contrib-clean": "0.6.0",
+    "grunt-contrib-connect": "^0.9.0",
     "grunt-contrib-copy": "0.5.0",
     "grunt-contrib-jade": "0.12.0",
     "grunt-contrib-watch": "0.6.1",
