@@ -1,6 +1,7 @@
 #!/bin/bash
 set -o pipefail
 
+bower i && \
 npm run compile-all && \
 cp CNAME dist
 cd dist && \
