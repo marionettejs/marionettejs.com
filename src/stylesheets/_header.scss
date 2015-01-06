@@ -13,7 +13,7 @@
   text-align: center;
 
   &.btn {
-    margin-top: 30px;
+    margin: 5px 0 20px 0;
     display: inline-block;
 
     @include below($med-breakpoint) {
@@ -90,12 +90,30 @@
       }
       h1 {
         font-weight: bold;
-        margin-top: 20px;
         font-size: $xlarge-font;
       }
       h2 {
         margin-top: 10px;
         font-size: $large-font;
+      }
+      .social {
+        a {
+          text-decoration: none;
+          color: $gray;
+          font-size: 0.75rem;
+          margin-right: 30px;
+
+          &:hover {
+            color: darken($dark-gray, 15%);
+          }
+
+          @include below($sm-breakpoint) {
+            display: none;
+          }
+        }
+        .support-link-icon {
+          margin-right: 6px;
+        }
       }
       width: 60%;
       padding: 40px;

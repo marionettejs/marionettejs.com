@@ -13,7 +13,6 @@
 @import "stickers";
 @import "screencasts";
 @import "downloads";
-@import "social_header";
 @import "back_to_top_button";
 
 .cl {
@@ -180,9 +179,10 @@
   display: inline;
   margin: 0 0 5px 12px;
   transition: all 200ms ease;
+  text-decoration: none;
   &:hover {
     color: darken($dark-gray, 15%);
-    text-decoration: none;
+    text-decoration: underline;
   }
 }
 .support {
