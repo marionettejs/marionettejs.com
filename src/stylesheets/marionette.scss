@@ -119,11 +119,17 @@
       width: 45%;
       float: left;
       position: relative;
-      .vid-screenshot {
+      .vid-player {
+        background-size: cover;
+        -moz-background-size: cover;
+        -webkit-background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
         height: 320px;
+        position:relative;
         width: 100%;
       }
-      .play {
+      .youtube-play {
           background: #000 url('../images/play.png') center center no-repeat;
           position: absolute;
           top: 120px;
