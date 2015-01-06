@@ -1,7 +1,7 @@
 ;(function(git, $) {
 
   var marionettejs = new git.User("marionettejs");
-  var starGazers = new git.Repository("backbone.marionette", marionettejs)
+  var starGazers = new git.Repository("backbone.marionette", marionettejs);
 
   starGazers.fetch(function(err, res) {
     if(err) { throw "No stars for you." }
