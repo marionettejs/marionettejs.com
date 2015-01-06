@@ -148,6 +148,18 @@
         text-decoration: underline;
       }
     }
+
+    .twitter {
+      margin-top: 14px;
+      background: url(../images/twitter-white.svg) no-repeat;
+      width: 16px;
+      height: 13px;
+      display: inline-block;
+
+      &:hover {
+        background: url(../images/twitter-gray.svg) no-repeat;
+      }
+    }
   }
 
   @include below(460px) {
