@@ -25,6 +25,17 @@
       display: none;
     }
   }
+
+  &.view-docs {
+    width: 140px;
+    margin-left: 25px;
+    &.btn {
+      background: #29C8A4;
+      &:hover {
+        background-color: darken(#29C8A4, 5%)
+      }
+    }
+  }
 }
 
 .star-button {
