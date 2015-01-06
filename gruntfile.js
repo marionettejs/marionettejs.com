@@ -54,7 +54,7 @@ module.exports = function(grunt) {
           {
             expand: true,
             cwd: 'src/',
-            src: ['images/**/*'],
+            src: ['images/**/*','!images/**/*.{png,jpg,gif}'],
             dest: 'dist/'
           },
           {
@@ -75,6 +75,17 @@ module.exports = function(grunt) {
             dest: 'dist/styles'
           }
         ]
+      }
+    },
+
+    imagemin: {
+      dynamic: {
+        files: [{
+          expand: true,
+          cwd: 'src/',
+          src: ['images/**/*.{png,jpg,gif}'],
+          dest: 'dist/'
+        }]
       }
     },
 
@@ -197,6 +208,7 @@ module.exports = function(grunt) {
   grunt.registerTask('compile-site', [
     'sass',
     'copy',
+    'imagemin',
     'compile-templates',
     'postcss'
   ]);
@@ -211,6 +223,7 @@ module.exports = function(grunt) {
     'compileDocs',
     'sass',
     'copy',
+    'imagemin',
     'gitty:checkoutTag'
   ]);
 
