@@ -39,26 +39,23 @@ $(document).ready(function() {
     });
 
     // lazy load youtube videos
-    $('.play').on('click', function(e) {
+    $('.youtube-play').on('click', function(e) {
         e.preventDefault();
 
-        var $playButton = $(this),
-            $screenshot = $playButton.siblings('.vid-screenshot'),
-            vidId = $screenshot.attr('data-vid-id'),
-            vidParams = $screenshot.attr('data-vid-params'),
-            vidUrl = 'https://www.youtube.com/embed/' + vidId + '?autoplay=1&autohide=1';
-
-        vidUrl += (vidParams) ? '&' + vidParams : '';
+        var $player = $(this).parent(),
+            vidId = $player.attr('data-vid-id'),
+            vidUrl = 'https://www.youtube.com/embed/' + vidId
+                   + '?autoplay=1&autohide=1&modestbranding=1&showInfo=0&html5=1';
 
         var $iframe = $('<iframe/>', {
             src: vidUrl,
             width: '100%',
-            height: '320px',
+            height: '100%',
             allowFullScreen: '',
             frameborder: '0'
         });
-        $playButton.remove();
-        $screenshot.replaceWith($iframe);
+
+        $player.empty().append($iframe);
     });
 
     // Back to top button
