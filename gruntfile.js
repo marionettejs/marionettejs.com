@@ -26,6 +26,27 @@ module.exports = function(grunt) {
       }
     },
 
+    concat: {
+      options: {
+        separator: ';\n',
+      },
+      dist: {
+        src: [
+          'bower_components/jquery/dist/jquery.min.js',
+          'bower_components/gh3/gh3.js',
+          'bower_components/jQuery.equalHeights/jquery.equalheights.min.js',
+          'bower_components/google-code-prettify/bin/prettify.min.js',
+          'bower_components/jquery-unveil/jquery.unveil.min.js',
+          'src/js/script.js',
+          'src/js/github.js',
+          'bower_components/underscore/underscore.js',
+          'bower_components/backbone/backbone.js',
+          'downloads/backbone.marionette.js',
+        ],
+        dest: 'dist/js/build.js',
+      },
+    },
+
     docco: {
       build: {
         src: ['backbone.marionette/lib/backbone.marionette.js'],
@@ -55,12 +76,6 @@ module.exports = function(grunt) {
             expand: true,
             cwd: 'src/',
             src: ['images/**/*','!images/**/*.{png,jpg,gif}'],
-            dest: 'dist/'
-          },
-          {
-            expand: true,
-            cwd: 'src/',
-            src: ['js/**/*'],
             dest: 'dist/'
           },
           {
@@ -126,9 +141,9 @@ module.exports = function(grunt) {
         files: 'src/stylesheets/**/*.scss',
         tasks: ['notify:preHTML', 'sass', 'postcss', 'notify:postHTML']
       },
-      scrips: {
+      scripts: {
         files: 'src/js/**/*',
-        tasks: ['notify:preHTML', 'copy', 'notify:postHTML']
+        tasks: ['notify:preHTML', 'concat', 'copy', 'notify:postHTML']
       },
       assets: {
         files: 'src/images/**/*',
@@ -219,6 +234,7 @@ module.exports = function(grunt) {
   grunt.registerTask('compile-site', [
     'svgstore',
     'sass',
+    'concat',
     'copy',
     'imagemin',
     'compile-templates',

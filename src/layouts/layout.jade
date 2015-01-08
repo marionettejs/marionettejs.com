@@ -32,18 +32,7 @@ body
     include ../images/svg-sprite.svg
   block content
 
-  script(src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js")
-  script(src="bower_components/gh3/gh3.js?t=#{Date.now()}")
-  script(src="bower_components/jQuery.equalHeights/jquery.equalheights.min.js?t=#{Date.now()}")
-  script(src="bower_components/google-code-prettify/bin/prettify.min.js?t=#{Date.now()}")
-  script(src="bower_components/jquery-unveil/jquery.unveil.min.js?t=#{Date.now()}")
-
-  script(src="js/script.js?t=#{Date.now()}")
-  script(src="js/github.js?t=#{Date.now()}")
-
-  script(src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js", defer)
-  script(src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js", defer)
-  script(src="/downloads/backbone.marionette.js?t=#{Date.now()}", defer)
+  script(src="js/build.js?t=#{Date.now()}")
   script.
     // Flattr
     (function() {
