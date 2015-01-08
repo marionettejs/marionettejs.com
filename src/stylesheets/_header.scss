@@ -113,7 +113,7 @@
       @include below(660px) {
         display: block;
         float: right;
-        margin: 4px 20px 0 0;
+        margin: 6px 20px 4px 0;
       }
     }
 
@@ -180,6 +180,10 @@
           &:hover {
             text-decoration: none;
           }
+        }
+
+        .twitter {
+          margin-top: 0;
         }
 
         &:hover {
