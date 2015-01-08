@@ -26,6 +26,11 @@ $(document).ready(function() {
     // Unveil.js (lazy loader for company logos)
     $('.company-logo-list img').unveil();
 
+    // Toggle top nav
+    $('.menu-icon').on('click', function() {
+        $('.nav-slider').toggleClass('closed');
+    });
+
     // Toggle company logos
     $('.show-more').on('click', function(e) {
       var $this = $(this);

@@ -2,10 +2,6 @@
   width:    177px;
   margin:   40px auto;
   display:  block;
-
-  @include below(460px) {
-    margin: 80px auto 30px;
-  }
 }
 
 .download-button {
@@ -50,7 +46,7 @@
     margin: auto;
     padding: 60px;
 
-    @include below($med-breakpoint) {
+    @include below(660px) {
       padding: 30px 0 0;
     }
 
@@ -110,6 +106,17 @@
   section {
     padding: 0;
     border: none;
+
+    .menu-icon {
+      display: none;
+
+      @include below(660px) {
+        display: block;
+        float: right;
+        margin: 4px 20px 0 0;
+      }
+    }
+
     a, .left {
       color: white;
       text-decoration: none;
@@ -120,6 +127,29 @@
       }
     }
 
+    /* Pure CSS slide up & down: http://davidwalsh.name/css-slide */
+    .nav-slider.closed {
+      @include below(660px) {
+        max-height: 0;
+      }
+    }
+
+    .nav-slider {
+      @include below(660px) {
+        background-color: $red;
+        float: none;
+        clear: both;
+
+        overflow-y: hidden;
+        max-height: 286px;
+
+        transition-property: all;
+        transition-duration: .5s;
+        transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+        -webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+      }
+    }
+
     li {
       font-size: 14px;
 
@@ -127,10 +157,34 @@
         font-weight: bold;
         color: white;
         padding: 0 14px;
+
+        @include below(660px) {
+          display: none;
+        }
       }
 
       a:hover {
         text-decoration: underline;
+      }
+
+      @include below(660px) {
+        float: none;
+        text-align: center;
+        border-top: 1px dashed lighten($red, 15%);
+        font-size: $mid-font;
+
+        a {
+          display: block;
+          width: 100%;
+
+          &:hover {
+            text-decoration: none;
+          }
+        }
+
+        &:hover {
+          background-color: lighten($red, 10%);
+        }
       }
     }
 
@@ -141,9 +195,13 @@
         opacity: 0.8;
       }
     }
-  }
 
-  @include below(460px) {
-    height: 80px;
+    @include below(660px) {
+      width: 100%;
+
+      .logo {
+        display: none;
+      }
+    }
   }
 }
