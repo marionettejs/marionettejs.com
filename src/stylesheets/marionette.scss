@@ -110,71 +110,92 @@
       list-style: none;
     }
   }
-  .video_slide {
-    width: 100%;
-    .vid {
-      margin-bottom: 20px;
-      border-radius: 10px;
-      width: 45%;
-      float: left;
-      position: relative;
-      .vid-player {
-        background-size: cover;
-        -moz-background-size: cover;
-        -webkit-background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        height: 320px;
-        position:relative;
-        width: 100%;
-      }
-      .youtube-play {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          margin-left: -42px;
-          margin-top: -30px;
-          display: inline-block;
-          width: 85px;
-          height: 60px;
-          cursor: pointer;
-          color: #1F1F1F;
-          &:hover{
-            color: $red;
+  .video_slideshow_scroller {
+    overflow: hidden;
+
+    .prev, .next {
+      display: inline-block;
+      height: 50px;
+      width: 50px;
+      border-radius: 50%;
+      position: absolute;
+      z-index: 900;
+      text-align: center;
+      font-size: 16px;
+      color: #ffffff;
+      line-height: 50px;
+      top: 50%;
+      margin-top: -25px;
+      cursor: pointer;
+    }
+
+    .prev {
+      left: 0;
+      background: $mint url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="24" viewBox="0 0 768 768"><path fill="#FFFFFF" d="M493.28 237.28l-45.28-45.28-192 192 192 192 45.28-45.28-146.72-146.72z"></path></svg>') no-repeat 45% center;
+    }
+
+    .next {
+      right: 0;
+      background: $mint url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="24" viewBox="0 0 768 768"><path fill="#FFFFFF" d="M320 192l-45.28 45.28 146.72 146.72-146.72 146.72 45.28 45.28 192-192z"></path></svg>') no-repeat 55% center;
+    }
+
+    .video_slideshow {
+      white-space: nowrap;
+      transition: transform .6s ease-in-out;
+
+      .video_slide {
+        width: 470px;
+        display: inline-block;
+        margin-right: 40px;
+
+        @include below($sm-breakpoint) {
+            width: 100%;
+        }
+
+        .vid {
+          margin-bottom: 20px;
+          border-radius: 10px;
+          width: 100%;
+          float: left;
+          position: relative;
+          .vid-player {
+            background-size: cover;
+            -moz-background-size: cover;
+            -webkit-background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 320px;
+            position:relative;
+            width: 100%;
+            border: 1px solid $light-grey;
           }
-      }
-      .fluid-width-video-wrapper {
-        margin-bottom: $small-font;
-      }
-      p {
-        font-size: $mid-font;
-        line-height: 16px;
-        font-family: $sans;
-      }
-      @include below($med-breakpoint) {
-        width: 100%;
-      }
-    }
-  }
-  figcaption {
-    width: 50%;
-    margin-left: 5%;
-    float: right;
-    @include below($med-breakpoint) {
-      width: 100%;
-    }
-  }
-  .slider2 {
-    @include pos(absolute, 10px, 0, false, false);
-    span {
-      float: left;
-      margin-left: 10px;
-      display: block;
-      border-radius: 999px;
-      border: 1px solid $red;
-      @include size(10px);
-      &.cycle-pager-active, &:hover {
-        background: $red;
+          .youtube-play {
+              position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-left: -42px;
+            margin-top: -30px;
+            display: inline-block;
+            width: 85px;
+            height: 60px;
+            cursor: pointer;
+            color: #1F1F1F;
+            &:hover{
+              color: $red;
+            }
+          }
+          .fluid-width-video-wrapper {
+            margin-bottom: $small-font;
+          }
+          p {
+            font-size: $mid-font;
+            line-height: 16px;
+            font-family: $sans;
+          }
+          @include below($med-breakpoint) {
+            width: 100%;
+          }
+        }
       }
     }
   }

@@ -1,11 +1,40 @@
 $(document).ready(function() {
 
-    // Cycle 2
-    $('.video_slideshow').cycle({
-        pager: '.slider2',
-        pagerTemplate: '<span></span>',
-        paused: true
-    });
+    // CSS3 Slider - Videos Section
+    // ---
+
+    (function() {
+        var $slideshowWrap = $('.video_slideshow_scroller'),
+            $slideshowPrev = $slideshowWrap.children('.prev').hide(),
+            $slideshowNext = $slideshowWrap.children('.next'),
+            $slider = $slideshowWrap.children('.video_slideshow'),
+            $slide = $slider.children().first(),
+            slideCount = $slider.children().length,
+            pos = 0;
+
+        function setTransform() {
+            var distance = (-pos * ($slide.width() + parseInt($slide.css('margin-right').replace(/px/g, ''), 10)));
+            $slider.css('transform', 'translate3d(' + distance + 'px,0,0)');
+            $slideshowPrev[pos ? 'show' : 'hide']();
+            $slideshowNext[pos !== slideCount - 1 ? 'show' : 'hide']();
+        };
+
+        function slideshowPrev() {
+            pos = (pos === 0) ? pos : pos - 1;
+            setTransform();
+        };
+
+        function slideshowNext() {
+            pos = (pos === slideCount - 1) ? pos : pos + 1;
+            setTransform();
+        };
+
+        $(window).on('resize', _.throttle(setTransform, 300));
+        $slideshowNext.on('click', slideshowNext);
+        $slideshowPrev.on('click', slideshowPrev);
+    })();
+
+    // --- /
 
     // equalHeights
     if($(window).width() > 705) {

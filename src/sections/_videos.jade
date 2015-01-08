@@ -1,105 +1,81 @@
 section.featured_videos.column-contain
   h2 Videos
-  .slider2
-  .video_slideshow("data-cycle-slides" = ".video_slide")
-    .video_slide
-      figure.vid
-        div.vid-player(style="background-image:url(images/youtube/EvQnntaqVdE.jpg)",  data-vid-id="EvQnntaqVdE")
-          svg.youtube-play
-            use(xlink:href="#play")
-        p.
-          Marionette - The Backbone Framework
-      figcaption
-        p.
-          Core member, James Smith, explains why you should use Marionette to extend Backbone and what it does for you.
-    .video_slide
-      figure.vid
-        div.vid-player(style="background-image:url(images/youtube/7yZKsgKxziw.jpg)",  data-vid-id="7yZKsgKxziw")
-          svg.youtube-play
-            use(xlink:href="#play")
-        p.
-          Marionette 101
-      figcaption
-        p.
-          Jason Laster, a core contributor to Marionette, gives a quick intro to Marionette.
-    .video_slide
-      figure.vid
-        div.vid-player(style="background-image:url(images/youtube/CTr-tTwRH3o.jpg)",  data-vid-id="CTr-tTwRH3o")
-          svg.youtube-play
-            use(xlink:href="#play")
-        p.
-          Nesting Your Views in Marionette
-      figcaption
-        p.
-          Sam Saccone, a member of the Marionette team, explains how to deal with deeply nested views in Marionette.
-    .video_slide
-      figure.vid
-        div.vid-player(style="background-image:url(images/youtube/6wvAswHkarE.jpg)",  data-vid-id="6wvAswHkarE")
-          svg.youtube-play
-            use(xlink:href="#play")
-        p.
-          Marionette Behaviors
-      figcaption
-        p.
-          Jason Laster, a core member of Marionette, shows how you can use Marionette Behaviors to DRY up your view code.
-    .video_slide
-      figure.vid
-        div.vid-player(style="background-image:url(images/youtube/2b1G3TdlQEU.jpg)",  data-vid-id="2b1G3TdlQEU")
-          svg.youtube-play
-            use(xlink:href="#play")
-        p.
-          Backbone.Wreqr
-      figcaption
-        p.
-          James Smith, a core contributor to Marionette, explains how you can use Backbone.Wreqr to create an event-driven architecture.
-    .video_slide
-      figure.vid
-        div.vid-player(style="background-image:url(images/youtube/jbGm3mJXh_s.jpg)",  data-vid-id="jbGm3mJXh_s")
-          svg.youtube-play
-            use(xlink:href="#play")
-        p.
-          Backbone Under the Magnifying Glass
-      figcaption
-        p
-          | Jason Laster, core Marionette contributor, demos how you can use&nbsp;
-          a(href= "https://chrome.google.com/webstore/detail/marionette-inspector/fbgfjlockdhidoaempmjcddibjklhpka?hl=en", target="_blank") Marionette Inspector
-          | , an amazing Chrome extention, to explore and debug your apps.
-    .video_slide
-      figure.vid
-        div.vid-player(style="background-image:url(images/youtube/75d0odmbu38.jpg)",  data-vid-id="75d0odmbu38")
-          svg.youtube-play
-            use(xlink:href="#play")
-        p.
-          Using DevTools for Marionette Debugging
-      figcaption
-        p.
-          Core team member, Jason Laster, gives away all of his tricks for debugging a Marionette app.
-    .video_slide
-      figure.vid
-        div.vid-player(style="background-image:url(images/youtube/qWr7x9wk6_c.jpg)",  data-vid-id="qWr7x9wk6_c")
-          svg.youtube-play
-            use(xlink:href="#play")
-        p.
-          Brian Mann talks about building applications with Marionette
-      figcaption
-        p.
-          Brian Mann demonstrates how to build modular Backbone apps using Marionette instead of building your application's infrastructure from scratch.
-    .video_slide
-      figure.vid
-        div.vid-player(style="background-image:url(images/youtube/0o2whtCJw8I.jpg)",  data-vid-id="0o2whtCJw8I")
-          svg.youtube-play
-            use(xlink:href="#play")
-        p.
-          Check out the slide deck and other info from Amy's blog post about the presentation.
-      figcaption
-        p.
-          Amy Palamountain gave a presentation on how to "Unsuck Your Backbone" at Codemania in New Zealand, in April of 2013. This is one of the best presentations I've seen, on a high level structure for your Backbone applications. Amy's experience in building scalable apps with composite application patterns in Windows shines through as she describes the patterns and practices that are baked in to Marionette.
-    .video_slide
-      figure.vid
-        div.vid-player(style="background-image:url(images/youtube/VERQEr-bVTs.jpg)",  data-vid-id="VERQEr-bVTs")
-          svg.youtube-play
-            use(xlink:href="#play")
-      figcaption
-        p.
-          Derick Bailey's jQuery &#8594; Backbone &#8594; Marionette talk at the Houston Open Dev group. He moves from a jQuery application to a Backbone based structure, and introduces various parts of Marionette along the way.
+  .video_slideshow_scroller
+    .prev
+      span
+        i.fa.fa-angle-left
+    .next
+      span
+        i.fa.fa-angle-right
+    .video_slideshow("data-cycle-slides" = ".video_slide")
+      .video_slide
+        figure.vid
+          div.vid-player(style="background-image:url(images/youtube/EvQnntaqVdE.jpg)",  data-vid-id="EvQnntaqVdE")
+            svg.youtube-play
+              use(xlink:href="#play")
+          p.
+            Marionette - The Backbone Framework
+      .video_slide
+        figure.vid
+          div.vid-player(style="background-image:url(images/youtube/7yZKsgKxziw.jpg)",  data-vid-id="7yZKsgKxziw")
+            svg.youtube-play
+              use(xlink:href="#play")
+          p.
+            Marionette 101
+      .video_slide
+        figure.vid
+          div.vid-player(style="background-image:url(images/youtube/CTr-tTwRH3o.jpg)",  data-vid-id="CTr-tTwRH3o")
+            svg.youtube-play
+              use(xlink:href="#play")
+          p.
+            Nesting Your Views in Marionette
+      .video_slide
+        figure.vid
+          div.vid-player(style="background-image:url(images/youtube/6wvAswHkarE.jpg)",  data-vid-id="6wvAswHkarE")
+            svg.youtube-play
+              use(xlink:href="#play")
+          p.
+            Marionette Behaviors
+      .video_slide
+        figure.vid
+          div.vid-player(style="background-image:url(images/youtube/2b1G3TdlQEU.jpg)",  data-vid-id="2b1G3TdlQEU")
+            svg.youtube-play
+              use(xlink:href="#play")
+          p.
+            Backbone.Wreqr
+      .video_slide
+        figure.vid
+          div.vid-player(style="background-image:url(images/youtube/jbGm3mJXh_s.jpg)",  data-vid-id="jbGm3mJXh_s")
+            svg.youtube-play
+              use(xlink:href="#play")
+          p
+            a(href= "https://chrome.google.com/webstore/detail/marionette-inspector/fbgfjlockdhidoaempmjcddibjklhpka?hl=en", target="_blank") Backbone Under the Magnifying Glass
+      .video_slide
+        figure.vid
+          div.vid-player(style="background-image:url(images/youtube/75d0odmbu38.jpg)",  data-vid-id="75d0odmbu38")
+            svg.youtube-play
+              use(xlink:href="#play")
+          p.
+            Using DevTools for Marionette Debugging
+      .video_slide
+        figure.vid
+          div.vid-player(style="background-image:url(images/youtube/qWr7x9wk6_c.jpg)",  data-vid-id="qWr7x9wk6_c")
+            svg.youtube-play
+              use(xlink:href="#play")
+          p.
+            Brian Mann talks about building applications with Marionette
+      .video_slide
+        figure.vid
+          div.vid-player(style="background-image:url(images/youtube/0o2whtCJw8I.jpg)",  data-vid-id="0o2whtCJw8I")
+            svg.youtube-play
+              use(xlink:href="#play")
+          p.
+            Unsuck Your Backbone
+      .video_slide
+        figure.vid
+          div.vid-player(style="background-image:url(images/youtube/VERQEr-bVTs.jpg)",  data-vid-id="VERQEr-bVTs")
+            svg.youtube-play
+              use(xlink:href="#play")
+          p.
+            From jQuery to Backbone/Marionette
   .cl
