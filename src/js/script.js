@@ -55,6 +55,11 @@ $(document).ready(function() {
     // Unveil.js (lazy loader for company logos)
     $('.company-logo-list img').unveil();
 
+    // Toggle top nav
+    $('.menu-icon').on('click', function() {
+        $('.nav-slider').toggleClass('closed');
+    });
+
     // Toggle company logos
     $('.show-more').on('click', function(e) {
       var $this = $(this);
@@ -114,22 +119,4 @@ $(document).ready(function() {
 
     $logo = $('.left.logo');
     $logo.on('click', scrollToTop);
-
-    // Twitter share window
-    $('.social.twitter').on('click', function(e) {
-        e.preventDefault();
-
-        var width  = 575,
-            height = 400,
-            left   = ($(window).width()  - width)  / 2,
-            top    = ($(window).height() - height) / 2,
-            url    = this.href,
-            opts   = 'status=1' +
-                     ',width='  + width  +
-                     ',height=' + height +
-                     ',top='    + top    +
-                     ',left='   + left;
-
-        window.open(url, 'twitter', opts);
-    });
 });
