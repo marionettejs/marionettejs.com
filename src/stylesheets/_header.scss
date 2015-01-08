@@ -38,21 +38,6 @@
   }
 }
 
-.star-button {
-  margin-bottom: -11px;
-}
-
-.twitter-follow-button, .gitter-button {
-  margin: 0 2rem;
-}
-
-.gitter-button {
-  margin-top: 5px;
-  img {
-    height: 19px;
-  }
-}
-
 .masthead {
   padding:    0 $center_pad 40px;
   overflow:   hidden;
@@ -151,13 +136,9 @@
 
     .twitter {
       margin-top: 14px;
-      background: url(../images/twitter-white.svg) no-repeat;
-      width: 16px;
-      height: 13px;
-      display: inline-block;
 
       &:hover {
-        background: url(../images/twitter-gray.svg) no-repeat;
+        opacity: 0.8;
       }
     }
   }
