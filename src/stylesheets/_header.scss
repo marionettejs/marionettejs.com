@@ -42,20 +42,12 @@
   border-bottom: 1px solid darken($light-blue, 15%);
 
   .wrapper {
-    width: 70%;
     margin: auto;
     padding: 60px;
-
-    @include below(660px) {
-      padding: 30px 0 0;
-    }
+    max-width: 1200px;
 
     .left {
       width: 30%;
-
-      @include below(1184px) {
-        width: 20%;
-      }
 
       @include below($med-breakpoint) {
         width: 100%;
@@ -64,6 +56,17 @@
 
     .right {
       text-align: left;
+      width: 70%;
+      padding: 40px {
+        right: 20px;
+      }
+
+      @include below($med-breakpoint) {
+        width: 100%;
+        padding: 0;
+        text-align: center;
+      }
+
       h1, h2 {
         text-align: left;
         color: $dark-gray;
@@ -77,18 +80,6 @@
       h2 {
         margin-top: 10px;
         font-size: $large-font;
-      }
-      width: 60%;
-      padding: 40px;
-
-      @include below(1184px) {
-        width: 50%;
-      }
-
-      @include below($med-breakpoint) {
-        width: 100%;
-        padding: 0;
-        text-align: center;
       }
     }
   }
