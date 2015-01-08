@@ -159,18 +159,15 @@ pre code {
     height: 40px;
     text-align: center;
     a {
+      color: #fff;
       display: inline-block;
+      opacity: 0.75;
       padding: 11px 7px;
       text-decoration: none;
 
       &:hover{
-        .svg-icon {
-          fill: #fff;
-        }
+        opacity: 1;
       }
-    }
-    .svg-icon {
-      fill: rgba(255,255,255,0.75);
     }
   }
 

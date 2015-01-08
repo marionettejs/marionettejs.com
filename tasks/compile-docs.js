@@ -66,11 +66,13 @@ _.extend(Compiler.prototype, {
     return Promise.all([
       fs.readFileAsync(this.paths.template).call('toString'),
       fs.readFileAsync(this.paths.indexTemplate).call('toString'),
+      fs.readFileAsync(this.paths.svgIcons).call('toString'),
       mkdirp(this.paths.tmp),
       GittyCache.getSortedTags(this.repo)
-    ]).bind(this).spread(function(template, indexTemplate, dir, tags) {
+    ]).bind(this).spread(function(template, indexTemplate, svgIcons, dir, tags) {
       this.template = _.template(template);
       this.indexTemplate = _.template(indexTemplate);
+      this.svgIcons = svgIcons;
       this.tmpDir   = dir;
       this.tags     = tags
     });
@@ -160,6 +162,7 @@ _.extend(Compiler.prototype, {
 
         var indexMarkup = this.template({
           content : indexContentMarkup,
+          svgIcons: this.svgIcons,
           tags    : validTags(this.tags),
           tag     : files[0].tag,
           file    : files[0],
@@ -187,6 +190,7 @@ _.extend(Compiler.prototype, {
       return Promise.bind(this).return(files).map(function(file) {
         file.contents = this.template({
           content : file.contents,
+          svgIcons: this.svgIcons,
           tags    : validTags(this.tags),
           tag     : files[0].tag,
           file    : file,
@@ -249,6 +253,7 @@ module.exports = function(grunt) {
       repo     : path.resolve(options.repo),
       template : path.resolve(options.template),
       indexTemplate : path.resolve(options.indexTemplate),
+      svgIcons : path.resolve(options.svgIcons),
       tmp      : path.resolve('./.grunt/compileDocs/' + Date.now()),
       src      : path.resolve(files.orig.src[0]),
       dest     : path.resolve(files.dest)

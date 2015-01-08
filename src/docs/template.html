@@ -4,21 +4,30 @@
     <link rel="stylesheet" href="../../styles/docs.css?t=<%- Date.now() %>">
   </head>
   <body>
+    <div style="display:none">
+      <%= svgIcons %>
+    </div>
     <div class="docs">
       <div class="docs__sidebar">
         <div class="top-bar">
           <a href="https://github.com/marionettejs/backbone.marionette" title="GitHub">
-              <img src="../../images/github.svg">
+              <svg width="18px" height="18px">
+                <use xlink:href="#github-square">
+              </svg>
           </a>
           <a href="https://twitter.com/marionettejs" title="Twitter">
-              <img src="../../images/twitter.svg">
+              <svg width="18px" height="18px">
+                <use xlink:href="#twitter-square">
+              </svg>
           </a>
           <a href="https://gitter.im/marionettejs/backbone.marionette" title="Gitter">
-              <img src="../../images/gitter.svg">
+              <svg width="18px" height="18px">
+                <use xlink:href="#gitter-square">
+              </svg>
           </a>
         </div>
         <a href="http://marionettejs.com">
-          <img src="../../images/marionette_logo.png" alt="Marionette.js – The Backbone Framework" class="primary-logo">
+          <img src="../../images/marionette.svg" alt="Marionette.js – The Backbone Framework" class="primary-logo">
         </a>
         <div class="styled-select">
           <select id="version-dropdown">
@@ -42,7 +51,6 @@
       </div>
     </div>
   </body>
-  <script src="../../bower_components/svg-injector/dist/svg-injector.min.js?t=<%- Date.now() %>" type="text/javascript"></script>
   <script src="../../js/docs.js?t=<%- Date.now() %>" type="text/javascript"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" defer></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js" defer></script>

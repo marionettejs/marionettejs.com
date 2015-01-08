@@ -67,12 +67,6 @@ module.exports = function(grunt) {
             expand: true,
             src: ['bower_components/**/*'],
             dest: 'dist/'
-          },
-          {
-            expand: true,
-            cwd: 'src/stylesheets',
-            src: ['fonts/icons/*'],
-            dest: 'dist/styles'
           }
         ]
       }
@@ -87,6 +81,15 @@ module.exports = function(grunt) {
           dest: 'dist/'
         }]
       }
+    },
+
+    svgstore: {
+      options: {},
+      default : {
+        files: {
+          'src/images/svg-sprite.svg': ['src/svg-icons/*.svg'],
+        },
+      },
     },
 
     sass: {
@@ -114,6 +117,10 @@ module.exports = function(grunt) {
     watch: {
       options: {
         atBegin: true
+      },
+      svg: {
+        files: 'src/svg-icons/*.svg',
+        tasks: ['svgstore', 'sass']
       },
       styles: {
         files: 'src/stylesheets/**/*.scss',
@@ -183,7 +190,8 @@ module.exports = function(grunt) {
         options: {
           repo      : 'backbone.marionette',
           template  : 'src/docs/template.html',
-          indexTemplate  : 'src/docs/index.html'
+          indexTemplate  : 'src/docs/index.html',
+          svgIcons  : 'src/images/svg-sprite.svg'
         },
         src  : 'backbone.marionette/docs',
         dest : 'dist/docs'
@@ -209,6 +217,7 @@ module.exports = function(grunt) {
   ]);
 
   grunt.registerTask('compile-site', [
+    'svgstore',
     'sass',
     'copy',
     'imagemin',

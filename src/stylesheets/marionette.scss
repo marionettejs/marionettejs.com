@@ -129,16 +129,19 @@
         width: 100%;
       }
       .youtube-play {
-          background: #000 url('../images/play.png') center center no-repeat;
           position: absolute;
-          top: 120px;
+          top: 50%;
           left: 50%;
-          margin-left: -40px;
+          margin-left: -42px;
+          margin-top: -30px;
           display: inline-block;
-          width: 80px;
-          height: 80px;
+          width: 85px;
+          height: 60px;
           cursor: pointer;
-          border-radius: 50%;
+          color: #1F1F1F;
+          &:hover{
+            color: $red;
+          }
       }
       .fluid-width-video-wrapper {
         margin-bottom: $small-font;
