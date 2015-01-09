@@ -105,7 +105,11 @@
         color: #fff;
         display: block;
         float: right;
-        margin: 6px 20px 4px 0;
+        margin: 7px 20px 3px 0;
+
+        &:hover {
+          opacity: 0.8;
+        }
       }
     }
 
@@ -148,8 +152,9 @@
       .middot {
         font-weight: bold;
         color: white;
+        display: inline-block;
         padding: 0 14px;
-
+        
         @include below(660px) {
           display: none;
         }
@@ -174,8 +179,13 @@
           }
         }
 
-        .twitter {
+        .twitter, .github-mark {
           margin-top: 0;
+          height: 40px;
+        }
+
+        .github-mark svg {
+          margin-top: 10px;
         }
 
         &:hover {
@@ -184,12 +194,14 @@
       }
     }
 
-    .twitter {
-      margin-top: 14px;
-
+    .twitter, .github-mark {
       &:hover {
         opacity: 0.8;
       }
+    }
+
+    .github-mark svg {
+      margin-top: 11px;
     }
 
     @include below(660px) {
