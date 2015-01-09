@@ -255,15 +255,30 @@ footer {
   padding-bottom: 20px;
   border-top: 1px solid darken($light-blue, 15%);
   text-align: center;
+  height: 120px;
+
   p {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
     font-size: $mid-font;
     color: $gray;
+
+    a {
+      color: $gray;
+      text-decoration: none;
+      font-weight: bold;
+
+      &:hover {
+        color: darken($dark-gray, 15%);
+        text-decoration: underline;
+      }
+    }
   }
-}
-.mt-logo {
-  margin-top: 12px;
-  width: 150px;
-  height: auto;
+
+  .heart-icon {
+    margin: 0 3px;
+  }
 }
 
 .browsehappy {
