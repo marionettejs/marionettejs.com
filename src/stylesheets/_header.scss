@@ -102,6 +102,7 @@
       display: none;
 
       @include below(660px) {
+        color: #fff;
         display: block;
         float: right;
         margin: 6px 20px 4px 0;
