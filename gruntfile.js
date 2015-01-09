@@ -216,7 +216,7 @@ module.exports = function(grunt) {
     compileApi: {
       marionette: {
         options: {
-          repo : 'backbone.marionette',
+          repo : 'backbone.marionette'
         },
         src  : 'src/api',
         dest : 'dist/api'
