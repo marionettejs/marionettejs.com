@@ -262,15 +262,15 @@ footer {
     top: 50%;
     transform: translateY(-50%);
     font-size: $mid-font;
-    color: $gray;
+    color: #b0c9d8;
 
     a {
-      color: $gray;
+      color: #b0c9d8;
       text-decoration: none;
       font-weight: bold;
 
       &:hover {
-        color: darken($dark-gray, 15%);
+        color: darken(#b0c9d8, 15%);
         text-decoration: underline;
       }
     }
