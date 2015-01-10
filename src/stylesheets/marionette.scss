@@ -131,12 +131,12 @@
 
     .prev {
       left: 0;
-      background: $mint url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="24" viewBox="0 0 768 768"><path fill="#FFFFFF" d="M493.28 237.28l-45.28-45.28-192 192 192 192 45.28-45.28-146.72-146.72z"></path></svg>') no-repeat 45% center;
+      background: $mint url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="24" viewBox="0 0 768 768"><path fill="%23fff" d="M493.28 237.28l-45.28-45.28-192 192 192 192 45.28-45.28-146.72-146.72z"></path></svg>') no-repeat 45% center;
     }
 
     .next {
       right: 0;
-      background: $mint url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="24" viewBox="0 0 768 768"><path fill="#FFFFFF" d="M320 192l-45.28 45.28 146.72 146.72-146.72 146.72 45.28 45.28 192-192z"></path></svg>') no-repeat 55% center;
+      background: $mint url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="24" viewBox="0 0 768 768"><path fill="%23fff" d="M320 192l-45.28 45.28 146.72 146.72-146.72 146.72 45.28 45.28 192-192z"></path></svg>') no-repeat 55% center;
     }
 
     .video_slideshow {
