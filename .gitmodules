@@ -1,0 +1,3 @@
+[submodule "backbone.marionette"]
+	path = backbone.marionette
+	url = git@github.com:marionettejs/backbone.marionette.git

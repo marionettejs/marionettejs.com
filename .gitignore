@@ -2,7 +2,6 @@ node_modules
 .DS_Store
 dist
 .grunt
-backbone.marionette
 .sass-cache
 bower_components
 *.log

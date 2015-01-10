@@ -2,5 +2,5 @@
 set -o pipefail
 
 npm i && \
-git clone git@github.com:marionettejs/backbone.marionette.git && \
+git submodule update --init --recursive &&
 npm run compile-all
