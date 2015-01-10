@@ -15,6 +15,4 @@
     currentNav.className += ' is-selected';
   }
 
-  SVGInjector(document.querySelectorAll('.top-bar img'));
-
 })();
