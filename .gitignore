@@ -5,3 +5,4 @@ dist
 backbone.marionette
 .sass-cache
 bower_components
+*.log

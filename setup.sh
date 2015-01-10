@@ -2,4 +2,5 @@
 set -o pipefail
 
 npm i && \
-git clone git@github.com:marionettejs/backbone.marionette.git
+git clone git@github.com:marionettejs/backbone.marionette.git && \
+npm run compile-all
