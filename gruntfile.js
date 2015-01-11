@@ -250,8 +250,6 @@ module.exports = function(grunt) {
     'gitty:releaseTag',
     'compileDocs',
     'sass',
-    'copy',
-    'imagemin',
     'gitty:checkoutTag'
   ]);
 
