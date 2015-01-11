@@ -82,6 +82,12 @@ module.exports = function(grunt) {
             expand: true,
             src: ['bower_components/**/*'],
             dest: 'dist/'
+          },
+          {
+            cwd: 'src/',
+            expand: true,
+            src: ['js/docs.js'],
+            dest: 'dist'
           }
         ]
       }
