@@ -1,10 +1,12 @@
 section#code-samples
   .example-tab
-    input#(type="radio", name='example-index', value='#example-index-0')
+    input#(type="radio", name="example-index", value="#example-index-0") CollectionView
+    input#(type="radio", name="example-index", value="#example-index-1") Applications
+    input#(type="radio", name="example-index", value="#example-index-2") LayoutView
 
   .examples
     #example-index-0
-      code.view-code
+      code.view-code.
         var SingleLink = Marionette.ItemView.extend({
           tagName: 'li',
           template: _.template("<a href='<%-path%>'><%-path%></a>")
@@ -15,7 +17,7 @@ section#code-samples
           childView: SingleLink
         });
       .cl
-      code.data-code
+      code.data-code.
         var list = new Backbone.Collection([
           {path: 'http://google.com'},
           {path: 'http://mojotech.com'},
@@ -27,9 +29,9 @@ section#code-samples
         })).render();
       .cl
   
-  // Live editing
+  //- Live editing
   div.example-view.CodeMirror.cm-s-lesser-dark
   div.example-code.cm-s-lesser-dark
   
-  // Rendered output from live editing
-  div.example-render
+  //- Rendered output from live editing
+  iframe(width="425", height="350", scrolling="true", src="../frames/rendered_code")
