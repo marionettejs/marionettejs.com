@@ -1,55 +1,55 @@
 doctype html
+html(lang='en')
+  head
+    //
+      .
+                  .---._-------------------------------------+
+      ___________/ ._____)                                   |
+                    ) __|   HEY HACKER! MARIONETTE IS        |
+                      __|   EVEN COOLER WHEN YOU USE THE     |
+      ..---------.._____|   INSPECTOR. http://goo.gl/Wo3pju  |
+                        +------------------------------------+
+      .
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
+    title Marionette.js – The Backbone Framework
+    meta(content='A scalable and composite application architecture.', name='description')
+    meta(name='viewport', content='width=device-width')
+    meta(name='twitter:card', value='The Backbone Framework')
+    meta(name='twitter:site', value='@marionettejs')
+    meta(property='og:site_name', content='Marionette.js')
+    meta(property='og:image', content='images/marionette_logo.png')
+    meta(property='og:url', content='http://marionettejs.com')
+    meta(property='og:description', content='Marionette simplifies your Backbone application code with robust views and architecture solutions.')
+    meta(property='og:title', content='The Backbone Framework')
+    link(rel='stylesheet', href='styles/marionette.css?t=#{Date.now()}')
+    link(rel='shortcut icon', href='images/favicon.ico', type='image/x-icon')
+    link(rel='apple-touch-icon', href='images/apple-touch-icon.png')
+    link(href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css')
 
-head
-  //
-    .
-                .---._-------------------------------------+
-    ___________/ ._____)                                   |
-                  ) __|   HEY HACKER! MARIONETTE IS        |
-                    __|   EVEN COOLER WHEN YOU USE THE     |
-    ..---------.._____|   INSPECTOR. http://goo.gl/Wo3pju  |
-                      +------------------------------------+
-    .
-  meta(charset='utf-8')
-  meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
-  title Marionette.js – The Backbone Framework
-  meta(content='A scalable and composite application architecture.', name='description')
-  meta(name='viewport', content='width=device-width')
-  meta(name='twitter:card', value='The Backbone Framework')
-  meta(name='twitter:site', value='@marionettejs')
-  meta(property='og:site_name', content='Marionette.js')
-  meta(property='og:image', content='images/marionette_logo.png')
-  meta(property='og:url', content='http://marionettejs.com')
-  meta(property='og:description', content='Marionette simplifies your Backbone application code with robust views and architecture solutions.')
-  meta(property='og:title', content='The Backbone Framework')
-  link(rel='stylesheet', href='styles/marionette.css?t=#{Date.now()}')
-  link(rel='shortcut icon', href='images/favicon.ico', type='image/x-icon')
-  link(rel='apple-touch-icon', href='images/apple-touch-icon.png')
-  link(href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css')
+  body
+    div(style="display:none")
+      include ../images/svg-sprite.svg
+    block content
 
-body
-  div(style="display:none")
-    include ../images/svg-sprite.svg
-  block content
+    script(src="js/build.js?t=#{Date.now()}")
+    script.
+      // Flattr
+      (function() {
+          var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+          s.type = 'text/javascript';
+          s.async = true;
+          s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+          t.parentNode.insertBefore(s, t);
+      })();
 
-  script(src="js/build.js?t=#{Date.now()}")
-  script.
-    // Flattr
-    (function() {
-        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
-        s.type = 'text/javascript';
-        s.async = true;
-        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
-        t.parentNode.insertBefore(s, t);
-    })();
+      // Google Analytics
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-    // Google Analytics
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-    ga('create', 'UA-34606707-1', 'auto');
-    ga('create', 'UA-52639766-1', {'name':'MnCore'});
-    ga('send', 'pageview');
-    ga('MnCore.send', 'pageview');
+      ga('create', 'UA-34606707-1', 'auto');
+      ga('create', 'UA-52639766-1', {'name':'MnCore'});
+      ga('send', 'pageview');
+      ga('MnCore.send', 'pageview');
