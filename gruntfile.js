@@ -41,7 +41,7 @@ module.exports = function(grunt) {
           'src/js/github.js',
           'bower_components/underscore/underscore.js',
           'bower_components/backbone/backbone.js',
-          'downloads/backbone.marionette.js',
+          'backbone.marionette/lib/backbone.marionette.js',
         ],
         dest: 'dist/js/build.js',
       },
