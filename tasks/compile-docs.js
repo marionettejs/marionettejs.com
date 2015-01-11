@@ -205,7 +205,24 @@ _.extend(Compiler.prototype, {
         return fs.writeFileAsync(dest, file.contents).bind(this).then(function() {
           this.emit('writeFile', { file: dest });
         });
-      });
+      })
+      .then(function(files) {
+        // Guard clause.. skip unless latest release
+        if (files[0].tag != GittyCache.releaseTag) {
+          return;
+        }
+
+        return Promise.map(files, function(file) {
+          // Split off the version tag to write the most recent version to
+          // /docs/....
+          var dest = path.resolve(
+            file.pathname.split("/").slice(0, -1).join('/'),
+            file.basename + '.html'
+          );
+
+          return fs.writeFileAsync(dest, file.contents);
+        });
+      })
     });
   },
 
