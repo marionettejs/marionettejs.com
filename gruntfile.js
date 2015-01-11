@@ -39,6 +39,7 @@ module.exports = function(grunt) {
           'bower_components/jquery-unveil/jquery.unveil.min.js',
           'src/js/script.js',
           'src/js/github.js',
+          'src/js/inspector-comment.js',
           'bower_components/underscore/underscore.js',
           'bower_components/backbone/backbone.js',
           'backbone.marionette/lib/backbone.marionette.js',
