@@ -200,7 +200,7 @@ _.extend(Compiler.prototype, {
         return mkdirp(file.pathname).bind(this).then(function() {
           this.emit('mkdirp', { dir: file.pathname });
         }).return(file);
-      }).map(function(file) {
+      }).each(function(file) {
         var dest = path.resolve(file.pathname, file.basename + '.html');
         return fs.writeFileAsync(dest, file.contents).bind(this).then(function() {
           this.emit('writeFile', { file: dest });
