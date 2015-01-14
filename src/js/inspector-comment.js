@@ -1,6 +1,6 @@
 // Give a notice about how awesome inspector is in console
 var msg = [
-    '            .---._-------------------------------------+',
+    '           .---._-------------------------------------+',
     '___________/ ._____)                                   |',
     '              ) __|   HEY HACKER! MARIONETTE IS        |',
     '                __|   EVEN COOLER WHEN YOU USE THE     |',
