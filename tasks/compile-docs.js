@@ -256,7 +256,7 @@ _.extend(Compiler.prototype, {
     return rimraf(this.paths.dest)
     .then(function() {
       this.emit('mv', { from: this.tmpDir, to: this.paths.dest });
-      return mv(this.tmpDir, this.paths.dest, {mkdirp: true})
+      return mv(this.paths.tmp, this.paths.dest, {mkdirp: true})
     }.bind(this))
   }
 });
