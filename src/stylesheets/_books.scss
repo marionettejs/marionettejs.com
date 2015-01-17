@@ -1,0 +1,17 @@
+.books { @include below(601px) {display: none} }
+
+.book-list {
+  text-align: center;
+
+  a {
+    margin-right: 40px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    img {
+      box-shadow: 2px 2px 4px lighten($gray, 25%);
+    }
+  }
+}

@@ -1,0 +1,32 @@
+footer {
+  background-color: $light-blue;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-top: 1px solid darken($light-blue, 15%);
+  text-align: center;
+  height: 120px;
+
+  p {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: $mid-font;
+    color: #b0c9d8;
+
+    a {
+      color: #b0c9d8;
+      text-decoration: none;
+      font-weight: bold;
+
+      &:hover {
+        color: darken(#b0c9d8, 15%);
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .heart-icon {
+    margin: 0 3px;
+    color: #b0c9d8;
+  }
+}
