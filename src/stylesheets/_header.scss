@@ -154,7 +154,7 @@
         color: white;
         display: inline-block;
         padding: 0 14px;
-        cursor: auto;
+        cursor: default;
         
         @include below(660px) {
           display: none;
