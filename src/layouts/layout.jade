@@ -35,7 +35,7 @@ html(lang='en')
       include ../images/svg-sprite.svg
     block content
 
-    script(src="js/build.js?t=#{Date.now()}")
+    script(src="js/build.js?t=#{Date.now()}" defer)
     script.
       // Flattr
       (function() {
