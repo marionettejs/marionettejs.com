@@ -12,9 +12,9 @@
   ```
 
 ## Notes
+* You can open `svg-sprite.svg` in a text editor to confirm that your new SVG has been added.
 
 * If you go into the `<path>` of your compressed SVG, you can add `fill="currentColor"` to have it take on the font color of its parent element.
 
-* You can open `svg-sprite.svg` in a text editor to confirm that your new SVG has been added.
 
 
