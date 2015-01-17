@@ -1,0 +1,47 @@
+.support-link-icon {
+  vertical-align: text-top;
+}
+.support-link {
+  color: $dark-gray;
+  display: inline;
+  margin: 0 0 5px 12px;
+  transition: all 200ms ease;
+  text-decoration: none;
+  &:hover {
+    color: darken($dark-gray, 15%);
+    text-decoration: underline;
+  }
+}
+.support {
+  font-size: 16px;
+  line-height: 26px;
+  .social-network-col {
+    width: $col-1-3;
+    float: right;
+    @include below($med-breakpoint) {
+      width: 100%;
+    }
+    font-family: $sans;
+    margin-bottom: 20px;
+    font-size: 16px;
+    line-height: 26px;
+    li {
+      margin-bottom: 15px;
+    }
+    @include below(705px) {
+      margin-top: 40px;
+    }
+  }
+  .support_article {
+    width: $col-2-3 - 8%;
+    float: left;
+    @include below($med-breakpoint) {
+      width: 100%;
+    }
+  }
+  .btn-action {
+    display: inline-block;
+    float: right;
+    margin-top: 10px;
+  }
+}

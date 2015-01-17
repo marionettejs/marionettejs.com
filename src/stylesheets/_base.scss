@@ -88,6 +88,10 @@ ul {
   clear: both;
 }
 
+.cl {
+  clear: both;
+}
+
 .hidden-xs {
   @include below($sm-breakpoint) {
     display: none;
