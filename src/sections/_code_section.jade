@@ -1,22 +1,23 @@
-section.code-samples.column-contain.hidden-xs
-  .code-sample-block.first-sample-block
-      h4.code-header Define view classes
-      pre.prettyprint
-        code.
-          var SingleLink = Marionette.ItemView.extend({
-            tagName: "li",
-            template: _.template("&lt;a href='<%-path%>'><%-path%>&lt;/a>")
-          });
+section#code-samples
+  .example-tab
+    input(type="radio", name="example-index", value="#example-index-0") CollectionView
+    input(type="radio", name="example-index", value="#example-index-1") Applications
+    input(type="radio", name="example-index", value="#example-index-2") LayoutView
 
-          var ListView = Marionette.CollectionView.extend({
-            tagName: 'ul',
-            childView: SingleLink
-          });
+  .examples
+    #example-index-0
+      code.view-code.
+        var SingleLink = Marionette.ItemView.extend({
+          tagName: 'li',
+          template: _.template("<a href='<%-path%>'><%-path%></a>")
+        });
 
-  .code-sample-block.second-sample-block
-    h4.code-header Pass in data
-    pre.prettyprint
-      code.
+        var ListView = Marionette.CollectionView.extend({
+          tagName: 'ul',
+          childView: SingleLink
+        });
+      .cl
+      code.data-code.
         var list = new Backbone.Collection([
           {path: 'http://google.com'},
           {path: 'http://mojotech.com'},
@@ -24,16 +25,21 @@ section.code-samples.column-contain.hidden-xs
 
         (new ListView({
           collection: list,
-          el: '.link-area'
+          el: '.example-render'
         })).render();
+      .cl
+  
+  #example-index-1
+      code.view-code.
+        
+      .cl
+      code.data-code.
+        
+      .cl
 
-  .code-sample-block.code-results-block
-    h4.code-header.code-header-results Results
-    .result
-      ul
-        li
-          a(href="http://google.com", target="_blank") http://google.com
-        li
-          a(href="http://mojotech.com", target="_blank") http://mojotech.com
-    .cl
-  .cl
+  //- Live editing
+  div.example-view.CodeMirror.cm-s-lesser-dark
+  div.example-code.cm-s-lesser-dark
+  
+  //- Rendered output from live editing
+  iframe(width="425", height="350", scrolling="true", src="../frames/rendered_code")

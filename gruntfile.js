@@ -36,6 +36,7 @@ module.exports = function(grunt) {
           'bower_components/gh3/gh3.js',
           'bower_components/jQuery.equalHeights/jquery.equalheights.min.js',
           'bower_components/google-code-prettify/bin/prettify.min.js',
+          'node_modules/codemirror/lib/codemirror.js',
           'bower_components/jquery-unveil/jquery.unveil.min.js',
           'src/js/script.js',
           'src/js/github.js',
@@ -43,6 +44,7 @@ module.exports = function(grunt) {
           'bower_components/underscore/underscore.js',
           'bower_components/backbone/backbone.js',
           'backbone.marionette/lib/backbone.marionette.js',
+          'src/js/code_section.js'
         ],
         dest: 'dist/js/build.js',
       },
