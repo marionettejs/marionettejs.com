@@ -23,3 +23,7 @@ Working on the docs is just as easy as working on the website. Run the `dev` tas
     npm run compile-docs
 
 You'll need to rerun this command after template changes.
+
+## When adding SVG
+
+Follow [these steps](./svg-steps.md).
