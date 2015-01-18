@@ -1,4 +1,13 @@
 $(document).ready(function() {
+    // Logo animation
+    $('.primary-logo').mouseenter(function() {
+          snabbt(this, 'attention', {
+              rotation: [0, 0, Math.PI/2],
+              springConstant: 1.9,
+              springDeacceleration: 0.9
+          });
+      }
+    );
 
     // CSS3 Slider - Videos Section
     // ---
@@ -17,17 +26,17 @@ $(document).ready(function() {
             $slider.css('transform', 'translate3d(' + distance + 'px,0,0)');
             $slideshowPrev[pos ? 'show' : 'hide']();
             $slideshowNext[pos !== slideCount - 1 ? 'show' : 'hide']();
-        };
+        }
 
         function slideshowPrev() {
             pos = (pos === 0) ? pos : pos - 1;
             setTransform();
-        };
+        }
 
         function slideshowNext() {
             pos = (pos === slideCount - 1) ? pos : pos + 1;
             setTransform();
-        };
+        }
 
         $(window).on('resize', _.throttle(setTransform, 300));
         $slideshowNext.on('click', slideshowNext);
@@ -72,7 +81,7 @@ $(document).ready(function() {
       $this.text(txt);
     });
 
-    // lazy load youtube videos
+    // Lazy load YouTube videos
     $('.youtube-play').on('click', function(e) {
         e.preventDefault();
 
@@ -98,7 +107,7 @@ $(document).ready(function() {
     var scroll_top_duration = 700; //duration of the top scrolling animation (in ms)
     var $backToTopBtn = $('.top');
 
-    //hide or show the "back to top" link
+    // Hide or show the "back to top" link
     $(window).scroll(function(){
         ($(this).scrollTop() > offset) ? $backToTopBtn.addClass('is-visible') : $backToTopBtn.removeClass('is-visible fade-out');
         if($(this).scrollTop() > offset_opacity) {
@@ -106,7 +115,7 @@ $(document).ready(function() {
         }
     });
 
-    //smooth scroll to top
+    // Smooth scroll to top
     function scrollToTop(e) {
         e.preventDefault();
         $('body, html').animate({
