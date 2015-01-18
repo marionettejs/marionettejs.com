@@ -11,6 +11,21 @@
     color: darken($dark-gray, 15%);
     text-decoration: underline;
   }
+  // subclass of support link
+  &__with_icon {
+    margin-left: 0;
+    color: $gray;
+  }
+  &__icon {
+    position: relative;
+    vertical-align: middle;
+  }
+  &__label {
+    margin-left: 12px;
+    vertical-align: middle;
+    color: $dark-gray;
+    line-height: 1;
+  }
 }
 .support {
   font-size: 16px;
