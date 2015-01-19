@@ -33,7 +33,6 @@ module.exports = function(grunt) {
       dist: {
         src: [
           'bower_components/jquery/dist/jquery.min.js',
-          'bower_components/gh3/gh3.js',
           'bower_components/jQuery.equalHeights/jquery.equalheights.min.js',
           'bower_components/google-code-prettify/bin/prettify.min.js',
           'bower_components/jquery-unveil/jquery.unveil.min.js',
