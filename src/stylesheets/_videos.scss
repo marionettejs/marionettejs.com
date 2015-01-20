@@ -94,6 +94,9 @@
             font-size: $mid-font;
             line-height: 16px;
             font-family: $sans;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
           @include below($med-breakpoint) {
             width: 100%;
