@@ -115,9 +115,20 @@ module.exports = function(grunt) {
     },
 
     sass: {
+      options:{
+        outputStyle: 'compressed'
+      },
       dist: {
+        files: {
+          'dist/styles/marionette.css': 'src/stylesheets/marionette.scss',
+          'dist/styles/api.css': 'src/stylesheets/api.scss',
+          'dist/styles/docs.css': 'src/stylesheets/docs.scss'
+        }
+      },
+      dev: {
         options:{
-          outputStyle: 'compressed'
+          outputStyle: 'nested',
+          sourceMap: true
         },
         files: {
           'dist/styles/marionette.css': 'src/stylesheets/marionette.scss',
@@ -133,7 +144,15 @@ module.exports = function(grunt) {
           autoprefixer({ browsers: ['last 2 version'] }).postcss
         ]
       },
-      dist: { src: 'dist/styles/*.css' }
+      dev: {
+        options: {
+          map: true
+        },
+        src: 'dist/styles/*.css'
+      },
+      dist: {
+        src: 'dist/styles/*.css'
+      }
     },
 
     watch: {
@@ -142,11 +161,11 @@ module.exports = function(grunt) {
       },
       svg: {
         files: 'src/svg-icons/*.svg',
-        tasks: ['svgstore', 'sass']
+        tasks: ['svgstore', 'sass:dev']
       },
       styles: {
         files: 'src/stylesheets/**/*.scss',
-        tasks: ['notify:preHTML', 'sass', 'postcss', 'notify:postHTML']
+        tasks: ['notify:preHTML', 'sass:dev', 'postcss:dev', 'notify:postHTML']
       },
       scripts: {
         files: 'src/js/**/*',
@@ -240,12 +259,12 @@ module.exports = function(grunt) {
 
   grunt.registerTask('compile-site', [
     'svgstore',
-    'sass',
+    'sass:dist',
     'concat',
     'copy',
     'imagemin',
     'compile-templates',
-    'postcss'
+    'postcss:dist'
   ]);
 
   grunt.registerTask('compile-templates', [
@@ -256,13 +275,13 @@ module.exports = function(grunt) {
   grunt.registerTask('compile-docs', [
     'gitty:releaseTag',
     'compileDocs',
-    'sass',
+    'sass:dist',
     'gitty:checkoutTag'
   ]);
 
   grunt.registerTask('compile-api', [
     'compileApi',
-    'sass'
+    'sass:dist'
   ]);
 
   grunt.registerTask('compile-docco', [
