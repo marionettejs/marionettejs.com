@@ -108,9 +108,16 @@
 
       @include below(660px) {
         color: #fff;
-        display: block;
+        line-height: inherit;
+        background: transparent {
+          image: none;
+        }
+        border: 0 solid transparent;
+        position: relative;
         float: right;
-        margin: 8px 20px 3px 0;
+        display: block;
+        padding: 4px 6px;
+        margin: 3px 12px 3px 0;
 
         &:hover {
           opacity: 0.8;
