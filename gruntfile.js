@@ -175,6 +175,10 @@ module.exports = function(grunt) {
         files: 'src/images/**/*',
         tasks: ['imagemin', 'copy']
       },
+      data: {
+        files: 'src/data/*.json',
+        tasks: ['notify:preHTML', 'compile-templates', 'notify:postHTML']
+      },
       pages: {
         files: 'src/**/*.jade',
         tasks: ['notify:preHTML', 'compile-templates', 'notify:postHTML']
@@ -189,7 +193,8 @@ module.exports = function(grunt) {
         options: {
           data: function(){
             return {
-              VERSION: GittyCache.releaseTag || 'v.X.X.X'
+              VERSION: GittyCache.releaseTag || 'v.X.X.X',
+              videos: grunt.file.readJSON('src/data/videos.json')
             };
           }
         }
@@ -200,6 +205,12 @@ module.exports = function(grunt) {
       watch: {
         options: {
           message: 'Watching for changes...'
+        }
+      },
+      
+      data: {
+        options: {
+          messages: 'Data .json files changed ...'
         }
       },
 
