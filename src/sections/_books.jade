@@ -1,18 +1,6 @@
 section.books.column-contain
   h2 Books
   .book-list
-    a(href = "https://shop.smashingmagazine.com/better-backbone-applications-with-marionettejs.html", target= "_blank")
-      img(src="images/books/better-bb-apps.png", alt="Better Backbone Applications with MarionetteJS")
-    a(href = "https://leanpub.com/marionette-gentle-introduction?utm_campaign=marionette-gentle-introduction&utm_medium=embed&utm_source=marionettejs.com", target= "_blank")
-      img(src="images/books/gentle-intro.png", alt="Backbone.Marionette.js: A Gentle Introduction")
-    a(href = "https://leanpub.com/structuring-backbone-with-requirejs-and-marionette?utm_campaign=structuring-backbone-with-requirejs-and-marionette&utm_medium=embed&utm_source=marionettejs.com", target= "_blank")
-      img(src="images/books/requirejs.png", alt="Structuring Backbone Code with RequireJS and Marionette Modules")
-    a(href = "https://leanpub.com/marionette-serious-progression?utm_campaign=marionette-serious-progression&utm_medium=embed&utm_source=marionettejs.com", target= "_blank")
-      img(src="images/books/serious-progression.png", alt="Backbone.Marionette.js: A Serious Progression")
-    a(href = "http://www.amazon.com/Getting-Backbone-Marionette-Raymundo-Armendariz/dp/1783284250/ref=tmm_pap_title_0?ie=UTF8&qid=1420202176&sr=1-1", target= "_blank")
-      img(src="images/books/getting-started.png", alt="Getting Started with Backbone Marionette")
-    a(href = "https://leanpub.com/marionetteexpose?utm_campaign=marionetteexpose&utm_medium=embed&utm_source=marionettejs.com", target= "_blank")
-      img(src="images/books/expose.png", alt="Marionette Exposé")
-    a(href = "https://leanpub.com/building-backbone-plugins?utm_campaign=building-backbone-plugins&utm_medium=embed&utm_source=marionettejs.com", target= "_blank")
-      img(src="images/books/bb-plugins.png", alt="Building Backbone Plugins")
-
+    each book in books
+      a(href="#{book.url}", target="_blank")
+        img(src="#{book.thumbnail}", alt="#{book.title}")

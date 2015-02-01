@@ -1,0 +1,45 @@
+[
+
+  {
+    "thumbnail": "images/books/better-bb-apps.png",
+    "title": "Better Backbone Applications with MarionetteJS",
+    "url": "https://shop.smashingmagazine.com/better-backbone-applications-with-marionettejs.html"
+  },
+
+  {
+    "thumbnail": "images/books/gentle-intro.png",
+    "title": "Backbone.Marionette.js: A Gentle Introduction",
+    "url": "https://leanpub.com/marionette-gentle-introduction?utm_campaign=marionette-gentle-introduction&utm_medium=embed&utm_source=marionettejs.com"
+  },
+
+  {
+    "thumbnail": "images/books/requirejs.png",
+    "title": "Structuring Backbone Code with RequireJS and Marionette Modules",
+    "url": "https://leanpub.com/structuring-backbone-with-requirejs-and-marionette?utm_campaign=structuring-backbone-with-requirejs-and-marionette&utm_medium=embed&utm_source=marionettejs.com"
+  },
+
+  {
+    "thumbnail": "images/books/serious-progression.png",
+    "title": "Backbone.Marionette.js: A Serious Progression",
+    "url": "https://leanpub.com/marionette-serious-progression?utm_campaign=marionette-serious-progression&utm_medium=embed&utm_source=marionettejs.com"
+  },
+
+  {
+    "thumbnail": "images/books/getting-started.png",
+    "title": "Getting Started with Backbone Marionette",
+    "url": "http://www.amazon.com/Getting-Backbone-Marionette-Raymundo-Armendariz/dp/1783284250/ref=tmm_pap_title_0?ie=UTF8&qid=1420202176&sr=1-1"
+  },
+
+  {
+    "thumbnail": "images/books/expose.png",
+    "title": "Marionette Exposé",
+    "url": "https://leanpub.com/marionetteexpose?utm_campaign=marionetteexpose&utm_medium=embed&utm_source=marionettejs.com"
+  },
+
+  {
+    "thumbnail": "images/books/bb-plugins.png",
+    "title": "Building Backbone Plugins",
+    "url": "https://leanpub.com/building-backbone-plugins?utm_campaign=building-backbone-plugins&utm_medium=embed&utm_source=marionettejs.com"
+  }
+
+]
