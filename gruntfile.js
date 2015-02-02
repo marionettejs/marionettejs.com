@@ -165,7 +165,7 @@ module.exports = function(grunt) {
       },
       styles: {
         files: 'src/stylesheets/**/*.scss',
-        tasks: ['notify:preHTML', 'sass:dev', 'postcss:dev', 'notify:postHTML']
+        tasks: ['notify:preCSS', 'sass:dev', 'postcss:dev', 'notify:postCSS']
       },
       scripts: {
         files: 'src/js/**/*',
