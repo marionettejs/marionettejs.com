@@ -194,6 +194,7 @@ module.exports = function(grunt) {
           data: function(){
             return {
               VERSION: GittyCache.releaseTag || 'v.X.X.X',
+              books: grunt.file.readJSON('src/data/books.json'),
               videos: grunt.file.readJSON('src/data/videos.json')
             };
           }
