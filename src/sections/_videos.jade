@@ -8,75 +8,15 @@ section.featured_videos.column-contain
       span
         i.fa.fa-angle-right
     .video_slideshow("data-cycle-slides" = ".video_slide")
-      .video_slide
-        figure.vid
-          div.vid-player(style="background-image:url(images/youtube/EvQnntaqVdE.jpg)",  data-vid-id="EvQnntaqVdE")
-            svg.youtube-play
-              use(xlink:href="#play")
-          p.
-            Marionette - The Backbone Framework
-      .video_slide
-        figure.vid
-          div.vid-player(style="background-image:url(images/youtube/7yZKsgKxziw.jpg)",  data-vid-id="7yZKsgKxziw")
-            svg.youtube-play
-              use(xlink:href="#play")
-          p.
-            Marionette 101
-      .video_slide
-        figure.vid
-          div.vid-player(style="background-image:url(images/youtube/CTr-tTwRH3o.jpg)",  data-vid-id="CTr-tTwRH3o")
-            svg.youtube-play
-              use(xlink:href="#play")
-          p.
-            Nesting Your Views in Marionette
-      .video_slide
-        figure.vid
-          div.vid-player(style="background-image:url(images/youtube/6wvAswHkarE.jpg)",  data-vid-id="6wvAswHkarE")
-            svg.youtube-play
-              use(xlink:href="#play")
-          p.
-            Marionette Behaviors
-      .video_slide
-        figure.vid
-          div.vid-player(style="background-image:url(images/youtube/2b1G3TdlQEU.jpg)",  data-vid-id="2b1G3TdlQEU")
-            svg.youtube-play
-              use(xlink:href="#play")
-          p.
-            Backbone.Wreqr
-      .video_slide
-        figure.vid
-          div.vid-player(style="background-image:url(images/youtube/jbGm3mJXh_s.jpg)",  data-vid-id="jbGm3mJXh_s")
-            svg.youtube-play
-              use(xlink:href="#play")
-          p Backbone Under the Magnifying Glass (
-            a(href= "https://chrome.google.com/webstore/detail/marionette-inspector/fbgfjlockdhidoaempmjcddibjklhpka?hl=en", target="_blank") Marionette Inspector
-            | )
-      .video_slide
-        figure.vid
-          div.vid-player(style="background-image:url(images/youtube/75d0odmbu38.jpg)",  data-vid-id="75d0odmbu38")
-            svg.youtube-play
-              use(xlink:href="#play")
-          p.
-            Using DevTools for Marionette Debugging
-      .video_slide
-        figure.vid
-          div.vid-player(style="background-image:url(images/youtube/qWr7x9wk6_c.jpg)",  data-vid-id="qWr7x9wk6_c")
-            svg.youtube-play
-              use(xlink:href="#play")
-          p.
-            Brian Mann talks about building applications with Marionette
-      .video_slide
-        figure.vid
-          div.vid-player(style="background-image:url(images/youtube/0o2whtCJw8I.jpg)",  data-vid-id="0o2whtCJw8I")
-            svg.youtube-play
-              use(xlink:href="#play")
-          p.
-            Unsuck Your Backbone
-      .video_slide
-        figure.vid
-          div.vid-player(style="background-image:url(images/youtube/VERQEr-bVTs.jpg)",  data-vid-id="VERQEr-bVTs")
-            svg.youtube-play
-              use(xlink:href="#play")
-          p.
-            From jQuery to Backbone/Marionette
+      each video in videos
+        .video_slide
+          figure.vid
+            div.vid-player(style="background-image:url(#{video.thumbnail})", data-vid-id="#{video.id}")
+              svg.youtube-play
+                use(xlink:href="#play")
+            p #{video.title}
+              if video.link
+                |  (
+                a(href="#{video.link.url}", target="_blank") #{video.link.title}
+                |)
   .cl

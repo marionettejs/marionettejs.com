@@ -1,0 +1,67 @@
+[
+
+  {
+    "thumbnail": "images/youtube/EvQnntaqVdE.jpg",
+    "title": "Marionette - The Backbone Framework",
+    "id": "EvQnntaqVdE"
+  },
+
+  {
+    "id": "7yZKsgKxziw",
+    "title": "Marionette 101",
+    "thumbnail": "images/youtube/7yZKsgKxziw.jpg"
+  },
+
+  {
+    "id": "CTr-tTwRH3o",
+    "title": "Nesting Your Views in Marionette",
+    "thumbnail": "images/youtube/CTr-tTwRH3o.jpg"
+  },
+
+  {
+    "id": "6wvAswHkarE",
+    "title": "Marionette Behaviors",
+    "thumbnail": "images/youtube/6wvAswHkarE.jpg"
+  },
+
+  {
+    "id": "2b1G3TdlQEU",
+    "title": "Backbone.Wreqr",
+    "thumbnail": "images/youtube/2b1G3TdlQEU.jpg"
+  },
+
+  {
+    "id": "jbGm3mJXh_s",
+    "title": "Backbone Under the Magnifying Glass",
+    "thumbnail": "images/youtube/jbGm3mJXh_s.jpg",
+    "link": {
+      "url": "https://chrome.google.com/webstore/detail/marionette-inspector/fbgfjlockdhidoaempmjcddibjklhpka?hl=en",
+      "title": "Marionette Inspector"
+    }
+  },
+
+  {
+    "id": "75d0odmbu38",
+    "title": "Using DevTools for Marionette Debugging",
+    "thumbnail": "images/youtube/75d0odmbu38.jpg"
+  },
+
+  {
+    "id": "qWr7x9wk6_c",
+    "title": "Brian Mann talks about building applications with Marionette",
+    "thumbnail": "images/youtube/qWr7x9wk6_c.jpg"
+  },
+
+  {
+    "id": "0o2whtCJw8I",
+    "title": "Unsuck Your Backbone",
+    "thumbnail": "images/youtube/0o2whtCJw8I.jpg"
+  },
+
+  {
+    "id": "VERQEr-bVTs",
+    "title": "From jQuery to Backbone/Marionette",
+    "thumbnail": "images/youtube/VERQEr-bVTs.jpg"
+  }
+
+]
