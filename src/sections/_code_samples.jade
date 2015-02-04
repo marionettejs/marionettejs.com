@@ -5,7 +5,7 @@ section.code-samples.column-contain.hidden-xs
         code.
           var SingleLink = Marionette.ItemView.extend({
             tagName: "li",
-            template: _.template("&lt;a href='<%-path%>'><%-path%>&lt;/a>")
+            template: _.template("&lt;a href='&lt;%-path%>'>&lt;%-path%>&lt;/a>")
           });
 
           var ListView = Marionette.CollectionView.extend({
