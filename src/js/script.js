@@ -74,7 +74,7 @@ $(document).ready(function() {
       var $this = $(this);
 
       e.preventDefault();
-      $this.parent().toggleClass('active');
+      $this.toggleClass('active');
       $('.slider').toggleClass('closed');
 
       var txt = $this.text() === 'more'? 'less': 'more';
