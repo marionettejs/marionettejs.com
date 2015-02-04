@@ -64,6 +64,10 @@
 }
 
 .note {
+  display: block;
+  color: #56585E;
+  font-family: $sans;
   font-size: $small-font;
   font-weight: 500;
+  line-height: 30px;
 }
