@@ -6,29 +6,29 @@ header.global-nav
     button.menu-icon(type="button")
       svg(width="33px", height="24px")
         use(xlink:href="#hamburger")
-
-    ul.right.nav-slider.closed
-      li.left
-        a(href="docs/current") Docs
-        span.middot ·
-      li.left
-        a(href="annotated-src/backbone.marionette.html") Annotated Source
-        span.middot ·
-      li.left
-        a(href="https://gitter.im/marionettejs/backbone.marionette", target="_blank") Support
-        span.middot ·
-      li.left
-        a(href="http://blog.marionettejs.com") Blog
-        span.middot ·
-      li.left
-        a.twitter(href="https://twitter.com/marionettejs", target="_blank")
-          svg.support-link-icon(width="18", height="16")
-            use(xlink:href="#twitter")
-        span.middot ·
-      li.left
-        a.github-mark(href="https://github.com/marionettejs/backbone.marionette", target="_blank")
-          svg(width="19px", height="19px")
-            use(xlink:href="#github-mark")
+    nav.nav-slider.closed(role="navigation")
+      ul.nav-slider__list
+        li.left
+          a(href="docs/current") Docs
+          span.middot ·
+        li.left
+          a(href="annotated-src/backbone.marionette.html") Annotated Source
+          span.middot ·
+        li.left
+          a(href="https://gitter.im/marionettejs/backbone.marionette", target="_blank") Support
+          span.middot ·
+        li.left
+          a(href="http://blog.marionettejs.com") Blog
+          span.middot ·
+        li.left
+          a.twitter(href="https://twitter.com/marionettejs", target="_blank")
+            svg.support-link-icon(width="18", height="16")
+              use(xlink:href="#twitter")
+          span.middot ·
+        li.left
+          a.github-mark(href="https://github.com/marionettejs/backbone.marionette", target="_blank")
+            svg(width="19px", height="19px")
+              use(xlink:href="#github-mark")
     .clear
 
 .masthead
