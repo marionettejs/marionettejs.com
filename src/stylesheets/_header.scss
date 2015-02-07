@@ -99,7 +99,7 @@
   width: 100%;
   z-index: 999;
 
-  section {
+  &__section {
     padding: 0;
     border: none;
 
@@ -131,6 +131,7 @@
       line-height: 40px;
 
       &:hover {
+        color: white;
         cursor: pointer;
       }
     }
