@@ -1,0 +1,15 @@
+.inspector {
+  
+  // TODO: this is bad - but specificity 
+  // wins - this should be refactored as we share
+  // components between sections
+  .description {
+    padding-bottom: 0 !important;
+  }    
+  
+  .screencast-thumb {
+    width: auto;
+    box-shadow: none;
+  }
+  
+}
