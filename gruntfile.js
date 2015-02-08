@@ -188,7 +188,8 @@ module.exports = function(grunt) {
     jade: {
       compile : {
         files: {
-          'dist/index.html': 'src/index.jade'
+          'dist/index.html': 'src/index.jade',
+          'dist/projects.html': 'src/projects.jade'
         },
         options: {
           data: function(){
