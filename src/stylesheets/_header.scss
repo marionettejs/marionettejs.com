@@ -93,13 +93,13 @@
 
 .global-nav {
   background: $red;
-  height: 40px;
+  min-height: 40px;
   position:fixed;
   top:0;
   width: 100%;
   z-index: 999;
 
-  section {
+  &__section {
     padding: 0;
     border: none;
 
@@ -129,8 +129,10 @@
       color: white;
       text-decoration: none;
       line-height: 40px;
+      height: 40px;
 
       &:hover {
+        color: white;
         cursor: pointer;
       }
     }
@@ -143,6 +145,16 @@
     }
 
     .nav-slider {
+      float: right;
+      
+      &__list {
+        float: left;  
+        > li {
+          position: relative;
+          display: block;
+        }  
+      }
+      
       @include below(660px) {
         background-color: $red;
         float: none;
@@ -155,6 +167,10 @@
         transition-duration: .5s;
         transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
         -webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+        
+        &__list {
+          float: none;
+        }
       }
     }
 
@@ -181,6 +197,7 @@
         float: none;
         text-align: center;
         border-top: 1px dashed lighten($red, 15%);
+        box-sizing: content-box;
         font-size: $mid-font;
 
         a {
