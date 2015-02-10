@@ -7,6 +7,8 @@ marionettejs.com
 
 To prep your repo, all you need to do is run our `setup` script.
 
+As of Feb 2015, this repo doesn't work Node v0.12.0. You'll want to use Node v0.10.16.
+
     npm run setup
 
 After that, development should be easy! Use our `dev` task to get everything up and running:
