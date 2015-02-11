@@ -43,6 +43,34 @@ a.btn {
   }
 }
 
+.btn-action {
+  text-align: center;
+
+  &.btn {
+    margin-top: 30px;
+    display: inline-block;
+
+    @include below($med-breakpoint) {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    @include below($sm-breakpoint) {
+      display: none;
+    }
+  }
+
+  &.secondary-color {
+    margin-left: 25px;
+    &.btn {
+      background: #29C8A4;
+      &:hover {
+        background-color: darken(#29C8A4, 5%)
+      }
+    }
+  }
+}
+
 .section-header {
   margin-bottom: $center_pad;
 }
