@@ -4,7 +4,7 @@
   .done(function (result) {
     if(result.meta.status === 200) {
       var stargazers = result.data.stargazers_count || '5700';
-      $('.github').text(stargazers + ' stargazers');
+      $('.stargazers-js').text(stargazers);
     }
   });
 })(jQuery);
