@@ -2,7 +2,7 @@ section.code-samples.column-contain.hidden-xs
   .code-sample-block.first-sample-block
       h4.code-header Define view classes
       pre.prettyprint
-        code.
+        code.notranslate.
           var SingleLink = Marionette.ItemView.extend({
             tagName: "li",
             template: _.template("&lt;a href='&lt;%-path%>'>&lt;%-path%>&lt;/a>")
@@ -16,7 +16,7 @@ section.code-samples.column-contain.hidden-xs
   .code-sample-block.second-sample-block
     h4.code-header Pass in data
     pre.prettyprint
-      code.
+      code.notranslate.
         var list = new Backbone.Collection([
           {path: 'http://google.com'},
           {path: 'http://mojotech.com'},
@@ -32,8 +32,8 @@ section.code-samples.column-contain.hidden-xs
     .result
       ul
         li
-          a(href="http://google.com", target="_blank") http://google.com
+          a.notranslate(href="http://google.com", target="_blank") http://google.com
         li
-          a(href="http://mojotech.com", target="_blank") http://mojotech.com
+          a.notranslate(href="http://mojotech.com", target="_blank") http://mojotech.com
     .cl
   .cl
