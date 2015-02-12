@@ -1,5 +1,3 @@
-$screencast-adaptive-snap: 777px;
-
 .screencasts {
   .description {
     display:        block;
@@ -22,7 +20,7 @@ $screencast-adaptive-snap: 777px;
     width:   60%;
     display: inline-block;
 
-    @include below($screencast-adaptive-snap) {
+    @include below($adaptive-snap) {
       width: 90%;
       float: left;
     }
@@ -44,12 +42,12 @@ $screencast-adaptive-snap: 777px;
   }
 }
 
-.screencast-thumb {
+.thumbnail {
   width:        30%;
   margin-right:  10%;
   box-shadow: 2px 2px 2px lighten($gray, 35%);
 
-  @include below($screencast-adaptive-snap) {
+  @include below($adaptive-snap) {
     display: none;
   }
 }

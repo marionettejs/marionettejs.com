@@ -31,6 +31,22 @@ section {
   max-width: 1200px;
 }
 
+.col-1-3 {
+  width: 33.33%;
+
+  @include below($adaptive-snap) {
+    width: 100%;
+  }
+}
+
+.col-2-3 {
+  width: 66.66%;
+
+  @include below($adaptive-snap) {
+    width: 100%;
+  }
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: $sans;
 }

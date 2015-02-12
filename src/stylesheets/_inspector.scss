@@ -1,15 +1,41 @@
 .inspector {
-  
-  // TODO: this is bad - but specificity 
-  // wins - this should be refactored as we share
-  // components between sections
+  .btn-action {
+    @include below($large-breakpoint) {
+      display: block;
+      margin: 20px 0;
+      width: 70%;
+    }
+
+    @include below($adaptive-snap) {
+      display: inline-block;
+      width: 35%;
+      margin-right: 30px;
+    }
+
+    @include below($sm-breakpoint) {
+      width: 85%;
+      margin: 20px 0;
+
+      &.secondary-color {
+        margin-top: 0;
+      }
+    }
+  }
+
   .description {
     padding-bottom: 0 !important;
   }    
   
-  .screencast-thumb {
-    width: auto;
+  .thumbnail {
+    margin-right: 0;
+    width: 90%;
+    border: 1px solid lighten(black, 75%);
     box-shadow: none;
+
+    @include below($adaptive-snap) {
+      display: inherit;
+      width: 100%;
+      margin-bottom: 30px;
+    }
   }
-  
 }

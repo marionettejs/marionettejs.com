@@ -9,36 +9,6 @@
   margin: 0 auto;
 }
 
-.download-button {
-  width: 200px;
-  text-align: center;
-
-  &.btn {
-    margin-top: 30px;
-    display: inline-block;
-
-    @include below($med-breakpoint) {
-      margin-top: 10px;
-      text-align: center;
-    }
-
-    @include below($sm-breakpoint) {
-      display: none;
-    }
-  }
-
-  &.view-docs {
-    width: 140px;
-    margin-left: 25px;
-    &.btn {
-      background: #29C8A4;
-      &:hover {
-        background-color: darken(#29C8A4, 5%)
-      }
-    }
-  }
-}
-
 .masthead {
   padding:    0 $center_pad 40px;
   overflow:   hidden;
@@ -50,6 +20,10 @@
     margin: auto;
     padding: 60px;
     max-width: 1200px;
+
+    .secondary-color {
+      width: 154px;
+    }
 
     .left {
       width: 30%;
