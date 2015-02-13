@@ -11,5 +11,7 @@ before_install:
 before_script:
   - npm run setup
   - npm i
+  - git config --global user.email "travis@marionettejs.com"
+  - git config --global user.name "TRAVIS-CI"
 script:
   - npm run deploy
