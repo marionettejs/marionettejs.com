@@ -7,12 +7,29 @@
 }
 
 .about article {
-  width: 60%;
+}
 
-  @include below(815px) {
-    width: 100%;
+.about {
+  &.why {
+    border-top: 1px solid #e3ecf1;
+  }
+  h1 {
+    font-size: 30px;
+    font-weight: bold;
+    font-style: italic;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #BFBFBF;
+  }
+  .features {
+    margin: 20px 0px;
+    .feature {
+      margin: 0;
+      padding-right: 20px;
+    }
   }
 }
+
 
 .quick-links {
   width:            30%;
@@ -62,6 +79,8 @@
     margin-bottom: 10px;
   }
 }
+
+
 
 .note {
   display: block;
