@@ -1,15 +1,23 @@
 .books { @include below(601px) {display: none} }
 
 .book-list {
+  //- book element padding
+  $book-grid-size: 40px;
+  
+  padding-left: 0;
+  list-style: none;
   text-align: center;
-
+  margin-bottom: -($book-grid-size/2);
+  margin-left: -($book-grid-size);
+  
+  > li {
+    display: inline-block;
+    padding-left: $book-grid-size;
+    margin-bottom: ($book-grid-size / 2);
+  }
+  
   a {
-    margin-right: 40px;
-
-    &:last-child {
-      margin-right: 0;
-    }
-
+    display: inline-block;
     img {
       box-shadow: 2px 2px 4px lighten($gray, 25%);
     }

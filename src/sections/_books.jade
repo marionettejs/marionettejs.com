@@ -1,6 +1,14 @@
 section.books.column-contain
   h2 Books
-  .book-list
+  ul.book-list
     each book in books
-      a(href="#{book.url}", target="_blank")
-        img(src="#{book.thumbnail}", alt="#{book.title}")
+      //- each of these is like a small readable card from
+      //- book library about a book we show on our page
+      li(itemscope itemtype="http://schema.org/Book")
+        //- give precendence to text content
+        //- which is hidden by default page (visually hidden)
+        .hidden-visually
+          h3(itemprop="name") #{book.title}
+          p(itemprop="description") #{book.description}
+        a(href="#{book.url}", target="_blank", itemprop="url")
+          img(src="#{book.thumbnail}", alt="#{book.title}", itemprop="image")
