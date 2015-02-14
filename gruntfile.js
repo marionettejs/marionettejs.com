@@ -25,7 +25,20 @@ module.exports = function(grunt) {
         }
       }
     },
-
+    critical: {
+        test: {
+            options: {
+                base: './',
+                css: [
+                    'dist/styles/marionette.css'
+                ],
+                width: 1200,
+                height: 800
+            },
+            src: 'dist/index.html',
+            dest: 'dist/index.html'
+        }
+    },
     concat: {
       options: {
         separator: ';\n'
@@ -276,7 +289,8 @@ module.exports = function(grunt) {
     'copy',
     'imagemin',
     'compile-templates',
-    'postcss:dist'
+    'postcss:dist',
+    'critical'
   ]);
 
   grunt.registerTask('compile-templates', [
