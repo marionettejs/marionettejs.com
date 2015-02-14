@@ -37,10 +37,8 @@ header.global-nav
 .masthead
   .wrapper
     .left
-      //- we inline svg by using data:image 
-      //- keep clean markup in development by includes
-      include ../partials/_marionette_logo
-      include ../partials/_marionette_text
+      img(src="images/marionette.svg", alt="Marionette logo", class= "primary-logo")
+      img(src="images/marionette-text.svg", alt="Marionette.js", class= "logo-text")
     .right
       h1 The Backbone Framework
       h2 Marionette simplifies your Backbone application code with robust views and architecture solutions.
