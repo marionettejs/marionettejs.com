@@ -1,42 +1,49 @@
 [
 
   {
+    "description": "Backbone.js is a growing, popular library for building JavaScript-based web applications in a well-structured, organized and maintainable way, using patterns similar to MVC. If you already have a working knowledge of Backbone, it's now time to take your applications to the next level with MarionetteJS. The Backbone extension builds on top of Backbone's event-driven architecture and adds a myriad of tools for building larger, more complex applications.",
     "thumbnail": "images/books/better-bb-apps.png",
     "title": "Better Backbone Applications with MarionetteJS",
     "url": "https://shop.smashingmagazine.com/better-backbone-applications-with-marionettejs.html"
   },
 
   {
+    "description": "Be more productive with Backbone.js: Marionette handles the boilerplate code, letting you focus on your application's specifics. Develop a complete Marionette.js app with this book, and you'll be comfortable with the library (whether you're new to web apps, or looking to quickly master yet another framework).",
     "thumbnail": "images/books/gentle-intro.png",
     "title": "Backbone.Marionette.js: A Gentle Introduction",
     "url": "https://leanpub.com/marionette-gentle-introduction?utm_campaign=marionette-gentle-introduction&utm_medium=embed&utm_source=marionettejs.com"
   },
 
   {
+    "description": "Learn to use javascript AMD in your apps the easy way",
     "thumbnail": "images/books/requirejs.png",
     "title": "Structuring Backbone Code with RequireJS and Marionette Modules",
     "url": "https://leanpub.com/structuring-backbone-with-requirejs-and-marionette?utm_campaign=structuring-backbone-with-requirejs-and-marionette&utm_medium=embed&utm_source=marionettejs.com"
   },
 
   {
+    "description": "Bring your applications to the next level, using these handy solutions to common application development challenges.",
     "thumbnail": "images/books/serious-progression.png",
     "title": "Backbone.Marionette.js: A Serious Progression",
     "url": "https://leanpub.com/marionette-serious-progression?utm_campaign=marionette-serious-progression&utm_medium=embed&utm_source=marionettejs.com"
   },
 
   {
+    "description": "If you know JavaScript and a little Backbone.js, this book is just what you need to move your speed and efficiency up a gear. It's a complete and practical guide to the composite application library Backbone Marionette.",
     "thumbnail": "images/books/getting-started.png",
     "title": "Getting Started with Backbone Marionette",
     "url": "http://www.amazon.com/Getting-Backbone-Marionette-Raymundo-Armendariz/dp/1783284250/ref=tmm_pap_title_0?ie=UTF8&qid=1420202176&sr=1-1"
   },
 
   {
+    "description": "Learn to write modular Javascript applicatons using Backbone Marionette and RequireJS/AMD. Create a responsive browser based application. Decouple modules with advanced design patterns to create a fast, responsive user experience. Featuring Backbone, Marionette, RequireJS and CoffeeScript.",
     "thumbnail": "images/books/expose.png",
     "title": "Marionette Exposé",
     "url": "https://leanpub.com/marionetteexpose?utm_campaign=marionetteexpose&utm_medium=embed&utm_source=marionettejs.com"
   },
 
   {
+    "description": "Eliminate The Boilerplate In Backbone.js Apps. From the creator of MarionetteJS - the premiere application framework for Backbone.js - comes a book that will show you how to Eliminate the boilerplate code that plagues your Backbone apps by building the add-ons and abstractions that your app needs.",
     "thumbnail": "images/books/bb-plugins.png",
     "title": "Building Backbone Plugins",
     "url": "https://leanpub.com/building-backbone-plugins?utm_campaign=building-backbone-plugins&utm_medium=embed&utm_source=marionettejs.com"
