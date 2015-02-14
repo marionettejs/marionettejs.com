@@ -6,13 +6,7 @@
     margin-top: 10px;
     margin-bottom: 0;
   }
-  header {
-    position: relative;
-    ul {
-      padding-left: 0;
-      list-style: none;
-    }
-  }
+
   .video_slideshow_scroller {
     overflow: hidden;
 
@@ -87,9 +81,7 @@
               color: $red;
             }
           }
-          .fluid-width-video-wrapper {
-            margin-bottom: $small-font;
-          }
+
           p {
             font-size: $mid-font;
             line-height: 16px;

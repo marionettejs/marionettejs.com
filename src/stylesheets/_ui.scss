@@ -34,7 +34,7 @@ a.btn {
 
   border-radius: $button-size;
 
-  &.btn-action, &.social {
+  &.btn-action {
     padding: 0 20px;
     background-color: $aqua;
     color: white;
@@ -42,12 +42,7 @@ a.btn {
       background: darken($aqua, 15%);
     }
   }
-
-  &.social {
-    height: 28px;
-    line-height: 29px;
-    padding: 0 10px;
-  }
+  
 }
 
 .btn-action {
@@ -80,16 +75,4 @@ a.btn {
 
 .section-header {
   margin-bottom: $center_pad;
-}
-
-.headline {
-  color:        $gray;
-  margin:       0;
-  text-align:   center;
-  line-height:  26px;
-
-  font: {
-    size:   $large-font;
-    weight: bold;
-  }
 }
