@@ -122,15 +122,15 @@
 
     .nav-slider {
       float: right;
-      
+
       &__list {
-        float: left;  
+        float: left;
         > li {
           position: relative;
           display: block;
-        }  
+        }
       }
-      
+
       @include below(660px) {
         background-color: $red;
         float: none;
@@ -143,7 +143,7 @@
         transition-duration: .5s;
         transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
         -webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
-        
+
         &__list {
           float: none;
         }
@@ -159,7 +159,7 @@
         display: inline-block;
         padding: 0 14px;
         cursor: default;
-        
+
         @include below(660px) {
           display: none;
         }
