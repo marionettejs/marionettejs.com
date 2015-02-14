@@ -28,8 +28,6 @@ html(lang='en')
     link(rel='stylesheet', href='styles/marionette.css?t=#{Date.now()}')
     link(rel='shortcut icon', href='images/favicon.ico', type='image/x-icon')
     link(rel='apple-touch-icon', href='images/apple-touch-icon.png')
-    link(href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css')
-
     // Hotjar
     script.
       (function (f, b) {
@@ -48,6 +46,8 @@ html(lang='en')
     div(style="display:none")
       include ../images/svg-sprite.svg
     block content
+
+    link(href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css')
 
     script(src="js/build.js?t=#{Date.now()}" defer)
     script.
