@@ -46,7 +46,7 @@
         text-align: center;
       }
 
-      h1, h2 {
+      h1, p {
         text-align: left;
         color: $dark-gray;
         display: inline-block;
@@ -56,8 +56,9 @@
         margin-top: 20px;
         font-size: $xlarge-font;
       }
-      h2 {
+      p {
         margin-top: 10px;
+        margin-bottom: 15px;
         font-size: $large-font;
       }
     }
