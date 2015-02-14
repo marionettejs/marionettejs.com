@@ -1,0 +1,5 @@
+.mobile-hidden {
+  @include below($sm-breakpoint) {
+    display: none !important;
+  }
+}
