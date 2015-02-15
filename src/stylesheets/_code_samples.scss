@@ -1,5 +1,6 @@
+
 .code-samples {
-  
+  $radius: 5px;
   .code-sample-block {
     float: left;
     width: 33%;
@@ -7,6 +8,7 @@
     height: 280px;
     border-right: 2px solid darken(#304357, 6%);
     background-color: darken(#304357, 5%);
+    border-radius: 0;
     code {
       white-space: pre-wrap;
     }
@@ -17,7 +19,6 @@
   .code-results-block {
     background-color: lighten($light-grey, 4%);
     border-right: none;
-    border-radius: 0 5px 5px 0;
   }
   .code-header {
     background-color: #304357;
@@ -28,17 +29,13 @@
     text-align: center;
     margin-bottom: 0;
     line-height: 70px;
-    border-radius: 5px 5px 0 0;
+    border-radius: 0;
   }
   .code-header-results {
     color: darken($light-grey, 30%);
     background-color: $light-grey;
     position: relative;
-    text-align: center;
-    border-radius: 0 5px 5px 0;
-  }
-  .first-sample-block {
-    border-radius: 5px 0 0 5px;
+    border-radius: 0 $radius $radius 0;
   }
 
   .result {
@@ -51,4 +48,31 @@
     padding-bottom: 20px;
     font-size: $mid-font;
   }
+
+  .first-sample-block {
+    border-radius: $radius 0 0 $radius;
+    @include below($large-breakpoint) {
+      border-radius: $radius $radius 0 0;
+    }
+    .code-header {
+      border-radius: $radius 0 0 0;
+      @include below($large-breakpoint) {
+        border-radius: $radius $radius 0 0;
+      }
+    }
+  }
+
+  .code-results-block {
+    border-radius: 0 $radius $radius 0;
+    @include below($large-breakpoint) {
+      border-radius: 0 0 $radius $radius;
+    }
+    .code-header {
+      border-radius: 0 $radius 0 0;
+      @include below($large-breakpoint) {
+        border-radius: 0;
+      }
+    }
+  }
+
 }
