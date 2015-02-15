@@ -1,5 +1,6 @@
 .support-link-icon {
-  vertical-align: text-top;
+  position: relative;
+  vertical-align: middle;
 }
 .support-link {
   color: $dark-gray;
@@ -16,10 +17,6 @@
   &__with_icon {
     margin-left: 0;
     color: $gray;
-  }
-  &__icon {
-    position: relative;
-    vertical-align: middle;
   }
   &__label {
     margin-left: 12px;
