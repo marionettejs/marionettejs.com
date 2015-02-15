@@ -134,6 +134,7 @@ module.exports = function(grunt) {
       dist: {
         files: {
           'dist/styles/marionette.css': 'src/stylesheets/marionette.scss',
+          'dist/styles/inspector.css': 'src/stylesheets/inspector/index.scss',
           'dist/styles/api.css': 'src/stylesheets/api.scss',
           'dist/styles/docs.css': 'src/stylesheets/docs.scss'
         }
@@ -145,6 +146,7 @@ module.exports = function(grunt) {
         },
         files: {
           'dist/styles/marionette.css': 'src/stylesheets/marionette.scss',
+          'dist/styles/inspector.css': 'src/stylesheets/inspector/index.scss',
           'dist/styles/api.css': 'src/stylesheets/api.scss',
           'dist/styles/docs.css': 'src/stylesheets/docs.scss'
         }
@@ -201,7 +203,8 @@ module.exports = function(grunt) {
     jade: {
       compile : {
         files: {
-          'dist/index.html': 'src/index.jade'
+          'dist/index.html': 'src/index.jade',
+          'dist/inspector/index.html': 'src/inspector/index.jade'
         },
         options: {
           data: function(){
@@ -221,7 +224,7 @@ module.exports = function(grunt) {
           message: 'Watching for changes...'
         }
       },
-      
+
       data: {
         options: {
           messages: 'Data .json files changed ...'
