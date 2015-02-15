@@ -25,7 +25,6 @@ html(lang='en')
     meta(property='og:url', content='http://marionettejs.com')
     meta(property='og:description', content='Marionette simplifies your Backbone application code with robust views and architecture solutions.')
     meta(property='og:title', content='The Backbone Framework')
-    link(rel='stylesheet', href='styles/marionette.css?t=#{Date.now()}')
     link(rel='shortcut icon', href='images/favicon.ico', type='image/x-icon')
     link(rel='apple-touch-icon', href='images/apple-touch-icon.png')
     link(href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css')
@@ -59,6 +58,7 @@ html(lang='en')
       include ../images/svg-sprite.svg
     block content
     script(src="//cdn.transifex.com/live.js" defer)
+    link(rel='stylesheet', href='styles/marionette.css?t=#{Date.now()}')
     script(src="js/build.js?t=#{Date.now()}" defer)
     script.
       // Google Analytics
