@@ -44,11 +44,21 @@ html(lang='en')
         b.getElementsByTagName("head")[0].appendChild(c);
       })(window, document);
 
+    // transifex
+    script.
+      window.liveSettings = {
+        api_key: "96d622d552d34443afc50e1704d746c0",
+        picker: "bottom-right",
+        detectlang: true,
+        dynamic: true,
+        autocollect: true
+      };
+
   body
     div(style="display:none")
       include ../images/svg-sprite.svg
     block content
-
+    script(src="//cdn.transifex.com/live.js" defer)
     script(src="js/build.js?t=#{Date.now()}" defer)
     script.
       // Google Analytics
