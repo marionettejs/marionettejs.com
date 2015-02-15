@@ -10,19 +10,19 @@ header.global-nav
     nav.nav-slider.closed(role="navigation")
       ul.nav-slider__list
         li.left
-          a(href="docs/current") Docs
+          a(itemprop="significantLink", href="docs/current") Docs
           span.middot ·
         li.left
-          a(href="annotated-src/backbone.marionette.html") Annotated Source
+          a(itemprop="significantLink", href="annotated-src/backbone.marionette.html") Annotated Source
           span.middot ·
         li.left
-          a(href="https://gitter.im/marionettejs/backbone.marionette", target="_blank") Support
+          a(itemprop="relatedLink", href="https://gitter.im/marionettejs/backbone.marionette", target="_blank") Support
           span.middot ·
         li.left
-          a(href="http://blog.marionettejs.com") Blog
+          a(itemprop="relatedLink", href="http://blog.marionettejs.com") Blog
           span.middot ·
         li.left
-          a.github-mark(href="https://github.com/marionettejs/backbone.marionette", target="_blank")
+          a.github-mark(itemprop="sameAs", href="https://github.com/marionettejs/backbone.marionette", target="_blank")
             span.hidden-visually GitHub @marionettejs
             svg.support-link-icon(width="19px", height="19px")
               use(xlink:href="#github-mark")
@@ -36,8 +36,8 @@ header.global-nav
       include ../partials/_marionette_logo
       include ../partials/_marionette_text
     .right
-      h1 The Backbone Framework
-      p Marionette simplifies your Backbone application code with robust views and architecture solutions.
+      h1(itemprop="alternativeHeadline") The Backbone Framework
+      p(itemprop="description") Marionette simplifies your Backbone application code with robust views and architecture solutions.
       a.btn.btn-action(href = "#download")
         | Download&nbsp;
         span.notranslate= VERSION
