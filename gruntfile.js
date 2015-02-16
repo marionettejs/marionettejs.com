@@ -104,6 +104,16 @@ module.exports = function(grunt) {
             dest: 'dist'
           }
         ]
+      },
+      main: {
+        files: [
+          {
+            cwd: 'src/',
+            expand: true,
+            src: ['robots.txt'],
+            dest: 'dist/'
+          }
+        ]
       }
     },
 
