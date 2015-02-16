@@ -1,0 +1,57 @@
+extends ../layouts/inspector-layout
+
+block content
+  .marionette-inspector
+    header
+      .header-cta
+        .left.logo
+          .main-logo
+            include ../partials/_marionette_logo
+          .logo-copy
+            include ../partials/_marionette_text
+          h1 Marionette Inspector
+        a.right.download.btn(href="http://chrome.google.com/webstore/detail/marionette-inspector/fbgfjlockdhidoaempmjcddibjklhpka")
+          img.chrome-icon(src="/images/inspector/chrome.png" height="50px")
+          p.small Available in the
+          p.large Chrome Web Store
+      .browser-frame
+        .browser-header
+          ul.actions
+            li.close
+            li.min
+            li.max
+        img(src="/images/inspector/inspector-preview.png")
+    ul.features
+      ul.row
+        li.feature-block
+          h4 Understand
+          p Understand how your App works, without needing to understand how all the code works.
+        li.feature-block
+          h4 Visualize
+          p Visualize the view hierarchy with the UI tree, see your application activity and history.
+        li.feature-block
+          h4 Inspect
+          p Inspect your view, ui, events, listener, models, attributes and so much more!
+      ul.row.last
+        li.feature-block
+          h4 Explore
+          p Explore your radio channels, requests, commands, and application with the inspector glass.
+        li.feature-block
+          h4 Jump
+          p Jump between elements of your application in a snap, with intelligent linking between components.
+        li.feature-block
+          h4 Hackable
+          p Curious how it works? Want to add a feature? The inspector is developed in the open. Jump in!
+  footer
+    ul.footer-actions
+      li.chat
+        a(href="https://gitter.im/marionettejs/marionette.inspector?utm_source=share-link&utm_medium=link&utm_campaign=share-link")
+          svg.support-link-icon(width="18", height="18")
+            use(xlink:href="#gitter-square")
+          | Chat with us!
+
+      li.github
+        a(href="https://github.com/marionettejs/marionettejs.com")
+          svg.support-link-icon(width="18", height="18")
+            use(xlink:href="#github-square")
+          | Join us on github!
