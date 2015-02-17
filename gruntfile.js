@@ -214,7 +214,9 @@ module.exports = function(grunt) {
       compile : {
         files: {
           'dist/index.html': 'src/index.jade',
-          'dist/inspector/index.html': 'src/inspector/index.jade'
+          'dist/inspector/index.html': 'src/inspector/index.jade',
+          'dist/download/index.html': 'src/download/index.jade'
+
         },
         options: {
           data: function(){
