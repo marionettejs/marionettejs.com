@@ -46,15 +46,16 @@ $(document).ready(function() {
     // --- /
 
     // equalHeights
+    var $codeSample = $('.equal-heights-js');
     if($(window).width() > 705) {
-        $('.code_examples > div').equalHeights();
+      $codeSample.equalHeights();
     }
     $(window).resize(function() {
         if($(window).width() > 705) {
-            $('.code_examples > div').css('height', 'auto');
-            $('.code_examples > div').equalHeights();
+          $codeSample.css('height', 'auto');
+          $codeSample.equalHeights();
         } else {
-            $('.code_examples > div').css('height', 'auto');
+          $codeSample.css('height', 'auto');
         }
     });
 
