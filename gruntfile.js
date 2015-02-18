@@ -89,7 +89,7 @@ module.exports = function(grunt) {
           {
             expand: true,
             cwd: 'src/',
-            src: ['images/**/*','!images/**/*.{png,jpg,gif}'],
+            src: ['images/**/*','!images/**/*.{png,jpg,gif,ico}'],
             dest: 'dist/'
           },
           {
@@ -112,7 +112,13 @@ module.exports = function(grunt) {
             expand: true,
             src: ['robots.txt'],
             dest: 'dist/'
-          }
+          },
+          {
+            cwd: 'src/images/',
+            expand: true,
+            src: ['favicon.ico'],
+            dest: 'dist/'
+          },
         ]
       }
     },
