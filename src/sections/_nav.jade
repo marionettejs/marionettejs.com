@@ -1,0 +1,29 @@
+header.global-nav
+  .global-nav__section.column-contain
+    a.left.logo(href="/")
+      | Marionette
+
+    button.menu-icon(type="button")
+      span.hidden-visually Toggle menu
+      svg(width="33px", height="24px")
+        use(xlink:href="#hamburger")
+    nav.nav-slider.closed(role="navigation")
+      ul.nav-slider__list
+        li.left
+          a(itemprop="significantLink", href="docs/current") Docs
+          span.middot ·
+        li.left
+          a(itemprop="significantLink", href="annotated-src/backbone.marionette.html") Annotated Source
+          span.middot ·
+        li.left
+          a(itemprop="relatedLink", href="https://gitter.im/marionettejs/backbone.marionette", target="_blank") Support
+          span.middot ·
+        li.left
+          a(itemprop="relatedLink", href="http://blog.marionettejs.com") Blog
+          span.middot ·
+        li.left
+          a.github-mark(itemprop="sameAs", href="https://github.com/marionettejs/backbone.marionette", target="_blank")
+            span.hidden-visually GitHub @marionettejs
+            svg.support-link-icon(width="19px", height="19px")
+              use(xlink:href="#github-mark")
+    .clear
