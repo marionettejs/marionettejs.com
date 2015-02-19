@@ -1,8 +1,8 @@
 a {
-  color: #378dbe;
+  color: $aqua;
 
   &:hover {
-    color: #106287;
+    color: $dark-aqua;
     text-decoration: none;
   }
 }

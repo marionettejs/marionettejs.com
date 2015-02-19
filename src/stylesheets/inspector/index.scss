@@ -27,6 +27,11 @@ h4 {
 
 .logo {
   float: left;
+
+  a {
+    text-decoration: none;
+    color: $dark-gray;
+  }
 }
 
 .main-logo img {
@@ -41,7 +46,7 @@ h4 {
 }
 
 h1 {
-  font-size: 23px;
+  font-size: 21px;
   position: relative;
   top: -55px;
   left: 88px;
@@ -70,6 +75,13 @@ footer {
 
   a {
     color: $dark-gray;
+    transition: all 200ms ease;
+    text-decoration: none;
+    &:hover,
+    &:focus {
+      color: darken($dark-gray, 15%);
+      text-decoration: underline;
+    }
   }
 }
 .download.btn {
@@ -185,5 +197,14 @@ footer {
     color: $dark-gray;
     line-height: 31px;
     margin-right: 20px;
+  }
+
+  a {
+    color: $aqua;
+
+    &:hover {
+      color: $dark-aqua;
+      text-decoration: none;
+    }
   }
 }
