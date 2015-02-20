@@ -28,14 +28,25 @@ $(document).ready(function() {
             $slideshowNext[pos !== slideCount - 1 ? 'show' : 'hide']();
         }
 
+        function addClickEffects(node) {
+            var $button = $(node).children();
+
+            $button.addClass('cbutton--click');
+            setTimeout(function() {
+                $button.removeClass('cbutton--click');
+            }, 500);
+        }
+
         function slideshowPrev() {
             pos = (pos === 0) ? pos : pos - 1;
             setTransform();
+            addClickEffects(this);
         }
 
         function slideshowNext() {
             pos = (pos === slideCount - 1) ? pos : pos + 1;
             setTransform();
+            addClickEffects(this);
         }
 
         $(window).on('resize', _.throttle(setTransform, 300));
