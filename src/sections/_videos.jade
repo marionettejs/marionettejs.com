@@ -10,11 +10,20 @@ section.featured_videos.column-contain
     .video_slideshow("data-cycle-slides" = ".video_slide")
       each video in videos
         .video_slide
-          figure.vid
-            div.vid-player(style="background-image:url(#{video.thumbnail})", data-vid-id="#{video.id}")
+          .vid(itemscope, itemtype="http://schema.org/VideoObject")
+            div.vid-player(style="background-image:url(#{video.thumbnailUrl})", data-vid-id="#{video.id}")
               svg.youtube-play
                 use(xlink:href="#play")
-            p #{video.title}
+            .hidden-visually
+              h3(itemprop="name") #{video.name}
+              p(itemprop="description") #{video.description}
+              meta(itemprop="embedUrl", content="#{video.embedUrl}")
+              meta(itemprop="author", content="#{video.author}")
+              meta(itemprop="duration", content="#{video.duration}")
+              meta(itemprop="isFamilyFriendly", content="true")
+              meta(itemprop="thumbnail", content="#{video.thumbnailUrl}")
+              meta(itemprop="url", content="#{video.contentUrl}")
+            p(itemprop="alternativeHeadline") #{video.title}
               if video.link
                 |  (
                 a(href="#{video.link.url}", target="_blank") #{video.link.title}
