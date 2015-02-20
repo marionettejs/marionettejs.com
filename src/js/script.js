@@ -28,22 +28,23 @@ $(document).ready(function() {
             $slideshowNext[pos !== slideCount - 1 ? 'show' : 'hide']();
         }
 
-        function addClickEffects(node) {
-            var $button = $(node).children();
-
-            $button.addClass('cbutton--click');
+        function addClickEffects(button) {
+            var $span = $(button).children('span');
+            $span.addClass('cbutton--click');
             setTimeout(function() {
-                $button.removeClass('cbutton--click');
+                $span.removeClass('cbutton--click');
             }, 500);
         }
 
-        function slideshowPrev() {
+        function slideshowPrev(event) {
+            event.preventDefault();
             pos = (pos === 0) ? pos : pos - 1;
             setTransform();
             addClickEffects(this);
         }
 
-        function slideshowNext() {
+        function slideshowNext(event) {
+            event.preventDefault();
             pos = (pos === slideCount - 1) ? pos : pos + 1;
             setTransform();
             addClickEffects(this);

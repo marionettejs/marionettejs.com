@@ -11,7 +11,6 @@
     overflow: hidden;
 
     .prev, .next {
-      display: inline-block;
       height: 50px;
       width: 50px;
       border-radius: 50%;
@@ -23,7 +22,9 @@
       line-height: 50px;
       top: 50%;
       margin-top: -25px;
-      cursor: pointer;
+      // TODO: refactor and add visual clues on
+      // :hover, :active, :focus
+      outline: none;
     }
 
     .prev {
