@@ -139,6 +139,4 @@ $(document).ready(function() {
 
     $backToTopBtn.on('click', scrollToTop);
 
-    $logo = $('.left.logo');
-    $logo.on('click', scrollToTop);
 });
