@@ -1,23 +1,21 @@
 /* Modified version of http://codyhouse.co/gem/back-to-top */
+// minimum tap area iOS (Android is even bigger)
+$back-to-top-size-small: 44px;
+$back-to-top-size-large: 50px;
+// minimum padding from screen edge
+$back-to-top-padding-small: 15px;
 
 .top {
-  display: inline-block;
-  height: 40px;
-  width: 40px;
-  border-radius: 50%;
+  height: $back-to-top-size-small;
+  width: $back-to-top-size-small;
 
   position: fixed;
-  bottom: 40px;
-  right: 10px;
-
+  bottom: 38px;
+  right: $back-to-top-padding-small;
+  z-index: $zindex-back-to-top;
+  
   box-shadow: 0 0 10px rgba(#000, .05);
-  z-index: 900;
-
-  /* image replacement properties */
-  overflow: hidden;
-  text-indent: 100%;
-  white-space: nowrap;
-
+  border-radius: 50%;
   background: rgba($med-gray, .8) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="%23fff" d="M8 2.8l8 7.9-2.4 2.4-5.5-5.5-5.6 5.6L0 10.7z"/></svg>') no-repeat center 50%;
 
   visibility: hidden;
@@ -38,15 +36,10 @@
     opacity: .5;
   }
 
-  @media only screen and (min-width: $med-breakpoint) {
-    right: 20px;
-    bottom: 20px;
-  }
-
   @media only screen and (min-width: $large-breakpoint) {
-    height: 50px;
-    width: 50px;
+    height: $back-to-top-size-large;
+    width: $back-to-top-size-large;
     right: 30px;
-    bottom: 30px;
+    bottom: 35px;
   }
 }
