@@ -58,7 +58,7 @@ module.exports = function(grunt) {
           'bower_components/backbone/backbone.js',
           'backbone.marionette/lib/backbone.marionette.js'
         ],
-        dest: 'dist/js/build.js',
+        dest: 'dist/js/build.js'
       }
     },
 
@@ -90,7 +90,7 @@ module.exports = function(grunt) {
           {
             expand: true,
             cwd: 'src/',
-            src: ['images/**/*','!images/**/*.{png,jpg,gif,ico}'],
+            src: ['images/**/*', '!images/**/*.{png,jpg,gif,ico}'],
             dest: 'dist/'
           },
           {
@@ -125,7 +125,7 @@ module.exports = function(grunt) {
             expand: true,
             src: ['favicon.ico'],
             dest: 'dist/'
-          },
+          }
         ]
       }
     },
@@ -143,7 +143,7 @@ module.exports = function(grunt) {
 
     svgstore: {
       options: {},
-      default : {
+      default: {
         files: {
           'src/images/svg-sprite.svg': ['src/svg-icons/*.svg']
         }
@@ -224,7 +224,7 @@ module.exports = function(grunt) {
     },
 
     jade: {
-      compile : {
+      compile: {
         files: {
           'dist/index.html': 'src/index.jade',
           'dist/inspector/index.html': 'src/inspector/index.jade',
@@ -232,7 +232,7 @@ module.exports = function(grunt) {
 
         },
         options: {
-          data: function(){
+          data: function() {
             return {
               VERSION: GittyCache.releaseTag || 'v.X.X.X',
               books: grunt.file.readJSON('src/data/books.json'),
@@ -282,23 +282,23 @@ module.exports = function(grunt) {
     compileDocs: {
       marionette: {
         options: {
-          repo      : 'backbone.marionette',
-          template  : 'src/docs/template.hbs',
-          indexTemplate  : 'src/docs/index.hbs',
-          svgIcons  : 'src/images/svg-sprite.svg'
+          repo: 'backbone.marionette',
+          template: 'src/docs/template.hbs',
+          indexTemplate: 'src/docs/index.hbs',
+          svgIcons: 'src/images/svg-sprite.svg'
         },
-        src  : 'backbone.marionette/docs',
-        dest : 'dist/docs'
+        src: 'backbone.marionette/docs',
+        dest: 'dist/docs'
       }
     },
 
     compileApi: {
       marionette: {
         options: {
-          repo : 'backbone.marionette'
+          repo: 'backbone.marionette'
         },
-        src  : 'src/api',
-        dest : 'dist/api'
+        src: 'src/api',
+        dest: 'dist/api'
       }
     }
   });
