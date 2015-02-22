@@ -1,0 +1,86 @@
+/**
+* common for all buttons
+*/
+$button-default-text-color: white;
+$button-primary-background: $aqua;
+$button-secondary-background: #29C8A4;
+
+/**
+* helper to generate button version
+*/
+@mixin button-action-version($color, $background, $border, $darken: 15%) {
+  color: $color;
+  background: $background;
+  border-color: $border;
+  &:focus,
+  &:hover {
+    background: darken($background, $darken);
+    border-color: darken($border, $darken);
+  }
+  &:active {
+    background: darken($background, ($darken + 5%));
+    border-color: darken($border, ($darken + 5%));
+  }
+}
+
+/**
+* Default {button} like UI element
+* This is a base class for this element
+* covering all of its features except of 
+* colors and background - which is up to subclasses
+*/
+.button {
+  display: inline-block;
+  margin-bottom: 0;
+  vertical-align: middle;
+  cursor: pointer;
+  background-image: none;
+  border: 1px solid transparent;
+  word-wrap: normal;
+  white-space: nowrap;
+  text: {
+    align: center;
+    decoration: none;
+  }
+  font: {
+    size: 16px;
+    weight: bold;
+    family: $sans;
+  }
+  line-height: 1.25;
+  user-select: none;
+  padding: 7px 25px;
+  border-radius: 18px;
+  // outlines
+  &,
+  &:active {
+    &:focus {
+      outline: thin dotted;
+      outline: 5px auto -webkit-focus-ring-color;
+      outline-offset: -2px;
+    }
+  }
+  // text
+  &:active,
+  &:focus,
+  &:hover {
+    color: $button-default-text-color;
+    text-decoration: none;
+  }
+}
+
+/**
+* default primary UI element as in original layout
+*/
+.primary-action {
+  @include button-action-version($button-default-text-color, $button-primary-background, $button-primary-background);
+}
+
+/**
+
+* secondary UI action typically shown together with primary
+* UI action elements
+*/
+.secondary-action {
+  @include button-action-version($button-default-text-color, $button-secondary-background, $button-secondary-background, 5%);
+}
