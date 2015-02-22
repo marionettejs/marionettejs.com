@@ -276,8 +276,8 @@ module.exports = function(grunt) {
       marionette: {
         options: {
           repo      : 'backbone.marionette',
-          template  : 'src/docs/template.html',
-          indexTemplate  : 'src/docs/index.html',
+          template  : 'src/docs/template.hbs',
+          indexTemplate  : 'src/docs/index.hbs',
           svgIcons  : 'src/images/svg-sprite.svg'
         },
         src  : 'backbone.marionette/docs',
