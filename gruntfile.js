@@ -41,7 +41,7 @@ module.exports = function(grunt) {
     },
     concat: {
       options: {
-        separator: ';\n'
+        separator: '\n',
       },
       dist: {
         src: [
@@ -102,6 +102,12 @@ module.exports = function(grunt) {
             expand: true,
             src: ['js/docs.js'],
             dest: 'dist'
+          },
+          {
+            expand: true,
+            cwd: 'bower_components/jquery/dist',
+            src: ['jquery.min.map'],
+            dest: 'dist/js'
           }
         ]
       },
