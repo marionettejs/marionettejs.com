@@ -42,6 +42,7 @@ module.exports = function(grunt) {
     concat: {
       options: {
         separator: '\n',
+        sourceMap: true
       },
       dist: {
         src: [
@@ -57,7 +58,7 @@ module.exports = function(grunt) {
           'bower_components/backbone/backbone.js',
           'backbone.marionette/lib/backbone.marionette.js'
         ],
-        dest: 'dist/js/build.js'
+        dest: 'dist/js/build.js',
       }
     },
 
