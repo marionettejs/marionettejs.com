@@ -41,7 +41,8 @@ module.exports = function(grunt) {
     },
     concat: {
       options: {
-        separator: ';\n'
+        separator: '\n',
+        sourceMap: true
       },
       dist: {
         src: [
@@ -57,7 +58,7 @@ module.exports = function(grunt) {
           'bower_components/backbone/backbone.js',
           'backbone.marionette/lib/backbone.marionette.js'
         ],
-        dest: 'dist/js/build.js'
+        dest: 'dist/js/build.js',
       }
     },
 
@@ -102,6 +103,12 @@ module.exports = function(grunt) {
             expand: true,
             src: ['js/docs.js'],
             dest: 'dist'
+          },
+          {
+            expand: true,
+            cwd: 'bower_components/jquery/dist',
+            src: ['jquery.min.map'],
+            dest: 'dist/js'
           }
         ]
       },
