@@ -1,27 +1,30 @@
+$footer-text-color: #b0c9d8;
+$footer-background-color: $light-blue;
+
 footer {
-  background-color: $light-blue;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  border-top: 1px solid darken($light-blue, 15%);
+
+  background-color: $footer-background-color;
+  padding: 20px 0;
+  border-top: 1px solid darken($footer-background-color, 15%);
   text-align: center;
-  height: 120px;
+  min-heigth: 120px;
 
   p {
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
     font-size: $mid-font;
-    color: #b0c9d8;
+    color: $footer-text-color;
 
     a {
-      color: #b0c9d8;
+      color: $footer-text-color;
       text-decoration: none;
       font-weight: bold;
 
+      &:active,
+      &:focus,
       &:hover {
-        color: darken(#b0c9d8, 15%);
+        color: darken($footer-text-color , 15%);
         text-decoration: underline;
       }
+
     }
   }
 }
