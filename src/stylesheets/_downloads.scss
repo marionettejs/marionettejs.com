@@ -59,6 +59,12 @@ small {
   font-size: 80%;
 }
 
-#download .btn-action {
-  margin-top: 0;
+.download-section {
+  small {
+    float: right;
+    color: $gray;
+  }
+  .btn-action {
+    margin-top: 0;
+  }
 }

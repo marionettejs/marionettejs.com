@@ -1,15 +1,15 @@
-section.column-contain.hidden-xs#download
-  .section-header
-    h2.left Package Managers
-    small.right
-      | &nbsp;#{VERSION}
-    .cl
+section.column-contain.download-section
+  
+  h2.section-header Download Information
+    small  #{VERSION}
+  p.description.
+    You can download Marionette either with #[i npm] or #[i bower] or as direct file download.
 
   div.col-1-3.left
-    h2 With Bower
+    h3 Install with #[i bower]
     code.code-wrap.notranslate bower install marionette
 
   div.col-1-3.left
-    h2 With npm
+    h3 Install with #[i npm]
     code.code-wrap.notranslate npm install backbone.marionette
   .cl
