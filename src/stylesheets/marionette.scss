@@ -4,6 +4,8 @@
 @import "vendor/prettify/prettify";
 @import "vendor/prettify/marionette";
 @import "variables";
+@import "utils/mixins";
+@import "utils/helpers";
 @import "animations";
 @import "base";
 @import "ui";
