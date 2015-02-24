@@ -1,19 +1,19 @@
-section.column-contain.hidden-xs#download
-  .section-header
-    h2.left Download Information
-    small.right
-      | &nbsp;#{VERSION}
-    .cl
+section.column-contain.download-section#download
+
+  h2.section-header Download Information
+    small  #{VERSION}
+  p.description.
+    You can download Marionette either with #[i npm] or #[i bower] or as direct file download.
 
   div.col-1-3.left
-    h2 With bower
+    h3 Install with #[i bower]
     code.code-wrap.notranslate bower install marionette
 
   div.col-1-3.left
-    h2 With npm
+    h3 Install with #[i npm]
     code.code-wrap.notranslate npm install backbone.marionette
 
   div.col-1-3.left
-    h2 Static builds
+    h3 Static builds
     a.btn.btn-action(href="/download") Download
   .cl
