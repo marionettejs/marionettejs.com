@@ -20,6 +20,8 @@ $(document).ready(function() {
             $slide = $slider.children().first(),
             slideCount = $slider.children().length,
             pos = 0;
+        // see #302
+        if(!$slideshowWrap.length) return;
 
         function setTransform() {
             var distance = (-pos * ($slide.width() + parseInt($slide.css('margin-right').replace(/px/g, ''), 10)));
