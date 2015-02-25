@@ -22,9 +22,12 @@
       line-height: 50px;
       top: 50%;
       margin-top: -25px;
-      // TODO: refactor and add visual clues on
-      // :hover, :active, :focus
       outline: none;
+      &:focus,
+      &:hover {
+        background-color: darken($mint, 5%);
+      }
+
     }
 
     .prev {
