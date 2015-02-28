@@ -1,5 +1,6 @@
 var autoprefixer = require('autoprefixer-core');
 var GittyCache = require('./tasks/utils/gitty-cache');
+var _ = require('underscore');
 
 module.exports = function(grunt) {
   require('load-grunt-tasks')(grunt);
@@ -233,11 +234,14 @@ module.exports = function(grunt) {
         },
         options: {
           data: function() {
-            return {
-              VERSION: GittyCache.releaseTag || 'v.X.X.X',
-              books: grunt.file.readJSON('src/data/books.json'),
-              videos: grunt.file.readJSON('src/data/videos.json')
-            };
+            return _.extend(
+              require('./src/data/locals.json'),
+              {
+                VERSION: GittyCache.releaseTag || 'v.X.X.X',
+                books: require('./src/data/books.json'),
+                videos: require('./src/data/videos.json')
+              }
+            );
           }
         }
       }
