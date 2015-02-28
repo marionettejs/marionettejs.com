@@ -79,6 +79,14 @@
             height: 60px;
             cursor: pointer;
             color: #1F1F1F;
+            // hotfix for #283
+            background: {
+              image: linear-gradient(0deg, white, white);
+              position: center center;
+              repeat: no-repeat;
+              size: 50% 50%;
+            }
+
             &:hover{
               color: $red;
             }
