@@ -14,4 +14,7 @@ block content
   include ./sections/_stickers
   include ./sections/_companies
 
-  include ./sections/_footer
+//- only home page has scroll to top in the footer
+block append footer
+  a(href="#top", class="top")
+    span.hidden-visually Top
