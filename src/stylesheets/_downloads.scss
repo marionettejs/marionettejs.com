@@ -36,17 +36,17 @@
     }
   }
 
-  li {
+  li,
+  p {
     margin-bottom: 20px;
   }
 
   p {
     width:     85%;
-    font-size: $mid-font;
-    margin-bottom: 20px;
   }
 
-  a {
+  a,
+  p {
     font-size: $mid-font;
   }
 
