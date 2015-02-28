@@ -1,18 +1,6 @@
 [
 
   {
-    "author": "Sam Moore",
-    "contentUrl": "https://www.youtube.com/watch?v=F32QhaHFn1k",
-    "description": "The Betterment team have a need to load data from their APIs before they render a \"page\" in their Marionette app. They used to do this with the Marionette.Async plugin, but when that project died off, they decided to try a different approach. They ended up building a more powerful router; this is that story (told by their lead engineer, Sam Moore). Slides: http://goo.gl/rkWcb2 Backbone.Blazer: https://github.com/Betterment/backbone.blazer Sponsored by: http://www.betterment.com Marionette.js: http://marionettejs.com Dancing with Marionette Meetup: http://www.meetup.com/Dancing-with-Marionette-js Marionette Chat Room: https://gitter.im/marionettejs/backbone.marionette Sam Moore: https://twitter.com/samandmoore Sam's Anti-Bio: I love woodworking, but I hardly ever do it anymore. I have an obsession with garden gnomes. I think that Ruby can save the world.",
-    "duration": "T20M43S",
-    "embedUrl": "https://www.youtube.com/v/F32QhaHFn1k",
-    "id": "F32QhaHFn1k",
-    "name": "Routing Made Better",
-    "thumbnailUrl": "images/youtube/F32QhaHFn1k.jpg",
-    "title": "Routing Made Better"
-   },
-
-  {
     "author": "James Smith",
     "contentUrl": "https://youtube.googleapis.com/watch?v=EvQnntaqVdE",
     "duration": "T28M44S",
@@ -96,6 +84,22 @@
     "name": "Using DevTools for Marionette Debugging",
     "title": "Using DevTools for Marionette Debugging",
     "thumbnailUrl": "images/youtube/75d0odmbu38.jpg"
+  },
+
+  {
+    "author": "Sam Moore",
+    "contentUrl": "https://www.youtube.com/watch?v=F32QhaHFn1k",
+    "description": "The Betterment team have a need to load data from their APIs before they render a \"page\" in their Marionette app. They used to do this with the Marionette.Async plugin, but when that project died off, they decided to try a different approach. They ended up building a more powerful router; this is that story (told by their lead engineer, Sam Moore). Slides: http://goo.gl/rkWcb2 Backbone.Blazer: https://github.com/Betterment/backbone.blazer Sponsored by: http://www.betterment.com Marionette.js: http://marionettejs.com Dancing with Marionette Meetup: http://www.meetup.com/Dancing-with-Marionette-js Marionette Chat Room: https://gitter.im/marionettejs/backbone.marionette Sam Moore: https://twitter.com/samandmoore Sam's Anti-Bio: I love woodworking, but I hardly ever do it anymore. I have an obsession with garden gnomes. I think that Ruby can save the world.",
+    "duration": "T20M43S",
+    "embedUrl": "https://www.youtube.com/v/F32QhaHFn1k",
+    "id": "F32QhaHFn1k",
+    "link": {
+      "url": "https://github.com/Betterment/backbone.blazer",
+      "title": "Backbone.Blazer"
+    },
+    "name": "Routing Made Better",
+    "thumbnailUrl": "images/youtube/F32QhaHFn1k.jpg",
+    "title": "Routing Made Better"
   },
 
   {
