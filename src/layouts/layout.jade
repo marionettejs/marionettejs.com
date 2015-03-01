@@ -1,5 +1,9 @@
 doctype html
 html(lang='en', itemscope, itemtype="http://schema.org/WebPage")
+  //- this is a top level block
+  //- to host variables defined in locals.json
+  //- and modified by per-page extensions
+  block vars
   head
     //
       .
@@ -58,8 +62,8 @@ html(lang='en', itemscope, itemtype="http://schema.org/WebPage")
         dynamic: true,
         autocollect: true
       };
-
-  body
+  //- set this in page .jade file via vars
+  body(class=bodyClass)
     div(style="display:none")
       include ../images/svg-sprite.svg
     block content

@@ -1,5 +1,9 @@
 doctype html
 html(lang='en')
+  //- this is a top level block
+  //- to host variables defined in locals.json
+  //- and modified by per-page extensions
+  block vars
   head
     meta(charset='utf-8')
     meta(http-equiv='X-UA-Compatible', content='IE=edge')
@@ -35,7 +39,7 @@ html(lang='en')
         b.getElementsByTagName("head")[0].appendChild(c);
       })(window, document);
 
-  body
+  body(class=bodyClass)
     block content
     div(style="display:none")
       include ../images/svg-sprite.svg
