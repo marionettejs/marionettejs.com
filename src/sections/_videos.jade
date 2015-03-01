@@ -9,18 +9,18 @@ section.featured_videos.column-contain
       each video in videos
         .video_slide
           .vid(itemscope, itemtype="http://schema.org/VideoObject")
-            div.vid-player(style="background-image:url(#{video.thumbnailUrl})", data-vid-id="#{video.id}")
+            div.vid-player(style="background-image:url(images/youtube/#{video.id}.jpg)", data-vid-id="#{video.id}")
               svg.youtube-play
                 use(xlink:href="#play")
             .hidden-visually
               h3(itemprop="name") #{video.name}
               p(itemprop="description") #{video.description}
-              meta(itemprop="embedUrl", content="#{video.embedUrl}")
+              meta(itemprop="embedUrl", content="https://youtube.googleapis.com/v/#{video.id}")
               meta(itemprop="author", content="#{video.author}")
               meta(itemprop="duration", content="#{video.duration}")
               meta(itemprop="isFamilyFriendly", content="true")
-              meta(itemprop="thumbnail", content="#{video.thumbnailUrl}")
-              meta(itemprop="url", content="#{video.contentUrl}")
+              meta(itemprop="thumbnail", content="images/youtube/#{video.id}.jpg")
+              meta(itemprop="url", content="https://youtube.googleapis.com/watch?v=#{video.id}")
             p(itemprop="alternativeHeadline") #{video.title}
               if video.link
                 |  (
