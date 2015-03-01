@@ -31,6 +31,12 @@ section {
   max-width: 1200px;
 }
 
+//
+// WARN: DEPRECATED
+// do not work here on columns
+// please see layout/_grid.css
+// for grid system
+//
 .col-1-3 {
   width: 33.33%;
 

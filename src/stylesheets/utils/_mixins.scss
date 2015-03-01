@@ -1,0 +1,21 @@
+/**
+* library of mixins
+*/
+
+/**
+* clearfix pattern
+* http://git.io/A9Ol
+*/
+@mixin clearfix() {
+
+  &:before,
+  &:after {
+    content: "";
+    display: table;
+  }
+
+  &:after {
+    clear: both;
+  }
+
+}

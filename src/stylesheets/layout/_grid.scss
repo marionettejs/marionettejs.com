@@ -1,0 +1,81 @@
+/**
+* basic grid system based on commonly used
+* container + row + columns solution using 
+* most supported spacing and clearing
+*/
+// the frequently used 25px padding/margin
+$grid-gutter-width: (2 * 25px);
+// as seen in layout max-width
+$container-max-width: $center_mw;
+
+/**
+* mixin for basic container
+*/
+@mixin base-container() {
+	margin-right: auto;
+	margin-left: auto;
+	padding-left:  ($grid-gutter-width / 2);
+	padding-right: ($grid-gutter-width / 2);
+	@include clearfix;
+}
+
+/**
+* a container with defined max width
+*/
+.container {
+	@include base-container;
+	max-width: $container-max-width;
+}
+
+/**
+* a container without defined max width
+*/
+.container-fluid {
+	@include base-container;
+}
+
+/**
+* a basic row with negative margins
+*/
+.row {
+	margin-left: -($grid-gutter-width / 2);
+	margin-right: -($grid-gutter-width / 2);
+	@include clearfix;
+}
+
+/**
+* our columns are limited now
+* and we can define them without helper functions
+* we could use [class*='col-'] in the future as well
+*/
+.col-1,
+.col-2,
+.col-3 {
+  position: relative;
+  min-height: 1px;
+  float: left;
+  padding-left:  ($grid-gutter-width / 2);
+  padding-right: ($grid-gutter-width / 2);
+}
+
+.col-1 {
+  width: 100%;
+  @include below($adaptive-snap) {
+    float: none;
+    width: auto;
+  }
+}
+.col-2 {
+  width: 66.66%;
+  @include below($adaptive-snap) {
+    float: none;
+    width: auto;
+  }
+}
+.col-3 {
+  width: 33.33%;
+  @include below($adaptive-snap) {
+    float: none;
+    width: auto;
+  }
+}
