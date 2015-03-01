@@ -178,7 +178,8 @@ footer {
   margin-top: 165px;
 }
 
-.row {
+// [renamed] see #324
+.grid-row {
   overflow: hidden;
 
   &.last {
