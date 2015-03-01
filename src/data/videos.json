@@ -2,140 +2,107 @@
 
   {
     "author": "James Smith",
-    "contentUrl": "https://youtube.googleapis.com/watch?v=EvQnntaqVdE",
     "duration": "T28M44S",
-    "embedUrl": "https://youtube.googleapis.com/v/EvQnntaqVdE",
     "id": "EvQnntaqVdE",
     "name": "James Smith  - Marionette The Backbone Framework",
-    "thumbnailUrl": "images/youtube/EvQnntaqVdE.jpg",
     "title": "Marionette - The Backbone Framework"
   },
 
   {
     "author": "Jason Laster",
-    "contentUrl": "https://youtube.googleapis.com/watch?v=7yZKsgKxziw",
     "description": "Jason Laster, a core contributor to Marionette, gives us a quick intro to Marionette / Backbone.",
     "duration": "T08M20S",
-    "embedUrl": "https://youtube.googleapis.com/v/7yZKsgKxziw",
     "id": "7yZKsgKxziw",
     "name": "Building Beautiful Apps with Marionette",
-    "thumbnailUrl": "images/youtube/7yZKsgKxziw.jpg",
     "title": "Marionette 101"
   },
 
   {
     "author": "Sam Saccone",
-    "contentUrl": "https://youtube.googleapis.com/watch?v=CTr-tTwRH3o",
     "description": "Sam Saccone explains how to deal with nested views in Marionette.\n\nSlides: http://mbx.cm/t/jsbVb\n\nSponsored by: http://www.infor.com\nMarionette.js: http://marionettejs.com\nDancing with Marionette Meet...",
     "duration": "T10M19S",
-    "embedUrl": "https://youtube.googleapis.com/v/CTr-tTwRH3o",
     "id": "CTr-tTwRH3o",
     "name": "Nesting Your Views in Marionette",
-    "title": "Nesting Your Views in Marionette",
-    "thumbnailUrl": "images/youtube/CTr-tTwRH3o.jpg"
+    "title": "Nesting Your Views in Marionette"
   },
 
   {
     "author": "Jason Laster",
-    "contentUrl": "https://youtube.googleapis.com/watch?v=6wvAswHkarE",
     "description": "Jason Laster explains how to use Marionette Behaviors.\n\nSlides: http://mbx.cm/t/9GBSw\n\nSponsored by: http://www.infor.com\nMarionette.js: http://marionettejs.com\nDancing with Marionette Meetup: http://...",
     "duration": "T18M24S",
-    "embedUrl": "https://youtube.googleapis.com/v/6wvAswHkarE",
     "id": "6wvAswHkarE",
     "name": "Marionette Behaviors",
-    "title": "Marionette Behaviors",
-    "thumbnailUrl": "images/youtube/6wvAswHkarE.jpg"
+    "title": "Marionette Behaviors"
   },
 
   {
     "author": "James Smith",
-    "contentUrl": "https://youtube.googleapis.com/watch?v=2b1G3TdlQEU",
     "description": "James Smith explains how you can use Backbone.Wreqr.\n\nSlides: http://mbx.cm/t/TtNgU\n\nSponsored by: http://www.infor.com\nMarionette.js: http://marionettejs.com\nDancing with Marionette Meetup: http://ww...",
     "duration": "T17M16S",
-    "embedUrl": "https://youtube.googleapis.com/v/2b1G3TdlQEU",
     "id": "2b1G3TdlQEU",
     "name": "Backbone.Wreqr",
-    "title": "Backbone.Wreqr",
-    "thumbnailUrl": "images/youtube/2b1G3TdlQEU.jpg"
+    "title": "Backbone.Wreqr"
   },
 
   {
     "author": "Jason Laster",
-    "contentUrl": "https://youtube.googleapis.com/watch?v=jbGm3mJXh_s",
     "duration": "T38M08S",
-    "embedUrl": "https://youtube.googleapis.com/v/jbGm3mJXh_s",
     "id": "jbGm3mJXh_s",
     "link": {
       "url": "https://chrome.google.com/webstore/detail/marionette-inspector/fbgfjlockdhidoaempmjcddibjklhpka?hl=en",
       "title": "Marionette Inspector"
     },
     "name": "Jason Laster - Backbone under the Magnifying Glass Tools for Exploring and Debugging Your Apps",
-    "thumbnailUrl": "images/youtube/jbGm3mJXh_s.jpg",
     "title": "Backbone Under the Magnifying Glass"    
   },
 
   {
     "author": "Jason Laster",
-    "contentUrl": "https://youtube.googleapis.com/watch?v=75d0odmbu38",
     "description": "Jason is a Software Engineer at Etsy and a core contributor to Marionette. In this talk, he shows us all of his tricks for debugging a Marionette app.\n\nSponsored by: http://www.infor.com\nMarionette.js...",
     "duration": "T19M45S",
-    "embedUrl": "https://youtube.googleapis.com/v/75d0odmbu38",
     "id": "75d0odmbu38",
     "name": "Using DevTools for Marionette Debugging",
-    "title": "Using DevTools for Marionette Debugging",
-    "thumbnailUrl": "images/youtube/75d0odmbu38.jpg"
+    "title": "Using DevTools for Marionette Debugging"
   },
 
   {
     "author": "Sam Moore",
-    "contentUrl": "https://www.youtube.com/watch?v=F32QhaHFn1k",
     "description": "The Betterment team have a need to load data from their APIs before they render a \"page\" in their Marionette app. They used to do this with the Marionette.Async plugin, but when that project died off, they decided to try a different approach. They ended up building a more powerful router; this is that story (told by their lead engineer, Sam Moore). Slides: http://goo.gl/rkWcb2 Backbone.Blazer: https://github.com/Betterment/backbone.blazer Sponsored by: http://www.betterment.com Marionette.js: http://marionettejs.com Dancing with Marionette Meetup: http://www.meetup.com/Dancing-with-Marionette-js Marionette Chat Room: https://gitter.im/marionettejs/backbone.marionette Sam Moore: https://twitter.com/samandmoore Sam's Anti-Bio: I love woodworking, but I hardly ever do it anymore. I have an obsession with garden gnomes. I think that Ruby can save the world.",
     "duration": "T20M43S",
-    "embedUrl": "https://www.youtube.com/v/F32QhaHFn1k",
     "id": "F32QhaHFn1k",
     "link": {
       "url": "https://github.com/Betterment/backbone.blazer",
       "title": "Backbone.Blazer"
     },
     "name": "Routing Made Better",
-    "thumbnailUrl": "images/youtube/F32QhaHFn1k.jpg",
     "title": "Routing Made Better"
   },
 
   {
     "author": "Brian Mann",
-    "contentUrl": "https://youtube.googleapis.com/watch?v=qWr7x9wk6_c",
     "description": "Brian Mann demonstrates how to build modular Backbone apps using Marionette JS instead of building your application's infrastructure from scratch.\n\nFor more information on Brian or BackboneConf, visit...",
     "duration": "T46M29S",
-    "embedUrl": "https://youtube.googleapis.com/v/qWr7x9wk6_c",
     "id": "qWr7x9wk6_c",
     "name": "Brian Mann - The tools and patterns for building large-scale Backbone applications",
-    "title": "Brian Mann talks about building applications with Marionette",
-    "thumbnailUrl": "images/youtube/qWr7x9wk6_c.jpg"
+    "title": "Brian Mann talks about building applications with Marionette"
   },
 
   {
     "author": "Amy Palamountain",
-    "contentUrl": "https://youtube.googleapis.com/watch?v=0o2whtCJw8I",
     "description": "Amy Palamountain from GreenButton on Unsucking Your Backbone",
     "duration": "T40M38S",
-    "embedUrl": "https://youtube.googleapis.com/v/0o2whtCJw8I",
     "id": "0o2whtCJw8I",
     "name": "Codemania 2013: Amy Palamountain on Backbone and Marionette",
-    "title": "Unsuck Your Backbone",
-    "thumbnailUrl": "images/youtube/0o2whtCJw8I.jpg"
+    "title": "Unsuck Your Backbone"
   },
 
   {
     "author": "Derick Bailey",
-    "contentUrl": "https://youtube.googleapis.com/watch?v=VERQEr-bVTs",
     "description": "This is a talk that Derick Bailey gave to the Houston Open Development User Group on April 4th 2013.\n\nhttp://www.meetup.com/Houston-Open-Development-User-Group/events/110571032/\n\nThe code is availble ...",
     "duration": "T01H48M31S",
-    "embedUrl": "https://youtube.googleapis.com/v/VERQEr-bVTs",
     "id": "VERQEr-bVTs",
     "name": "Backbone.js with Derick Bailey - April 2013",
-    "title": "From jQuery to Backbone/Marionette",
-    "thumbnailUrl": "images/youtube/VERQEr-bVTs.jpg"
+    "title": "From jQuery to Backbone/Marionette"
   }
 
 ]
