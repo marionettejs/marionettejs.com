@@ -100,20 +100,18 @@ footer {
     image-rendering: -webkit-optimize-contrast;
   }
 
-  .small, .large {
+  p {
+    font-size: 14px;
     text-decoration: none;
     text-align: right;
   }
-
-  .small {
+  small {
+    display: block;
+    margin-bottom: 3px;
     font-size: 12px;
     color: $dark-gray;
   }
 
-  .large {
-    margin-top: 3px;
-    font-size: 14px;
-  }
 }
 
 .browser-frame {
