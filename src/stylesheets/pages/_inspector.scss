@@ -143,14 +143,15 @@ footer {
   .actions {
     float: left;
     margin-left: 5px;
+    display: inline-block;
 
-    li {
+    .close, .min, .max {
+      float: left;
+      display: inline-block;
       height: 10px;
       width: 10px;
       border-radius: 50%;
-      float: left;
-      margin-left: 6px;
-      margin-top: 11px;
+      margin: 11px 0 0 6px;
     }
 
     .close {
@@ -164,6 +165,7 @@ footer {
     .max {
       background: #09cb34;
     }
+    
   }
 }
 
