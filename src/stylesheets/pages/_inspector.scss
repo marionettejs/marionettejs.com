@@ -1,2 +1,209 @@
 // inspector page specific styles and fixes
-.inspector-page {}
+html {
+  font-family: 'Open Sans', sans-serif;
+}
+
+header {
+  background: $light-blue;
+  border-bottom: solid 1px #bad1e1;
+}
+
+h4 {
+  font-size: 21px;
+  margin-bottom: 20px;
+  color: $red;
+}
+
+.header-cta {
+  overflow: hidden;
+  width: 100%;
+  max-width: 1000px;
+  padding: 25px 50px 0;
+  margin: 0 auto;
+}
+
+.logo {
+  float: left;
+
+  a {
+    text-decoration: none;
+    color: $dark-gray;
+  }
+}
+
+.main-logo img {
+  height: 85px;
+}
+
+.logo-copy img {
+  height: 24px;
+  position: relative;
+  top: -60px;
+  left: 73px;
+}
+
+h1 {
+  font-size: 21px;
+  position: relative;
+  top: -55px;
+  left: 88px;
+}
+
+footer {
+  border-top: solid 1px #e3ecf1;
+  width: 90%;
+  margin: 50px auto;
+  padding: 20px;
+  max-width: 1000px;
+}
+
+.footer-actions {
+  text-align: center;
+
+  svg, img {
+    vertical-align: bottom;
+    margin-right: 5px;
+  }
+
+  li {
+    display: inline-block;
+    margin: 20px;
+  }
+
+  a {
+    color: $dark-gray;
+    transition: all 200ms ease;
+    text-decoration: none;
+    &:hover,
+    &:focus {
+      color: darken($dark-gray, 15%);
+      text-decoration: underline;
+    }
+  }
+}
+.download.btn {
+  float: right;
+  border: solid 2px #CCC;
+  width: 144px;
+  border-radius: 4px;
+  position: relative;
+  padding: 16px;
+  padding-left: 47px;
+  padding-bottom: 11px;
+  margin-top: 25px;
+  text-decoration: none;
+  color: #000;
+  .chrome-icon {
+    position: absolute;
+    top: 3px;
+    left: 5px;
+    image-rendering: -webkit-optimize-contrast;
+  }
+
+  .small, .large {
+    text-decoration: none;
+    text-align: right;
+  }
+
+  .small {
+    font-size: 12px;
+    color: $dark-gray;
+  }
+
+  .large {
+    margin-top: 3px;
+    font-size: 14px;
+  }
+}
+
+.browser-frame {
+  margin: 40px auto -75px;
+  max-width: 868px;
+  width: 100%;
+  height: 392px;
+  box-shadow: 0px 30px 80px rgba(0, 0, 0, 0.27);
+
+  img {
+    width: 100%;
+  }
+}
+
+.browser-header {
+  height: 29px;
+  width: 100%;
+  background: #dfe3e6; /* Old browsers */
+  background: -moz-linear-gradient(top,  #dfe3e6 0%, #e0e1e3 8%, #d9dadc 73%, #d7dbde 85%, #d7d8da 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#dfe3e6), color-stop(8%,#e0e1e3), color-stop(73%,#d9dadc), color-stop(85%,#d7dbde), color-stop(100%,#d7d8da)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #dfe3e6 0%,#e0e1e3 8%,#d9dadc 73%,#d7dbde 85%,#d7d8da 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #dfe3e6 0%,#e0e1e3 8%,#d9dadc 73%,#d7dbde 85%,#d7d8da 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #dfe3e6 0%,#e0e1e3 8%,#d9dadc 73%,#d7dbde 85%,#d7d8da 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #dfe3e6 0%,#e0e1e3 8%,#d9dadc 73%,#d7dbde 85%,#d7d8da 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dfe3e6', endColorstr='#d7d8da',GradientType=0 ); /* IE6-9 */
+
+  .actions {
+    float: left;
+    margin-left: 5px;
+
+    li {
+      height: 10px;
+      width: 10px;
+      border-radius: 50%;
+      float: left;
+      margin-left: 6px;
+      margin-top: 11px;
+    }
+
+    .close {
+      background: #ff634e;
+    }
+
+    .min {
+      background: #ffc108;
+    }
+
+    .max {
+      background: #09cb34;
+    }
+  }
+}
+
+.features {
+  max-width: 1000px;
+  margin: 0 auto;
+  margin-top: 165px;
+}
+
+// [renamed] see #324
+.grid-row {
+  overflow: hidden;
+
+  &.last {
+    margin-top: 40px;
+  }
+}
+
+.feature-block {
+  width: 33.33%;
+  float: left;
+
+  @include below(680px) {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  p {
+    color: $dark-gray;
+    line-height: 31px;
+    margin-right: 20px;
+  }
+
+  a {
+    color: $aqua;
+
+    &:hover {
+      color: $dark-aqua;
+      text-decoration: none;
+    }
+  }
+}
+
