@@ -169,7 +169,7 @@ module.exports = function(grunt) {
       dist: {
         files: {
           'dist/styles/marionette.css': 'src/stylesheets/marionette.scss',
-          'dist/styles/inspector.css': 'src/stylesheets/inspector/index.scss',
+          'dist/styles/inspector.css': 'src/stylesheets/inspector.scss',
           'dist/styles/api.css': 'src/stylesheets/api.scss',
           'dist/styles/docs.css': 'src/stylesheets/docs.scss'
         }
@@ -181,7 +181,7 @@ module.exports = function(grunt) {
         },
         files: {
           'dist/styles/marionette.css': 'src/stylesheets/marionette.scss',
-          'dist/styles/inspector.css': 'src/stylesheets/inspector/index.scss',
+          'dist/styles/inspector.css': 'src/stylesheets/inspector.scss',
           'dist/styles/api.css': 'src/stylesheets/api.scss',
           'dist/styles/docs.css': 'src/stylesheets/docs.scss'
         }
