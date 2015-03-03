@@ -141,8 +141,7 @@ footer {
     .close, .min, .max {
       float: left;
       display: inline-block;
-      height: 10px;
-      width: 10px;
+      @include size(10px);
       border-radius: 50%;
       margin: 11px 0 0 6px;
     }
