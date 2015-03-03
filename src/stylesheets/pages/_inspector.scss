@@ -130,12 +130,7 @@ footer {
   height: 29px;
   width: 100%;
   background: #dfe3e6; /* Old browsers */
-  background: -moz-linear-gradient(top,  #dfe3e6 0%, #e0e1e3 8%, #d9dadc 73%, #d7dbde 85%, #d7d8da 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#dfe3e6), color-stop(8%,#e0e1e3), color-stop(73%,#d9dadc), color-stop(85%,#d7dbde), color-stop(100%,#d7d8da)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top,  #dfe3e6 0%,#e0e1e3 8%,#d9dadc 73%,#d7dbde 85%,#d7d8da 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top,  #dfe3e6 0%,#e0e1e3 8%,#d9dadc 73%,#d7dbde 85%,#d7d8da 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top,  #dfe3e6 0%,#e0e1e3 8%,#d9dadc 73%,#d7dbde 85%,#d7d8da 100%); /* IE10+ */
-  background: linear-gradient(to bottom,  #dfe3e6 0%,#e0e1e3 8%,#d9dadc 73%,#d7dbde 85%,#d7d8da 100%); /* W3C */
+  background: linear-gradient(to bottom, #dfe3e6 0%, #e0e1e3 8%, #d9dadc 73%, #d7dbde 85%, #d7d8da 100%); /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dfe3e6', endColorstr='#d7d8da',GradientType=0 ); /* IE6-9 */
 
   .actions {
