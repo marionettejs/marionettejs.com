@@ -15,16 +15,17 @@ block content
               include ../partials/_marionette_text
               h1 Inspector
         a.right.download.btn(href="http://chrome.google.com/webstore/detail/marionette-inspector/fbgfjlockdhidoaempmjcddibjklhpka", target= "_blank")
-          img.chrome-icon(src="/images/inspector/chrome.png" height="50px")
-          p.small Available in the
-          p.large Chrome Web Store
+          img.chrome-icon(src="/images/inspector/chrome.png", alt="", height="50px")
+          p
+            small Available in the
+            |  Chrome Web Store
       .browser-frame
         .browser-header
-          ul.actions
-            li.close
-            li.min
-            li.max
-        img(src="/images/inspector/inspector-preview.png")
+          div.actions
+            div.close
+            div.min
+            div.max
+        img(src="/images/inspector/inspector-preview.png", alt="Marionette Inspector tab active in the Google Chrome browser examining a TodoMVC application")
     ul.features
       ul.grid-row
         li.feature-block
