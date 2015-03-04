@@ -61,17 +61,15 @@ footer {
 .footer-actions {
   text-align: center;
 
-  svg, img {
-    vertical-align: bottom;
-    margin-right: 5px;
-  }
-
   li {
     display: inline-block;
-    margin: 20px;
+    margin: 5px;
   }
 
   a {
+    position: relative;
+    display: block;
+    padding: 15px;
     color: $dark-gray;
     transition: all 200ms ease;
     text-decoration: none;
@@ -81,7 +79,16 @@ footer {
       text-decoration: underline;
     }
   }
+
+  svg, img {
+    float: left;
+    display: inline-block;
+    position: relative;
+    margin-right: 6px;
+  }
+
 }
+
 .download.btn {
   float: right;
   border: solid 2px #CCC;
