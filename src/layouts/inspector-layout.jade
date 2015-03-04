@@ -1,5 +1,5 @@
 doctype html
-html(lang='en')
+html(lang='en', itemscope, itemtype="http://schema.org/WebApplication")
   //- this is a top level block
   //- to host variables defined in locals.json
   //- and modified by per-page extensions
@@ -7,8 +7,10 @@ html(lang='en')
   head
     meta(charset='utf-8')
     meta(http-equiv='X-UA-Compatible', content='IE=edge')
-    title Marionette Inspector
-    meta(content='Explore your Marionette App.', name='description')
+    title(itemprop="name") Marionette Inspector
+    meta(content="A world-class inspector for exploring your application's views, models, events and more.", name='description', itemprop="description")
+    meta(itemprop="operatingSystem", content="Chrome")
+    meta(itemprop="applicationCategory", content="Developer Tools")  
     meta(name='viewport', content='width=device-width, initial-scale=1')
     meta(name='twitter:card', content='summary')
     meta(name='twitter:creator', content='@marionettejs')
