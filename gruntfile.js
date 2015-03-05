@@ -164,6 +164,19 @@ module.exports = function(grunt) {
       }
     },
 
+    jshint: {
+      options: {
+        jshintrc: '.jshintrc',
+        reporter: require('jshint-stylish')
+      },
+      grunt: {
+        src: ['gruntfile.js']
+      },
+      core: {
+        src: 'src/js/*.js'
+      }
+    },
+
     svgstore: {
       options: {
         includeTitleElement: false
