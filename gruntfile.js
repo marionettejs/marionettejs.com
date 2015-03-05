@@ -193,6 +193,18 @@ module.exports = function(grunt) {
       }
     },
 
+    lintspaces: {
+      options: {
+        editorconfig: '.editorconfig'
+      },
+      grunt: {
+        src: 'gruntfile.js'
+      },
+      core: {
+        src: 'src/js/*.js'
+      }
+    },
+
     svgstore: {
       options: {
         includeTitleElement: false
