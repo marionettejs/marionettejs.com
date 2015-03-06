@@ -202,6 +202,9 @@ module.exports = function(grunt) {
       },
       core: {
         src: 'src/js/*.js'
+      },
+      data: {
+        src: 'src/data/*.json'
       }
     },
 
@@ -273,7 +276,18 @@ module.exports = function(grunt) {
       },
       scripts: {
         files: 'src/js/**/*',
-        tasks: ['notify:preHTML', 'concat', 'uglify:polyfills', 'copy', 'notify:postHTML']
+        tasks: [
+          'notify:preHTML',
+          'lint:core',
+          'concat',
+          'uglify:polyfills',
+          'copy',
+          'notify:postHTML'
+          ]
+      },
+      gruntfile: {
+        files: 'gruntfile.js',
+        tasks: ['lint:grunt']
       },
       assets: {
         files: 'src/images/**/*',
@@ -281,7 +295,7 @@ module.exports = function(grunt) {
       },
       data: {
         files: 'src/data/*.json',
-        tasks: ['notify:preHTML', 'compile-templates', 'notify:postHTML']
+        tasks: ['notify:preHTML', 'lint-data', 'compile-templates', 'notify:postHTML']
       },
       pages: {
         files: 'src/**/*.jade',
@@ -389,6 +403,28 @@ module.exports = function(grunt) {
     'connect',
     'notify:watch',
     'watch'
+  ]);
+
+  grunt.registerTask('lint', [
+    'lintspaces',
+    'jshint',
+    'jscs'
+  ]);
+
+  grunt.registerTask('lint-core', [
+    'lintspaces:core',
+    'jshint:core',
+    'jscs:core'
+  ]);
+
+  grunt.registerTask('lint-grunt', [
+    'lintspaces:grunt',
+    'jshint:grunt',
+    'jscs:core'
+  ]);
+
+  grunt.registerTask('lint-data', [
+    'lintspaces:data'
   ]);
 
   grunt.registerTask('compile-site', [
