@@ -2,6 +2,7 @@ var autoprefixer = require('autoprefixer-core');
 var GittyCache = require('./tasks/utils/gitty-cache');
 var _ = require('underscore');
 
+// jshint maxstatements:20
 module.exports = function(grunt) {
   require('load-grunt-tasks')(grunt);
 
@@ -212,7 +213,7 @@ module.exports = function(grunt) {
       options: {
         includeTitleElement: false
       },
-      default: {
+      defaults: {
         files: {
           'src/images/svg-sprite.svg': ['src/svg-icons/*.svg']
         }
@@ -248,7 +249,9 @@ module.exports = function(grunt) {
     postcss: {
       options: {
         processors: [
-          autoprefixer({ browsers: ['last 2 version'] }).postcss
+          autoprefixer({
+            browsers: ['last 2 version']
+          }).postcss
         ]
       },
       dev: {
@@ -395,7 +398,7 @@ module.exports = function(grunt) {
           output: 'dist/annotated-src/'
         }
       }
-    },
+    }
   });
 
   grunt.registerTask('dev', [
