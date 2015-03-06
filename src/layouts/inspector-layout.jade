@@ -17,11 +17,12 @@ html(lang='en', itemscope, itemtype="http://schema.org/WebApplication")
     meta(name='twitter:description', content="The inspector makes it possible to understand how your App works, without needing to understand how all the code works. This is possible because everything's one click away")
     meta(name='twitter:site', content='@marionettejs')
     meta(name='twitter:title', content='The Marionette Inspector')
-    meta(property='og:site_name', content='Marionette.js')
-    meta(property='og:image', content='images/marionette_logo.png')
-    meta(property='og:url', content='http://marionettejs.com')
-    meta(property='og:title', content='The Marionette Inspector')
-    meta(property='og:description', content="The inspector makes it possible to understand how your App works, without needing to understand how all the code works. This is possible because everything's one click away")
+    block OpenGraph
+      meta(property='og:site_name', content='Marionette.js')
+      meta(property='og:image', content='images/marionette_logo.png')
+      meta(property='og:url', content='http://marionettejs.com')
+      meta(property='og:title', content='The Marionette Inspector')
+      meta(property='og:description', content="The inspector makes it possible to understand how your App works, without needing to understand how all the code works. This is possible because everything's one click away")
     //- Place favicon.ico in the root directory: see http://git.io/Ak0N
     link(rel='apple-touch-icon', href='images/apple-touch-icon.png')
     block styles
