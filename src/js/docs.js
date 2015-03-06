@@ -1,8 +1,8 @@
 ;(function() {
   function setListeners() {
     document.getElementById('version-dropdown').onchange = function() {
-      window.location = "/docs/" + this.value;
-    }
+      window.location = '/docs/' + this.value;
+    };
   }
 
   setListeners();
@@ -11,7 +11,7 @@
 
   var currentNav = document.querySelectorAll('a[href$="' + currentFile + '"]')[0];
 
-  if(currentNav) {
+  if (currentNav) {
     currentNav.className += ' is-selected';
   }
 
