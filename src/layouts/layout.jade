@@ -41,18 +41,7 @@ html(lang='en', itemscope, itemtype="http://schema.org/WebPage")
       link(rel='stylesheet', href='/styles/marionette.css?t=#{Date.now()}')
       link(href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css')
     // Hotjar
-    script.
-      (function (f, b) {
-        var c;
-        f.hj = f.hj || function () {
-          (f.hj.q = f.hj.q || []).push(arguments)
-        };
-        f._hjSettings = {hjid: 13560, hjsv: 3};
-        c = b.createElement("script");
-        c.async = 1;
-        c.src = "//static.hotjar.com/c/hotjar-13560.js?sv=3";
-        b.getElementsByTagName("head")[0].appendChild(c);
-      })(window, document);
+    include ../partials/_hotjar
 
     // transifex
     script.
