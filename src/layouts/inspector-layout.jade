@@ -30,9 +30,9 @@ html(lang='en', itemscope, itemtype="http://schema.org/WebApplication")
     block styles
       link(rel='stylesheet', href='/styles/inspector.css?t=#{Date.now()}')
       link(href='http://fonts.googleapis.com/css?family=Open+Sans', rel='stylesheet', type='text/css')
-    // Hotjar
-    include ../partials/_hotjar
-
+    block headerScripts
+      // Hotjar
+      include ../partials/_hotjar
   body(class=bodyClass)
     div(style="display:none")
       include ../images/svg-sprite.svg
