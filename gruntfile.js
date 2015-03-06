@@ -154,7 +154,9 @@ module.exports = function(grunt) {
     },
 
     svgstore: {
-      options: {},
+      options: {
+        includeTitleElement: false
+      },
       default: {
         files: {
           'src/images/svg-sprite.svg': ['src/svg-icons/*.svg']
