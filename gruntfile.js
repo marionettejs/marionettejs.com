@@ -339,7 +339,17 @@ module.exports = function(grunt) {
         src: 'src/api',
         dest: 'dist/api'
       }
-    }
+    },
+
+    compileAnnotatedSrc: {
+      marionette: {
+        options: {
+          repo: 'backbone.marionette',
+          src: 'backbone.marionette/lib/backbone.marionette.js',
+          output: 'dist/annotated-src/'
+        }
+      }
+    },
   });
 
   grunt.registerTask('dev', [
@@ -381,6 +391,12 @@ module.exports = function(grunt) {
   grunt.registerTask('compile-docco', [
     'gitty:checkoutTag:marionette',
     'docco:build'
+  ]);
+
+  grunt.registerTask('compile-annotated-src', [
+    'gitty:releaseTag',
+    'compileAnnotatedSrc',
+    'gitty:checkoutTag'
   ]);
 
   grunt.registerTask('compile-downloads', [
