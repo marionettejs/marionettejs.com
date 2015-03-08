@@ -1,7 +1,9 @@
 @charset "UTF-8";
 
-@import "reset";
-@import "variables";
 @import "vendor/mo";
+
+@import "base/reset";
+
+@import "utils/variables";
 
 @import "pages/inspector";
