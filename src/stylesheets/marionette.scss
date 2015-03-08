@@ -1,29 +1,24 @@
 @charset "UTF-8";
-@import "reset";
+
 @import "vendor/mo";
 @import "vendor/prettify/prettify";
 @import "vendor/prettify/marionette";
-@import "variables";
+
+@import "utils/variables";
 @import "utils/mixins";
 @import "utils/helpers";
-@import "base";
+@import "utils/mobile";
+
+@import "base/reset";
+@import "base/base";
+
 @import "layout/grid";
-@import "ui";
+@import "layout/header";
+@import "layout/footer";
+
 @import "components/buttons";
-@import "about";
-@import "books";
-@import "code_samples";
-@import "companies";
-@import "contribute";
-@import "downloads";
-@import "footer";
-@import "header";
-@import "inspector";
-@import "screencasts";
-@import "stickers";
-@import "videos";
-@import "back_to_top_button";
-@import "mobile";
+@import "components/ui";
+@import "components/back_to_top_button";
 
 @import "pages/home";
 @import "pages/download";
