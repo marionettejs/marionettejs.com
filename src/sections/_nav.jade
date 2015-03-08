@@ -27,3 +27,16 @@ header.global-nav
             svg.support-link-icon(width="19px", height="19px")
               use(xlink:href="#github-mark")
     .clear
+
+// Inline menu behavior since we want it to work right away regardless of network speed
+script
+  include ../../bower_components/html5-polyfills/classList.js
+
+script.
+  var menu = document.getElementsByClassName('menu-icon')[0],
+    slider = document.getElementsByClassName('nav-slider')[0];
+
+    menu.addEventListener('click', function() {
+      slider.classList.toggle('closed');
+    }, false);
+
