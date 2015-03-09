@@ -74,6 +74,26 @@ module.exports = function(grunt) {
       }
     },
 
+    uglify: {
+      options: {
+        compress: true,
+        mangle: false,
+        preserveComments: false,
+        screwIE8: true,
+        sourceMap: false
+      },
+      dist: {
+        files: {
+          'dist/js/build.js': ['<%= concat.dist.dest %>']
+        }
+      },
+      polyfills: {
+        files: {
+          'dist/js/classList.js': ['bower_components/html5-polyfills/classList.js']
+        }
+      }
+    },
+
     docco: {
       build: {
         src: ['backbone.marionette/lib/backbone.marionette.js'],
@@ -221,7 +241,7 @@ module.exports = function(grunt) {
       },
       scripts: {
         files: 'src/js/**/*',
-        tasks: ['notify:preHTML', 'concat', 'copy', 'notify:postHTML']
+        tasks: ['notify:preHTML', 'concat', 'uglify:polyfills', 'copy', 'notify:postHTML']
       },
       assets: {
         files: 'src/images/**/*',
@@ -331,6 +351,7 @@ module.exports = function(grunt) {
     'svgstore',
     'sass:dist',
     'concat',
+    'uglify',
     'copy',
     'imagemin',
     'compile-templates',
