@@ -98,7 +98,9 @@ module.exports = function(grunt) {
       build: {
         src: ['backbone.marionette/lib/backbone.marionette.js'],
         options: {
-          output: 'dist/annotated-src/'
+          output: 'dist/annotated-src/',
+          template: 'src/docco/marionette.jst',
+          css: 'src/docco/marionette.css'
         }
       }
     },
