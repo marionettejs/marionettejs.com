@@ -15,7 +15,8 @@
     "compile-docco": "grunt compile-docco",
     "compile-downloads": "grunt compile-downloads",
     "deploy": "./ship.sh",
-    "setup": "./setup.sh"
+    "setup": "./setup.sh",
+    "lint": "echo 'nothing here yet'"
   },
   "author": "",
   "license": "ISC",

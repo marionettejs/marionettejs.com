@@ -14,7 +14,4 @@ before_script:
   - git config --global user.email "travis@marionettejs.com"
   - git config --global user.name "TRAVIS-CI"
 script:
-  - ./travis-ship.sh
-branches:
-  only:
-    - master
+  - ./travis-runner.sh
