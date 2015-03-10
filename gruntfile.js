@@ -94,17 +94,6 @@ module.exports = function(grunt) {
       }
     },
 
-    docco: {
-      build: {
-        src: ['backbone.marionette/lib/backbone.marionette.js'],
-        options: {
-          output: 'dist/annotated-src/',
-          template: 'src/docco/marionette.jst',
-          css: 'src/docco/marionette.css'
-        }
-      }
-    },
-
     clean: {
       dist: ['dist']
     },
@@ -339,7 +328,19 @@ module.exports = function(grunt) {
         src: 'src/api',
         dest: 'dist/api'
       }
-    }
+    },
+
+    compileAnnotatedSrc: {
+      marionette: {
+        options: {
+          repo: 'backbone.marionette',
+          src: 'backbone.marionette/lib/backbone.marionette.js',
+          template: 'src/docco/marionette.jst',
+          css: 'src/docco/marionette.css',
+          output: 'dist/annotated-src/'
+        }
+      }
+    },
   });
 
   grunt.registerTask('dev', [
@@ -378,9 +379,10 @@ module.exports = function(grunt) {
     'sass:dist'
   ]);
 
-  grunt.registerTask('compile-docco', [
-    'gitty:checkoutTag:marionette',
-    'docco:build'
+  grunt.registerTask('compile-annotated-src', [
+    'gitty:releaseTag',
+    'compileAnnotatedSrc',
+    'gitty:checkoutTag'
   ]);
 
   grunt.registerTask('compile-downloads', [
@@ -390,7 +392,7 @@ module.exports = function(grunt) {
   grunt.registerTask('compile-all', [
     'compile-site',
     'compile-docs',
-    'compile-docco',
+    'compile-annotated-src',
     'compile-downloads'
   ]);
 };
