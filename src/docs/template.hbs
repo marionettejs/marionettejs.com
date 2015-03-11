@@ -4,6 +4,22 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title itemprop="name"><%- file.title %> - Marionette.js Documentation</title>
+    <meta name="description" content="<%= file.description %>" />
+
+    <meta property="og:title" content="<%- file.title %>" />
+    <meta property="og:site_name" content="Marionette.js" />
+    <meta property="og:description" content="<%= file.description %>" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="http://www.marionettejs.com/docs/<%- tag + '/' + file.basename %>.html" />
+    <meta property="og:image" content="http://marionettejs.com/images/marionette.png" />
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:creator" content="@marionettejs">
+    <meta name="twitter:description" content="<%- file.description %>">
+    <meta name="twitter:image" content="http://marionettejs.com/images/marionette.png">
+    <meta name="twitter:site" content="@marionettejs">
+    <meta name="twitter:title" content="<%- file.title %>">
+
     <link rel="stylesheet" href="../../styles/docs.css?t=<%- Date.now() %>">
     <!-- Place favicon.ico in the root directory: see http://git.io/Ak0N -->
     <link ref="apple-touch-icon" href="../../images/apple-touch-icon.png">

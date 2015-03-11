@@ -103,6 +103,19 @@ _.extend(Compiler.prototype, {
     return pageTitle.charAt(0).toUpperCase() + pageTitle.slice(1);
   },
 
+    getPageDescription: function(compiledContents) {
+        // Blanket assumption that the first paragraph is
+        // suitable for a short description.
+        var description = compiledContents.match(/<p>([\s\S]*?)<\/p>/)[1];
+
+        return description
+            // force translation of breaks to a space
+            .replace(/<br>/g, ' ')
+            // remove remaining tags
+            .replace(/\<[^\>]*\>/g, '');
+//        }
+    },
+
   readFiles: function() {
     return Promise.bind(this).return(this.tags).map(function(tag) {
       return this.repo.checkoutAsync(tag).bind(this).then(function() {
@@ -120,6 +133,7 @@ _.extend(Compiler.prototype, {
           var compiled = this.compileContents(contents.toString());
           var basename = path.basename(filename, '.md');
           var title = this.getPageTitle(compiled);
+          var description = this.getPageDescription(compiled);
 
           this.emit('readFile', { file: src });
           return {
@@ -128,7 +142,8 @@ _.extend(Compiler.prototype, {
             filenane : filename,
             pathname : path.resolve(this.paths.tmp, tag),
             contents : compiled,
-            title    : title || basename
+            title    : title || basename,
+            description: description
           };
         });
       })
