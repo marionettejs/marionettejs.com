@@ -43,8 +43,6 @@ html(lang='en', itemscope, itemtype="http://schema.org/WebPage")
     block headerScripts
       // Hotjar
       include ../partials/_hotjar
-      // transifex
-      include ../partials/_transifex_config
   //- set this in page .jade file via vars
   body(class=bodyClass)
     div(style="display:none")
@@ -52,8 +50,10 @@ html(lang='en', itemscope, itemtype="http://schema.org/WebPage")
     block content
     block footer
       include ../sections/_footer
-    script(src="//cdn.transifex.com/live.js" defer)
     block scripts
+      // transifex
+      include ../partials/_transifex_config
+      script(src="//cdn.transifex.com/live.js" defer)
       script(src="/js/build.js?t=#{Date.now()}" defer)
       include ../partials/_google_analytics
 
