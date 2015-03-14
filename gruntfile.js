@@ -2,6 +2,7 @@ var autoprefixer = require('autoprefixer-core');
 var GittyCache = require('./tasks/utils/gitty-cache');
 var _ = require('underscore');
 
+// jshint maxstatements:20
 module.exports = function(grunt) {
   require('load-grunt-tasks')(grunt);
 
@@ -164,11 +165,55 @@ module.exports = function(grunt) {
       }
     },
 
+    jshint: {
+      options: {
+        jshintrc: '.jshintrc',
+        reporter: require('jshint-stylish')
+      },
+      grunt: {
+        src: ['gruntfile.js']
+      },
+      core: {
+        src: 'src/js/*.js'
+      }
+    },
+
+    jscs: {
+      options: {
+        config: '.jscsrc'
+      },
+      grunt: {
+        files: {
+          src: 'gruntfile.js'
+        }
+      },
+      core: {
+        files: {
+          src: 'src/js/*.js'
+        }
+      }
+    },
+
+    lintspaces: {
+      options: {
+        editorconfig: '.editorconfig'
+      },
+      grunt: {
+        src: 'gruntfile.js'
+      },
+      core: {
+        src: 'src/js/*.js'
+      },
+      data: {
+        src: 'src/data/*.json'
+      }
+    },
+
     svgstore: {
       options: {
         includeTitleElement: false
       },
-      default: {
+      defaults: {
         files: {
           'src/images/svg-sprite.svg': ['src/svg-icons/*.svg']
         }
@@ -204,7 +249,9 @@ module.exports = function(grunt) {
     postcss: {
       options: {
         processors: [
-          autoprefixer({ browsers: ['last 2 version'] }).postcss
+          autoprefixer({
+            browsers: ['last 2 version']
+          }).postcss
         ]
       },
       dev: {
@@ -232,7 +279,18 @@ module.exports = function(grunt) {
       },
       scripts: {
         files: 'src/js/**/*',
-        tasks: ['notify:preHTML', 'concat', 'uglify:polyfills', 'copy', 'notify:postHTML']
+        tasks: [
+          'notify:preHTML',
+          'lint:core',
+          'concat',
+          'uglify:polyfills',
+          'copy',
+          'notify:postHTML'
+          ]
+      },
+      gruntfile: {
+        files: 'gruntfile.js',
+        tasks: ['lint:grunt']
       },
       assets: {
         files: 'src/images/**/*',
@@ -240,7 +298,7 @@ module.exports = function(grunt) {
       },
       data: {
         files: 'src/data/*.json',
-        tasks: ['notify:preHTML', 'compile-templates', 'notify:postHTML']
+        tasks: ['notify:preHTML', 'lint-data', 'compile-templates', 'notify:postHTML']
       },
       pages: {
         files: 'src/**/*.jade',
@@ -340,7 +398,7 @@ module.exports = function(grunt) {
           output: 'dist/annotated-src/'
         }
       }
-    },
+    }
   });
 
   grunt.registerTask('dev', [
@@ -348,6 +406,28 @@ module.exports = function(grunt) {
     'connect',
     'notify:watch',
     'watch'
+  ]);
+
+  grunt.registerTask('lint', [
+    'lintspaces',
+    'jshint',
+    'jscs'
+  ]);
+
+  grunt.registerTask('lint-core', [
+    'lintspaces:core',
+    'jshint:core',
+    'jscs:core'
+  ]);
+
+  grunt.registerTask('lint-grunt', [
+    'lintspaces:grunt',
+    'jshint:grunt',
+    'jscs:core'
+  ]);
+
+  grunt.registerTask('lint-data', [
+    'lintspaces:data'
   ]);
 
   grunt.registerTask('compile-site', [

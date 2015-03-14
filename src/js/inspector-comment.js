@@ -9,5 +9,8 @@ var msg = [
 ].join('\n');
 
 try {
-    console.log('%c' + msg, 'background: #A80000; color: #EBF2C2');
-} catch(o_O) {}
+  /* global console */
+  console.log('%c' + msg, 'background: #A80000; color: #EBF2C2');
+  //jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+  /*jshint camelcase: false */
+} catch (o_O) {}
