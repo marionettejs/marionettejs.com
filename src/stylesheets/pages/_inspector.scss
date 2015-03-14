@@ -8,11 +8,11 @@ header {
   border-bottom: solid 1px #bad1e1;
 }
 
-h4,
-.h4 {
+h2 {
   font-size: 21px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
   color: $red;
+  display: inline-block;
 }
 
 .header-cta {
@@ -207,5 +207,11 @@ footer {
       text-decoration: none;
     }
   }
-}
 
+  svg {
+    width: 60px;
+    height: 40px;
+    margin-right: 12px;
+    vertical-align: text-bottom;
+  }
+}
