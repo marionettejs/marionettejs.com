@@ -1,8 +1,11 @@
 #!/bin/bash
 set -o pipefail
 
+echo "$TRAVIS_BRANCH"
+
 if [ "$TRAVIS_BRANCH" = "master" ];
 then
+  echo "Deploying!" && \
   bower i && \
   npm run compile-all && \
   cp CNAME dist
