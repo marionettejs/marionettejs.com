@@ -144,9 +144,9 @@ module.exports = function(grunt) {
             dest: 'dist/'
           },
           {
-            cwd: 'src/images/',
+            cwd: 'src/images/favicons',
             expand: true,
-            src: ['favicon.ico'],
+            src: ['**.*'],
             dest: 'dist/'
           }
         ]
