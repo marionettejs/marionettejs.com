@@ -18,11 +18,11 @@ curl -L https://raw.github.com/marionettejs/backbone.babysitter/master/lib/backb
 
 curl -L https://raw.github.com/marionettejs/backbone.marionette/master/lib/backbone.marionette.js > tmp/backbone.marionette/backbone.marionette.js
 curl -L https://raw.github.com/marionettejs/backbone.marionette/master/lib/backbone.marionette.min.js > tmp/backbone.marionette/backbone.marionette.min.js
-curl -L https://raw.github.com/marionettejs/backbone.marionette/master/lib/backbone.marionette.map > tmp/backbone.marionette/backbone.marionette.map
+curl -L https://raw.github.com/marionettejs/backbone.marionette/master/lib/backbone.marionette.min.js.map > tmp/backbone.marionette/backbone.marionette.min.js.map
 
 curl -L https://raw.github.com/marionettejs/backbone.marionette/master/lib/core/backbone.marionette.js > tmp/backbone.marionette/core/backbone.marionette.js
 curl -L https://raw.github.com/marionettejs/backbone.marionette/master/lib/core/backbone.marionette.min.js > tmp/backbone.marionette/core/backbone.marionette.min.js
-curl -L https://raw.github.com/marionettejs/backbone.marionette/master/lib/core/backbone.marionette.map > tmp/backbone.marionette/core/backbone.marionette.map
+curl -L https://raw.github.com/marionettejs/backbone.marionette/master/lib/core/backbone.marionette.min.js.map > tmp/backbone.marionette/core/backbone.marionette.min.js.map
 
 # Lets zip together in tar and zip formats
 tar -zcvf backbone.marionette.tar.gz tmp/backbone.marionette/
