@@ -229,7 +229,8 @@ module.exports = function(grunt) {
           'dist/styles/marionette.css': 'src/stylesheets/marionette.scss',
           'dist/styles/inspector.css': 'src/stylesheets/inspector.scss',
           'dist/styles/api.css': 'src/stylesheets/api.scss',
-          'dist/styles/docs.css': 'src/stylesheets/docs.scss'
+          'dist/styles/docs.css': 'src/stylesheets/docs.scss',
+          'dist/styles/docco.css': 'src/stylesheets/docco.scss'
         }
       },
       dev: {
@@ -241,7 +242,8 @@ module.exports = function(grunt) {
           'dist/styles/marionette.css': 'src/stylesheets/marionette.scss',
           'dist/styles/inspector.css': 'src/stylesheets/inspector.scss',
           'dist/styles/api.css': 'src/stylesheets/api.scss',
-          'dist/styles/docs.css': 'src/stylesheets/docs.scss'
+          'dist/styles/docs.css': 'src/stylesheets/docs.scss',
+          'dist/styles/docco.css': 'src/stylesheets/docco.scss'
         }
       }
     },
@@ -394,7 +396,6 @@ module.exports = function(grunt) {
           repo: 'backbone.marionette',
           src: 'backbone.marionette/lib/backbone.marionette.js',
           template: 'src/docco/marionette.jst',
-          css: 'src/docco/marionette.css',
           output: 'dist/annotated-src/'
         }
       }

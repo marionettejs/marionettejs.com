@@ -22,7 +22,7 @@
   "dependencies": {
     "bower": "1.3.12",
     "compression": "1.0.8",
-    "docco": "^0.7.0",
+    "docco": "peterblazejewicz/docco#marionettejs",
     "express": "4.4.3",
     "grunt-cli": "0.1.13",
     "morgan": "1.1.1",
