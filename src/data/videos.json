@@ -57,6 +57,19 @@
   },
 
   {
+    "author": "Kurt Kemple",
+    "description": "Kurt Kemple, frontend architect at ServiceChannel, shows how Browserify can help you develop Backbone + Marionette applications more efficiently. Slides: http://kkemple.github.io/slides.browserify-marionette/ Marionette presentation app with Browserify:\n\nhttps://github.com/kkemple/talks.browserify-marionette Sponsored by: http://www.infor.com Marionette.js: http://marionettejs.com Dancing with Marionette Meetup: http://www.meetup.com/Dancing-with-Marionette-js Marionette Chat Room: https://gitter.im/marionettejs/backbone.marionette\n\nKurt Kemple: http://twitter.com/kurtiskemple Kurt’s Anti-Bio: When not coding, you can find Kurt longboarding in the mountains in upstate NY.",
+    "duration": "T20M32S",
+    "id": "7bGWuyuLK_4",
+    "link": {
+      "url": "http://iamnotarealprogrammer.com/slides.browserify-marionette/",
+      "title": "slides"
+    },
+    "name": "Browserify + Marionette = Better Apps",
+    "title": "Browserify + Marionette = Better Apps"
+  },
+
+  {
     "author": "Jason Laster",
     "description": "Jason is a Software Engineer at Etsy and a core contributor to Marionette. In this talk, he shows us all of his tricks for debugging a Marionette app.\n\nSponsored by: http://www.infor.com\nMarionette.js...",
     "duration": "T19M45S",
