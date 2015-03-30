@@ -34,22 +34,22 @@ module.exports = function(grunt) {
         height: 800
       },
       home: {
-          options: {
-              css: [
-                  'dist/styles/marionette.css'
-              ]
-          },
-          src: 'dist/index.html',
-          dest: 'dist/index.html'
+        options: {
+          css: [
+            'dist/styles/marionette.css'
+          ]
+        },
+        src: 'dist/index.html',
+        dest: 'dist/index.html'
       },
       inspector: {
-          options: {
-            css: [
-              'dist/styles/inspector.css'
-            ]
-          },
-          src: 'dist/inspector/index.html',
-          dest: 'dist/inspector/index.html'
+        options: {
+          css: [
+            'dist/styles/inspector.css'
+          ]
+        },
+        src: 'dist/inspector/index.html',
+        dest: 'dist/inspector/index.html'
       }
     },
     concat: {
@@ -110,47 +110,39 @@ module.exports = function(grunt) {
 
     copy: {
       assets: {
-        files: [
-          {
-            expand: true,
-            cwd: 'src/',
-            src: ['images/**/*', '!images/**/*.{png,jpg,gif,ico}'],
-            dest: 'dist/'
-          },
-          {
-            expand: true,
-            src: ['bower_components/**/*'],
-            dest: 'dist/'
-          },
-          {
-            cwd: 'src/',
-            expand: true,
-            src: ['js/docs.js'],
-            dest: 'dist'
-          },
-          {
-            expand: true,
-            cwd: 'bower_components/jquery/dist',
-            src: ['jquery.min.map'],
-            dest: 'dist/js'
-          }
-        ]
+        files: [{
+          expand: true,
+          cwd: 'src/',
+          src: ['images/**/*', '!images/**/*.{png,jpg,gif,ico}'],
+          dest: 'dist/'
+        }, {
+          expand: true,
+          src: ['bower_components/**/*'],
+          dest: 'dist/'
+        }, {
+          cwd: 'src/',
+          expand: true,
+          src: ['js/docs.js'],
+          dest: 'dist'
+        }, {
+          expand: true,
+          cwd: 'bower_components/jquery/dist',
+          src: ['jquery.min.map'],
+          dest: 'dist/js'
+        }]
       },
       main: {
-        files: [
-          {
-            cwd: 'src/',
-            expand: true,
-            src: ['robots.txt'],
-            dest: 'dist/'
-          },
-          {
-            cwd: 'src/images/favicons',
-            expand: true,
-            src: ['**.*'],
-            dest: 'dist/'
-          }
-        ]
+        files: [{
+          cwd: 'src/',
+          expand: true,
+          src: ['robots.txt'],
+          dest: 'dist/'
+        }, {
+          cwd: 'src/images/favicons',
+          expand: true,
+          src: ['**.*'],
+          dest: 'dist/'
+        }]
       }
     },
 
@@ -221,7 +213,7 @@ module.exports = function(grunt) {
     },
 
     sass: {
-      options:{
+      options: {
         outputStyle: 'compressed'
       },
       dist: {
@@ -234,7 +226,7 @@ module.exports = function(grunt) {
         }
       },
       dev: {
-        options:{
+        options: {
           outputStyle: 'nested',
           sourceMap: true
         },
@@ -288,7 +280,7 @@ module.exports = function(grunt) {
           'uglify:polyfills',
           'copy',
           'notify:postHTML'
-          ]
+        ]
       },
       gruntfile: {
         files: 'gruntfile.js',
@@ -319,8 +311,7 @@ module.exports = function(grunt) {
         options: {
           data: function() {
             return _.extend(
-              require('./src/data/locals.json'),
-              {
+              require('./src/data/locals.json'), {
                 VERSION: GittyCache.releaseTag || 'v.X.X.X',
                 books: require('./src/data/books.json'),
                 videos: require('./src/data/videos.json')
