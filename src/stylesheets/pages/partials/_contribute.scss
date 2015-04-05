@@ -52,9 +52,19 @@
       width: 100%;
     }
   }
-  .btn-action {
-    display: inline-block;
-    float: right;
-    margin-top: 10px;
+  .btn-wrapper {
+    .btn-action {
+      display: inline-block;
+      float: right;
+      margin-top: 10px;
+      @include below($sm-breakpoint) {
+        float: none;
+        width: 85%;
+      }
+    }
+    @include below($sm-breakpoint) {
+      width: 100%;
+      text-align: center;
+    }
   }
 }

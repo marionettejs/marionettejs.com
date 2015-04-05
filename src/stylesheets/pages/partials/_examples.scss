@@ -1,0 +1,45 @@
+.example-apps {
+  .row {
+    .example {
+      margin: 0;
+      height: 100%;
+      img {
+        width: 100%;
+        box-shadow: 2px 2px 2px lighten($gray, 35%);
+      }
+      @include below($adaptive-snap) {
+        margin-top: 30px;
+      }
+    }
+  }
+  .description {
+    padding-bottom: 0;
+    margin: 10px 0;
+  }
+  ul {
+    list-style: disc inside;
+    li {
+      width: 100%;
+      float: left;
+      font-size: 16px;
+      color: #56585E;
+    }
+  }
+  .btn-wrapper {
+    text-align: left;
+    width: 100%;
+    .btn-action {
+      margin-top: 20px;
+      @include below($adaptive-snap) {
+        width: 35%;
+      }
+      @include below($sm-breakpoint) {
+        display: inline-block;
+        width: 85%;
+      }
+    }
+    @include below($sm-breakpoint) {
+      text-align: center;
+    }
+  }
+}
