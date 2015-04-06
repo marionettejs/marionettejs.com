@@ -1,5 +1,11 @@
 // inspector section styles on homepage, not the inspector page
 .inspector {
+  h2 {
+    @include below($adaptive-snap) {
+      margin-bottom: 0;
+    }
+  }
+
   .btn-action {
     @include below($large-breakpoint) {
       display: block;
@@ -14,6 +20,7 @@
     }
 
     @include below($sm-breakpoint) {
+      display: inline-block;
       width: 85%;
       margin: 20px 0;
       &.secondary-color {
