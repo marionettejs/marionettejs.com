@@ -1,4 +1,10 @@
 .example-apps {
+  h2 {
+    @include below($adaptive-snap) {
+      margin-bottom: 0;
+    }
+  }
+
   .row {
     .example {
       margin: 0;
@@ -12,12 +18,15 @@
       }
     }
   }
+
   .description {
     padding-bottom: 0;
     margin: 10px 0;
   }
+
   ul {
     list-style: disc inside;
+    line-height: 25px;
     li {
       width: 100%;
       float: left;
@@ -25,6 +34,7 @@
       color: #56585E;
     }
   }
+
   .btn-wrapper {
     text-align: left;
     width: 100%;
@@ -38,6 +48,7 @@
         width: 85%;
       }
     }
+
     @include below($sm-breakpoint) {
       text-align: center;
     }

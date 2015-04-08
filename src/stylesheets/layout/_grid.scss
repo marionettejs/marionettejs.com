@@ -1,6 +1,6 @@
 /**
 * basic grid system based on commonly used
-* container + row + columns solution using 
+* container + row + columns solution using
 * most supported spacing and clearing
 */
 // the frequently used 25px padding/margin
@@ -50,7 +50,8 @@ $container-max-width: $center_mw;
 */
 .col-1,
 .col-2,
-.col-3 {
+.col-3,
+.col-4 {
   position: relative;
   min-height: 1px;
   float: left;
@@ -74,6 +75,13 @@ $container-max-width: $center_mw;
 }
 .col-3 {
   width: 33.33%;
+  @include below($adaptive-snap) {
+    float: none;
+    width: auto;
+  }
+}
+.col-4 {
+  width: 25%;
   @include below($adaptive-snap) {
     float: none;
     width: auto;
