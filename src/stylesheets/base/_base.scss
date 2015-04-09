@@ -138,11 +138,3 @@ ul {
   position: absolute;
   width: 1px;
 }
-
-
-// transifex shows a selector for languages
-// I want to hide this since it will automatically
-// translate the page for people based on their local.
-#tx-live-lang-container {
-  display: none
-}
