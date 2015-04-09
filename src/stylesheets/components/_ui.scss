@@ -56,9 +56,6 @@ a.btn {
       text-align: center;
     }
 
-    @include below($sm-breakpoint) {
-      display: none;
-    }
   }
 
   &.secondary-color {
