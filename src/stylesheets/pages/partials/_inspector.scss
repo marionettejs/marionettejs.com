@@ -44,11 +44,4 @@
       margin-bottom: 30px;
     }
   }
-
-  .btn-wrapper {
-    @include below($sm-breakpoint) {
-      width: 100%;
-      text-align: center;
-    }
-  }
 }
