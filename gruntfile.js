@@ -428,7 +428,6 @@ module.exports = function(grunt) {
     'concat',
     'uglify',
     'copy',
-    'imagemin',
     'compile-templates',
     'postcss:dist',
     'critical'
