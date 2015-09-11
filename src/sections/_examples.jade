@@ -67,16 +67,17 @@ section.example-apps.column-contain
       header
         h3(itemprop="name") Streamus
         link(itemprop="applicationCategory", href="http://schema.org/WebApplication")
-        a.link(href="https://chrome.google.com/webstore/detail/streamus/jbnkffmindojffecdhbbmekbmkkfpmjd", itemprop="url", target= "_blank")
+        a.link(href="https://github.com/MeoMix/StreamusChromeExtension", itemprop="url", target= "_blank")
           img(src="images/screenshots/streamus.png", itemprop="screenshot", alt="Streamus")
       p.description(itemprop="description").
         A YouTube video player Chrome extension.
       small.hidden-visually(itemprop="operatingSystem").
         Requirements: modern web browsers
       ul(itemprop="featureList")
-        li RequireJS
-        li
-          a(href="https://github.com/requirejs/text", target = "_blank") Text
+        li 
+          a(href="http://jspm.io/", target = "_blank") Jspm
+        li Babel (ES6)
+        li Handlebars
         li Grunt
         li Mocha + Chai
         li Sinon
