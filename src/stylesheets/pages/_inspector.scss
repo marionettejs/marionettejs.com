@@ -20,10 +20,19 @@ h2 {
   max-width: 1000px;
   padding: 25px 50px 0;
   margin: 0 auto;
+
+  @include below(680px) {
+    text-align: center;
+  }
 }
 
 .logo {
+  display: inline-block;
   float: left;
+
+  @include below(680px) {
+    float: none;
+  }
 
   a {
     text-decoration: none;
@@ -31,15 +40,25 @@ h2 {
   }
 }
 
-.main-logo img {
-  height: 85px;
+.main-logo {
+  width: 220px;
+  @include clearfix;
+
+  img {
+    float: left;
+    height: 85px;
+  }
 }
 
-.logo-copy img {
-  height: 24px;
-  position: relative;
-  top: -60px;
-  left: 73px;
+.logo-copy {
+  text-align: left;
+
+  img {
+    height: 24px;
+    position: relative;
+    top: -60px;
+    left: 73px;
+  }
 }
 
 h1 {
@@ -91,6 +110,7 @@ footer {
 .download.btn {
   float: right;
   border: solid 2px #CCC;
+  display: inline-block;
   width: 144px;
   border-radius: 4px;
   position: relative;
@@ -100,6 +120,12 @@ footer {
   margin-top: 25px;
   text-decoration: none;
   color: #000;
+
+  @include below(680px) {
+    float: none;
+    margin: 0;
+  }
+
   .chrome-icon {
     position: absolute;
     top: 3px;
