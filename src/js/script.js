@@ -15,7 +15,7 @@ $(document).ready(function() {
 
   (function() {
     var $slideshowWrap = $('.video_slideshow_scroller');
-    var $slideshowPrev = $slideshowWrap.children('.prev').hide();
+    var $slideshowPrev = $slideshowWrap.children('.prev');
     var $slideshowNext = $slideshowWrap.children('.next');
     var $slider = $slideshowWrap.children('.video_slideshow');
     var $slide = $slider.children().first();
