@@ -1,36 +1,36 @@
 module.exports = {
-  default: [],
+  'default': [],
 
-  dev: [
+  'dev': [
     'clean:dist',
     'connect',
     'notify:watch',
     'watch'
   ],
 
-  lint: [
+  'lint': [
     'lintspaces',
     'jshint',
     'jscs'
   ],
 
-  lint-core: [
+  'lint-core': [
     'lintspaces:core',
     'jshint:core',
     'jscs:core'
   ],
 
-  lint-grunt: [
+  'lint-grunt': [
     'lintspaces:grunt',
     'jshint:grunt',
     'jscs:core'
   ],
 
-  lint-data: [
+  'lint-data': [
     'lintspaces:data'
   ],
 
-  compile-site: [
+  'compile-site': [
     'svgstore',
     'sass:dist',
     'concat',
@@ -42,34 +42,34 @@ module.exports = {
     'critical'
   ],
 
-  compile-templates: [
+  'compile-templates': [
     'gitty:releaseTag',
     'jade'
   ],
 
-  compile-docs: [
+  'compile-docs': [
     'gitty:releaseTag',
     'compileDocs',
     'sass:dist',
     'gitty:checkoutTag'
   ],
 
-  compile-api: [
+  'compile-api': [
     'compileApi',
     'sass:dist'
   ],
 
-  compile-annotated-src: [
+  'compile-annotated-src': [
     'gitty:releaseTag',
     'compileAnnotatedSrc',
     'gitty:checkoutTag'
   ],
 
-  compile-downloads: [
+  'compile-downloads': [
     'compileDownloads'
   ],
 
-  compile-all: [
+  'compile-all': [
     'compile-site',
     'compile-docs',
     'compile-annotated-src',

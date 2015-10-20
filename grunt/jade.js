@@ -1,3 +1,8 @@
+var _, GittyCache;
+
+_ = require('underscore');
+GittyCache = require('../tasks/utils/gitty-cache');
+
 module.exports = {
   compile: {
     files: {
@@ -9,10 +14,10 @@ module.exports = {
     options: {
       data: function() {
         return _.extend(
-          require('./src/data/locals.json'), {
+          require('../src/data/locals.json'), {
             VERSION: GittyCache.releaseTag || 'v.X.X.X',
-            books: require('./src/data/books.json'),
-            videos: require('./src/data/videos.json')
+            books: require('../src/data/books.json'),
+            videos: require('../src/data/videos.json')
           }
         );
       }

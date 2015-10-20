@@ -1,12 +1,9 @@
 var GittyCache = require('./tasks/utils/gitty-cache');
-var _ = require('underscore');
 
-// jshint maxstatements:20
 module.exports = function(grunt) {
-  require('load-grunt-tasks')(grunt);
   require('load-grunt-config')(grunt);
+  require('load-grunt-tasks')(grunt);
 
-  grunt.initConfig({});
   grunt.loadTasks('tasks');
   grunt.loadTasks('backbone.marionette/tasks');
 
