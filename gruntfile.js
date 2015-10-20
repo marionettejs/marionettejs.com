@@ -80,7 +80,6 @@ module.exports = function(grunt) {
         compress: true,
         mangle: false,
         preserveComments: false,
-        screwIE8: true,
         sourceMap: false
       },
       dist: {
