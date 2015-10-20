@@ -13,12 +13,15 @@ module.exports = {
           return this.sortedTags;
         }
 
-        return repo.tagsAsync()
-          .then(sortTags)
-          .then(function(tags){
-            this.sortedTags = tags;
-            return this.sortedTags;
-          }.bind(this));
+        return new Promise(function(res, rej) {
+          repo.getTags(function(err, v) {
+            res(sortTags(v));
+          });
+        })
+        .then(function(tags){
+          this.sortedTags = tags;
+          return this.sortedTags;
+        }.bind(this));
       });
   },
   getReleaseTag: function(repo) {
