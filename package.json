@@ -30,6 +30,9 @@
     "promisified-request": "0.0.3",
     "rimraf": "2.2.8"
   },
+  "engines": {
+    "node": ">=0.12"
+  },
   "devDependencies": {
     "autoprefixer-core": "4.0.2",
     "bluebird": "2.1.3",
