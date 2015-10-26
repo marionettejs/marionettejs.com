@@ -15,6 +15,7 @@
 (function($) {
   //jscs:disable requireCamelCaseOrUpperCaseIdentifiers
   /*jshint camelcase: false */
+  /*jshint maxstatements: 17 */
   var ETag = localStorage.getItem('github:team:ETag');
   var requestData = {
     client_id: '0ab3cd67b835df549748',
