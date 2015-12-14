@@ -2,7 +2,7 @@
 // ---
 
 ;(function($, base64, showdown) {
-  var MAX_LINES = 20;
+  var MAX_LINES = 100;
 
   function shortenedText(text, maxLines) {
     // Divides a text in two parts, according to the maximum of lines allowed.
@@ -18,8 +18,6 @@
   function showMore() {
     $('.show-more').removeClass('hidden');
   }
-
-  // var urlCommits = 'https://api.github.com/repos/marionettejs/backbone.marionette/commits';
 
   // Changelog endpoint
   var url = 'https://api.github.com/repos/marionettejs/backbone.marionette/contents/changelog.md';
