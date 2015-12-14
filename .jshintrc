@@ -9,7 +9,9 @@
     "_"          : true,
     "Backbone"   : true,
     "Marionette" : true,
-    "JSON"       : true
+    "JSON"       : true,
+    "base64"     : true,
+    "showdown"   : true
   },
 
   "bitwise"       : true,
