@@ -23,32 +23,32 @@
   }
 }
 
-.show-more {
-  &:after {
-    content: "[+]";
-    font-weight: bold;
-    letter-spacing: 2px;
-    opacity: 0.7;
-    font-size: 0.7em;
-    padding-left: 5px;
-    display: inline-block;
-  }
-  &.active:after {
-    content: "[-]";
-  }
-}
+// .show-more {
+//   &:after {
+//     content: "[+]";
+//     font-weight: bold;
+//     letter-spacing: 2px;
+//     opacity: 0.7;
+//     font-size: 0.7em;
+//     padding-left: 5px;
+//     display: inline-block;
+//   }
+//   &.active:after {
+//     content: "[-]";
+//   }
+// }
 
 /* Pure CSS slide up & down: http://davidwalsh.name/css-slide */
-.slider.closed {
-  max-height: 0;
-}
+// .slider.closed {
+//   max-height: 0;
+// }
 
-.slider {
-  overflow-y: hidden;
-  max-height: 2000px;
+// .slider {
+//   overflow-y: hidden;
+//   max-height: 2000px;
 
-  transition-property: all;
-  transition-duration: .5s;
-  transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
-  -webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
-}
+//   transition-property: all;
+//   transition-duration: .5s;
+//   transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+//   -webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+// }
