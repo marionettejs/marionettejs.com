@@ -1,0 +1,41 @@
+.updates {
+    h3 {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    h4 {
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+
+    ul {
+        list-style-type: disc;
+        li {
+            margin-bottom: 5px;
+            margin-left: 35px;
+            font-size: 15px;
+            color: $gray;
+        }
+    }
+
+    p {
+        font-size: 15px;
+        color: $gray;
+    }
+    .code-wrap {
+        margin-bottom: 5px;
+        @media screen and (max-width:415px) {
+            overflow-x: auto;
+            max-width: 200px;
+        }
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+.text-center {
+    text-align: center;
+}
