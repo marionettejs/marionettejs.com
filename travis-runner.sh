@@ -3,7 +3,7 @@ set -o pipefail
 
 echo "$TRAVIS_BRANCH"
 
-if [ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_PULL_REQUEST" != "true" ]
+if [ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]
 then
   echo "Deploying!"
   bower i
