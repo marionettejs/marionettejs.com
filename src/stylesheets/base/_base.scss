@@ -120,6 +120,10 @@ ul {
   clear: both;
 }
 
+.hidden {
+  display: none;
+}
+
 .hidden-xs {
   @include below($sm-breakpoint) {
     display: none;

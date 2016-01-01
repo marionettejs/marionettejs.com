@@ -16,6 +16,15 @@
   background: $light-blue;
   border-bottom: 1px solid darken($light-blue, 15%);
 
+  @include below($med-breakpoint) {
+    padding-bottom: 25px;
+    padding-top: 10px;
+  }
+
+  @include below($sm-breakpoint) {
+    padding-bottom: 10px;
+  }
+
   .wrapper {
     margin: auto;
     padding: 60px;
@@ -93,14 +102,32 @@
   width: 100%;
   z-index: 999;
 
+  &.search-expanded {
+    .logo {
+      @include below($large-breakpoint) {
+        display: none;
+      }
+    }
+
+    .searchbar {
+      display: inline-block;
+      width: calc(100% - 150px);
+
+      @include below($large-breakpoint) {
+        width: 100%;
+      }
+    }
+  }
+
   &__section {
     padding: 0;
     border: none;
 
     .menu-icon {
+      cursor: pointer;
       display: none;
 
-      @include below(660px) {
+      @include below($med-breakpoint) {
         color: #fff;
         line-height: inherit;
         background: transparent {
@@ -110,11 +137,14 @@
         position: relative;
         float: right;
         display: block;
-        padding: 4px 6px;
-        margin: 3px 12px 3px 0;
+        padding: 8px 15px 7px 10px;
 
         &:hover {
           opacity: 0.8;
+        }
+
+        &.hidden {
+          display: none;
         }
       }
     }
@@ -133,7 +163,7 @@
 
     /* Pure CSS slide up & down: http://davidwalsh.name/css-slide */
     .nav-slider.closed {
-      @include below(660px) {
+      @include below($med-breakpoint) {
         max-height: 0;
       }
     }
@@ -146,10 +176,16 @@
         > li {
           position: relative;
           display: block;
+
+          &.toggle-search {
+            @include below($med-breakpoint) {
+              display: none;
+            }
+          }
         }
       }
 
-      @include below(660px) {
+      @include below($med-breakpoint) {
         background-color: $red;
         float: none;
         clear: both;
@@ -178,7 +214,7 @@
         padding: 0 14px;
         cursor: default;
 
-        @include below(660px) {
+        @include below($med-breakpoint) {
           display: none;
         }
       }
@@ -187,7 +223,7 @@
         text-decoration: underline;
       }
 
-      @include below(660px) {
+      @include below($med-breakpoint) {
         float: none;
         text-align: center;
         border-top: 1px dashed lighten($red, 15%);
@@ -214,13 +250,13 @@
       }
     }
 
-    .twitter, .github-mark {
+    .twitter, .github-mark, .toggle-search-open, .toggle-search-close {
       &:hover {
         opacity: 0.8;
       }
     }
 
-    @include below(660px) {
+    @include below($med-breakpoint) {
       width: 100%;
 
       .logo {

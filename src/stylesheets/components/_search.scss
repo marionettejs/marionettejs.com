@@ -1,0 +1,167 @@
+.toggle-search-checkbox {
+  display: none;
+}
+
+.search-icon {
+  height: 40px;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+
+  @include below($med-breakpoint) {
+    width: 25px;
+  }
+}
+
+.searchbar {
+  display: none;
+  float: right;
+  height: 40px;
+  width: 100%;
+
+  @include below($large-breakpoint) {
+    float: none;
+  }
+
+  .search-icon {
+    height: 36px;
+    top: 20px;
+  }
+}
+
+.input-group {
+  height: 100%;
+}
+
+.search-input-wrapper {
+  display: table;
+  width: 100%;
+}
+
+.search-icon-wrapper, .search-input, .toggle-search-close {
+  display: table-cell;
+  height: 40px;
+  vertical-align: middle;
+}
+
+.search-icon-wrapper {
+  text-align: center;
+  width: 44px;
+}
+
+.toggle-search-close {
+  text-align: right;
+  width: 34px;
+
+  @include below($med-breakpoint) {
+    text-align: center;
+    width: 44px;
+  }
+}
+
+.search-input {
+  input {
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid $light-grey;
+    color: white;
+    font-size: 16px;
+    height: 30px;
+    padding-left: 6px;
+    padding-right: 12px;
+    width: 100%;
+  }
+
+  ::-webkit-input-placeholder {
+    color: white;
+  }
+}
+
+.toggle-search-open, .toggle-search-close {
+  cursor: pointer;
+  height: 40px;
+}
+
+.toggle-search-open {
+  display: block;
+
+  &.mobile {
+    display: none;
+
+    @include below($med-breakpoint) {
+      display: inline-block;
+      float: right;
+      padding-left: 15px;
+      padding-right: 10px;
+
+      &.hidden {
+        display: none;
+      }
+    }
+  }
+}
+
+/* ALGOLIA SEARCH
+----------------------------------------------------- */
+
+.algolia-autocomplete {
+  width: 100%;
+}
+
+.aa-dropdown-menu {
+  right: 0 !important;
+  line-height: 1.3;
+
+  @include below($large-breakpoint) {
+    right: -43px !important;
+    left: -43px !important;
+  }
+}
+
+/* Bottom border of each suggestion */
+.algolia-docsearch-suggestion {
+  border-bottom-color: $gray;
+}
+/* Main category headers */
+.algolia-docsearch-suggestion--category-header {
+  background-color: $red;
+}
+/* Highlighted search terms */
+.algolia-docsearch-suggestion--highlight {
+  color: $red;
+}
+/* Highligted search terms in the main category headers */
+.algolia-docsearch-suggestion--category-header .algolia-docsearch-suggestion--highlight  {
+  background-color: $seafoam;
+}
+/* Currently selected suggestion */
+.aa-cursor .algolia-docsearch-suggestion--content {
+  color: $dark-gray;
+}
+.aa-cursor .algolia-docsearch-suggestion {
+  background: $light-blue;
+}
+
+/* For bigger screens, when displaying results in two columns */
+@media (min-width: 768px) {
+  /* Bottom border of each suggestion */
+  .algolia-docsearch-suggestion {
+    border-bottom-color: $dark-gray;
+  }
+  /* Left column, with secondary category header */
+  .algolia-docsearch-suggestion--subcategory-column {
+    border-right-color: $dark-gray;
+    background-color: $light-blue;
+    color: $dark-gray;
+    width: 220px;
+    max-width: 220px;
+    min-width: 220px;
+  }
+
+  .algolia-docsearch-suggestion--subcategory-column-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
