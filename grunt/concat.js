@@ -11,6 +11,7 @@ module.exports = {
       'bower_components/jquery-unveil/jquery.unveil.min.js',
       'bower_components/snabbt.js/snabbt.min.js',
       'src/js/script.js',
+      'src/js/search.js',
       'src/js/github.js',
       'src/js/inspector-comment.js',
       'bower_components/underscore/underscore.js',

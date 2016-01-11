@@ -1,5 +1,5 @@
 // jshint maxstatements:20
-$(document).ready(function() {
+$(function() {
   // Logo animation
   $('.primary-logo').mouseenter(function() {
     /* global snabbt */

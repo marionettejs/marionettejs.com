@@ -1,12 +1,16 @@
+input.hidden-visually(type="checkbox", id="toggle-search")
 header.global-nav
   .global-nav__section.column-contain
     a.left.logo(href="/")
       | Marionette
-
     button.menu-icon(type="button")
       span.hidden-visually Toggle menu
       svg(width="33px", height="24px")
         use(xlink:href="#hamburger")
+    label.toggle-search-open.mobile(for="toggle-search")
+      span.hidden-visually Open search
+      svg(aria-hidden="true").search-icon
+        use(xlink:href="#search-icon")
     nav.nav-slider.closed(role="navigation")
       ul.nav-slider__list
         li.left
@@ -26,6 +30,25 @@ header.global-nav
             span.hidden-visually GitHub @marionettejs
             svg.support-link-icon(width="19px", height="19px")
               use(xlink:href="#github-mark")
+          span.middot ·
+        li.left.toggle-search
+          label.toggle-search-open(for="toggle-search")
+            span.hidden-visually Open search
+            svg(aria-hidden="true").search-icon
+              use(xlink:href="#search-icon")
+    .searchbar(role="search")
+      .input-group
+        label.hidden-visually(aria-label="Search", for="search-input") Search
+        .search-input-wrapper
+          .search-icon-wrapper
+            svg(aria-hidden="true").search-icon
+              use(xlink:href="#search-icon")
+          .search-input
+            input(type="text", id="search-input", accesskey="s", autocomplete="off", autocorrect="off", autocapitalize="off" spellcheck="false", placeholder="Search the docs...", dir="auto")
+          label.toggle-search-close(for="toggle-search")
+            span.hidden-visually Close search
+            svg(aria-hidden="true").search-icon
+              use(xlink:href="#close-icon")
     .clear
 
 // Inline menu behavior since we want it to work right away regardless of network speed
