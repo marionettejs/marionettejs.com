@@ -7,10 +7,9 @@ block meta
   title(itemprop="name") Updates | Marionette.js – The Backbone Framework
   meta(content='Get Marionette just the way you want it.')
 
-block styles
+block append styles
     link(rel='stylesheet', href='/styles/updates.css?t=#{Date.now()}')
 
 block content
   include ./sections/_header
   include ./sections/_changelog
-
