@@ -52,7 +52,7 @@
     $('.changelog').html(changelogHtml);
 
     // Display code text in an elegant way.
-    $('code').addClass('code-wrap notranslate');
+    $('.changelog code').addClass('code-wrap notranslate');
 
   }).fail(function(err) {
     // Show ajax error.
