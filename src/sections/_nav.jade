@@ -12,7 +12,7 @@ header.global-nav
       svg(aria-hidden="true").search-icon
         use(xlink:href="#search-icon")
     nav.nav-slider.closed(role="navigation")
-      ul.nav-slider__list
+      ul.nav-slider__list(style="padding: 0; margin: 0")
         li.left
           a(itemprop="significantLink", href="/updates") Updates
           span.middot ·
@@ -39,7 +39,7 @@ header.global-nav
             span.hidden-visually Open search
             svg(aria-hidden="true").search-icon
               use(xlink:href="#search-icon")
-    .searchbar(role="search")
+    .searchbar(role="search", style="display: none;")
       .input-group
         label.hidden-visually(aria-label="Search", for="search-input") Search
         .search-input-wrapper

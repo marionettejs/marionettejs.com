@@ -1,8 +1,10 @@
 // jshint maxstatements:20
 $(function() {
+  // on the startup remove inline style
+  $('.searchbar').css({display: ''});
+  //
   var $toggleCheckbox = $('#toggle-search');
   var $searchInput = $('#search-input');
-
   // Expand search
   // Toggle & focus the search bar when clicking on the magnifying glass.
   // This is achieved through a label and corresponding checkbox.
