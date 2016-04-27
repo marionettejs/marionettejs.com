@@ -13,7 +13,12 @@ var validTags    = require('./utils/tags').valid;
 var GittyCache   = require('./utils/gitty-cache');
 
 var renderer = new marked.Renderer();
-var BLACKLIST_FILES = ['readme.md']
+var BLACKLIST_FILES = ['readme.md'];
+var TOPICS = ['installation.md'];
+var FILE_TYPES = {
+  TOPIC : 0,
+  DOC   : 1
+};
 
 renderer.heading = function(text, level, raw) {
   var escapedText = raw
@@ -132,6 +137,7 @@ _.extend(Compiler.prototype, {
         return fs.readFileAsync(src).bind(this).then(function(contents) {
           var compiled = this.compileContents(contents.toString());
           var basename = path.basename(filename, '.md');
+          var filetype = (TOPICS.indexOf(filename) == -1) ? FILE_TYPES.DOC : FILE_TYPES.TOPIC;
           var title = this.getPageTitle(compiled);
           var description = this.getPageDescription(compiled);
 
@@ -140,6 +146,7 @@ _.extend(Compiler.prototype, {
             tag      : tag,
             basename : basename,
             filenane : filename,
+            type     : filetype,
             pathname : path.resolve(this.paths.tmp, tag),
             contents : compiled,
             title    : title || basename,
@@ -152,11 +159,17 @@ _.extend(Compiler.prototype, {
       });
     }, { concurrency: 1 })
     .then(function(files) {
-      // If we failed to readthe md files for a version omit that version
+      // If we failed to read the md files for a version omit that version
       return _.filter(files, function(f){return f});
     })
     .then(function(files) {
-      this.files = files;
+      this.files = files.map(function(files) {
+        //sort files by type
+        files = files.slice(0);
+        return files.sort(function(a, b) {
+          return a.type - b.type;
+        });
+      });
     });
   },
 
