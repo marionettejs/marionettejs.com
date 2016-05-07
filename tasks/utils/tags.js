@@ -1,5 +1,6 @@
 var _      = require('underscore');
 var semver = require('semver');
+var invalidTagSuffixes = ['rc', 'pre', 'beta'];
 
 var remapInvalidTag = function(tag) {
   if (tag == 'v0.4.1a') {
@@ -13,6 +14,15 @@ var remapInvalidTag = function(tag) {
   return tag;
 };
 
+var filterInvalidTag = function(tag) {
+  var flag = true;
+  var match = tag.match(invalidTagSuffixes.join('|'), 'gi');
+  if (match) {
+    flag = false;
+  }
+  return flag;
+};
+
 module.exports = {
   sort: function(tags) {
     return tags.sort(function(v1, v2) {
@@ -21,6 +31,7 @@ module.exports = {
   },
   valid: function(tags) {
     return _.chain(tags)
+    .filter(filterInvalidTag)
     .map(remapInvalidTag)
     .filter(_.partial(semver.lte, "v0.9.0"))
     .value();
