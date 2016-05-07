@@ -25,7 +25,9 @@ var filterInvalidTag = function(tag) {
 
 module.exports = {
   sort: function(tags) {
-    return tags.sort(function(v1, v2) {
+    return tags
+    .filter(filterInvalidTag)
+    .sort(function(v1, v2) {
       return semver.rcompare(remapInvalidTag(v1), remapInvalidTag(v2));
     });
   },
