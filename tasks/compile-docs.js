@@ -11,14 +11,9 @@ var highlight    = require('highlight.js');
 var mv           = Promise.promisify(require('mv'));
 var validTags    = require('./utils/tags').valid;
 var GittyCache   = require('./utils/gitty-cache');
+var CONSTS       = require('./consts');
 
 var renderer = new marked.Renderer();
-var BLACKLIST_FILES = ['readme.md'];
-var TOPICS = ['installation.md'];
-var FILE_TYPES = {
-  TOPIC : 0,
-  DOC   : 1
-};
 
 renderer.heading = function(text, level, raw) {
   var escapedText = raw
@@ -130,14 +125,13 @@ _.extend(Compiler.prototype, {
         return path.extname(filename) === '.md';
       }).filter(function(filename) {
         // Omit files that are blacklisted
-        return BLACKLIST_FILES.indexOf(path.basename(filename)) == -1;
+        return CONSTS.BLACKLIST_FILES.indexOf(path.basename(filename)) == -1;
       })
       .map(function(filename) {
         var src = path.resolve(this.paths.src, filename);
         return fs.readFileAsync(src).bind(this).then(function(contents) {
           var compiled = this.compileContents(contents.toString());
           var basename = path.basename(filename, '.md');
-          var filetype = (TOPICS.indexOf(filename) == -1) ? FILE_TYPES.DOC : FILE_TYPES.TOPIC;
           var title = this.getPageTitle(compiled);
           var description = this.getPageDescription(compiled);
 
@@ -145,8 +139,7 @@ _.extend(Compiler.prototype, {
           return {
             tag      : tag,
             basename : basename,
-            filenane : filename,
-            type     : filetype,
+            filename : filename,
             pathname : path.resolve(this.paths.tmp, tag),
             contents : compiled,
             title    : title || basename,
@@ -163,12 +156,18 @@ _.extend(Compiler.prototype, {
       return _.filter(files, function(f){return f});
     })
     .then(function(files) {
+      //sort files
       this.files = files.map(function(files) {
-        //sort files by type
-        files = files.slice(0);
-        return files.sort(function(a, b) {
-          return a.type - b.type;
+        var topics = _.filter(files, function(value, index) {
+          return CONSTS.TOPICS.indexOf(value.filename) >= 0;
         });
+        var casualDocs = _.filter(files, function(value, index) {
+          return CONSTS.TOPICS.indexOf(value.filename) == -1;
+        });
+        var sortedTopics = _.sortBy(topics, function(obj) {
+          return _.indexOf(CONSTS.TOPICS, obj.filename);
+        });
+        return sortedTopics.concat(casualDocs);
       });
     });
   },
