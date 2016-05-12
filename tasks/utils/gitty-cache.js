@@ -2,6 +2,7 @@ var _       = require('underscore');
 var gitty   = require('gitty');
 var Promise = require('bluebird');
 var sortTags = require('./tags').sort;
+var filterTags = require('./tags').filterTags;
 
 module.exports = {
   getSortedTags: function(repo) {
@@ -35,7 +36,7 @@ module.exports = {
 
         return this.getSortedTags(repo)
           .then(function(tags) {
-            this.releaseTag = _.first(tags);
+            this.releaseTag = _.first(filterTags(tags));
             return this.releaseTag;
           }.bind(this));
       });
