@@ -62,7 +62,9 @@ module.exports = function(grunt) {
     compileAdditionalResources: {
       marionette: {
         options: {
+          /*jshint ignore:start*/
           resUrl: 'https://raw.githubusercontent.com/sadcitizen/awesome-marionette/master/README.md',
+          /*jshint ignore:end*/
           output: 'dist/data'
         }
       }
