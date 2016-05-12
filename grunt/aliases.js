@@ -69,6 +69,10 @@ module.exports = {
     'compileDownloads'
   ],
 
+  'compile-additional-resources': [
+    'compileAdditionalResources'
+  ],
+
   'compile-all': [
     'compile-site',
     'compile-docs',

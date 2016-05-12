@@ -15,7 +15,8 @@
     "compile-downloads": "grunt compile-downloads",
     "deploy": "./ship.sh",
     "setup": "./setup.sh",
-    "lint": "grunt lint"
+    "lint": "grunt lint",
+    "test": "ava"
   },
   "author": "",
   "license": "MIT",
@@ -35,9 +36,10 @@
   },
   "devDependencies": {
     "autoprefixer-core": "4.0.2",
+    "ava": "^0.14.0",
     "bluebird": "2.1.3",
     "dox": "0.6.1",
-    "gitty": "3.2.3",
+    "gitty": "^3.3.5",
     "grunt": "0.4.5",
     "grunt-contrib-clean": "0.6.0",
     "grunt-contrib-concat": "0.5.0",

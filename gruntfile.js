@@ -57,6 +57,15 @@ module.exports = function(grunt) {
           output: 'dist/annotated-src/'
         }
       }
+    },
+
+    compileAdditionalResources: {
+      marionette: {
+        options: {
+          resUrl: 'https://raw.githubusercontent.com/sadcitizen/awesome-marionette/master/README.md',
+          output: 'dist/data'
+        }
+      }
     }
   });
 };
