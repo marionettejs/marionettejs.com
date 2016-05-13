@@ -1,14 +1,21 @@
-var path       = require('path');
 var Promise    = require('bluebird');
 var fs         = Promise.promisifyAll(require('fs'));
-var https      = require('https');
-var _          = require('underscore');
 var mkdirp     = Promise.promisify(require('mkdirp'));
 var rimraf     = Promise.promisify(require('rimraf'));
 var mv         = Promise.promisify(require('mv'));
+var path       = require('path');
+var https      = require('https');
+var _          = require('underscore');
+var request    = require('request');
 var CONSTS     = require('../consts');
 
 var Compiler = function(paths) {
+  /**
+   * Compiler constants
+   */
+  this.VIDEOS_TYPE = CONSTS.AR.TOPICS[3].TYPE;
+  this.BOOKS_TYPE = CONSTS.AR.TOPICS[1].TYPE;
+
   this.paths = paths;
 };
 
@@ -55,10 +62,25 @@ _.extend(Compiler.prototype, {
   writeDataFiles: function (data) {
     var resourcesSections = this.getResourcesSections(data);
     return Promise.all(
+      //write files data for each resource
       _.map(resourcesSections, function(value, index) {
-        var res = this.listToArray(value);
+        //path where file will be saved
         var distPath = path.join(this.paths.output, CONSTS.AR.TOPICS[index].FILE_NAME + '.json');
-        return fs.writeFileSync(distPath, JSON.stringify(res, null, 4));
+        //get file data
+        var fileData = this.listToArray(value);
+        switch(CONSTS.AR.TOPICS[index].TYPE) {
+          case this.VIDEOS_TYPE:
+            var videoIds = this.getVideoIds(fileData);
+            //get parsed video data from youtube
+            return this.getYouTubeData(videoIds).then(function(data) {
+              return fs.writeFileSync(distPath, JSON.stringify(data, null, 4));
+            });
+          case this.BOOKS_TYPE:
+            fileData = [];
+            break;
+          default:
+            return fs.writeFileSync(distPath, JSON.stringify(fileData, null, 4));
+        }
       }.bind(this))
     );
   },
@@ -80,6 +102,22 @@ _.extend(Compiler.prototype, {
   getResourcesSections: function (data) {
     var myRegExp = new RegExp(this.buildRegExpForResources(), 'gm');
     return data.match(myRegExp);
+  },
+
+  /**
+   * Gets video ids from video url
+   * @param {Object} videoData
+   * return {array}
+   */
+  getVideoIds: function (videoData) {
+    return _.map(videoData, function(value, index) {
+      var regExp = /(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/;
+      try {
+        return regExp.exec(value.link)[1];
+      } catch(e) {
+        //error
+      }
+    });
   },
 
   /**
@@ -127,6 +165,33 @@ _.extend(Compiler.prototype, {
       }
     }
     return linksDataArray;
+  },
+
+  /**
+   * Gets videos data using youtube API
+   * @param {Array} videoIds
+   * return {Promise}
+   */
+  getYouTubeData: function(videoIds) {
+    var ids = videoIds.join();
+    var resUrl = 'https://www.googleapis.com/youtube/v3/videos?id=' + ids + '&key=' + CONSTS.AR.API_KEY + '&part=snippet';
+    return new Promise(function (resolve, reject) {
+      request(resUrl, function (error, response, body) {
+        if (error) {
+          reject(err);
+        }
+        resolve(JSON.parse(response.body));
+      });
+    }).then(function(data) {
+      return _.map(data.items, function(item) {
+        return {
+          title        : item.snippet.title,
+          id           : item.id,
+          channelTitle : item.snippet.channelTitle,
+          img          : item.snippet.thumbnails.default.url
+        };
+      });
+    });
   }
 });
 

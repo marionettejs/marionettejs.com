@@ -29,6 +29,7 @@
     "morgan": "1.1.1",
     "mv": "2.0.3",
     "promisified-request": "0.0.3",
+    "request": "https://registry.npmjs.org/request/-/request-2.42.0.tgz",
     "rimraf": "2.2.8"
   },
   "engines": {

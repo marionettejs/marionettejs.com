@@ -15,32 +15,38 @@ module.exports = {
   ],
   //additional resources page
   AR: {
+    API_KEY: 'AIzaSyA9slKzffRbEa1btU9xnpsjot9lzMIvzt4',
     TOPICS: [
       //Tutorials and articles
       {
         INDEX: 0,
         TITLE: 'Tutorials and articles',
-        FILE_NAME: 'tutorials'
+        FILE_NAME: 'tutorials',
+        TYPE: 'tutorials'
       },
       {
         INDEX: 1,
         TITLE: 'Books',
-        FILE_NAME: 'books'
+        FILE_NAME: 'books',
+        TYPE: 'books'
       },
       {
         INDEX: 2,
         TITLE: 'Videos',
-        FILE_NAME: 'videos'
+        FILE_NAME: 'videos',
+        TYPE: 'videos'
       },
       {
         INDEX: 3,
         TITLE: 'Examples and boilerplates',
-        FILE_NAME: 'examples'
+        FILE_NAME: 'examples',
+        TYPE: 'examples'
       },
       {
         INDEX: 4,
         TITLE: 'Libraries',
-        FILE_NAME: 'libs'
+        FILE_NAME: 'libs',
+        TYPE: 'libs'
       }
     ]
   }
