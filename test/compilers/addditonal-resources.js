@@ -1,47 +1,52 @@
-const test = require('ava');
-const path = require('path');
-const fs = require('fs');
-const Compiler = require('../../tasks/compilers/additional-resources');
-const parsedFileData = [
-  {
-    "title": "Building Backbone Plugins",
-    "link": "https://leanpub.com/building-backbone-plugins"
-  },
-  {
-    "title": "Backbone.Marionette.js: A Gentle Introduction",
-    "link": "https://leanpub.com/marionette-gentle-introduction"
-  },
-  {
-    "title": "Structuring Backbone Code with RequireJS and Marionette Modules",
-    "link": "https://leanpub.com/structuring-backbone-with-requirejs-and-marionette"
-  },
-  {
-    "title": "Marionette Exposé",
-    "link": "https://leanpub.com/marionetteexpose"
-  },
-  {
-    "title": "Backbone.Marionette.js: A Serious Progression",
-    "link": "https://leanpub.com/marionette-serious-progression"
-  },
-  {
-    "title": "Getting Started with Backbone Marionette",
-    "link": "http://www.amazon.com/dp/1783284250/"
-  },
-  {
-    "title": "Marionette guides",
-    "link": "https://www.gitbook.com/book/marionette/marionette-guides/details"
-  }
-];
+const test      = require('ava');
+const path      = require('path');
+const _         = require('underscore');
+const fs        = require('fs');
+const dataMochs = require('./_mochs');
+const Compiler  = require('../../tasks/compilers/additional-resources');
 
-let fileData;
+const fixtures = {
+  VIDEOS: '../fixtures/videos.md',
+  BOOKS: '../fixtures/books.md',
+  EXAMPLES: '../fixtures/examples.md'
+};
+
 const compiler = new Compiler();
 
-test.before(async t => {
-  fileData = await fs.readFileSync('../fixtures/books.md', 'utf8');
+test('Convert text list to JSON', async t => {
+  const fileData = await fs.readFileSync(fixtures.BOOKS, 'utf8');
+  const parsedFileData = compiler.listToArray(fileData);
+  t.deepEqual(parsedFileData, dataMochs.parsedFileData);
 });
 
+test('Convert video links to ids', async t => {
+  const fileData = await fs.readFileSync(fixtures.VIDEOS, 'utf8');
+  const parsedFileData = compiler.listToArray(fileData);
+  const videoIds = compiler.getVideoIds(parsedFileData);
+  t.deepEqual(videoIds, dataMochs.videoIds);
+});
 
-test('Set config property for package.json', async t => {
-  const data = compiler.listToArray(fileData);
-  t.deepEqual(data, parsedFileData);
+test('Get youtube data', async t => {
+  const fileData = await fs.readFileSync(fixtures.VIDEOS, 'utf8');
+  const parsedFileData = compiler.listToArray(fileData);
+  const videoIds = compiler.getVideoIds(parsedFileData);
+  const videoData = await compiler.getYouTubeData(videoIds);
+  t.deepEqual(videoData, dataMochs.videoData);
+});
+
+test('Get guthub username&reponame from urls', async t => {
+  const fileData = await fs.readFileSync(fixtures.EXAMPLES, 'utf8');
+  const parsedFileData = compiler.listToArray(fileData);
+  const urlRepos = _.pluck(parsedFileData, 'url');
+  const githubRepos = compiler.getUserRepoNames(urlRepos);
+  t.deepEqual(githubRepos, dataMochs.githubRepos);
+});
+
+test('Get youtube data', async t => {
+  const fileData = await fs.readFileSync(fixtures.EXAMPLES, 'utf8');
+  const parsedFileData = compiler.listToArray(fileData);
+  const urlRepos = _.pluck(parsedFileData, 'url');
+  const githubRepos = compiler.getUserRepoNames(urlRepos);
+  const examplesData = await compiler.getGithubReposData(githubRepos);
+  t.deepEqual(examplesData, dataMochs.examplesData);
 });

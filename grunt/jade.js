@@ -18,7 +18,12 @@ module.exports = {
           require('../src/data/locals.json'), {
             VERSION: GittyCache.releaseTag || 'v.X.X.X',
             books: require('../src/data/books.json'),
-            videos: require('../src/data/videos.json')
+            videos: require('../src/data/videos.json'),
+            ar_videos: require('../dist/data/videos.json'),
+            ar_tutorials: require('../dist/data/tutorials.json'),
+            ar_libs: require('../dist/data/libs.json'),
+            ar_examples: require('../dist/data/examples.json'),
+            ar_books: require('../dist/data/books.json')
           }
         );
       }

@@ -5,6 +5,7 @@ module.exports = {
     'clean:dist',
     'connect',
     'notify:watch',
+    'compileAdditionalResources',
     'watch'
   ],
 
@@ -77,6 +78,7 @@ module.exports = {
     'compile-site',
     'compile-docs',
     'compile-annotated-src',
-    'compile-downloads'
+    'compile-downloads',
+    'compile-additional-resources'
   ]
 }

@@ -6,26 +6,20 @@ section.featured_videos.column-contain
         i.fa.fa-angle-left
         span.hidden-visually Previous video
     .video_slideshow("data-cycle-slides" = ".video_slide")
-      each video in videos
+      each video in ar_videos
         .video_slide
           .vid(itemscope, itemtype="http://schema.org/VideoObject")
-            div.vid-player(style="background-image:url(images/youtube/#{video.id}.jpg)", data-vid-id="#{video.id}")
+            div.vid-player(style="background-image:url(#{video.img})", data-vid-id="#{video.id}")
               svg.youtube-play
                 use(xlink:href="#play")
             .hidden-visually
-              h3(itemprop="name") #{video.name}
-              p(itemprop="description") #{video.description}
+              h3(itemprop="name") #{video.title}
               meta(itemprop="embedUrl", content="https://youtube.googleapis.com/v/#{video.id}")
-              meta(itemprop="author", content="#{video.author}")
-              meta(itemprop="duration", content="#{video.duration}")
+              meta(itemprop="author", content="#{video.channelTitle}")
               meta(itemprop="isFamilyFriendly", content="true")
-              meta(itemprop="thumbnail", content="images/youtube/#{video.id}.jpg")
+              meta(itemprop="thumbnail", content="#{video.img}")
               meta(itemprop="url", content="https://youtube.googleapis.com/watch?v=#{video.id}")
             p(itemprop="alternativeHeadline") #{video.title}
-              if video.link
-                |  (
-                a(href="#{video.link.url}", target="_blank") #{video.link.title}
-                |)
     a.next(role="button", href="#")
       span.cbutton--effect
         i.fa.fa-angle-right

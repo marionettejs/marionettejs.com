@@ -7,6 +7,7 @@ if [ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]
 then
   echo "Deploying!"
   bower i
+  npm run test
   npm run compile-all
   cp CNAME dist
   cd dist

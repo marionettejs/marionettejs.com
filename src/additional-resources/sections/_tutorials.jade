@@ -1,0 +1,6 @@
+section.column-contain
+  h2 Tutorials and articles
+  ol.rectangle-list
+    each tutorial in ar_tutorials
+      li
+        a(href="#{tutorial.url}", target="_blank", itemprop="url") #{tutorial.title}
