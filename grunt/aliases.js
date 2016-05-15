@@ -5,7 +5,6 @@ module.exports = {
     'clean:dist',
     'connect',
     'notify:watch',
-    'compileAdditionalResources',
     'watch'
   ],
 
