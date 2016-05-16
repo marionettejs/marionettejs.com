@@ -1,19 +1,24 @@
 extends ../layouts/layout
 
 block vars
-	-bodyClass = "additional-resources-page";
+  -bodyClass = "additional-resources-page";
 
 block meta
-	title(itemprop="name") Additional resources | Marionette.js – The Backbone Framework
-	meta(content='Get Marionette just the way you want it.')
+  title(itemprop="name") Additional resources | Marionette.js – The Backbone Framework
+  meta(content='Get Marionette just the way you want it.')
 
 block append styles
-	link(rel='stylesheet', href='/styles/additional-resources.css?t=#{Date.now()}')
+  link(rel='stylesheet', href='/styles/additional-resources.css?t=#{Date.now()}')
 
 block content
-	include ./sections/_header
-	include ./sections/_tutorials
-	include ./sections/_videos
-	include ./sections/_libs
-	include ./sections/_examples
-	include ./sections/_books
+  include ./sections/_header
+  include ./sections/_tutorials
+  include ./sections/_videos
+  include ./sections/_libs
+  include ./sections/_examples
+  include ./sections/_books
+
+//- only home page has scroll to top in the footer
+block append footer
+  a(href="#top", class="top")
+    span.hidden-visually Top
