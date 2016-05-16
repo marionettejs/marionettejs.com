@@ -17,8 +17,6 @@ module.exports = {
         return _.extend(
           require('../src/data/locals.json'), {
             VERSION: GittyCache.releaseTag || 'v.X.X.X',
-            books: require('../src/data/books.json'),
-            videos: require('../src/data/videos.json'),
             ar_videos: require('../dist/data/videos.json'),
             ar_tutorials: require('../dist/data/tutorials.json'),
             ar_libs: require('../dist/data/libs.json'),

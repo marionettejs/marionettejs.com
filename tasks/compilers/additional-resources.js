@@ -63,7 +63,7 @@ _.extend(Compiler.prototype, {
     var resourcesSections = this.getResourcesSections(data);
     return Promise.map(resourcesSections, function(value, index) {
       //path where file will be saved
-      var distPath = path.join(this.paths.output, CONSTS.AR.TOPICS[index].FILE_NAME + '.json');
+      var distPath = path.join(this.paths.output, CONSTS.AR.TOPICS[index].FILE_NAME);
       //get file data
       var fileData = this.listToArray(value);
       switch(CONSTS.AR.TOPICS[index].TYPE) {
@@ -108,7 +108,7 @@ _.extend(Compiler.prototype, {
   /**
    * Gets video ids from video url
    * @param {Object} videoData
-   * returns {Array}
+   * @returns {Array}
    */
   getVideoIds: function (videoData) {
     return _.map(videoData, function(value, index) {
