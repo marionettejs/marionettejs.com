@@ -106,6 +106,7 @@ _.extend(Compiler.prototype, {
     getPageDescription: function(compiledContents) {
         // Blanket assumption that the first paragraph is
         // suitable for a short description.
+        // test
         var description = compiledContents.match(/<p>([\s\S]*?)<\/p>/)[1];
 
         return description
