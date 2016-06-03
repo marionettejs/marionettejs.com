@@ -78,6 +78,12 @@
   }
 }
 
+#search-input {
+  &:focus {
+    outline: none;
+  }
+}
+
 .toggle-search-open, .toggle-search-close {
   cursor: pointer;
   height: 40px;
