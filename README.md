@@ -14,7 +14,7 @@ After that, development should be easy! Use our `dev` task to get everything up 
 
     npm run dev
 
-Then visit [http://localhost:8000](http://localhost:8000).
+Then visit [http://0.0.0.0:8000](http://0.0.0.0:8000).
 
 ## Compiling the docs
 

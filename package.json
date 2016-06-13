@@ -10,7 +10,7 @@
   "scripts": {
     "postinstall": "bower prune && bower install && npm prune",
     "dev": "grunt dev",
-    "compile-docs": "grunt compile-docs",
+    "compile-docs": "grunt dev-docs",
     "compile-all": "grunt compile-all",
     "compile-downloads": "grunt compile-downloads",
     "deploy": "./ship.sh",

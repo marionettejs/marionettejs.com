@@ -33,7 +33,7 @@ module.exports = {
       {
         INDEX: 2,
         TITLE: 'Videos',
-        FILE_NAME: 'video.jsons',
+        FILE_NAME: 'videos.json',
         TYPE: 'videos'
       },
       {

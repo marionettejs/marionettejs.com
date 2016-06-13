@@ -1,11 +1,26 @@
 module.exports = {
   'default': [],
 
-  'dev': [
-    'clean:dist',
+  'clean': [
+    'clean:dist'
+  ],
+
+  'build': [
+    'compile-additional-resources',
     'connect',
     'notify:watch',
     'watch'
+  ],
+
+  'dev': [
+    'clean',
+    'build'
+  ],
+
+  'dev-docs': [
+    'clean',
+    'compile-docs',
+    'build'
   ],
 
   'lint': [
