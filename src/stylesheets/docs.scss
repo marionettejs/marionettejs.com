@@ -1,5 +1,12 @@
 @import "base/reset";
 
+@import "vendor/mo";
+
+@import "utils/variables";
+
+@import "components/buttons";
+@import "components/ui";
+
 $red : #CF2227;
 
 *,
@@ -303,4 +310,36 @@ pre code {
 .xml .css,
 .xml .hljs-cdata {
   opacity: 0.5;
+}
+
+.btn-improve-page {
+
+  display: none;
+
+  @media only screen and (min-width: $large-breakpoint) {
+
+    position: fixed;
+    bottom: 10px;
+    right: 15px;
+    padding: 0 15px;
+    z-index: $zindex-back-to-top;
+
+    visibility: hidden;
+    opacity: 0;
+
+    transition: opacity .3s 0s, visibility 0s .3s;
+
+    &.is-visible, &.fade-out {
+      transition: opacity .3s 0s, visibility 0s 0s;
+    }
+
+    &.is-visible { /* the button becomes visible */
+      visibility: visible;
+      opacity: 1;
+    }
+
+    &.fade-out { /* if the user keeps scrolling down, the button is out of focus and becomes less visible */
+      opacity: .5;
+    }
+  }
 }
