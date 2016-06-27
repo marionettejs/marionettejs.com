@@ -78,6 +78,12 @@
   }
 }
 
+#search-input {
+  &:focus {
+    outline: 1px solid #ECECEC;
+  }
+}
+
 .toggle-search-open, .toggle-search-close {
   cursor: pointer;
   height: 40px;

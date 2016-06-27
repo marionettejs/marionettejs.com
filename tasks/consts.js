@@ -1,6 +1,8 @@
 module.exports = {
   BLACKLIST_FILES: ['readme.md'],
   TOPICS: [
+    'installation.md',
+    'upgrade.md',
     'marionette.application.md',
     'marionette.approuter.md',
     'marionette.object.md',
