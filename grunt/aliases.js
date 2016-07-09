@@ -89,10 +89,10 @@ module.exports = {
   ],
 
   'compile-all': [
+    'compile-additional-resources',
     'compile-site',
     'compile-docs',
     'compile-annotated-src',
-    'compile-downloads',
-    'compile-additional-resources'
+    'compile-downloads'
   ]
 }
