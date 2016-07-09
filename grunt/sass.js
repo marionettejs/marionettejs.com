@@ -9,7 +9,8 @@ module.exports = {
       'dist/styles/updates.css': 'src/stylesheets/updates.scss',
       'dist/styles/api.css': 'src/stylesheets/api.scss',
       'dist/styles/docs.css': 'src/stylesheets/docs.scss',
-      'dist/styles/docco.css': 'src/stylesheets/docco.scss'
+      'dist/styles/docco.css': 'src/stylesheets/docco.scss',
+      'dist/styles/additional-resources.css': 'src/stylesheets/additional-resources.scss'
     }
   },
   dev: {
@@ -23,7 +24,8 @@ module.exports = {
       'dist/styles/updates.css': 'src/stylesheets/updates.scss',
       'dist/styles/api.css': 'src/stylesheets/api.scss',
       'dist/styles/docs.css': 'src/stylesheets/docs.scss',
-      'dist/styles/docco.css': 'src/stylesheets/docco.scss'
+      'dist/styles/docco.css': 'src/stylesheets/docco.scss',
+      'dist/styles/additional-resources.css': 'src/stylesheets/additional-resources.scss'
     }
   }
 };

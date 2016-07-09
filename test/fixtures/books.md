@@ -1,0 +1,7 @@
+- [Building Backbone Plugins](https://leanpub.com/building-backbone-plugins) by Derick Bailey and Jerome Gravel-Niquet
+- [Backbone.Marionette.js: A Gentle Introduction](https://leanpub.com/marionette-gentle-introduction) by David Sulc
+- [Structuring Backbone Code with RequireJS and Marionette Modules](https://leanpub.com/structuring-backbone-with-requirejs-and-marionette) by David Sulc
+- [Marionette Exposé](https://leanpub.com/marionetteexpose) by Jack Killilea
+- [Backbone.Marionette.js: A Serious Progression](https://leanpub.com/marionette-serious-progression) by David Sulc
+- [Getting Started with Backbone Marionette](http://www.amazon.com/dp/1783284250/) by Raymundo Armendariz and Arturo Soto
+- [Marionette guides](https://www.gitbook.com/book/marionette/marionette-guides/details)

@@ -1,0 +1,4 @@
+- [Backbone.js with Derick Bailey](https://www.youtube.com/watch?v=VERQEr-bVTs) by Derick Bailey
+- [The tools and patterns for building large-scale Backbone applications](https://www.youtube.com/watch?v=qWr7x9wk6_c) by Brian Mann
+- [Episode 03 of BackboneRails screencast](https://www.youtube.com/watch?v=KT31H3Ayliw) by Brian Mann
+- [Backbone Marionette and Require.js](https://www.youtube.com/watch?v=4K4JKtAGPu4) by Daniel Cousineau

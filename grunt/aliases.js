@@ -1,11 +1,26 @@
 module.exports = {
   'default': [],
 
-  'dev': [
-    'clean:dist',
+  'clean': [
+    'clean:dist'
+  ],
+
+  'build': [
+    'compile-additional-resources',
     'connect',
     'notify:watch',
     'watch'
+  ],
+
+  'dev': [
+    'clean',
+    'build'
+  ],
+
+  'dev-docs': [
+    'clean',
+    'compile-docs',
+    'build'
   ],
 
   'lint': [
@@ -69,10 +84,15 @@ module.exports = {
     'compileDownloads'
   ],
 
+  'compile-additional-resources': [
+    'compileAdditionalResources'
+  ],
+
   'compile-all': [
     'compile-site',
     'compile-docs',
     'compile-annotated-src',
-    'compile-downloads'
+    'compile-downloads',
+    'compile-additional-resources'
   ]
 }

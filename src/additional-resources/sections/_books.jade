@@ -1,0 +1,6 @@
+section.column-contain
+  h2 Books
+  ol.rectangle-list
+    each book in ar_books
+      li
+        a(href="#{book.url}", target="_blank", itemprop="url") #{book.title}
