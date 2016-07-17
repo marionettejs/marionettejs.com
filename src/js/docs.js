@@ -4,7 +4,6 @@
       window.location = '/docs/' + this.value;
     };
   }
-
   setListeners();
 
   var currentFile = window.location.pathname.split('/').pop();

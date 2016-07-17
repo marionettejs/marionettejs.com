@@ -87,12 +87,18 @@ module.exports = {
     'compileAdditionalResources'
   ],
 
+  'compile-service-worker': [
+    'compileSW'
+  ],
+
   'compile-all': [
     'compile-additional-resources',
     'compile-site',
     'compile-docs',
     'compile-annotated-src',
-    'compile-downloads'
+    'compile-downloads',
+    'cacheBust:all',
+    'compile-service-worker'
   ],
 
   'pagespeed': [

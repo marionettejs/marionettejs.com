@@ -69,6 +69,15 @@ module.exports = function(grunt) {
       }
     },
 
+    compileSW: {
+      marionette: {
+        options: {
+          handleFetch: true,
+          rootDir: 'dist'
+        }
+      }
+    },
+
     psiNgrok: {
       marionette: {}
     }

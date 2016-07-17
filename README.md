@@ -21,7 +21,9 @@ After that, development should be easy! Use our `dev` task to get everything up 
 
     npm run dev
 
-Then visit [http://0.0.0.0:8000](http://0.0.0.0:8000).
+Then visit [http://localhost:8000](http://localhost:8000).
+
+Site is using service worker ([sw-precache](https://github.com/GoogleChrome/sw-precache)), so it can be used in offline mode. All resources are cached during build.
 
 > It uses YouTube and GitHub API for getting data dynamically.
 
@@ -29,7 +31,6 @@ Then visit [http://0.0.0.0:8000](http://0.0.0.0:8000).
 
 Working on the docs is just as easy as working on the website. Run the `dev` task as mentioned above but make sure you also compile the docs:
 
-    npm run dev
     npm run compile-docs
 
 You'll need to rerun this command after template changes.

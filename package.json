@@ -33,7 +33,8 @@
     "mv": "2.1.1",
     "promisified-request": "0.0.3",
     "request": "https://registry.npmjs.org/request/-/request-2.42.0.tgz",
-    "rimraf": "2.5.4"
+    "rimraf": "2.5.4",
+    "sw-precache": "^5.0.0"
   },
   "engines": {
     "node": ">=0.12"
@@ -45,6 +46,7 @@
     "dox": "^0.9.0",
     "gitty": "^3.2.3",
     "grunt": "^1.0.1",
+    "grunt-cache-bust": "^1.3.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-connect": "^1.0.2",
