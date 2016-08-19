@@ -219,11 +219,14 @@ _.extend(Compiler.prototype, {
         });
       }).then(function(data) {
         var description = data.description || data.html_url;
-        return {
-          avatar_url: data.owner.avatar_url,
-          url: data.html_url,
-          description: description
-        };
+
+        if (data.owner) {
+          return {
+            avatar_url: data.owner.avatar_url,
+            url: data.html_url,
+            description: description
+          };
+        }
       });
     }.bind(this));
   },
