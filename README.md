@@ -9,12 +9,21 @@ marionettejs.com
 To prep your repo, all you need to do is run our `setup` script.
 
     npm run setup
+ 
+Create file `.env` in a root folder and in `test\compilers` with data:
+```
+USER_NAME='your_github_user_name'
+PASSWORD='your_github_pussword'
+```
+[Read more](https://github.com/motdotla/dotenv) about `.env`; 
 
 After that, development should be easy! Use our `dev` task to get everything up and running:
 
     npm run dev
 
 Then visit [http://0.0.0.0:8000](http://0.0.0.0:8000).
+
+> It uses YouTube and GitHub API for getting data dynamically.
 
 ## Compiling the docs
 
