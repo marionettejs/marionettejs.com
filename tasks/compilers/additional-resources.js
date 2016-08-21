@@ -82,6 +82,7 @@ _.extend(Compiler.prototype, {
           var repos = this.getUserRepoNames(urlRepos);
           //get parsed data from github
           return this.getGithubReposData(repos).then(function(data) {
+            console.log(data);
             return fs.writeFileSync(distPath, JSON.stringify(data, null, 4));
           });
         default:
@@ -237,9 +238,8 @@ _.extend(Compiler.prototype, {
    */
   githubAuth: function() {
     this.github.authenticate({
-      type: 'basic',
-      username: process.env.USER_NAME,
-      password: process.env.PASSWORD
+      type: 'oauth',
+      token: process.env.AUTH_TOKEN
     });
   },
 

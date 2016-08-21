@@ -12,8 +12,7 @@ To prep your repo, all you need to do is run our `setup` script.
  
 Create file `.env` in a root folder and in `test\compilers` with data:
 ```
-USER_NAME='your_github_user_name'
-PASSWORD='your_github_pussword'
+AUTH_TOKEN='your_github_outh_token'
 ```
 [Read more](https://github.com/motdotla/dotenv) about `.env`; 
 
