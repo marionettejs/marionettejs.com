@@ -11,6 +11,7 @@ To prep your repo, all you need to do is run our `setup` script.
     npm run setup
  
 Create file `.env` in a root folder and in `test\compilers` with data:
+
 ```
 AUTH_TOKEN='your_github_outh_token'
 ```
