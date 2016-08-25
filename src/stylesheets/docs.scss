@@ -153,7 +153,8 @@ pre code {
     a {
       display: block;
       font-size: 0.8em;
-      padding: 7px 22% 8px;
+      padding: 7px 15% 8px;
+      line-height: 14px;
 
       &:hover, &.is-selected{
         color: $red;
