@@ -5,6 +5,7 @@ rm -r dist/downloads
 
 # # Lets create some directories for our download and build targets
 mkdir -p dist/downloads
+mkdir -p tmp/backbone.marionette
 
 # We need to download all the files to build the project
 curl -L https://raw.github.com/douglascrockford/JSON-js/master/json2.js > tmp/backbone.marionette/json2.js
