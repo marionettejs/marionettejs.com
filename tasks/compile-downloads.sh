@@ -21,8 +21,10 @@ curl -L https://raw.github.com/marionettejs/backbone.marionette/master/lib/backb
 curl -L https://raw.github.com/marionettejs/backbone.marionette/master/lib/backbone.marionette.min.js.map > tmp/backbone.marionette/backbone.marionette.min.js.map
 
 # Lets zip together in tar and zip formats
-tar -zcvf backbone.marionette.tar.gz tmp/backbone.marionette/
-zip -r backbone.marionette.zip tmp/backbone.marionette/
+(cd tmp
+tar -zcvf ../backbone.marionette.tar.gz backbone.marionette/
+zip -r ../backbone.marionette.zip backbone.marionette/
+)
 
 # Move everything in place
 mv tmp/backbone.marionette/* dist/downloads
