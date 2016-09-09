@@ -86,3 +86,9 @@ a.btn {
 .section-header {
   margin-bottom: $center_pad;
 }
+
+.btn-disabled {
+  opacity: 0.65;
+  pointer-events: none;
+  cursor: not-allowed;
+}

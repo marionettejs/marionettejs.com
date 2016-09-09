@@ -10,11 +10,6 @@ module.exports = {
       src: ['bower_components/**/*'],
       dest: 'dist/'
     }, {
-      cwd: 'src/',
-      expand: true,
-      src: ['js/docs.js'],
-      dest: 'dist'
-    }, {
       expand: true,
       cwd: 'bower_components/jquery/dist',
       src: ['jquery.min.map'],
