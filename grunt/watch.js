@@ -15,7 +15,8 @@ module.exports = {
     tasks: [
       'notify:preHTML',
       'lint:core',
-      'concat',
+      'concat:main',
+      'concat:docs',
       'uglify:polyfills',
       'copy',
       'notify:postHTML'

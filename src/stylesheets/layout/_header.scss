@@ -100,7 +100,8 @@
   position:fixed;
   top:0;
   width: 100%;
-  z-index: 999;
+  //has to be under opened gitter chat
+  z-index: 99;
 
   &.search-expanded {
     .logo {
