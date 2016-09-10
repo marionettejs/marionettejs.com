@@ -5,9 +5,14 @@ module.exports = {
     preserveComments: false,
     sourceMap: false
   },
-  dist: {
+  main: {
     files: {
-      'dist/js/build.js': ['<%= concat.dist.dest %>']
+      'dist/js/build.js': ['<%= concat.main.dest %>']
+    }
+  },
+  docs: {
+    files: {
+      'dist/js/docs.js': ['<%= concat.docs.dest %>']
     }
   },
   polyfills: {
