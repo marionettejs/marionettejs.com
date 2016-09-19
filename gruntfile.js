@@ -68,6 +68,10 @@ module.exports = function(grunt) {
           output: 'dist/data'
         }
       }
+    },
+
+    psiNgrok: {
+      marionette: {}
     }
   });
 };

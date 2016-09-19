@@ -15,5 +15,5 @@ then
   git commit -m "deploy"
   git push --force --quiet "https://${GH_TOKEN}@github.com/marionettejs/marionettejs.com.git" master:gh-pages > /dev/null 2>&1
 else
-  npm run lint && npm run test
+  npm run lint && npm run test && npm run pagespeed
 fi
