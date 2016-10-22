@@ -53,8 +53,7 @@ module.exports = {
     'copy',
     'imagemin',
     'compile-templates',
-    'postcss:dist',
-    'critical'
+    'postcss:dist'
   ],
 
   'compile-templates': [
