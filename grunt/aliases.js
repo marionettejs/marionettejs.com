@@ -94,5 +94,10 @@ module.exports = {
     'compile-docs',
     'compile-annotated-src',
     'compile-downloads'
+  ],
+
+  'pagespeed': [
+    'psiNgrok',
+    'connect:server:keepalive'
   ]
-}
+};

@@ -13,6 +13,7 @@
     "compile-docs": "grunt dev-docs",
     "compile-all": "grunt compile-all",
     "compile-downloads": "grunt compile-downloads",
+    "pagespeed": "grunt pagespeed",
     "deploy": "./ship.sh",
     "setup": "./setup.sh",
     "lint": "grunt lint",
@@ -68,6 +69,7 @@
     "load-grunt-tasks": "^0.6.0",
     "marked": "^0.3.2",
     "mkdirp": "^0.5.0",
+    "psi-ngrok": "^0.1.0",
     "semver": "^4.2.0",
     "underscore": "^1.6.0"
   }
