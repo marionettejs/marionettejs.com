@@ -1,5 +1,5 @@
 #!/bin/bash
 set -o pipefail
 
-yarn i && \
+yarn install && \
 git submodule update --init --recursive
