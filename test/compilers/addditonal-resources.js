@@ -6,9 +6,9 @@ const dataMochs = require('./_mochs');
 const Compiler  = require('../../tasks/compilers/additional-resources');
 
 const fixtures = {
-  VIDEOS: '../fixtures/videos.md',
-  BOOKS: '../fixtures/books.md',
-  EXAMPLES: '../fixtures/examples.md'
+  VIDEOS: './test/fixtures/videos.md',
+  BOOKS: './test/fixtures/books.md',
+  EXAMPLES: './test/fixtures/examples.md'
 };
 
 const compiler = new Compiler();
