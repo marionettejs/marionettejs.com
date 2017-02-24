@@ -1,5 +1,5 @@
 #!/bin/bash
 set -o pipefail
 
-npm i && \
+yarn install && \
 git submodule update --init --recursive

@@ -23,20 +23,6 @@
     });
   }
 
-  function openChat(event) {
-    event.preventDefault();
-    toggleOpenChatBtn(true);
-
-    if (scriptLoaded) {
-      toggleChat(true);
-    } else {
-      loadScript(function() {
-        toggleChat(true);
-        setListeners();
-      });
-    }
-  }
-
   function toggleChat(bool) {
     if (chat === undefined) {
       initChat();
@@ -55,6 +41,20 @@
     $('.gitter-chat-embed').on('gitter-chat-toggle', function(event) {
       toggleOpenChatBtn(event.originalEvent.detail.state);
     });
+  }
+
+  function openChat(event) {
+    event.preventDefault();
+    toggleOpenChatBtn(true);
+
+    if (scriptLoaded) {
+      toggleChat(true);
+    } else {
+      loadScript(function() {
+        toggleChat(true);
+        setListeners();
+      });
+    }
   }
 
   $openChatBtn.click(openChat);

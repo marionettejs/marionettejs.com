@@ -20,6 +20,7 @@ module.exports = {
       'src/js/gitter-chat.js',
       'bower_components/underscore/underscore.js',
       'bower_components/backbone/backbone.js',
+      'bower_components/backbone.radio/build/backbone.radio.js',
       'backbone.marionette/lib/backbone.marionette.js'
     ],
     dest: 'dist/js/build.js'

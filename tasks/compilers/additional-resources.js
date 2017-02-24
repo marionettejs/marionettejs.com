@@ -184,7 +184,7 @@ _.extend(Compiler.prototype, {
     return new Promise(function (resolve, reject) {
       request(resUrl, function (error, response, body) {
         if (error) {
-          reject(err);
+          return reject(err);
         }
         resolve(JSON.parse(response.body));
       });
@@ -197,6 +197,8 @@ _.extend(Compiler.prototype, {
           img          : item.snippet.thumbnails.medium.url
         };
       });
+    }).catch(function(error) {
+      throw new Error(error);
     });
   },
 

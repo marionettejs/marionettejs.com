@@ -5,7 +5,6 @@ module.exports = function(grunt) {
   require('load-grunt-tasks')(grunt);
 
   grunt.loadTasks('tasks');
-  grunt.loadTasks('backbone.marionette/tasks');
 
   GittyCache.setReleaseTag(grunt.option('TAG'));
 

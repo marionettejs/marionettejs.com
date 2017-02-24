@@ -25,7 +25,7 @@ module.exports = {
   ],
   //additional resources page
   AR: {
-    API_KEY: 'AIzaSyA9slKzffRbEa1btU9xnpsjot9lzMIvzt4',
+    API_KEY: 'AIzaSyDh5hJucqMRLDuJ6PYl_ohi7rRAdaMXKUA',
     TOPICS: [
       //Tutorials and articles
       {
