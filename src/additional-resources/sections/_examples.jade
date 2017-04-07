@@ -1,8 +1,9 @@
 section.column-contain
-	h2 Examples and boilerplates
-	ul.avatar-list
-		each example in ar_examples
-			li
-				img(src="#{example.avatar_url}").avatar
-				div.description
-					a(href="#{example.url}", target="_blank", itemprop="url") #{example.description}
+  h2 Examples and boilerplates
+  ul.avatar-list
+    each example in ar_examples
+      if example
+        li
+          img(src="#{example.avatar_url}").avatar
+          div.description
+            a(href="#{example.url}", target="_blank", itemprop="url") #{example.description}
