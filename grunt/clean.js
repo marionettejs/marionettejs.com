@@ -1,3 +1,5 @@
 module.exports = {
-  dist: ['dist']
+  dist: ['dist'],
+  js: ['dist/js'],
+  css: ['dist/styles']
 };

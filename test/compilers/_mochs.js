@@ -65,17 +65,17 @@ module.exports = {
   ],
   examplesData: [
     {
-      "avatar_url": "https://avatars.githubusercontent.com/u/4105161?v=3",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/4105161?v=3",
       "url": "https://github.com/BoilerplateMVC/Marionette-Require-Boilerplate",
       "description": "Marionette-Require-Boilerplate"
     },
     {
-      "avatar_url": "https://avatars.githubusercontent.com/u/1378201?v=3",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/1378201?v=3",
       "url": "https://github.com/dmytroyarmak/marionette-contact-manager",
       "description": "Continuation of development backbone-contact-manager but using Marionette.js"
     },
     {
-      "avatar_url": "https://avatars.githubusercontent.com/u/675571?v=3",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/675571?v=3",
       "url": "https://github.com/jroeckle/Marionette-Require-Gulpjs-Boilerplate",
       "description": "https://github.com/jroeckle/Marionette-Require-Gulpjs-Boilerplate"
     },

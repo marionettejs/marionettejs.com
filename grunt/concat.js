@@ -18,6 +18,7 @@ module.exports = {
       'src/js/inspector-comment.js',
       'src/js/updates.js',
       'src/js/gitter-chat.js',
+      'src/js/sw-registration.js',
       'bower_components/underscore/underscore.js',
       'bower_components/backbone/backbone.js',
       'bower_components/backbone.radio/build/backbone.radio.js',

@@ -1,5 +1,7 @@
 {
 	"name": "Marionette",
+  "background_color": "#cf2227",
+  "theme_color": "#bad1dd",
 	"icons": [
 		{
 			"src": "\/android-chrome-36x36.png",

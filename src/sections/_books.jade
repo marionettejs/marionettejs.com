@@ -10,5 +10,5 @@ section.books.column-contain
         .hidden-visually
           h3(itemprop="name") #{book.title}
           p(itemprop="description") #{book.description}
-        a(href="#{book.url}", target="_blank", itemprop="url")
+        a(href="#{book.url}", target="_blank", rel="noopener", itemprop="url")
           img(src="#{book.thumbnail}", alt="#{book.title}", itemprop="image")

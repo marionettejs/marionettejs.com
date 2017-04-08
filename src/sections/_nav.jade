@@ -1,4 +1,4 @@
-input.hidden-visually(type="checkbox", id="toggle-search")
+input.hidden-visually(type="checkbox", id="toggle-search", hidden) 
 header.global-nav
   .global-nav__section.column-contain
     a.left.logo(href="/")
@@ -14,13 +14,13 @@ header.global-nav
     nav.nav-slider.closed(role="navigation")
       ul.nav-slider__list(style="padding: 0; margin: 0")
         li.left
-          a(itemprop="significantLink", href="/updates") Updates
+          a(itemprop="significantLink", href="/updates/") Updates
           span.middot ·
         li.left
           a(itemprop="significantLink", href="/docs/current") Docs
           span.middot ·
         li.left
-          a(itemprop="relatedLink", href="/additional-resources") Additional resources
+          a(itemprop="relatedLink", href="/additional-resources/") Additional resources
           span.middot ·
         li.left
           a(itemprop="significantLink", href="/annotated-src/backbone.marionette.html") Annotated Source
@@ -32,7 +32,7 @@ header.global-nav
           a(itemprop="relatedLink", href="http://blog.marionettejs.com") Blog
           span.middot ·
         li.left
-          a.github-mark(itemprop="sameAs", href="https://github.com/marionettejs/backbone.marionette", target="_blank")
+          a.github-mark(itemprop="sameAs", href="https://github.com/marionettejs/backbone.marionette", target="_blank", rel="noopener")
             span.hidden-visually GitHub @marionettejs
             svg.support-link-icon(width="19px", height="19px")
               use(xlink:href="#github-mark")
