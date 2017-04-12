@@ -10,6 +10,8 @@ then
   npm run compile-all
   cp CNAME dist
   cd dist
+  git config --global user.email "travis@marionettejs.com"
+  git config --global user.name "TRAVIS-CI"
   git init
   git add .
   git commit -m "deploy"
