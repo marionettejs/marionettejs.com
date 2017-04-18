@@ -38,3 +38,7 @@ You'll need to rerun this command after template changes.
 ## When adding SVG
 
 Follow [these steps](./svg-steps.md)
+
+## Submitting PR
+
+Before submitting pull request, please, run `npm test` and make sure that tests are not broken. 
