@@ -2,7 +2,6 @@
 set -o pipefail
 
 echo "$TRAVIS_BRANCH"
-echo "$TRAVIS_PULL_REQUEST"
 
 if [ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]
 then
@@ -11,8 +10,6 @@ then
   npm run compile-all
   cp CNAME dist
   cd dist
-  git config --global user.email "travis@marionettejs.com"
-  git config --global user.name "TRAVIS-CI"
   git init
   git add .
   git commit -m "deploy"
