@@ -3,16 +3,12 @@ sudo: false
 node_js:
   - "6"
 cache: yarn
-env:
-  - secure: "F1ZTzIxDV3QT0LOcGVFq8If5YmTV4WM/U+H809fFv1j/65OaUPyDeQk5+2/AJakG7rnOdUKQgZErcXBWHuyiDlFZJYsRE12m94GwRl2cwRLSMhkij655tfcv7JHPNdWBDKFcrC9XkILJCimpStzSb1ZNTVAK0iseMLMYr50TM4Q="
 git:
   submodules: false
 # Use sed to replace the SSH URL with the public URL, then initialize submodules
 before_install:
   - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
-  - npm install -g yarn@v0.22.0
 before_script:
-  - yarn
   - git config --global user.email "travis@marionettejs.com"
   - git config --global user.name "TRAVIS-CI"
 script:
