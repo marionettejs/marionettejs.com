@@ -13,7 +13,7 @@ then
   git init
   git add .
   git commit -m "deploy"
-  git push --force "https://${GH_TOKEN}@github.com/marionettejs/marionettejs.com.git" master:gh-pages
+  git push --force "https://${GITHUB_TOKEN}@github.com/marionettejs/marionettejs.com.git" master:gh-pages
 else
   npm run lint && npm run pagespeed
 fi
