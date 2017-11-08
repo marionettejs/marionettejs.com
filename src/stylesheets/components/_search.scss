@@ -118,6 +118,7 @@
 .aa-dropdown-menu {
   right: 0 !important;
   line-height: 1.3;
+  background-color: $seafoam;
 
   @include below($large-breakpoint) {
     right: -43px !important;
@@ -132,21 +133,16 @@
 /* Main category headers */
 .algolia-docsearch-suggestion--category-header {
   background-color: $red;
+  font-weight: 400;
 }
 /* Highlighted search terms */
 .algolia-docsearch-suggestion--highlight {
   color: $red;
 }
-/* Highligted search terms in the main category headers */
-.algolia-docsearch-suggestion--category-header .algolia-docsearch-suggestion--highlight  {
-  background-color: $seafoam;
-}
+
 /* Currently selected suggestion */
 .aa-cursor .algolia-docsearch-suggestion--content {
   color: $dark-gray;
-}
-.aa-cursor .algolia-docsearch-suggestion {
-  background: $light-blue;
 }
 
 /* For bigger screens, when displaying results in two columns */
