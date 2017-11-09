@@ -118,7 +118,7 @@
 .aa-dropdown-menu {
   right: 0 !important;
   line-height: 1.3;
-  background-color: $seafoam;
+  background-color: white;
 
   @include below($large-breakpoint) {
     right: -43px !important;
