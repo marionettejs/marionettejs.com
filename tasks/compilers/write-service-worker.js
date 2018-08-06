@@ -41,6 +41,7 @@ _.extend(Compiler.prototype, {
         this.config.rootDir + '/docs/**.html',
         this.config.rootDir + '/docs/v2.4.**/**.html',
         this.config.rootDir + '/docs/v3.**/**.html',
+        this.config.rootDir + '/docs/v4.**/**.html',
         this.config.rootDir + '/download/**.html',
         this.config.rootDir + '/inspector/**.html',
         this.config.rootDir + '/updates/**.html',
@@ -48,7 +49,7 @@ _.extend(Compiler.prototype, {
         this.config.rootDir + '/*.{png,jpg,gif,svg}'
       ]
     };
-    
+
     return swPrecache.write(path.join(this.config.rootDir, 'sw.js'), config);
   }
 });

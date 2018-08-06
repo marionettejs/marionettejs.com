@@ -85,6 +85,9 @@ _.extend(Compiler.prototype, {
     // Strip out view the docs headline from each doc
     compiledContents = compiledContents.replace(/<h2\>.*View the new docs.*<\/h2>/, '');
 
+    compiledContents = compiledContents.replace(/>Continue Reading...<\/a>/gi, ' class="btn btn-action">Continue Reading...</a>');
+    compiledContents = compiledContents.replace(/>Live example<\/a>/gi, ' class="btn btn-action">Live example</a>');
+
     // Attempts to replace extension of content links to other documents
     compiledContents = compiledContents.replace(/.md/g, '.html');
 
@@ -98,7 +101,11 @@ _.extend(Compiler.prototype, {
     pageTitle = compiledContents.match(/<h1>([\s\S]*?)<\/h1>/)[1];
 
     // Remove all other tags
-    pageTitle = pageTitle.replace(/<[^>]*>|Marionette./g, '');
+    pageTitle = pageTitle.replace(/<[^>]*>/g, '');
+    pageTitle = pageTitle.replace(/Marionette\./g, 'Class: ');
+
+    // Fixes issue in v4.0.0
+    pageTitle = pageTitle.replace(/^Regions$/, 'Class: Region');
 
     //capitalize 1st letter
     return pageTitle.charAt(0).toUpperCase() + pageTitle.slice(1);
@@ -179,10 +186,12 @@ _.extend(Compiler.prototype, {
         GittyCache.getReleaseTag(this.repo)
       })
       .return(this.files).map(function(files) {
+        var isCurrentRelease = files[0].tag == 'master';
         var indexPath = path.resolve(files[0].pathname, "index.html")
         var indexContentMarkup = this.indexTemplate({
           tags    : validTags(this.tags),
           tag     : files[0].tag,
+          tocTitle: isCurrentRelease ? ' ' : files[0].tag,
           file    : files[0],
           files   : files
         });
@@ -197,7 +206,7 @@ _.extend(Compiler.prototype, {
         });
 
         // If this is the latest release ensure to write the /docs/current file
-        if (files[0].tag == this.branch) {
+      if (isCurrentRelease) {
           return fs.writeFileAsync(indexPath, indexMarkup)
           .then(function() {
             var currentPath = path.resolve(files[0].pathname, '../current/');
