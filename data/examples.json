@@ -1,0 +1,77 @@
+[
+    {
+        "avatar_url": "https://avatars2.githubusercontent.com/u/4105161?v=4",
+        "url": "https://github.com/BoilerplateMVC/Marionette-Require-Boilerplate",
+        "description": "Marionette-Require-Boilerplate"
+    },
+    {
+        "avatar_url": "https://avatars1.githubusercontent.com/u/1378201?v=4",
+        "url": "https://github.com/dmytroyarmak/marionette-contact-manager",
+        "description": "Continuation of development backbone-contact-manager but using Marionette.js"
+    },
+    {
+        "avatar_url": "https://avatars2.githubusercontent.com/u/675571?v=4",
+        "url": "https://github.com/jroeckle/Marionette-Require-Gulpjs-Boilerplate",
+        "description": "https://github.com/jroeckle/Marionette-Require-Gulpjs-Boilerplate"
+    },
+    {
+        "avatar_url": "https://avatars0.githubusercontent.com/u/439612?v=4",
+        "url": "https://github.com/ajaxray/marionette-boilerplate",
+        "description": "Let's start the dance! This boilerplate is a ready setup for starting your next awesome javascript app in minutes.  Backbone + Marionette + RequireJS + Twitter Bootstrap"
+    },
+    {
+        "avatar_url": "https://avatars3.githubusercontent.com/u/356709?v=4",
+        "url": "https://github.com/davidsulc/marionette-gentle-introduction",
+        "description": "Source code for the \"Backbone.Marionette.js: A Gentle Introduction\" book available at https://leanpub.com/marionette-gentle-introduction"
+    },
+    {
+        "avatar_url": "https://avatars0.githubusercontent.com/u/952783?v=4",
+        "url": "https://github.com/jamiebuilds/marionette-wires",
+        "description": ":shipit: An opinionated example application built with Marionette.js."
+    },
+    {
+        "avatar_url": "https://avatars1.githubusercontent.com/u/9302187?v=4",
+        "url": "https://github.com/MarionetteLabs/marionette-cookbook",
+        "description": "(Work in progress) Examples of common UI patterns with Marionette.js"
+    },
+    {
+        "avatar_url": "https://avatars0.githubusercontent.com/u/6231516?v=4",
+        "url": "https://github.com/denar90/brunch-with-marionettejs",
+        "description": "Marionette.js skeleton with Babel/ES6 for Brunch with Progressive Web App goodness"
+    },
+    {
+        "avatar_url": "https://avatars3.githubusercontent.com/u/2322305?v=4",
+        "url": "https://github.com/jamesplease/gistbook",
+        "description": "[No longer hosted] A place to write about technical subjects on the web."
+    },
+    {
+        "avatar_url": "https://avatars3.githubusercontent.com/u/883126?v=4",
+        "url": "https://github.com/samccone/edit.sx-frontend",
+        "description": "the front end app for edit.sx"
+    },
+    {
+        "avatar_url": "https://avatars3.githubusercontent.com/u/1380995?v=4",
+        "url": "https://github.com/MeoMix/StreamusChromeExtension",
+        "description": "A YouTube video player as a Google Chrome extension"
+    },
+    {
+        "avatar_url": "https://avatars1.githubusercontent.com/u/2273169?v=4",
+        "url": "https://github.com/marionettejs/marionette-integrations",
+        "description": "A collection of starter kits for building Marionette Applications"
+    },
+    {
+        "avatar_url": "https://avatars1.githubusercontent.com/u/1879190?v=4",
+        "url": "https://github.com/abiee/es6-marionette",
+        "description": "Boilerplate project built with ECMAScript 6 support for Backbone.Marionette based projects. Includes Browserify, Gulp and Karma"
+    },
+    {
+        "avatar_url": "https://avatars0.githubusercontent.com/u/1733746?v=4",
+        "url": "https://github.com/tastejs/todomvc",
+        "description": "Helping you select an MV* framework - Todo apps for React.js, Ember.js, Angular, and many more"
+    },
+    {
+        "avatar_url": "https://avatars1.githubusercontent.com/u/1071066?v=4",
+        "url": "https://github.com/alexpsi/webpack-marionette",
+        "description": "A small boilerplate introducing webpack and es6 features to a Marionette/Backbone application"
+    }
+]

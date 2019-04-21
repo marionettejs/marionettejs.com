@@ -1,0 +1,26 @@
+[
+    {
+        "title": "Marionette State",
+        "url": "https://github.com/Squareknot/marionette.state"
+    },
+    {
+        "title": "Marionette Virtual Dom",
+        "url": "https://github.com/tiagorg/marionette-vdom"
+    },
+    {
+        "title": "Marionette Form View",
+        "url": "https://github.com/viverae/marionette.formview"
+    },
+    {
+        "title": "A Better Router for Backbone and Marionette Applications",
+        "url": "https://github.com/Betterment/backbone.blazer"
+    },
+    {
+        "title": "Marionette.Toolkit",
+        "url": "https://github.com/RoundingWellOS/marionette.toolkit"
+    },
+    {
+        "title": "Orchestra",
+        "url": "https://github.com/BedeGaming/orchestra"
+    }
+]
