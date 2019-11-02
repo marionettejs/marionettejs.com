@@ -22,7 +22,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "bower": "1.8.0",
+    "bower": "1.8.8",
     "compression": "1.6.2",
     "docco": "peterblazejewicz/docco#marionettejs",
     "dotenv": "^4.0.0",
