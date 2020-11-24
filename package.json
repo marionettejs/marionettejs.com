@@ -64,7 +64,7 @@
     "grunt-sass": "^2.0.0",
     "grunt-svgstore": "^1.0.0",
     "handlebars": "^4.0.6",
-    "highlight.js": "^9.9.0",
+    "highlight.js": "^10.1.2",
     "js-yaml": "^3.2.5",
     "jshint-stylish": "^2.2.1",
     "load-grunt-config": "^0.19.2",
