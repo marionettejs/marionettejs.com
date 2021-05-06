@@ -73,6 +73,6 @@
     "mkdirp": "^0.5.0",
     "psi-ngrok": "^0.1.0",
     "semver": "^5.3.0",
-    "underscore": "^1.6.0"
+    "underscore": "^1.12.1"
   }
 }
