@@ -26,7 +26,7 @@
     "compression": "1.6.2",
     "docco": "peterblazejewicz/docco#marionettejs",
     "dotenv": "^4.0.0",
-    "express": "4.14.1",
+    "express": "4.17.3",
     "github": "^2.5.1",
     "grunt-cli": "1.2.0",
     "morgan": "1.7.0",
