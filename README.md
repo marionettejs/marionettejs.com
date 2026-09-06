@@ -1,4 +1,4 @@
-# Marionette v5 website — local prototype
+# Marionette v5 website — public test preview
 
 The public test preview at `v5.marionettejs.com` was authorized on 2026-09-06.
 The main website remains on the old GitHub Pages site. A preview deployment does
@@ -23,6 +23,23 @@ At main-site launch, coordinate the domain assignment, DNS, HTTPS, and older doc
 paths. Preserve the existing website as the rollback source. That cutover requires
 separate authorization.
 
+## Search and sharing metadata
+
+The built HTML contains descriptive page titles, descriptions, canonical URLs,
+Open Graph tags, and large-image social cards without requiring JavaScript.
+The canonical origin is `siteOrigin` in `scripts/build.mjs`.
+
+The preview allows crawling so link previews and agents can read the site.
+HTML robots metadata and Cloudflare's `_headers` retain `noindex, nofollow`;
+allowing crawling also lets search engines see that instruction. This preview
+is not intended to rank in search. At an authorized main-site launch, update
+`siteOrigin`, indexing directives, and add a sitemap for the final public routes.
+
+The editable share-card artwork is `content/social-card.svg`; the published
+1200 × 630 export is `site/assets/marionette-social.png`. Export with an SVG
+renderer when editing the artwork; normal builds only copy the committed PNG.
+Social services may cache old previews after deployment.
+
 ## View locally
 
 Requires Node.js 24 or newer. There are no package dependencies to install.
@@ -42,7 +59,7 @@ Use `MARIONETTE_PREVIEW_PORT` to select a different explicit port if necessary.
 - **Option B / Theatre:** saved at `18f6dfc8`, checkout `../marionettejs-website-theatre`,
   <http://127.0.0.1:4177/>. Start with `MARIONETTE_PREVIEW_PORT=4177 npm run dev`.
 
-Both earlier options remain intact in separate checkouts. All previews are local.
+Both earlier options remain intact in separate checkouts. Options A and B remain local.
 C explores a dark palette, bold typography, scrolling parallax, and interactive
 lifecycle diagrams. See `planning/design-directions.md` for comparison criteria.
 
@@ -61,7 +78,7 @@ page is a representative design/learning slice, not a second complete reference 
 
 ## Agent workshop
 
-The invitation copies the current local address. Agents can discover the brief and
+The invitation copies the current site address. Agents can discover the brief and
 use `window.MarionettePlayground.open/update/run/inspect/interact/close`, matching
 WebMCP tools, or the visible editor. Open does not run code. Updates show public
 build notes and can change the draft before running. Notes describe useful choices
