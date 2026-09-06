@@ -1,0 +1,6368 @@
+function setProperty(target, key, value) {
+  if (key === '__proto__') {
+    Object.defineProperty(target, key, {
+      configurable: true,
+      enumerable: true,
+      value,
+      writable: true
+    });
+  } else {
+    target[key] = value;
+  }
+}
+
+function assign(target, sources, ownOnly) {
+  for (const source of sources) {
+    const type = typeof source;
+    if (source == null || type !== 'object' && type !== 'function') { continue; }
+
+    for (const key in source) {
+      if (ownOnly && !Object.hasOwn(source, key)) { continue; }
+      setProperty(target, key, source[key]);
+    }
+  }
+
+  return target;
+}
+
+function assignOwn(target, ...sources) {
+  return assign(target, sources, true);
+}
+
+function assignIn(target, ...sources) {
+  return assign(target, sources, false);
+}
+
+// Marionette.extend
+// -----------------
+
+
+function defineOwnDataProperties(target, source) {
+  const type = typeof source;
+  if (source == null || type !== 'object' && type !== 'function') { return target; }
+
+  for (const key of Object.keys(source)) {
+    if (!Object.hasOwn(source, key)) { continue; }
+
+    Object.defineProperty(target, key, {
+      configurable: true,
+      enumerable: true,
+      value: source[key],
+      writable: true
+    });
+  }
+
+  return target;
+}
+
+// Borrowed from backbone.js
+function extend(protoProps, staticProps) {
+  const parent = this;
+  let child;
+
+  // The constructor function for the new subclass is either defined by you
+  // (the "constructor" property in your `extend` definition), or defaulted
+  // by us to simply call the parent constructor.
+  if (protoProps && Object.hasOwn(protoProps, 'constructor')) {
+    child = protoProps.constructor;
+  } else {
+    child = function() { return parent.apply(this, arguments); };
+  }
+
+  // Add static properties to the constructor function, if supplied.
+  assignIn(child, parent);
+  assignOwn(child, staticProps);
+
+  // Set the prototype chain to inherit from `parent`, without calling
+  // `parent`'s constructor function and add the prototype properties.
+  child.prototype = Object.create(parent.prototype);
+  defineOwnDataProperties(child.prototype, protoProps);
+  Object.defineProperty(child.prototype, 'constructor', {
+    configurable: true,
+    enumerable: true,
+    value: child,
+    writable: true
+  });
+
+  // Set a convenience property in case the parent's prototype is needed
+  // later.
+  child.__super__ = parent.prototype;
+
+  return child;
+}
+
+// DOM Refresh
+// -----------
+
+function eachChild(children, iteratee) {
+  // Do not turn a malformed private child collection into a lifecycle error.
+  if (!Array.isArray(children)) { return; }
+
+  const length = children.length;
+  for (let index = 0; index < length; index++) {
+    iteratee(children[index]);
+  }
+}
+
+// Trigger methods only on children that expose Marionette child traversal.
+function triggerMethodChildren(view, event, shouldTrigger) {
+  if (!view._getImmediateChildren) { return; }
+  eachChild(view._getImmediateChildren(), child => {
+    if (!shouldTrigger(child)) { return; }
+    child.triggerMethod(event, child);
+  });
+}
+
+function shouldTriggerAttach(view) {
+  return !view._isAttached;
+}
+
+function shouldAttach(view) {
+  if (!shouldTriggerAttach(view)) { return false; }
+  view._isAttached = true;
+  return true;
+}
+
+function shouldTriggerDetach(view) {
+  return view._isAttached;
+}
+
+function shouldDetach(view) {
+  view._isAttached = false;
+  return true;
+}
+
+function triggerDOMRefresh(view) {
+  if (view._isAttached && view._isRendered) {
+    view.triggerMethod('dom:refresh', view);
+  }
+}
+
+function triggerDOMRemove(view) {
+  if (view._isAttached && view._isRendered) {
+    view.triggerMethod('dom:remove', view);
+  }
+}
+
+function handleBeforeAttach() {
+  triggerMethodChildren(this, 'before:attach', shouldTriggerAttach);
+}
+
+function handleAttach() {
+  triggerMethodChildren(this, 'attach', shouldAttach);
+  triggerDOMRefresh(this);
+}
+
+function handleBeforeDetach() {
+  triggerMethodChildren(this, 'before:detach', shouldTriggerDetach);
+  triggerDOMRemove(this);
+}
+
+function handleDetach() {
+  triggerMethodChildren(this, 'detach', shouldDetach);
+}
+
+function handleBeforeRender() {
+  triggerDOMRemove(this);
+}
+
+function handleRender() {
+  triggerDOMRefresh(this);
+}
+
+// Monitor a view's state, propagating attach/detach events to children and firing dom:refresh
+// whenever a rendered view is attached or an attached view is rendered.
+function monitorViewEvents(view) {
+  if (view._areViewEventsMonitored || view.monitorViewEvents === false) { return; }
+
+  view._areViewEventsMonitored = true;
+
+  view.on({
+    'before:attach': handleBeforeAttach,
+    'attach': handleAttach,
+    'before:detach': handleBeforeDetach,
+    'detach': handleDetach,
+    'before:render': handleBeforeRender,
+    'render': handleRender
+  });
+}
+
+// Regular expression used to split event strings.
+const eventSplitter = /\s+/;
+
+// Iterates over the standard `event, callback` (as well as the fancy multiple
+// space-separated events `"change blur", callback` and event maps
+// `{event: callback}`).
+function buildEventArgs(name, callback, context, listener) {
+  if (name && typeof name === 'object') {
+    const eventContext = context === undefined ? callback : context;
+    const eventArgs = [];
+    const names = Object.keys(name);
+    for (let i = 0; i < names.length; i++) {
+      const key = names[i];
+      const args = buildEventArgs(key, name[key], eventContext, listener);
+      for (let j = 0; j < args.length; j++) {
+        eventArgs.push(args[j]);
+      }
+    }
+    return eventArgs;
+  }
+
+  if (name && eventSplitter.test(name)) {
+    const names = name.split(eventSplitter);
+    const eventArgs = [];
+    for (let i = 0; i < names.length; i++) {
+      eventArgs.push({ name: names[i], callback, context, listener });
+    }
+    return eventArgs;
+  }
+
+  return [{ name, callback, context, listener }];
+}
+
+// An optimized way to execute callbacks.
+function callHandler(callback, context, args = []) {
+  switch (args.length) {
+    case 0: return callback.call(context);
+    case 1: return callback.call(context, args[0]);
+    case 2: return callback.call(context, args[0], args[1]);
+    case 3: return callback.call(context, args[0], args[1], args[2]);
+    default: return callback.apply(context, args);
+  }
+}
+
+// Wrap callback in a once. Returns for requests
+// `offCallback` unbinds the `onceWrapper` after it has been called.
+function onceWrap(callback, offCallback) {
+  let called = false;
+  let result;
+
+  function onceCallback() {
+    if (called) {
+      return result;
+    }
+
+    called = true;
+    offCallback(onceCallback);
+    result = callback.apply(this, arguments);
+    return result;
+  }
+
+  onceCallback._callback = callback;
+
+  return onceCallback;
+}
+
+let idCounter = 0;
+
+function uniqueId(prefix) {
+  const id = `${++idCounter}`;
+  return prefix ? prefix + id : id;
+}
+
+// Marionette.getOption
+// --------------------
+
+// Retrieve an object, function or other value from the
+// object or its `options`, with `options` taking precedence.
+const getOption = function(optionName) {
+  if (!optionName) { return; }
+  if (this.options && (this.options[optionName] !== undefined)) {
+    return this.options[optionName];
+  } else {
+    return this[optionName];
+  }
+};
+
+// Trigger Method
+// --------------
+
+
+// split the event name on the ":"
+const splitter = /(^|:)(\w)/gi;
+
+// Only calc getOnMethodName once
+const methodCache = Object.create(null);
+
+// take the event section ("section1:section2:section3")
+// and turn it in to uppercase name onSection1Section2Section3
+function getEventName(match, prefix, eventName) {
+  return eventName.toUpperCase();
+}
+
+const getOnMethodName = function(event) {
+  if (!methodCache[event]) {
+    methodCache[event] = 'on' + event.replace(splitter, getEventName);
+  }
+
+  return methodCache[event];
+};
+
+// Trigger an event and/or a corresponding method name. Examples:
+//
+// `this.triggerMethod("foo")` will trigger the "foo" event and
+// call the "onFoo" method.
+//
+// `this.triggerMethod("foo:bar")` will trigger the "foo:bar" event and
+// call the "onFooBar" method.
+function triggerMethod(event, ...args) {
+  // get the method name from the event name
+  const methodName = getOnMethodName(event);
+  const method = getOption.call(this, methodName);
+  let result;
+
+  // call the onMethodName if it exists
+  if (typeof method === 'function') {
+    // pass all args, except the event name
+    result = method.apply(this, args);
+  }
+
+  // trigger the event
+  this.trigger.apply(this, arguments);
+
+  return result;
+}
+
+const objectKeys$2 = Object.keys;
+let listening;
+
+function getKeys$1(object) {
+  return object == null ? [] : objectKeys$2(object);
+}
+
+// A module that can be mixed in to *any object* in order to provide it with
+// a custom event channel. You may bind a callback to an event with `on` or
+// remove with `off`; `trigger`-ing an event fires all callbacks in
+// succession.
+//
+//     var object = {};
+//     _.extend(object, Events);
+//     object.on('expand', function(){ alert('expanded'); });
+//     object.trigger('expand');
+//
+
+// The reducing API that adds a callback to the `events` object.
+const onApi = function({ events, name, callback, context, ctx, listener }) {
+  let handlers = Object.hasOwn(events, name) ? events[name] : undefined;
+  if (!handlers) {
+    handlers = [];
+    setProperty(events, name, handlers);
+  }
+  handlers.push({ callback, context, ctx: context || ctx, listener });
+  return events;
+};
+
+const onReducer = function(events, { name, callback, context }) {
+  if (!callback) { return events; }
+  const listener = listening;
+  events = onApi({ events, name, callback, context, ctx: this, listener });
+
+  if (listener) {
+    const listeners = this._rdListeners || (this._rdListeners = {});
+    listeners[listener.listenerId] = listener;
+    listener.count++;
+    listener.interop = false;
+  }
+
+  return events;
+};
+
+const cleanupListener = function({ obj, listeneeId, listenerId, listeningTo }) {
+  delete listeningTo[listeneeId];
+  if (obj._rdListeners) { delete obj._rdListeners[listenerId]; }
+};
+
+// The reducing API that removes a callback from the `events` object.
+const offReducer = function(events, { name, callback, context }) {
+  const names = name ? [name] : getKeys$1(events);
+
+  for (let nameIndex = 0, namesLength = names.length; nameIndex < namesLength; nameIndex++) {
+    const key = names[nameIndex];
+    const handlers = Object.hasOwn(events, key) ? events[key] : undefined;
+
+    // Bail out if there are no events stored.
+    if (!handlers) { continue; }
+
+    // Find any remaining events.
+    const remaining = [];
+    for (let index = 0, length = handlers.length; index < length; index++) {
+      const handler = handlers[index];
+      if (
+        callback && callback !== handler.callback &&
+          callback !== handler.callback._callback ||
+            context && context !== handler.context
+      ) {
+        remaining.push(handler);
+        continue;
+      }
+
+      // If not including event, clean up any related listener
+      if (handler.listener) {
+        const listener = handler.listener;
+        listener.count--;
+        if (!listener.count) { cleanupListener(listener); }
+      }
+
+    }
+    events[key] = remaining;
+
+    if (!events[key].length) { delete events[key]; }
+  }
+
+  return events;
+};
+
+const getListener = function(obj, listenerObj) {
+  const listeneeId = obj._rdListenId || (obj._rdListenId = uniqueId('l'));
+  const listeningTo = listenerObj._rdListeningTo || (listenerObj._rdListeningTo = {});
+  const listener = listeningTo[listeneeId];
+
+  // This listenerObj is not listening to any other events on `obj` yet.
+  // Setup the necessary references to track the listening callbacks.
+  if (!listener) {
+    const listenerId = listenerObj._rdListenId || (listenerObj._rdListenId = uniqueId('l'));
+    listeningTo[listeneeId] = {
+      obj,
+      listeneeId,
+      listenerId,
+      listeningTo,
+      count: 0,
+      interop: true,
+      _rdEvents: {},
+    };
+
+    return listeningTo[listeneeId];
+  }
+
+  return listener;
+};
+
+const listenToApi = function({ name, callback, context, listener }) {
+  if (!callback) { return; }
+
+  const previousListening = listening;
+  listening = listener;
+  try {
+    listener.obj.on(name, callback, context);
+  } finally {
+    listening = previousListening;
+  }
+
+  if (listener.interop) {
+    listener._rdEvents = onApi({
+      events: listener._rdEvents,
+      name,
+      callback,
+      context,
+      ctx: context,
+    });
+  }
+};
+
+function buildOnceMap(eventArgs, offer) {
+  const events = {};
+  for (let index = 0, length = eventArgs.length; index < length; index++) {
+    const { name, callback } = eventArgs[index];
+    if (!callback) { continue; }
+    const onceCallback = onceWrap(callback, callbackToRemove => {
+      offer(name, callbackToRemove);
+    });
+    setProperty(events, name, onceCallback);
+  }
+  return events;
+}
+
+// Handles triggering the appropriate event callbacks.
+const triggerApi = function({ events, name, args }) {
+  const objEvents = Object.hasOwn(events, name) ? events[name] : undefined;
+  const registeredAllEvents = Object.hasOwn(events, 'all') ? events.all : undefined;
+  const allEvents = (objEvents && registeredAllEvents) ? registeredAllEvents.slice() : registeredAllEvents;
+  if (objEvents) { triggerEvents(objEvents, args); }
+  if (allEvents) { triggerEvents(allEvents, [name].concat(args)); }
+};
+
+const triggerEvents = function(events, args) {
+  for (let index = 0, length = events.length; index < length; index++) {
+    const { callback, ctx } = events[index];
+    callHandler(callback, ctx, args);
+  }
+};
+
+function reduceEventArgs(context, eventArgs, events, reducer) {
+  for (let index = 0, length = eventArgs.length; index < length; index++) {
+    events = reducer.call(context, events, eventArgs[index]);
+  }
+
+  return events;
+}
+
+const Events = {
+
+  // Bind an event to a `callback` function. Passing `"all"` will bind
+  // the callback to all events fired.
+  on(name, callback, context) {
+    const eventArgs = buildEventArgs(name, callback, context);
+    this._rdEvents = reduceEventArgs(this, eventArgs, this._rdEvents || {}, onReducer);
+
+    return this;
+  },
+
+  // Remove one or many callbacks. If `context` is null, removes all
+  // callbacks with that function. If `callback` is null, removes all
+  // callbacks for the event. If `name` is null, removes all bound
+  // callbacks for all events.
+  off(name, callback, context) {
+    if (!this._rdEvents) { return this; }
+
+    // Delete all event listeners and "drop" events.
+    if (!name && !context && !callback) {
+      this._rdEvents = void 0;
+      const listeners = this._rdListeners;
+      const listenerIds = getKeys$1(listeners);
+      for (let index = 0, length = listenerIds.length; index < length; index++) {
+        const listenerId = listenerIds[index];
+        cleanupListener(listeners[listenerId]);
+      }
+      return this;
+    }
+
+    const eventArgs = buildEventArgs(name, callback, context);
+
+    this._rdEvents = reduceEventArgs(undefined, eventArgs, this._rdEvents, offReducer);
+
+    return this;
+  },
+
+  // Bind an event to only be triggered a single time. After the first time
+  // the callback is invoked, its listener will be removed. If multiple events
+  // are passed in using the space-separated syntax, the handler will fire
+  // once for each event, not once for a combination of all events.
+  once(name, callback, context) {
+    const eventArgs = buildEventArgs(name, callback, context);
+    const events = buildOnceMap(eventArgs, this.off.bind(this));
+    if (typeof name === 'string' && context == null) { callback = undefined; }
+
+    return this.on(events, callback, context);
+  },
+
+  // Inversion-of-control versions of `on`. Tell *this* object to listen to
+  // an event in another object... keeping track of what it's listening to
+  // for easier unbinding later.
+  listenTo(obj, name, callback) {
+    if (!obj) { return this; }
+
+    const listener = getListener(obj, this);
+    const eventArgs = buildEventArgs(name, callback, this, listener);
+    for (let index = 0, length = eventArgs.length; index < length; index++) {
+      listenToApi(eventArgs[index]);
+    }
+
+    return this;
+  },
+
+  // Inversion-of-control versions of `once`.
+  listenToOnce(obj, name, callback) {
+    const eventArgs = buildEventArgs(name, callback, this);
+    const events = buildOnceMap(eventArgs, this.stopListening.bind(this, obj));
+
+    return this.listenTo(obj, events);
+  },
+
+  // Tell this object to stop listening to either specific events ... or
+  // to every object it's currently listening to.
+  stopListening(obj, name, callback) {
+    const listeningTo = this._rdListeningTo;
+    if (!listeningTo) { return this; }
+
+    const eventArgs = buildEventArgs(name, callback, this);
+
+    const listenerIds = obj ? [obj._rdListenId] : getKeys$1(listeningTo);
+    for (let i = 0, listenerIdsLength = listenerIds.length; i < listenerIdsLength; i++) {
+      const listener = listeningTo[listenerIds[i]];
+
+      // If listening doesn't exist, this object is not currently
+      // listening to obj. Break out early.
+      if (!listener) { break; }
+
+      for (let index = 0, length = eventArgs.length; index < length; index++) {
+        const args = eventArgs[index];
+        listener.obj.off(args.name, args.callback, this);
+
+        if (listener.interop) {
+          listener._rdEvents = offReducer(listener._rdEvents, args);
+          if (!getKeys$1(listener._rdEvents).length) { cleanupListener(listener); }
+        }
+      }
+    }
+
+    return this;
+  },
+
+  // Trigger one or many events, firing all bound callbacks. Callbacks are
+  // passed the same arguments as `trigger` is, apart from the event name
+  // (unless you're listening on `"all"`, which will cause your callback to
+  // receive the true name of the event as the first argument).
+  trigger(name, ...args) {
+    if (!this._rdEvents) { return this; }
+
+    if (name && typeof name === 'object') {
+      const names = getKeys$1(name);
+      for (let index = 0, length = names.length; index < length; index++) {
+        const key = names[index];
+        triggerApi({
+          events: this._rdEvents,
+          name: key,
+          args: [name[key]],
+        });
+      }
+      return this;
+    }
+
+    if (name && eventSplitter.test(name)) {
+      const names = name.split(eventSplitter);
+      for (let index = 0, length = names.length; index < length; index++) {
+        const n = names[index];
+        triggerApi({
+          events: this._rdEvents,
+          name: n,
+          args,
+        });
+      }
+      return this;
+    }
+
+    triggerApi({
+      events: this._rdEvents,
+      name,
+      args,
+    });
+
+    return this;
+  },
+
+  triggerMethod,
+};
+
+function getValue(object, property, fallback) {
+  const value = object == null ? undefined : object[property];
+  const resolvedValue = value === undefined ? fallback : value;
+
+  return typeof resolvedValue === 'function' ? resolvedValue.call(object) : resolvedValue;
+}
+
+// MixinOptions
+// - template
+// - templateContext
+
+var TemplateRenderMixin = {
+
+  // Internal method to render the template with the serialized data
+  // and template context
+  _renderTemplate(template) {
+    // Add in entity data and template context
+    const data = this.mixinTemplateContext(this.serializeData()) || {};
+
+    // Render and add to el
+    const html = this._renderHtml(template, data);
+    if (typeof html !== 'undefined') {
+      this.attachElContent(html);
+    }
+  },
+
+  // Get the template for this view instance.
+  // You can set a `template` attribute in the view definition
+  // or pass a `template: TemplateFunction` parameter in
+  // to the constructor options.
+  getTemplate() {
+    return this.template;
+  },
+
+  // Mix in template context methods. Looks for a
+  // `templateContext` attribute, which can either be an
+  // object literal, or a function that returns an object
+  // literal. All methods and attributes from this object
+  // are copies to the object passed in.
+  mixinTemplateContext(serializedData) {
+    const templateContext = getValue(this, 'templateContext');
+    if (!templateContext) { return serializedData; }
+    if (!serializedData) { return templateContext; }
+    return assignOwn({}, serializedData, templateContext);
+  },
+
+  // Serialize the view's model *or* collection, if
+  // it exists, for the template
+  serializeData() {
+    // If we have a model, we serialize that
+    if (this.model) {
+      return this.serializeModel();
+    }
+
+    // Otherwise, we serialize the collection,
+    // making it available under the `models` property
+    if (this.collection) {
+      return {
+        models: this.serializeCollection()
+      };
+    }
+  },
+
+  // Prepares the special `model` property of a view
+  // for being displayed in the template. Override this if
+  // you need a custom transformation for your view's model
+  serializeModel() {
+    return this.Data.serialize(this.model);
+  },
+
+  // Serialize a collection
+  serializeCollection() {
+    return this.Data.models(this.collection).map(model => this.Data.serialize(model));
+  },
+
+  // Renders the data into the template
+  _renderHtml(template, data) {
+    return template(data);
+  },
+
+  // Attaches the content of a given view.
+  // This method can be overridden to optimize rendering,
+  // or to render in a non standard way.
+  attachElContent(html) {
+    this.Dom.setContents(this.el, html);
+  }
+};
+
+const version = "5.0.0-alpha.2";
+
+// Error
+// -----
+
+
+const errorProps = ['code', 'description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'];
+
+const MarionetteError = extend.call(Error, {
+  urlRoot: `http://marionettejs.com/docs/v${version}/`,
+
+  url: '',
+
+  // Long-form on purpose: method shorthand produces a non-constructor function,
+  // which makes `new MarionetteError(...)` throw at runtime.
+  // eslint-disable-next-line object-shorthand
+  constructor: function(options) {
+    const error = Error.call(this, options.message);
+    const nativeProperties = {};
+    const optionProperties = {};
+
+    for (const property of errorProps) {
+      const value = error[property];
+      if (property in error) {
+        nativeProperties[property] = value;
+      }
+    }
+
+    const optionSource = Object(options);
+    for (const property of errorProps) {
+      const value = optionSource[property];
+      if (property in optionSource) {
+        optionProperties[property] = value;
+      }
+    }
+
+    if (this !== undefined && this !== null) {
+      Object.assign(this, nativeProperties, optionProperties);
+    }
+
+    this.captureStackTrace(error);
+
+    this.url = this.urlRoot + this.url;
+  },
+
+  captureStackTrace(fallbackError) {
+    if (typeof Error.captureStackTrace !== 'function') {
+      this.stack = fallbackError.stack;
+      return;
+    }
+
+    Error.captureStackTrace(this, MarionetteError);
+  },
+
+  toString() {
+    return `${ this.name }: ${ this.message } See: ${ this.url }`;
+  }
+});
+
+const propertyIsEnumerable$1 = Object.prototype.propertyIsEnumerable;
+
+// Merge `keys` from `options` onto `this`
+const mergeOptions = function(options, keys) {
+  if (options == null) { return; }
+
+  if (!Array.isArray(keys)) {
+    throw new MarionetteError({
+      code: 'MN0033',
+      message: 'The mergeOptions keys argument must be an array.',
+      url: 'common.html#mergeoptions'
+    });
+  }
+
+  const length = keys.length;
+  for (let index = 0; index < length; index++) {
+    const key = keys[index];
+    if (typeof key !== 'string' || !propertyIsEnumerable$1.call(options, key)) { continue; }
+
+    const option = options[key];
+    if (option !== undefined) {
+      setProperty(this, key, option);
+    }
+  }
+};
+
+const getObjectTag = Function.call.bind(Object.prototype.toString);
+
+function isString(value) {
+  return getObjectTag(value) === '[object String]';
+}
+
+// Marionette.normalizeMethods
+// ----------------------
+
+// Pass in a mapping of events => functions or function names
+// and return a mapping of events => functions
+const resolveMethod = function(context, method, name) {
+  if (typeof method === 'function') { return method; }
+
+  const methodName = method;
+  const resolvedMethod = isString(methodName) ?
+    context[methodName] : undefined;
+
+  if (typeof resolvedMethod !== 'function') {
+    let methodLabel = '<unprintable>';
+    try {
+      methodLabel = String(methodName);
+    } catch {
+      // Preserve the stable fallback for values without string coercion.
+    }
+
+    throw new MarionetteError({
+      code: 'MN0019',
+      message: `The handler "${methodLabel}" for "${name}" must resolve to a function.`
+    });
+  }
+
+  return resolvedMethod;
+};
+
+const normalizeMethods = function(hash) {
+  if (!hash) { return; }
+
+  const normalizedHash = {};
+
+  for (const name of Object.keys(hash)) {
+    setProperty(normalizedHash, name, resolveMethod(this, hash[name], name));
+  }
+
+  return normalizedHash;
+};
+
+// Bind Entity Events & Unbind Entity Events
+// -----------------------------------------
+//
+// These methods bind/unbind an evented entity (for example, a collection or model)
+// to methods on a target object.
+//
+// The target must provide `listenTo` and `stopListening`. The entity must provide
+// compatible `on` and `off` methods.
+//
+// The third parameter is a hash of { "event:name": "eventHandler" }
+// configuration. Multiple handlers can be separated by a space. A
+// function can be supplied instead of a string handler name.
+
+
+const propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+function normalizeBindings$1(context, bindings) {
+  const bindingsType = typeof bindings;
+  if (bindings === null || (bindingsType !== 'object' && bindingsType !== 'function')) {
+    throw new MarionetteError({
+      code: 'MN0009',
+      message: 'Bindings must be an object.',
+      url: 'common.html#bindevents'
+    });
+  }
+
+  if (propertyIsEnumerable.call(bindings, '__proto__')) {
+    throw new MarionetteError({
+      code: 'MN0026',
+      message: 'Entity event maps cannot include an own "__proto__" event name.',
+      url: 'common.html#bindevents'
+    });
+  }
+
+  return normalizeMethods.call(context, bindings);
+}
+
+function bindEvents(entity, bindings) {
+  if (!entity || !bindings) { return this; }
+
+  this.listenTo(entity, normalizeBindings$1(this, bindings));
+
+  return this;
+}
+
+function unbindEvents(entity, bindings) {
+  if (!entity) { return this; }
+
+  if (!bindings) {
+    this.stopListening(entity);
+    return this;
+  }
+
+  this.stopListening(entity, normalizeBindings$1(this, bindings));
+
+  return this;
+}
+
+// Bind/Unbind Radio Requests
+// -----------------------------------------
+//
+// These methods bind/unbind requests on a Radio channel
+// to methods on a target object.
+//
+// The first parameter, `target`, will set the context of the reply method
+//
+// The second parameter is the `Radio.channel` to bind the reply to.
+//
+// The third parameter is a hash of { "request:name": "replyHandler" }
+// configuration. A function can be supplied instead of a string handler name.
+
+
+function normalizeBindings(context, bindings) {
+  const bindingsType = typeof bindings;
+  if (bindings === null || (bindingsType !== 'object' && bindingsType !== 'function')) {
+    throw new MarionetteError({
+      code: 'MN0010',
+      message: 'Bindings must be an object.',
+      url: 'common.html#bindrequests'
+    });
+  }
+
+  return normalizeMethods.call(context, bindings);
+}
+
+function bindRequests(channel, bindings) {
+  if (!channel || !bindings) { return this; }
+
+  channel.reply(normalizeBindings(this, bindings), this);
+
+  return this;
+}
+
+function unbindRequests(channel, bindings) {
+  if (!channel) { return this; }
+
+  if (!bindings) {
+    channel.stopReplying(null, null, this);
+    return this;
+  }
+
+  channel.stopReplying(normalizeBindings(this, bindings), this);
+
+  return this;
+}
+
+const CommonMixin = {
+
+  // This is a noop method intended to be overridden
+  initialize() {},
+
+  // Imports the "normalizeMethods" to transform hashes of
+  // events=>function references/names to a hash of events=>function references
+  normalizeMethods,
+
+  _setOptions(options, classOptions) {
+    this.options = assignOwn({}, getValue(this, 'options'), options);
+    this.mergeOptions(options, classOptions);
+  },
+
+  // A handy way to merge passed-in options onto the instance
+  mergeOptions,
+
+  // Enable getting options from this or this.options by name.
+  getOption,
+
+  // Enable binding view's events from another entity.
+  bindEvents,
+
+  // Enable unbinding view's events from another entity.
+  unbindEvents,
+
+  // Enable binding view's requests.
+  bindRequests,
+
+  // Enable unbinding view's requests.
+  unbindRequests,
+};
+
+assignOwn(CommonMixin, Events);
+
+function disposeAll(disposers, error) {
+  let hasError = arguments.length > 1;
+
+  // Dispose in reverse registration order.
+  for (let index = disposers.length; index--;) {
+    const disposer = disposers[index];
+    try {
+      disposer && disposer();
+    } catch (disposalError) {
+      if (!hasError) {
+        error = disposalError;
+        hasError = true;
+      }
+    }
+  }
+
+  if (hasError) { throw error; }
+}
+
+var DestroyMixin = {
+  _isDestroyed: false,
+
+  isDestroyed() {
+    return this._isDestroyed;
+  },
+
+  destroy(options) {
+    if (this._isDestroyed || this._isDestroying) { return this; }
+    this._isDestroying = true;
+    try {
+      this.triggerMethod('before:destroy', this, options);
+    } catch (error) {
+      delete this._isDestroying;
+      throw error;
+    }
+    this._isDestroyed = true;
+    disposeAll([
+      () => this.stopListening(),
+      () => this.triggerMethod('destroy', this, options),
+      () => this._destroyState?.(),
+      () => this._destroyRadio?.()
+    ]);
+
+    return this;
+  }
+};
+
+function createDebug() {
+  // Debug mode warns about overwritten or unhandled requests.
+  let shouldDebug = false;
+
+  function setDebug(setShouldDebug = true) {
+    shouldDebug = setShouldDebug;
+  }
+
+  function debugLog(warning, eventName, channelName) {
+    if (shouldDebug && console && console.warn) {
+      console.warn(debugText(warning, eventName, channelName));
+    }
+  }
+
+  return { debugLog, setDebug };
+}
+
+// Format debug text.
+function debugText(warning, eventName, channelName) {
+  return warning + (channelName ? ` on the ${ channelName } channel` : '') +
+    `: "${ eventName }"`;
+}
+
+const { debugLog, setDebug } = createDebug();
+
+// Log information about the channel and event
+function log(channelName, eventName, ...args) {
+  /* v8 ignore next: the supported test/runtime environments provide console */
+  if (typeof console === 'undefined') { return; }
+  console.log(`[${ channelName }] "${ eventName }"`, args);
+}
+
+/*
+ * Requests
+ * -----------------------
+ * A messaging system for requesting data.
+ *
+ */
+
+const objectKeys$1 = Object.keys;
+
+// If callback is not a function return the callback and flag it for removal.
+function makeCallback(callback) {
+  if (typeof callback === 'function') {
+    return callback;
+  }
+  const result = function() { return callback; };
+  result._callback = callback;
+  return result;
+}
+
+function getDebugLog(channel) {
+  return channel._debugLog || debugLog;
+}
+
+function getKeys(object) {
+  const type = typeof object;
+  return object != null && (type === 'object' || type === 'function') ? objectKeys$1(object) : [];
+}
+
+const registerReply = function(requests, name, callback, context) {
+  if (Object.hasOwn(requests, name)) {
+    getDebugLog(this)('A request was overwritten', name, this.channelName);
+  }
+
+  setProperty(requests, name, {
+    callback: makeCallback(callback),
+    context: context || this,
+  });
+
+  return requests;
+};
+
+const stopReducer = function(requests, { name, callback, context }) {
+  const names = name ? [name] : getKeys(requests);
+
+  for (let index = 0, length = names.length; index < length; index++) {
+    const key = names[index];
+    const handler = Object.hasOwn(requests, key) ? requests[key] : undefined;
+
+    // Bail out if there are no events stored.
+    if (
+      !handler ||
+        callback && callback !== handler.callback &&
+          callback !== handler.callback._callback ||
+            context && context !== handler.context
+    ) {
+      continue;
+    }
+
+    delete requests[key];
+  }
+
+  return requests;
+};
+
+function dispatchOverload(receiver, method, name, callback, context) {
+  if (name && typeof name === 'object') {
+    const names = getKeys(name);
+    const mapContext = context || callback;
+    for (let index = 0, length = names.length; index < length; index++) {
+      const key = names[index];
+      receiver[method](key, name[key], mapContext);
+    }
+    return true;
+  }
+
+  if (name && eventSplitter.test(name)) {
+    const names = name.split(eventSplitter);
+    for (let index = 0, length = names.length; index < length; index++) {
+      receiver[method](names[index], callback, context);
+    }
+    return true;
+  }
+
+  return false;
+}
+
+var Requests = {
+
+  // Set up a handler for a request
+  reply(name, callback, context) {
+    if (dispatchOverload(this, 'reply', name, callback, context)) { return this; }
+
+    this._rdRequests = registerReply.call(this, this._rdRequests || {}, name, callback, context);
+
+    return this;
+  },
+
+  // Set up a handler that can only be requested once
+  replyOnce(name, callback, context) {
+    if (dispatchOverload(this, 'replyOnce', name, callback, context)) { return this; }
+
+    const onceCallback = onceWrap(makeCallback(callback), callbackToRemove => {
+      this.stopReplying(name, callbackToRemove);
+    });
+
+    return this.reply(name, onceCallback, context);
+  },
+
+  // Remove handler(s)
+  stopReplying(name, callback, context) {
+    if (dispatchOverload(this, 'stopReplying', name, callback, context)) { return this; }
+    if (!this._rdRequests) { return this; }
+
+    if (!name && !callback && !context) {
+      delete this._rdRequests;
+      return this;
+    }
+
+    this._rdRequests = stopReducer.call(this, this._rdRequests, { name, callback, context });
+
+    return this;
+  },
+
+  // Make a request
+  request(name, ...args) {
+    if (name && typeof name === 'object') {
+      const replies = {};
+      const names = getKeys(name);
+      for (let index = 0, length = names.length; index < length; index++) {
+        const key = names[index];
+        const result = this.request(key, name[key], ...args);
+        if (eventSplitter.test(key)) {
+          assignOwn(replies, result);
+        } else {
+          setProperty(replies, key, result);
+        }
+      }
+      return replies;
+    }
+
+    if (name && eventSplitter.test(name)) {
+      const replies = {};
+      const names = name.split(eventSplitter);
+      for (let index = 0, length = names.length; index < length; index++) {
+        const n = names[index];
+        setProperty(replies, n, this.request(n, ...args));
+      }
+      return replies;
+    }
+
+    const channelName = this.channelName;
+    const requests = this._rdRequests;
+
+    // // Check if we should log the request, and if so, do it
+    if (channelName && this._tunedIn) {
+      log.apply(this, [channelName, name].concat(args));
+    }
+
+    // If the request isn't handled, log it in DEBUG mode and exit
+    if (requests) {
+      const hasRequest = Object.hasOwn(requests, name);
+      const handler = hasRequest ? requests[name] :
+        Object.hasOwn(requests, 'default') ? requests.default : undefined;
+
+      if (handler) {
+        args = hasRequest ? args : arguments;
+        return callHandler(handler.callback, handler.context, args);
+      }
+    }
+
+    getDebugLog(this)('An unhandled request was fired', name, channelName);
+  },
+};
+
+function createRadio(debug = createDebug()) {
+  const objectKeys = Object.keys;
+  const _logs = Object.create(null);
+
+  // This is to produce an identical function in both tuneIn and tuneOut,
+  // so that Events unregisters it.
+  function _partial(channelName) {
+    return _logs[channelName] || (_logs[channelName] = log.bind(Radio, channelName));
+  }
+
+  const Radio = {};
+
+  assignOwn(Radio, {
+    setDebug: debug.setDebug,
+
+    // Logs all events on this channel to the console. It sets an
+    // internal value on the channel telling it we're listening,
+    // then sets a listener on the Events
+    tuneIn(channelName) {
+      const channel = Radio.channel(channelName);
+      channel._tunedIn = true;
+      channel.on('all', _partial(channelName));
+      return Radio;
+    },
+
+    // Stop logging all of the activities on this channel to the console
+    tuneOut(channelName) {
+      const channel = Radio.channel(channelName);
+      channel._tunedIn = false;
+      channel.off('all', _partial(channelName));
+      delete _logs[channelName];
+      return Radio;
+    }
+  });
+
+  /*
+ * Radio.channel
+ * ----------------------
+ * Get a reference to a channel by name.
+ *
+ */
+
+  const _channels = Object.create(null);
+
+  Radio.channel = function(channelName) {
+    if (!channelName) {
+      throw new MarionetteError({
+        code: 'MN0017',
+        message: 'You must provide a name for the channel.'
+      });
+    }
+
+    if (_channels[channelName]) {
+      return _channels[channelName];
+    }
+
+    return (_channels[channelName] = new Channel(channelName));
+  };
+
+  /*
+ * Channel
+ * ----------------------
+ * A Channel is an object that extends from Events,
+ * and Requests.
+ *
+ */
+
+  function Channel(channelName) {
+    this.channelName = channelName;
+  }
+
+  assignOwn(Channel.prototype, Events, Requests, {
+
+    // Remove all handlers from the messaging systems of this channel
+    reset() {
+      this.off();
+      this.stopListening();
+      this.stopReplying();
+      return this;
+    },
+  });
+  Object.defineProperty(Channel.prototype, '_debugLog', {
+    configurable: true,
+    value: debug.debugLog,
+    writable: true
+  });
+
+  /*
+ * Top-level API
+ * -------------
+ * Supplies the 'top-level API' for working with Channels directly
+ * from Radio.
+ *
+ */
+
+  const systems = [Events, Requests];
+  for (let systemIndex = 0, systemsLength = systems.length; systemIndex < systemsLength; systemIndex++) {
+    const methodNames = objectKeys(systems[systemIndex]);
+    for (let index = 0, length = methodNames.length; index < length; index++) {
+      const methodName = methodNames[index];
+      setProperty(Radio, methodName, function(channelName, ...args) {
+        const channel = Radio.channel(channelName);
+        return callHandler(channel[methodName], channel, args);
+      });
+    }
+  }
+
+  Radio.reset = function(channelName) {
+    if (!arguments.length) {
+      const channelNames = objectKeys(_channels);
+      for (let index = 0, length = channelNames.length; index < length; index++) {
+        _channels[channelNames[index]].reset();
+      }
+      return;
+    }
+
+    if (!channelName) {
+      Radio.channel(channelName);
+    }
+
+    let channel;
+    try {
+      channel = _channels[channelName];
+    } catch {
+    // The stable diagnostic below formats hostile property keys safely.
+    }
+
+    if (!channel) {
+      throw new MarionetteError({
+        code: 'MN0021',
+        message: 'Radio channel does not exist.'
+      });
+    }
+
+    channel.reset();
+  };
+
+  return Radio;
+}
+
+var Radio = createRadio({ debugLog, setDebug });
+
+// MixinOptions
+// - channelName
+// - radioEvents
+// - radioRequests
+
+var RadioMixin = {
+
+  Radio,
+
+  _initRadio() {
+    const channelName = getValue(this, 'channelName');
+
+    if (!channelName) {
+      return;
+    }
+
+    const channel = this._channel = this.Radio.channel(channelName);
+
+    const radioEvents = getValue(this, 'radioEvents');
+    this.bindEvents(channel, radioEvents);
+
+    const radioRequests = getValue(this, 'radioRequests');
+    this.bindRequests(channel, radioRequests);
+  },
+
+  _destroyRadio() {
+    const channel = this._channel;
+    if (!channel) { return this; }
+
+    disposeAll([
+      () => this.stopListening(channel),
+      () => channel.stopReplying(null, null, this)
+    ]);
+
+    return this;
+  },
+
+  getChannel() {
+    return this._channel;
+  }
+};
+
+// State API
+// ---------
+
+// Static setter
+function setStateApi$1(mixin) {
+  this.prototype.State = assignOwn({}, this.prototype.State, mixin);
+  return this;
+}
+
+var StateApi = {
+  subscribe() {
+    throw new MarionetteError({
+      code: 'MN0037',
+      name: 'StateApiError',
+      message: 'The default StateApi cannot observe stateEvents. Configure a StateApi that supports this state source or remove stateEvents.',
+      url: 'marionette.state.html#state-events'
+    });
+  }
+};
+
+function normalizeCleanup(cleanup, methodName) {
+  if (typeof cleanup !== 'function') {
+    throw new MarionetteError({
+      code: 'MN0038',
+      name: 'AdapterError',
+      message: `${ methodName }() must return a cleanup function.`,
+      url: 'data.api.html#adapter-cleanup'
+    });
+  }
+
+  let isDisposed = false;
+  return function() {
+    if (isDisposed) { return; }
+    isDisposed = true;
+    cleanup();
+  };
+}
+
+function subscribeBindings(context, Api, source, bindings, apiName) {
+  const eventArgs = buildEventArgs(normalizeBindings$1(context, bindings), context);
+  const subscriptions = [];
+
+  try {
+    for (let index = 0; index < eventArgs.length; index++) {
+      const { name, callback, context: eventContext } = eventArgs[index];
+      const cleanup = Api.subscribe(source, name, callback, eventContext);
+      subscriptions.push(normalizeCleanup(cleanup, `${ apiName }.subscribe`));
+    }
+  } catch (error) {
+    disposeAll(subscriptions, error);
+  }
+
+  let isDisposed = false;
+  return function() {
+    if (isDisposed) { return; }
+    isDisposed = true;
+    disposeAll(subscriptions);
+  };
+}
+
+const StateMixin = {
+  State: StateApi,
+
+  _initState(options = {}) {
+    const stateOption = options != null && Object.hasOwn(options, 'state') ?
+      options.state : undefined;
+    const hasStateOption = stateOption !== undefined;
+    const state = hasStateOption ? stateOption : this.state;
+
+    if (hasStateOption || state !== undefined) {
+      this._state = state;
+      return;
+    }
+
+    if (this.createState !== StateMixin.createState) {
+      this._stateOptions = options;
+    }
+  },
+
+  _initStateEvents() {
+    if (this._isDestroyed) { return this; }
+
+    const stateEvents = getValue(this, 'stateEvents');
+    if (stateEvents) {
+      this._stateEventCleanup = subscribeBindings(
+        this,
+        this.State,
+        this.getState(),
+        stateEvents,
+        'StateApi'
+      );
+    }
+
+    return this;
+  },
+
+  getState() {
+    if (Object.hasOwn(this, '_state')) { return this._state; }
+
+    const options = this._stateOptions;
+    const state = this.createState(options);
+    delete this._stateOptions;
+    this._state = state;
+    this._ownsState = true;
+
+    if (this._isDestroyed) {
+      this._destroyState();
+    }
+
+    return state;
+  },
+
+  _destroyState() {
+    if (!Object.hasOwn(this, '_state') || this._stateReleased) { return this; }
+
+    const state = this._state;
+    const cleanup = this._stateEventCleanup;
+    const ownsState = this._ownsState;
+    const disposeOwned = this.State.disposeOwned;
+
+    this._stateReleased = true;
+    delete this._stateEventCleanup;
+    delete this._ownsState;
+
+    disposeAll([
+      ownsState && typeof disposeOwned === 'function' && (() => disposeOwned.call(this.State, state)),
+      cleanup
+    ]);
+
+    return this;
+  },
+
+  createState() {
+    return {};
+  }
+};
+
+// Object
+// ------
+
+
+const ClassOptions$3 = [
+  'channelName',
+  'radioEvents',
+  'radioRequests',
+  'stateEvents'
+];
+
+// Object borrows many conventions and utilities from Backbone.
+const MarionetteObject = function(options) {
+  this._setOptions(options, ClassOptions$3);
+  this.cid = uniqueId(this.cidPrefix);
+
+  try {
+    this._initRadio();
+    this._initState(options);
+    this.initialize.apply(this, arguments);
+    this._initStateEvents();
+  } catch (error) {
+    disposeAll([
+      () => this.stopListening(),
+      () => this._destroyRadio(),
+      () => this._destroyState()
+    ], error);
+  }
+};
+
+assignOwn(MarionetteObject, { extend, setStateApi: setStateApi$1 });
+
+// Object Methods
+// --------------
+
+assignOwn(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, {
+  cidPrefix: 'mno',
+});
+
+function eachOwn(object, iteratee) {
+  if (object == null) { return object; }
+
+  const keys = Object.keys(object);
+  for (const key of keys) {
+    iteratee(object[key], key, object);
+  }
+
+  return object;
+}
+
+const defaultRuntimeId = {};
+const runtimeId = Symbol('MarionetteRuntime');
+
+function isView(view) {
+  return typeof view?.render === 'function' &&
+    (typeof view.destroy === 'function' || typeof view.remove === 'function');
+}
+
+function isViewClass(ViewClass) {
+  return ViewClass.prototype.render && (ViewClass.prototype.destroy || ViewClass.prototype.remove);
+}
+
+function renderView(view) {
+  if (view._isRendered) {
+    return;
+  }
+
+  if (!view.supportsRenderLifecycle) {
+    view.triggerMethod('before:render', view);
+  }
+
+  view.render();
+  view._isRendered = true;
+
+  if (!view.supportsRenderLifecycle) {
+    view.triggerMethod('render', view);
+  }
+}
+
+function destroyView(view, disableDetachEvents) {
+  if (view.destroy) {
+    // Attach flag for public destroy function internal check
+    view._disableDetachEvents = disableDetachEvents;
+    view.destroy();
+    return;
+  }
+
+  // Destroy for non-Marionette Views
+  if (!view.supportsDestroyLifecycle) {
+    view.triggerMethod('before:destroy', view);
+  }
+
+  const shouldTriggerDetach = view._isAttached && !disableDetachEvents;
+
+  if (shouldTriggerDetach) {
+    view.triggerMethod('before:detach', view);
+  }
+
+  view.remove();
+
+  if (shouldTriggerDetach) {
+    view._isAttached = false;
+    view.triggerMethod('detach', view);
+  }
+
+  view._isDestroyed = true;
+
+  if (!view.supportsDestroyLifecycle) {
+    view.triggerMethod('destroy', view);
+  }
+}
+
+// DomApi
+// -------
+
+const objectKeys = Object.keys;
+
+// Static setter
+function setDomApi$1(mixin) {
+  this.prototype.Dom = assignOwn({}, this.prototype.Dom, mixin);
+  return this;
+}
+
+var DomApi = {
+  // Returns a new HTML DOM node of tagName
+  createElement(tagName) {
+    return document.createElement(tagName);
+  },
+
+  // Returns a new HTML DOM node instance
+  createBuffer() {
+    return document.createDocumentFragment();
+  },
+
+  // Returns the document element for a given DOM element
+  getDocumentEl(el) {
+    return el.ownerDocument.documentElement;
+  },
+
+  // Finds the `selector` string with the el
+  // Returns an array-like object of nodes
+  findEl(el, selector) {
+    return el.querySelectorAll(selector);
+  },
+
+  // Returns true if the el contains the node childEl
+  hasEl(el, childEl) {
+    return el.contains(childEl && childEl.parentNode);
+  },
+
+  // Detach `el` from the DOM without removing listeners
+  detachEl(el) {
+    if (el.parentNode) { el.parentNode.removeChild(el); }
+  },
+
+  // Remove `oldEl` from the DOM and put `newEl` in its place
+  replaceEl(newEl, oldEl) {
+    if (newEl === oldEl) {
+      return;
+    }
+
+    const parent = oldEl.parentNode;
+
+    if (!parent) {
+      return;
+    }
+
+    parent.replaceChild(newEl, oldEl);
+  },
+
+  // Swaps the location of `el1` and `el2` in the DOM
+  swapEl(el1, el2) {
+    if (el1 === el2) {
+      return;
+    }
+
+    const parent1 = el1.parentNode;
+    const parent2 = el2.parentNode;
+
+    if (!parent1 || !parent2) {
+      return;
+    }
+
+    const next1 = el1.nextSibling;
+    const next2 = el2.nextSibling;
+
+    parent1.insertBefore(el2, next1);
+    parent2.insertBefore(el1, next2);
+  },
+
+  // Replace the contents of `el` with the `html`
+  setContents(el, html) {
+    el.innerHTML = html;
+  },
+
+  // Sets attributes on a DOM node
+  setAttributes(el, attrs) {
+    const attrsType = typeof attrs;
+    if (attrs == null || attrsType !== 'object' && attrsType !== 'function') { return; }
+
+    const attrNames = objectKeys(attrs);
+    for (let index = 0, length = attrNames.length; index < length; index++) {
+      const attr = attrNames[index];
+      const attributeName = attr === 'className' ? 'class' :
+        attr === 'htmlFor' ? 'for' : attr;
+      if (attr in el && attr !== 'className') {
+        const value = attrs[attr];
+        if (value != null) {
+          setProperty(el, attr, value);
+          continue;
+        }
+
+        if (attr === '__proto__') {
+          delete el[attr];
+        } else {
+          setProperty(el, attr, null);
+        }
+        // A reflected property assignment may coerce null; removing the DOM
+        // attribute keeps both states cleared.
+        el.removeAttribute(attributeName);
+        continue;
+      }
+
+      const setAttribute = el.setAttribute;
+      const value = attrs[attr];
+      if (value == null) {
+        el.removeAttribute(attributeName);
+      } else {
+        setAttribute.call(el, attributeName, value);
+      }
+    }
+  },
+
+  // Takes the DOM node `el` and appends the DOM node `contents`
+  // to the end of the element's contents.
+  appendContents(el, contents) {
+    el.appendChild(contents);
+  },
+
+  // Move a child without disconnecting it when the platform supports moveBefore.
+  moveEl(el, parent, before = null) {
+    if (el.parentNode === parent && typeof parent.moveBefore === 'function') {
+      parent.moveBefore(el, before);
+      return;
+    }
+
+    parent.insertBefore(el, before);
+  },
+
+  // Does the el have child nodes
+  hasContents(el) {
+    return !!el && el.hasChildNodes();
+  },
+
+  // Remove the inner contents of `el` from the DOM while leaving
+  // `el` itself in the DOM.
+  detachContents(el) {
+    el.textContent = '';
+  }
+};
+
+// Region
+// ------
+
+
+const classErrorName$5 = 'RegionError';
+const destroyTeardown = new WeakMap();
+
+function consumeDestroyTeardown(region, operation) {
+  if (destroyTeardown.get(region) !== operation) { return false; }
+
+  destroyTeardown.delete(region);
+  return true;
+}
+
+function canMutateRegion(region, authorized) {
+  return authorized || !region._isDestroying && !region._isDestroyed;
+}
+
+function emptyRegion(region, options = { allowMissingEl: true }) {
+  const view = region.currentView;
+
+  // If there is no view in the region we should only detach current html
+  if (!view) {
+    if (region._ensureElement(options)) {
+      region.detachHtml();
+    }
+    return region;
+  }
+
+  region._empty(view, true);
+  return region;
+}
+
+const RegionClassOptions = [
+  'allowMissingEl',
+  'parentEl',
+  'replaceElement'
+];
+
+const Region$1 = function(options) {
+  this._setOptions(options, RegionClassOptions);
+
+  this.cid = uniqueId(this.cidPrefix);
+
+  // getOption necessary because options.el may be passed as undefined
+  this._initEl = this.el = this.getOption('el');
+  this._validateEl(this.el);
+
+  this.initialize.apply(this, arguments);
+};
+
+Region$1.extend = extend;
+Region$1.setDomApi = setDomApi$1;
+
+// Region Methods
+// --------------
+
+assignOwn(Region$1.prototype, CommonMixin, {
+  Dom: DomApi,
+
+  cidPrefix: 'mnr',
+  replaceElement: false,
+  _isReplaced: false,
+  _isSwappingView: false,
+
+  _validateEl(el) {
+    if (!el || isString(el) || el.nodeType === 1) { return; }
+
+    throw new MarionetteError({
+      code: 'MN0002',
+      name: classErrorName$5,
+      message: 'Region "el" must be a selector string or DOM element.',
+      url: 'marionette.region.html#additional-options'
+    });
+  },
+
+  // Displays a view instance inside of the region. If necessary handles calling the `render`
+  // method for you. Reads content directly from the `el` attribute.
+  show(view, options) {
+    if (!canMutateRegion(this)) { return this; }
+
+    if (!this._ensureElement(options)) {
+      return;
+    }
+
+    view = this._getView(view, options);
+
+    if (view === this.currentView) { return this; }
+
+    if (view._isShown) {
+      throw new MarionetteError({
+        code: 'MN0003',
+        name: classErrorName$5,
+        message: 'View is already shown in a Region or CollectionView',
+        url: 'marionette.region.html#showing-a-view'
+      });
+    }
+
+    this._isSwappingView = !!this.currentView;
+
+    this.triggerMethod('before:show', this, view, options);
+
+    // Assume an attached view is already in the region for pre-existing DOM
+    if (this.currentView || !view._isAttached) {
+      this.empty(options);
+    }
+
+    this._setupChildView(view);
+
+    this.currentView = view;
+
+    renderView(view);
+
+    this._attachView(view, options);
+
+    this.triggerMethod('show', this, view, options);
+
+    this._isSwappingView = false;
+
+    return this;
+  },
+
+  _setEl(el) {
+    this._validateEl(el);
+
+    if (el !== null && typeof el === 'object') {
+      this.el = el;
+      return;
+    }
+
+    if (!el) {
+      throw new MarionetteError({
+        code: 'MN0004',
+        name: classErrorName$5,
+        message: 'An "el" must be specified for a region.',
+        url: 'marionette.region.html#additional-options'
+      });
+    }
+
+    this.el = this.getEl(el);
+  },
+
+  // Set the `el` of the region and move any current view to the new `el`.
+  _setElement(el) {
+    if (el === this.el) { return this; }
+
+    const shouldReplace = this._isReplaced;
+
+    this._restoreEl();
+
+    this._setEl(el);
+
+    if (this.currentView) {
+      const view = this.currentView;
+
+      if (shouldReplace) {
+        this._replaceEl(view);
+      } else {
+        this.attachHtml(view);
+      }
+    }
+
+    return this;
+  },
+
+  _setupChildView(view) {
+    monitorViewEvents(view);
+
+    this._proxyChildViewEvents(view);
+
+    // We need to listen for if a view is destroyed in a way other than through the region.
+    // If this happens we need to remove the reference to the currentView since once a view
+    // has been destroyed we can not reuse it.
+    view.on('destroy', this._empty, this);
+  },
+
+  _proxyChildViewEvents(view) {
+    const parentView = this._parentView;
+
+    if (!parentView) { return; }
+
+    parentView._proxyChildViewEvents(view);
+  },
+
+  // If the regions parent view is not monitoring its attach/detach events
+  _shouldDisableMonitoring() {
+    return this._parentView && this._parentView.monitorViewEvents === false;
+  },
+
+  _isElAttached() {
+    const documentEl = this.Dom.getDocumentEl(this.el);
+    return !!documentEl && this.Dom.hasEl(documentEl, this.el);
+  },
+
+  _attachView(view, { replaceElement } = {}) {
+    const shouldTriggerAttach = !view._isAttached && this._isElAttached() && !this._shouldDisableMonitoring();
+    const shouldReplaceEl = typeof replaceElement === 'undefined' ? !!getValue(this, 'replaceElement') : !!replaceElement;
+
+    if (shouldTriggerAttach) {
+      view.triggerMethod('before:attach', view);
+    }
+
+    if (shouldReplaceEl) {
+      this._replaceEl(view);
+    } else {
+      this.attachHtml(view);
+    }
+
+    if (shouldTriggerAttach) {
+      view._isAttached = true;
+      view.triggerMethod('attach', view);
+    }
+
+    // Corresponds that view is shown in a marionette Region or CollectionView
+    view._isShown = true;
+  },
+
+  _ensureElement(options = {}) {
+    this._setEl(this.el);
+
+    if (!this.el) {
+      const allowMissingEl = typeof options.allowMissingEl === 'undefined' ? !!getValue(this, 'allowMissingEl') : !!options.allowMissingEl;
+
+      if (allowMissingEl) {
+        return false;
+      } else {
+        throw new MarionetteError({
+          code: 'MN0005',
+          name: classErrorName$5,
+          message: `An "el" must exist in DOM for this region ${this.cid}`,
+          url: 'marionette.region.html#additional-options'
+        });
+      }
+    }
+    return true;
+  },
+
+  _getView(view) {
+    if (!isView(view)) {
+      throw new MarionetteError({
+        code: 'MN0006',
+        name: classErrorName$5,
+        message: 'The value passed to show must be a View-like instance. Construct the View before calling show.',
+        url: 'marionette.region.html#showing-a-view'
+      });
+    }
+
+    if (view._isDestroyed) {
+      throw new MarionetteError({
+        code: 'MN0007',
+        name: classErrorName$5,
+        message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`,
+        url: 'marionette.region.html#showing-a-view'
+      });
+    }
+
+    return view;
+  },
+
+  // Override this method to change how the region finds the DOM element that it manages. Return
+  // a native DOM element resolved within a provided parent el or the document if none exists.
+  getEl(el) {
+    const context = getValue(this, 'parentEl');
+
+    return this.Dom.findEl(context || document, el)[0];
+  },
+
+  _replaceEl(view) {
+    // Always restore the el to ensure the regions el is present before replacing
+    this._restoreEl();
+
+    view.on('before:destroy', this._restoreEl, this);
+
+    this.Dom.replaceEl(view.el, this.el);
+
+    this._isReplaced = true;
+  },
+
+  // Restore the region's element in the DOM.
+  _restoreEl() {
+    // There is nothing to replace
+    if (!this._isReplaced) {
+      return;
+    }
+
+    const view = this.currentView;
+
+    if (!view) {
+      return;
+    }
+
+    this._detachView(view);
+
+    this._isReplaced = false;
+  },
+
+  // Check to see if the region's el was replaced.
+  isReplaced() {
+    return !!this._isReplaced;
+  },
+
+  // Check to see if a view is being swapped by another
+  isSwappingView() {
+    return !!this._isSwappingView;
+  },
+
+  // Override this method to change how the new view is appended to the element
+  // the region manages.
+  attachHtml(view) {
+    this.Dom.appendContents(this.el, view.el);
+  },
+
+  // Destroy the current view, if there is one. If there is no current view,
+  // it will detach any html inside the region's `el`.
+  empty(options = { allowMissingEl: true }) {
+    const authorized = consumeDestroyTeardown(this, 'empty');
+    if (!canMutateRegion(this, authorized)) { return this; }
+
+    return emptyRegion(this, options);
+  },
+
+  _empty(view, shouldDestroy) {
+    view.off('destroy', this._empty, this);
+    this.triggerMethod('before:empty', this, view);
+
+    this._restoreEl();
+
+    delete this.currentView;
+
+    if (!view._isDestroyed) {
+      if (shouldDestroy) {
+        this.removeView(view);
+      } else {
+        this._detachView(view);
+      }
+      view._isShown = false;
+      this._stopChildViewEvents(view);
+    }
+
+    this.triggerMethod('empty', this, view);
+  },
+
+  _stopChildViewEvents(view) {
+    const parentView = this._parentView;
+
+    if (!parentView) { return; }
+
+    this._parentView.stopListening(view);
+  },
+
+  // Non-Marionette safe view.destroy
+  destroyView(view) {
+    if (view._isDestroyed) {
+      return view;
+    }
+
+    destroyView(view, this._shouldDisableMonitoring());
+    return view;
+  },
+
+  // Override this method to determine what happens when the view
+  // is removed from the region when the view is not being detached
+  removeView(view) {
+    this.destroyView(view);
+  },
+
+  // Empties the Region without destroying the view
+  // Returns the detached view
+  detachView() {
+    if (!canMutateRegion(this)) { return; }
+
+    const view = this.currentView;
+
+    if (!view) {
+      return;
+    }
+
+    this._empty(view);
+
+    return view;
+  },
+
+  _detachView(view) {
+    const shouldTriggerDetach = view._isAttached && !this._shouldDisableMonitoring();
+    const shouldRestoreEl = this._isReplaced;
+    if (shouldTriggerDetach) {
+      view.triggerMethod('before:detach', view);
+    }
+
+    if (shouldRestoreEl) {
+      this.Dom.replaceEl(this.el, view.el);
+    } else {
+      this.detachHtml();
+    }
+
+    if (shouldTriggerDetach) {
+      view._isAttached = false;
+      view.triggerMethod('detach', view);
+    }
+  },
+
+  // Override this method to change how the region detaches current content
+  detachHtml() {
+    this.Dom.detachContents(this.el);
+  },
+
+  // Checks whether a view is currently present within the region. Returns `true` if there is
+  // and `false` if no view is present.
+  hasView() {
+    return !!this.currentView;
+  },
+
+  // Returns the View that currently owns this Region, if any.
+  getOwner() {
+    return this._parentView;
+  },
+
+  // Returns this Region's name within its owner, if any.
+  getName() {
+    return this._name;
+  },
+
+  // Reset the region by destroying any existing view and restoring its initial element.
+  // The next time a view is shown, the region will re-query the DOM for its `el`.
+  reset(options) {
+    const authorized = consumeDestroyTeardown(this, 'reset');
+    if (!canMutateRegion(this, authorized)) { return this; }
+
+    if (authorized) {
+      destroyTeardown.set(this, 'empty');
+    }
+    try {
+      this.empty(options);
+    } finally {
+      if (authorized && destroyTeardown.get(this) === 'empty') {
+        destroyTeardown.delete(this);
+      }
+    }
+    this.el = this._initEl;
+
+    delete this.$el;
+    return this;
+  },
+
+  _isDestroyed: false,
+
+  isDestroyed() {
+    return this._isDestroyed;
+  },
+
+  // Destroy the region, remove any child view
+  // and remove the region from any associated view
+  destroy(options) {
+    if (this._isDestroyed || this._isDestroying) { return this; }
+    this._isDestroying = true;
+    try {
+      this.triggerMethod('before:destroy', this, options);
+    } catch (error) {
+      delete this._isDestroying;
+      throw error;
+    }
+    this._isDestroyed = true;
+
+    const currentView = this.currentView;
+    let isReset;
+    destroyTeardown.set(this, 'reset');
+    disposeAll([
+      () => this.stopListening(),
+      () => this.triggerMethod('destroy', this, options),
+      () => {
+        destroyTeardown.delete(this);
+        if (isReset || currentView && currentView !== this.currentView) {
+          const parentView = this._parentView;
+          const name = this._name;
+          delete this._parentView;
+          delete this._name;
+          if (parentView && name !== undefined) {
+            parentView._removeReferences(name);
+          }
+        }
+      },
+      () => {
+        this.reset(options);
+        isReset = true;
+      }
+    ]);
+
+    return this;
+  }
+});
+
+Object.defineProperty(Region$1.prototype, runtimeId, { value: defaultRuntimeId });
+
+function throwRegionRegistrationConflict$1(message) {
+  throw new MarionetteError({
+    code: 'MN0030',
+    name: 'RegionError',
+    message
+  });
+}
+
+// return the region instance from the definition
+function buildRegion(definition, defaults) {
+  if (definition instanceof Region$1) {
+    if (definition[runtimeId] !== (defaults[runtimeId] || defaultRuntimeId)) {
+      throwRegionRegistrationConflict$1('A Region instance must belong to the same Marionette runtime as its owner.');
+    }
+    return definition;
+  }
+
+  if (isString(definition)) {
+    return buildRegionFromObject(defaults, { el: definition });
+  }
+
+  if (typeof definition === 'function') {
+    return buildRegionFromObject(defaults, { regionClass: definition });
+  }
+
+  if (definition !== null && typeof definition === 'object') {
+    return buildRegionFromObject(defaults, definition);
+  }
+
+  throw new MarionetteError({
+    code: 'MN0008',
+    message: 'Improper region configuration type.',
+    url: 'marionette.region.html#defining-regions'
+  });
+}
+
+function buildRegionFromObject(defaults, definition) {
+  const options = assignOwn({}, defaults, definition);
+
+  const RegionClass = options.regionClass;
+
+  const RegionRuntimeId = RegionClass.prototype[runtimeId];
+  if (RegionRuntimeId && RegionRuntimeId !== (defaults[runtimeId] || defaultRuntimeId)) {
+    throwRegionRegistrationConflict$1('A Region class must belong to the same Marionette runtime as its owner.');
+  }
+
+  delete options.regionClass;
+
+  return new RegionClass(options);
+}
+
+// MixinOptions
+// - behaviors
+
+// Takes care of getting the behavior class
+// given options and a key.
+// If a user passes in options.behaviorClass
+// default to using that.
+// If a user passes in a Behavior Class directly, use that
+// Otherwise an error is thrown
+function getBehaviorClass(options) {
+  if (options.behaviorClass) {
+    return { BehaviorClass: options.behaviorClass, options };
+  }
+
+  // Treat functions as a Behavior constructor.
+  if (typeof options === 'function') {
+    return { BehaviorClass: options, options: {} };
+  }
+
+  throw new MarionetteError({
+    code: 'MN0016',
+    message: 'Unable to get behavior class. A Behavior constructor should be passed directly or as behaviorClass property of options',
+    url: 'marionette.behavior.html#defining-and-attaching-behaviors'
+  });
+}
+
+function addBehavior(view, behaviorDefinition, allBehaviors) {
+  const { BehaviorClass, options } = getBehaviorClass(behaviorDefinition);
+  const behavior = new BehaviorClass(options, view);
+  allBehaviors.push(behavior);
+
+  parseBehaviors(view, getValue(behavior, 'behaviors'), allBehaviors);
+}
+
+// Iterate over the behaviors object, for each behavior
+// instantiate it and get its grouped behaviors.
+// This accepts a list of behaviors in either an object or array form
+function parseBehaviors(view, behaviors, allBehaviors) {
+  if (Array.isArray(behaviors)) {
+    for (let index = 0, length = behaviors.length; index < length; index++) {
+      addBehavior(view, behaviors[index], allBehaviors);
+    }
+  } else {
+    eachOwn(behaviors, behaviorDefinition => {
+      addBehavior(view, behaviorDefinition, allBehaviors);
+    });
+  }
+
+  return allBehaviors;
+}
+
+function mergeBehaviorMaps(behaviors, getMap) {
+  if (behaviors == null) { return {}; }
+
+  const length = behaviors.length;
+  const maps = Array(length);
+
+  for (let index = 0; index < length; index++) {
+    maps[index] = getMap(behaviors[index]);
+  }
+
+  const merged = {};
+  for (let index = 0; index < length; index++) {
+    assignOwn(merged, maps[index]);
+  }
+
+  return merged;
+}
+
+function eachBehavior(behaviors, iteratee) {
+  if (behaviors == null) { return; }
+
+  for (let index = 0, length = behaviors.length; index < length; index++) {
+    iteratee(behaviors[index]);
+  }
+}
+
+function disposeBehaviors(behaviors, method, options) {
+  if (behaviors == null) { return; }
+
+  disposeAll(behaviors.map(behavior => () => behavior[method](options)).reverse());
+}
+
+function rollbackBehaviors(behaviors) {
+  for (let index = 0, length = behaviors.length; index < length; index++) {
+    try {
+      behaviors[index].destroy();
+    } catch {
+      // Preserve the construction error and continue rolling back.
+    }
+  }
+}
+
+var BehaviorsMixin = {
+  _initBehaviors() {
+    this._behaviors = [];
+
+    try {
+      parseBehaviors(this, getValue(this, 'behaviors'), this._behaviors);
+    } catch (error) {
+      this._rollbackBehaviors();
+      throw error;
+    }
+  },
+
+  _rollbackBehaviors() {
+    rollbackBehaviors(this._behaviors || []);
+    this._behaviors = [];
+  },
+
+  _getBehaviorTriggers() {
+    return mergeBehaviorMaps(this._behaviors, behavior => behavior._getTriggers());
+  },
+
+  _getBehaviorEvents() {
+    return mergeBehaviorMaps(this._behaviors, behavior => behavior._getEvents());
+  },
+
+  // proxy behavior el to the view's el.
+  _setBehaviorElements() {
+    eachBehavior(this._behaviors, behavior => behavior._syncElement());
+  },
+
+  _undelegateBehaviorViewEvents() {
+    disposeBehaviors(this._behaviors, '_undelegateViewEvents');
+  },
+
+  // delegate modelEvents and collectionEvents
+  _delegateBehaviorEntityEvents() {
+    eachBehavior(this._behaviors, behavior => behavior.delegateEntityEvents());
+  },
+
+  // undelegate modelEvents and collectionEvents
+  _undelegateBehaviorEntityEvents() {
+    disposeBehaviors(this._behaviors, 'undelegateEntityEvents');
+  },
+
+  _destroyBehaviors(options) {
+    // Call destroy on each behavior after
+    // destroying the view.
+    // This unbinds event listeners
+    // that behaviors have registered for.
+    disposeBehaviors(this._behaviors, 'destroy', options);
+  },
+
+  // Remove a behavior
+  _removeBehavior(behavior) {
+    // Don't worry about the clean up if the view is destroyed
+    if (this._isDestroyed) { return; }
+
+    const remainingBehaviors = [];
+    for (let index = 0, length = this._behaviors.length; index < length; index++) {
+      const currentBehavior = this._behaviors[index];
+      if (currentBehavior !== behavior) {
+        remainingBehaviors.push(currentBehavior);
+      }
+    }
+    this._behaviors = remainingBehaviors;
+  },
+
+  _bindBehaviorUIElements() {
+    eachBehavior(this._behaviors, behavior => behavior.bindUIElements());
+  },
+
+  _unbindBehaviorUIElements() {
+    eachBehavior(this._behaviors, behavior => behavior.unbindUIElements());
+  },
+
+  _triggerEventOnBehaviors(eventName, view, options) {
+    eachBehavior(this._behaviors, behavior => behavior.triggerMethod(eventName, view, options));
+  }
+};
+
+// MixinOptions
+// - collectionEvents
+// - modelEvents
+
+var DelegateEntityEventsMixin = {
+  // Handle `modelEvents`, and `collectionEvents` configuration
+  _delegateEntityEvents(model, collection, Data) {
+    try {
+      if (model) {
+        this._modelEvents = getValue(this, 'modelEvents');
+        if (this._modelEvents) {
+          this._modelEventCleanup = subscribeBindings(
+            this,
+            Data,
+            model,
+            this._modelEvents,
+            'DataApi'
+          );
+        }
+      }
+
+      if (collection) {
+        this._collectionEvents = getValue(this, 'collectionEvents');
+        if (this._collectionEvents) {
+          this._collectionEventCleanup = subscribeBindings(
+            this,
+            Data,
+            collection,
+            this._collectionEvents,
+            'DataApi'
+          );
+        }
+      }
+    } catch (error) {
+      this._deleteEntityEventHandlers(error);
+    }
+  },
+
+  // Remove any previously delegate entity events
+  _undelegateEntityEvents() {
+    this._deleteEntityEventHandlers();
+  },
+
+  // Remove cached event handlers
+  _deleteEntityEventHandlers(error) {
+    const subscriptions = [
+      this._modelEventCleanup,
+      this._collectionEventCleanup
+    ];
+
+    delete this._modelEventCleanup;
+    delete this._collectionEventCleanup;
+    delete this._modelEvents;
+    delete this._collectionEvents;
+
+    if (arguments.length) {
+      disposeAll(subscriptions, error);
+    } else {
+      disposeAll(subscriptions);
+    }
+  }
+};
+
+// allows for the use of the @ui. syntax within
+// a given key for triggers and events
+// swaps the @ui with the associated selector.
+// Returns a new, non-mutated, parsed events hash.
+const normalizeUIKeys = function(hash, ui) {
+  const normalizedHash = {};
+  eachOwn(hash, (val, key) => {
+    const normalizedKey = normalizeUIString(key, ui);
+    setProperty(normalizedHash, normalizedKey, val);
+  });
+  return normalizedHash;
+};
+
+const uiRegEx = /@ui\.[a-zA-Z-_$0-9]*/g;
+const hasOwnProperty = Object.prototype.hasOwnProperty;
+
+// utility method for parsing @ui. syntax strings
+// into associated selector
+const normalizeUIString = function(uiString, ui) {
+  return uiString.replace(uiRegEx, (r) => {
+    const name = r.slice(4);
+
+    if (!name) {
+      throw new MarionetteError({
+        code: 'MN0018',
+        message: 'The ui reference must include a key name.'
+      });
+    }
+
+    const hasSelector = ui && hasOwnProperty.call(ui, name);
+    const selector = hasSelector ? ui[name] : undefined;
+
+    if (!hasSelector) {
+      throw new MarionetteError({
+        code: 'MN0018',
+        message: `The ui reference "${name}" must be declared as an own ui key.`
+      });
+    }
+
+    if (!isString(selector)) {
+      throw new MarionetteError({
+        code: 'MN0018',
+        message: `The ui reference "${name}" must be a string selector.`
+      });
+    }
+
+    return selector;
+  });
+};
+
+// allows for the use of the @ui. syntax within
+// a given value for regions
+// swaps the @ui with the associated selector
+const normalizeUIValues = function(hash, ui, property) {
+  eachOwn(hash, (val, key) => {
+    if (isString(val)) {
+      hash[key] = normalizeUIString(val, ui);
+    } else if (val) {
+      const propertyVal = val[property];
+      if (isString(propertyVal)) {
+        val[property] = normalizeUIString(propertyVal, ui);
+      }
+    }
+  });
+  return hash;
+};
+
+var UIMixin = {
+
+  // normalize the keys of passed hash with the views `ui` selectors.
+  // `{"@ui.foo": "bar"}`
+  normalizeUIKeys(hash, uiBindings = this._getUIBindings()) {
+    return normalizeUIKeys(hash, uiBindings);
+  },
+
+  // normalize the passed string with the views `ui` selectors.
+  // `"@ui.bar"`
+  normalizeUIString(uiString, uiBindings = this._getUIBindings()) {
+    return normalizeUIString(uiString, uiBindings);
+  },
+
+  // normalize the values of passed hash with the views `ui` selectors.
+  // `{foo: "@ui.bar"}`
+  normalizeUIValues(hash, property, uiBindings = this._getUIBindings()) {
+    return normalizeUIValues(hash, uiBindings, property);
+  },
+
+  _getUIBindings() {
+    const uiBindings = getValue(this, '_uiBindings');
+    return uiBindings || getValue(this, 'ui');
+  },
+
+  // Bind each element specified in the "ui" hash to the configured DOM query result.
+  _bindUIElements() {
+    if (!this.ui) { return; }
+
+    // store the ui hash in _uiBindings so they can be reset later
+    // and so re-rendering the view will be able to find the bindings
+    if (!this._uiBindings) {
+      this._uiBindings = this.ui;
+    }
+
+    // get the bindings result, as a function or otherwise
+    const bindings = getValue(this, '_uiBindings');
+
+    // empty the ui so we don't have anything to start with
+    this._ui = {};
+
+    // bind each of the selectors
+    eachOwn(bindings, (selector, key) => {
+      setProperty(this._ui, key, this.$(selector));
+    });
+
+    this.ui = this._ui;
+  },
+
+  _unbindUIElements() {
+    if (!this.ui || !this._uiBindings) { return; }
+
+    // delete all of the existing ui bindings
+    eachOwn(this.ui, ($el, name) => {
+      delete this.ui[name];
+    });
+
+    // reset the ui element to the original bindings configuration
+    this.ui = this._uiBindings;
+    delete this._uiBindings;
+    delete this._ui;
+  },
+
+  _getUI(name) {
+    if (!this.ui) {
+      throw new MarionetteError({
+        code: 'MN0023',
+        message: 'A ui map must be declared before calling getUI().'
+      });
+    }
+
+    if (!this._ui) {
+      throw new MarionetteError({
+        code: 'MN0023',
+        message: 'UI elements must be bound before calling getUI().'
+      });
+    }
+
+    return this._ui[name];
+  }
+};
+
+// Event Delegator
+//  ---------
+
+// Static setter
+function setEventDelegator$1(delegator) {
+  if (!delegator || typeof delegator.delegate !== 'function') {
+    throw new MarionetteError({
+      code: 'MN0036',
+      name: 'EventDelegatorError',
+      message: 'EventDelegator must provide a delegate method.',
+      url: 'dom.interactions.html#eventdelegator-adapter'
+    });
+  }
+
+  Object.defineProperty(this.prototype, 'EventDelegator', {
+    configurable: true,
+    enumerable: true,
+    value: delegator,
+    writable: false
+  });
+  return this;
+}
+
+var EventDelegator = {
+  // Delegate a matching event from the root element.
+  delegate({ eventName, selector, handler, rootEl }) {
+    const capture = eventName === 'focus' || eventName === 'blur';
+    let eventHandler = handler;
+
+    if (selector) {
+      eventHandler = function(evt) {
+        let node = evt.target;
+        for (; node && node !== rootEl; node = node.parentNode) {
+          if (node.nodeType === 1 && node.matches(selector)) {
+            evt.delegateTarget = node;
+            handler(evt);
+            break;
+          }
+        }
+      };
+    }
+
+    rootEl.addEventListener(eventName, eventHandler, capture);
+
+    let isRemoved;
+    return () => {
+      if (isRemoved) { return; }
+      isRemoved = true;
+      rootEl.removeEventListener(eventName, eventHandler, capture);
+    };
+  }
+};
+
+const delegateEventSplitter = /^(\S+)\s*(.*)$/;
+
+// Internal method to create an event handler for a given `triggerDef` like
+// 'click:foo'
+function buildViewTrigger(view, triggerDef) {
+  if (isString(triggerDef)) {
+    triggerDef = { event: triggerDef };
+  }
+
+  const eventName = triggerDef.event;
+
+  const shouldPreventDefault = triggerDef.preventDefault !== false;
+  const shouldStopPropagation = triggerDef.stopPropagation !== false;
+
+  return function(event, ...args) {
+    if (shouldPreventDefault) {
+      event.preventDefault();
+    }
+
+    if (shouldStopPropagation) {
+      event.stopPropagation();
+    }
+
+    view.triggerMethod(eventName, view, event, ...args);
+  };
+}
+
+var ViewEventsMixin = {
+
+  EventDelegator,
+
+  _initViewEvents() {
+    this._domEvents = [];
+  },
+
+  _undelegateViewEvents() {
+    disposeAll(this._domEvents.splice(0));
+  },
+
+  _delegateViewEvents(view = this, events) {
+    if (!events && !this.events && !this.triggers) { return; }
+
+    const uiBindings = this._getUIBindings();
+    const delegates = [];
+    this._delegateEvents(delegates, uiBindings, events);
+    this._delegateTriggers(delegates, uiBindings, view);
+    try {
+      for (let index = 0; index < delegates.length; index += 2) {
+        this._delegate(delegates[index], delegates[index + 1]);
+      }
+    } catch (error) {
+      disposeAll(this._domEvents.splice(0), error);
+    }
+  },
+
+  _delegateEvents(delegates, uiBindings, events) {
+    const eventMap = events || getValue(this, 'events');
+    if (!eventMap) { return; }
+
+    eachOwn(eventMap, (handler, key) => {
+      handler = resolveMethod(this, handler, key);
+      delegates.push(handler.bind(this), this.normalizeUIString(key, uiBindings));
+    });
+  },
+
+  _delegateTriggers(delegates, uiBindings, view) {
+    if (!this.triggers) { return; }
+
+    eachOwn(getValue(this, 'triggers'), (value, key) => {
+      delegates.push(buildViewTrigger(view, value), this.normalizeUIString(key, uiBindings));
+    });
+  },
+
+  _delegate(handler, key) {
+    const match = key.match(delegateEventSplitter);
+    const cleanup = this.EventDelegator.delegate({
+      eventName: match[1],
+      selector: match[2],
+      handler,
+      rootEl: this.el
+    });
+
+    if (typeof cleanup !== 'function') {
+      throw new MarionetteError({
+        code: 'MN0036',
+        name: 'EventDelegatorError',
+        message: 'EventDelegator.delegate must return a cleanup function.',
+        url: 'dom.interactions.html#eventdelegator-adapter'
+      });
+    }
+
+    this._domEvents.push(cleanup);
+  }
+};
+
+// Data API
+// --------
+
+const noop = function() {};
+
+// Static setter
+function setDataApi$1(mixin) {
+  this.prototype.Data = assignOwn({}, this.prototype.Data, mixin);
+  return this;
+}
+
+var DataApi = {
+  key(model) {
+    return model;
+  },
+
+  get(model, attribute) {
+    return Object.hasOwn(model, attribute) ? model[attribute] : undefined;
+  },
+
+  has(model, attribute) {
+    return Object.hasOwn(Object(model), attribute);
+  },
+
+  serialize(model) {
+    return model;
+  },
+
+  models(collection) {
+    return collection;
+  },
+
+  subscribe(entity, eventName, callback, context) {
+    if (typeof entity?.on !== 'function' || typeof entity?.off !== 'function') {
+      throw new MarionetteError({
+        code: 'MN0037',
+        name: 'DataApiError',
+        message: 'The default DataApi cannot observe modelEvents or collectionEvents on a plain value. Configure a DataApi that supports this source or remove the event map.',
+        url: 'data.api.html#entity-events'
+      });
+    }
+
+    let isSubscribed = true;
+    entity.on(eventName, callback, context);
+
+    return function() {
+      if (!isSubscribed) { return; }
+      isSubscribed = false;
+      entity.off(eventName, callback, context);
+    };
+  },
+
+  observeCollection(collection) {
+    if (Array.isArray(collection)) { return noop; }
+
+    throw new MarionetteError({
+      code: 'MN0037',
+      name: 'DataApiError',
+      message: 'The default DataApi can observe only static plain arrays. Configure a DataApi that supports this collection source.',
+      url: 'data.api.html#collection-observations'
+    });
+  }
+};
+
+// ViewMixin
+//  ---------
+
+
+const classErrorName$4 = 'ViewError';
+
+function isJQueryCollection(el) {
+  return el != null && typeof el === 'object' &&
+    typeof el.jquery === 'string' && typeof el.get === 'function';
+}
+
+const ViewOptions = [
+  'attributes',
+  'className',
+  'collection',
+  'el',
+  'events',
+  'id',
+  'model',
+  'tagName'
+];
+
+// MixinOptions
+// - attributes
+// - behaviors
+// - childViewEventPrefix
+// - childViewEvents
+// - childViewTriggers
+// - className
+// - collection
+// - collectionEvents
+// - el
+// - events
+// - id
+// - model
+// - modelEvents
+// - tagName
+// - triggers
+// - ui
+
+
+const ViewMixin = {
+  tagName: 'div',
+
+  // This is a noop method intended to be overridden
+  preinitialize() {},
+
+  Dom: DomApi,
+
+  Data: DataApi,
+
+  _validateEl(el) {
+    const stringEl = isString(el);
+    if (!stringEl && !isJQueryCollection(el)) { return el; }
+
+    const migration = stringEl ?
+      `Resolve selector strings at the call site, e.g. \`document.querySelector('${el}')\`.` :
+      'Unwrap jQuery collections at the call site, e.g. `wrappedEl[0]`.';
+
+    throw new MarionetteError({
+      code: 'MN0001',
+      name: classErrorName$4,
+      message: `View "el" must be a DOM element. ${migration} (Region still accepts selector strings.)`,
+      url: 'marionette.view.html#specifying-an-el'
+    });
+  },
+
+  // Create an element from the `id`, `className` and `tagName` properties.
+  _getEl() {
+    const elOption = getValue(this, 'el');
+
+    if (!elOption) {
+      const el = this.Dom.createElement(getValue(this, 'tagName'));
+      this.Dom.setAttributes(el, this._getAttributes());
+      return el;
+    }
+
+    return elOption;
+  },
+
+  _getAttributes() {
+    const attrs = assignOwn({}, getValue(this, 'attributes'));
+    if ('id' in this) { attrs.id = getValue(this, 'id'); }
+    if ('className' in this) { attrs.class = getValue(this, 'className'); }
+    return attrs;
+  },
+
+  renderAttributes() {
+    if (this._isDestroying || this._isDestroyed) { return this; }
+
+    this.Dom.setAttributes(this.el, this._getAttributes());
+    return this;
+  },
+
+  $(selector) {
+    return this.Dom.findEl(this.el, selector);
+  },
+
+  _isElAttached() {
+    const documentEl = this.el && this.Dom.getDocumentEl(this.el);
+    return !!documentEl && this.Dom.hasEl(documentEl, this.el);
+  },
+
+  supportsRenderLifecycle: true,
+  supportsDestroyLifecycle: true,
+
+  _isDestroyed: false,
+
+  isDestroyed() {
+    return !!this._isDestroyed;
+  },
+
+  _isRendered: false,
+
+  isRendered() {
+    return !!this._isRendered;
+  },
+
+  _isAttached: false,
+
+  isAttached() {
+    return !!this._isAttached;
+  },
+
+  _rollbackView(error) {
+    const dataObserverCleanup = this._dataObserverCleanup;
+    delete this._dataObserverCleanup;
+
+    // Construction rollback is not yet guarded by _isDestroying. Release the
+    // collection observer before child cleanup can synchronously mutate it.
+    try {
+      dataObserverCleanup?.();
+    } catch {
+      // Preserve the construction error while continuing best-effort cleanup.
+    }
+
+    disposeAll([
+      () => this.stopListening(),
+      () => this._destroyState(),
+      () => this._rollbackBehaviors(),
+      () => this.undelegateEntityEvents(),
+      () => this._undelegateViewEvents(),
+      () => this._removeChildren()
+    ], error);
+  },
+
+  delegateEvents(events) {
+    if (this._isDestroying || this._isDestroyed) { return this; }
+
+    this.undelegateEvents();
+    this._buildEventProxies();
+    try {
+      this._delegateViewEvents(this, events);
+      this._setBehaviorElements();
+    } catch (error) {
+      disposeAll([
+        () => this._undelegateBehaviorViewEvents(),
+        () => this._undelegateViewEvents()
+      ], error);
+    }
+
+    return this;
+  },
+
+  undelegateEvents() {
+    if (this._isDestroyed || this._isDestroying) { return this; }
+
+    disposeAll([
+      () => this._undelegateBehaviorViewEvents(),
+      () => this._undelegateViewEvents()
+    ]);
+
+    return this;
+  },
+
+  // Handle `modelEvents`, and `collectionEvents` configuration
+  delegateEntityEvents() {
+    if (this._isDestroyed || this._isDestroying) { return this; }
+
+    try {
+      this._delegateEntityEvents(this.model, this.collection, this.Data);
+
+      // bind each behaviors model and collection events
+      this._delegateBehaviorEntityEvents();
+    } catch (error) {
+      try {
+        this.undelegateEntityEvents();
+      } catch {
+        // Preserve the subscription error after best-effort rollback.
+      }
+      throw error;
+    }
+
+    return this;
+  },
+
+  // Handle unbinding `modelEvents`, and `collectionEvents` configuration
+  undelegateEntityEvents() {
+    disposeAll([
+      () => this._undelegateBehaviorEntityEvents(),
+      () => this._undelegateEntityEvents()
+    ]);
+
+    return this;
+  },
+
+  // Handle destroying the view and its children.
+  destroy(options) {
+    if (this._isDestroyed || this._isDestroying) { return this; }
+    this._isDestroying = true;
+    const shouldTriggerDetach = this._isAttached && !this._disableDetachEvents;
+
+    try {
+      this.triggerMethod('before:destroy', this, options);
+    } catch (error) {
+      delete this._isDestroying;
+      throw error;
+    }
+    let didDetachEl = false;
+    disposeAll([
+      () => this.stopListening(),
+      () => this._triggerEventOnBehaviors('destroy', this, options),
+      () => this.triggerMethod('destroy', this, options),
+      () => this._destroyState(),
+      () => this._destroyBehaviors(options),
+      () => this._deleteEntityEventHandlers(),
+      () => {
+        const dataObserverCleanup = this._dataObserverCleanup;
+        delete this._dataObserverCleanup;
+        dataObserverCleanup?.();
+      },
+      () => {
+        this._isDestroyed = true;
+        this._isRendered = false;
+      },
+      // Remove children after the root to prevent extra paints.
+      () => this._removeChildren(),
+      () => {
+        if (!shouldTriggerDetach || !didDetachEl) { return; }
+        this._isAttached = false;
+        this.triggerMethod('detach', this);
+      },
+      () => {
+        this.Dom.detachEl(this.el);
+        didDetachEl = true;
+      },
+      () => this._undelegateViewEvents(),
+      () => this.unbindUIElements(),
+      () => {
+        if (shouldTriggerDetach) {
+          this.triggerMethod('before:detach', this);
+        }
+      }
+    ]);
+
+    return this;
+  },
+
+  // This method binds the elements specified in the "ui" hash
+  bindUIElements() {
+    if (this._isDestroyed || this._isDestroying) { return this; }
+
+    this._bindUIElements();
+    this._bindBehaviorUIElements();
+
+    return this;
+  },
+
+  // This method unbinds the elements specified in the "ui" hash
+  unbindUIElements() {
+    this._unbindUIElements();
+    this._unbindBehaviorUIElements();
+
+    return this;
+  },
+
+  getUI(name) {
+    return this._getUI(name);
+  },
+
+  // Cache `childViewEvents` and `childViewTriggers`
+  _buildEventProxies() {
+    this._childViewEvents = this.normalizeMethods(getValue(this, 'childViewEvents'));
+    this._childViewTriggers = getValue(this, 'childViewTriggers');
+    this._eventPrefix = this._getEventPrefix();
+  },
+
+  _getEventPrefix() {
+    const prefix = getValue(this, 'childViewEventPrefix', false);
+
+    return (prefix === false) ? prefix : prefix + ':';
+  },
+
+  _proxyChildViewEvents(view) {
+    if (this._childViewEvents || this._childViewTriggers || this._eventPrefix) {
+      this.listenTo(view, 'all', this._childViewEventHandler);
+    }
+  },
+
+  _childViewEventHandler(eventName, ...args) {
+    const childViewEvents = this._childViewEvents;
+
+    // call collectionView childViewEvent if defined
+    if (childViewEvents && childViewEvents[eventName]) {
+      childViewEvents[eventName].apply(this, args);
+    }
+
+    // use the parent view's proxyEvent handlers
+    const childViewTriggers = this._childViewTriggers;
+
+    // Call the event with the proxy name on the parent layout
+    if (childViewTriggers && childViewTriggers[eventName]) {
+      this.triggerMethod(childViewTriggers[eventName], ...args);
+    }
+
+    if (this._eventPrefix) {
+      this.triggerMethod(this._eventPrefix + eventName, ...args);
+    }
+  }
+};
+
+assignOwn(ViewMixin, BehaviorsMixin, CommonMixin, DelegateEntityEventsMixin, StateMixin, TemplateRenderMixin, UIMixin, ViewEventsMixin);
+
+// Static setter for the renderer
+function setRenderer$1(renderer) {
+  this.prototype._renderHtml = renderer;
+  return this;
+}
+
+// View
+// ----
+
+
+const classErrorName$3 = 'RegionError';
+
+function assertRegionName(name) {
+  if (typeof name === 'string' && name.length > 0) { return; }
+
+  throw new MarionetteError({
+    code: 'MN0032',
+    name: classErrorName$3,
+    message: 'A Region name must be a non-empty string.'
+  });
+}
+
+function setRegion(regions, definition, name) {
+  assertRegionName(name);
+
+  Object.defineProperty(regions, name, {
+    configurable: true,
+    enumerable: true,
+    value: definition,
+    writable: true
+  });
+  return regions;
+}
+
+function getOwnRegion(regions, name) {
+  assertRegionName(name);
+  return Object.getOwnPropertyDescriptor(regions, name)?.value;
+}
+
+function getRequiredRegion(region, name) {
+  if (region) { return region; }
+
+  throw new MarionetteError({
+    code: 'MN0020',
+    name: classErrorName$3,
+    message: `Region "${name}" does not exist.`
+  });
+}
+
+function getRegionForChild(view, name) {
+  assertRegionName(name);
+
+  if (!view._isRendered) {
+    view.render();
+  }
+  return getRequiredRegion(view.getRegion(name), name);
+}
+
+function throwRegionRegistrationConflict(message) {
+  throw new MarionetteError({
+    code: 'MN0030',
+    name: classErrorName$3,
+    message
+  });
+}
+
+function isSameRegionRegistration(view, region, name) {
+  return region._parentView === view && region._name === name &&
+    getOwnRegion(view._regions, name) === region;
+}
+
+function assertRegionCanRegister(view, region, name) {
+  if (isSameRegionRegistration(view, region, name)) { return; }
+
+  if (region._parentView !== undefined) {
+    throwRegionRegistrationConflict('A Region instance cannot be registered with more than one owner or name.');
+  }
+
+  if (region._isDestroying || region._isDestroyed) {
+    throwRegionRegistrationConflict('A destroying or destroyed Region cannot be registered.');
+  }
+
+  if (getOwnRegion(view._regions, name)) {
+    throwRegionRegistrationConflict(`Region name "${name}" is already registered.`);
+  }
+}
+
+function assertRegionDefinitionsCanRegister(view, definitions) {
+  const seenRegions = new Set();
+
+  eachOwn(definitions, (definition, name) => {
+    if (!(definition instanceof Region$1)) {
+      if (getOwnRegion(view._regions, name)) {
+        throwRegionRegistrationConflict(`Region name "${name}" is already registered.`);
+      }
+      return;
+    }
+
+    if (seenRegions.has(definition)) {
+      throwRegionRegistrationConflict('A Region instance cannot be registered under more than one name.');
+    }
+
+    seenRegions.add(definition);
+    assertRegionCanRegister(view, definition, name);
+  });
+}
+
+// MixinOptions
+// - regions
+// - regionClass
+
+const RegionsMixin = {
+  regionClass: Region$1,
+
+  // Internal method to initialize the regions that have been defined in a
+  // `regions` attribute on this View.
+  _initRegions() {
+
+    // init regions hash
+    this.regions = this.regions || {};
+    this._regions = Object.create(null);
+
+    this.addRegions(getValue(this, 'regions'));
+  },
+
+  // Internal method to re-initialize all of the regions by updating
+  // the `el` that they point to
+  _reInitRegions() {
+    eachOwn(this._regions, region => region.reset());
+  },
+
+  // Add a single region, by name, to the View
+  addRegion(name, definition) {
+    const regions = setRegion({}, definition, name);
+    return this.addRegions(regions)[name];
+  },
+
+  // Add multiple regions as a {name: definition, name2: def2} object literal
+  addRegions(regions) {
+    // If there's nothing to add, stop here.
+    if (regions == null || Object.keys(regions).length === 0) {
+      return;
+    }
+
+    eachOwn(regions, (_, name) => assertRegionName(name));
+
+    // Normalize region selectors hash to allow
+    // a user to use the @ui. syntax.
+    regions = this.normalizeUIValues(regions, 'el');
+
+    assertRegionDefinitionsCanRegister(this, regions);
+
+    // Add the regions definitions to the regions property
+    const allRegions = {};
+    eachOwn(this.regions, (definition, name) => setRegion(allRegions, definition, name));
+    eachOwn(regions, (definition, name) => setRegion(allRegions, definition, name));
+    this.regions = allRegions;
+
+    return this._addRegions(regions);
+  },
+
+  // internal method to build and add regions
+  _addRegions(regionDefinitions) {
+    const defaults = {
+      [runtimeId]: this[runtimeId],
+      regionClass: this.regionClass,
+      parentEl: () => getValue(this, 'el')
+    };
+
+    const regions = {};
+    try {
+      eachOwn(regionDefinitions, (definition, name) => {
+        const region = buildRegion(definition, defaults);
+        this._addRegion(region, name);
+        setRegion(regions, region, name);
+      });
+    } catch (error) {
+      eachOwn(regionDefinitions, (definition, name) => {
+        if (!getOwnRegion(this._regions, name)) {
+          delete this.regions[name];
+        }
+      });
+      throw error;
+    }
+    return regions;
+  },
+
+  _addRegion(region, name) {
+    // Repeating the completed identity is safe even during teardown: this path does not mutate.
+    if (isSameRegionRegistration(this, region, name)) { return; }
+
+    assertRegionCanRegister(this, region, name);
+
+    this.triggerMethod('before:add:region', this, name, region);
+
+    // A lifecycle hook may adopt the Region or occupy the name reentrantly.
+    if (isSameRegionRegistration(this, region, name)) { return; }
+
+    try {
+      assertRegionCanRegister(this, region, name);
+    } catch (error) {
+      if (!getOwnRegion(this._regions, name)) {
+        delete this.regions[name];
+      }
+      throw error;
+    }
+
+    region._parentView = this;
+    region._name = name;
+
+    this._regions[name] = region;
+
+    this.triggerMethod('add:region', this, name, region);
+  },
+
+  // Remove a single region from the View, by name
+  removeRegion(name) {
+    const region = getRequiredRegion(getOwnRegion(this._regions, name), name);
+
+    this._removeRegion(region, name);
+
+    return region;
+  },
+
+  // Remove all regions from the View
+  removeRegions() {
+    const regions = this._getRegions();
+    const cleanups = [];
+
+    eachOwn(regions, (region, name) => {
+      cleanups.push(() => this._removeRegion(region, name));
+    });
+    disposeAll(cleanups.reverse());
+
+    return regions;
+  },
+
+  _removeRegion(region, name) {
+    this.triggerMethod('before:remove:region', this, name, region);
+
+    region.destroy();
+
+    this.triggerMethod('remove:region', this, name, region);
+  },
+
+  // Called in a region's destroy
+  _removeReferences(name) {
+    delete this.regions[name];
+    delete this._regions[name];
+  },
+
+  // Empty all regions in the region manager, but
+  // leave them attached
+  emptyRegions() {
+    if (!this._isRendered) {
+      this.render();
+    }
+    const regions = this.getRegions();
+    eachOwn(regions, region => region.empty());
+    return regions;
+  },
+
+  // Checks to see if view contains region
+  // Accepts the region name
+  // hasRegion('main')
+  hasRegion(name) {
+    return !!getOwnRegion(this._regions, name);
+  },
+
+  // Provides access to regions
+  // Accepts the region name
+  // getRegion('main')
+  getRegion(name) {
+    return getOwnRegion(this._regions, name);
+  },
+
+  _getRegions() {
+    const regions = {};
+    eachOwn(this._regions, (region, name) => setRegion(regions, region, name));
+    return regions;
+  },
+
+  // Get all regions
+  getRegions() {
+    return this._getRegions();
+  },
+
+  showChildView(name, view, options) {
+    const region = getRegionForChild(this, name);
+    region.show(view, options);
+    return view;
+  },
+
+  detachChildView(name) {
+    return getRegionForChild(this, name).detachView();
+  },
+
+  getChildView(name) {
+    return getRegionForChild(this, name).currentView;
+  }
+
+};
+
+// View
+// ---------
+
+const ViewClassOptions = [
+  'attributes',
+  'behaviors',
+  'childViewEventPrefix',
+  'childViewEvents',
+  'childViewTriggers',
+  'className',
+  'collection',
+  'collectionEvents',
+  'el',
+  'events',
+  'id',
+  'model',
+  'modelEvents',
+  'regionClass',
+  'regions',
+  'stateEvents',
+  'tagName',
+  'template',
+  'templateContext',
+  'triggers',
+  'ui'
+];
+
+// Used by _getImmediateChildren
+function childReducer(children, region) {
+  if (region.currentView) {
+    children.push(region.currentView);
+  }
+
+  return children;
+}
+
+// The standard view. Includes view events, automatic rendering
+// templates, nested views, and more.
+const View$1 = function(options) {
+  this.cid = uniqueId(this.cidPrefix);
+  this._setOptions(options, ViewClassOptions);
+
+  this.preinitialize.apply(this, arguments);
+  this.mergeOptions(options, ViewOptions);
+
+  this._initViewEvents();
+
+  try {
+    this.setElement(this._getEl());
+
+    monitorViewEvents(this);
+
+    this._initState(options);
+
+    this._initBehaviors();
+    this._initRegions();
+    this._buildEventProxies();
+
+    this.initialize.apply(this, arguments);
+
+    if (this._isDestroyed || this._isDestroying) { return; }
+
+    this._initStateEvents();
+    this.delegateEntityEvents();
+
+    this._triggerEventOnBehaviors('initialize', this, options);
+  } catch (error) {
+    this._rollbackView(error);
+  }
+};
+
+assignOwn(View$1, { extend, setRenderer: setRenderer$1, setDomApi: setDomApi$1, setEventDelegator: setEventDelegator$1, setDataApi: setDataApi$1, setStateApi: setStateApi$1 });
+
+assignOwn(View$1.prototype, ViewMixin, RegionsMixin, {
+  cidPrefix: 'mnv',
+
+  setElement(element) {
+    if (this._isDestroying || this._isDestroyed) {
+      return this;
+    }
+
+    const el = this._validateEl(element);
+    const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
+
+    this.undelegateEvents();
+    this.el = el;
+    if (this.Dom.wrapEl) {
+      this.$el = wrappedEl;
+    } else {
+      delete this.$el;
+    }
+
+    this._isRendered = this.Dom.hasContents(this.el);
+    this._isAttached = this._isElAttached();
+
+    if (this._isRendered) {
+      this.bindUIElements();
+    }
+
+    this.delegateEvents();
+
+    return this;
+  },
+
+  // If a template is available, renders it into the view's `el`
+  // Re-inits regions and binds UI.
+  render() {
+    if (this._isDestroyed) { return this; }
+
+    const template = this.getTemplate();
+
+    if (template === false) { return this; }
+
+    this.triggerMethod('before:render', this);
+
+    // If this is not the first render call, then we need to
+    // re-initialize the `el` for each region
+    if (this._isRendered) {
+      this._reInitRegions();
+    }
+
+    this._renderTemplate(template);
+    this.bindUIElements();
+
+    this._isRendered = true;
+    this.triggerMethod('render', this);
+
+    return this;
+  },
+
+  // called by ViewMixin destroy
+  _removeChildren() {
+    this.removeRegions();
+  },
+
+  _getImmediateChildren() {
+    const children = [];
+    eachOwn(this._regions, region => childReducer(children, region));
+    return children;
+  }
+});
+
+const classErrorName$2 = 'CollectionViewError';
+
+function createIndex() {
+  return Object.create(null);
+}
+
+// Provide a container to store, retrieve and
+// shut down child views.
+const Container = function(dataApi = DataApi) {
+  this.Data = dataApi;
+  this._init();
+};
+
+function assertFunction(callback) {
+  if (typeof callback !== 'function') {
+    throw new MarionetteError({
+      code: 'MN0024',
+      name: classErrorName$2,
+      message: 'ChildViewContainer callback must be a function.'
+    });
+  }
+}
+
+function assertCount(count) {
+  if (!Number.isInteger(count) || count < 0) {
+    throw new MarionetteError({
+      code: 'MN0024',
+      name: classErrorName$2,
+      message: 'ChildViewContainer count must be a nonnegative integer.'
+    });
+  }
+
+  return count;
+}
+
+function stringComparator(Data, comparator, view) {
+  return view.model && Data.has(view.model, comparator) ?
+    Data.get(view.model, comparator) : undefined;
+}
+
+function compareCriteria(left, right) {
+  const leftCriteria = left.criteria;
+  const rightCriteria = right.criteria;
+
+  if (leftCriteria !== rightCriteria) {
+    if (leftCriteria > rightCriteria || leftCriteria === undefined) { return 1; }
+    if (leftCriteria < rightCriteria || rightCriteria === undefined) { return -1; }
+  }
+
+  return left.index - right.index;
+}
+
+function sortByCriteria(views, comparator, context) {
+  const decoratedViews = views.map((view, index) => ({
+    criteria: comparator.call(context, view),
+    index,
+    view
+  }));
+
+  decoratedViews.sort(compareCriteria);
+
+  return decoratedViews.map(({ view }) => view);
+}
+
+// Container Methods
+// -----------------
+
+Object.assign(Container.prototype, {
+
+  each(callback, context) {
+    assertFunction(callback);
+
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      callback.call(context, this._views[index], index);
+    }
+
+    return this;
+  },
+
+  map(callback, context) {
+    assertFunction(callback);
+
+    const length = this._views.length;
+    const results = Array(length);
+    for (let index = 0; index < length; index++) {
+      results[index] = callback.call(context, this._views[index], index);
+    }
+
+    return results;
+  },
+
+  reduce(callback, initialValue, context) {
+    assertFunction(callback);
+
+    const length = this._views.length;
+    const hasInitialValue = arguments.length > 1;
+    let index = 0;
+    let accumulator = initialValue;
+
+    if (!hasInitialValue) {
+      if (!length) {
+        throw new MarionetteError({
+          code: 'MN0024',
+          name: classErrorName$2,
+          message: 'Reduce of empty ChildViewContainer with no initial value.'
+        });
+      }
+
+      accumulator = this._views[index++];
+    }
+
+    for (; index < length; index++) {
+      accumulator = callback.call(context, accumulator, this._views[index], index);
+    }
+
+    return accumulator;
+  },
+
+  find(predicate, context) {
+    assertFunction(predicate);
+
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      const view = this._views[index];
+      if (predicate.call(context, view, index)) {
+        return view;
+      }
+    }
+  },
+
+  filter(predicate, context) {
+    assertFunction(predicate);
+
+    const results = [];
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      const view = this._views[index];
+      if (predicate.call(context, view, index)) {
+        results.push(view);
+      }
+    }
+
+    return results;
+  },
+
+  reject(predicate, context) {
+    assertFunction(predicate);
+
+    const results = [];
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      const view = this._views[index];
+      if (!predicate.call(context, view, index)) {
+        results.push(view);
+      }
+    }
+
+    return results;
+  },
+
+  every(predicate, context) {
+    assertFunction(predicate);
+
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      if (!predicate.call(context, this._views[index], index)) {
+        return false;
+      }
+    }
+
+    return true;
+  },
+
+  some(predicate, context) {
+    assertFunction(predicate);
+
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      if (predicate.call(context, this._views[index], index)) {
+        return true;
+      }
+    }
+
+    return false;
+  },
+
+  contains(view) {
+    return this._views.indexOf(view) !== -1;
+  },
+
+  invoke(methodName, ...args) {
+    if (typeof methodName !== 'string') {
+      throw new MarionetteError({
+        code: 'MN0024',
+        name: classErrorName$2,
+        message: 'ChildViewContainer method name must be a string.'
+      });
+    }
+
+    const length = this._views.length;
+    const results = Array(length);
+    for (let index = 0; index < length; index++) {
+      const view = this._views[index];
+      const method = view[methodName];
+      if (typeof method !== 'function') {
+        throw new MarionetteError({
+          code: 'MN0025',
+          name: classErrorName$2,
+          message: `Child view method "${ methodName }" must be callable.`
+        });
+      }
+
+      results[index] = method.apply(view, args);
+    }
+
+    return results;
+  },
+
+  toArray() {
+    return this._views.slice();
+  },
+
+  first(count) {
+    if (count === undefined) {
+      return this._views[0];
+    }
+
+    return this._views.slice(0, assertCount(count));
+  },
+
+  initial(count = 1) {
+    const end = Math.max(this._views.length - assertCount(count), 0);
+    return this._views.slice(0, end);
+  },
+
+  rest(count = 1) {
+    return this._views.slice(assertCount(count));
+  },
+
+  last(count) {
+    if (count === undefined) {
+      return this._views[this._views.length - 1];
+    }
+
+    const start = Math.max(this._views.length - assertCount(count), 0);
+    return this._views.slice(start);
+  },
+
+  without(...excludedViews) {
+    const results = [];
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      const view = this._views[index];
+      if (excludedViews.indexOf(view) === -1) {
+        results.push(view);
+      }
+    }
+
+    return results;
+  },
+
+  isEmpty() {
+    return this._views.length === 0;
+  },
+
+  pluck(key) {
+    const length = this._views.length;
+    const results = Array(length);
+    for (let index = 0; index < length; index++) {
+      results[index] = this._views[index][key];
+    }
+
+    return results;
+  },
+
+  partition(predicate, context) {
+    assertFunction(predicate);
+
+    const matching = [];
+    const rejected = [];
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      const view = this._views[index];
+      (predicate.call(context, view, index) ? matching : rejected).push(view);
+    }
+
+    return [matching, rejected];
+  },
+
+  // Initializes an empty container
+  _init() {
+    this._views = [];
+    this._viewsByCid = createIndex();
+    this._indexByModel = new Map();
+    this._keyByView = new Map();
+    this._updateLength();
+  },
+
+  // Add a view to this container. Stores the view
+  // by `cid` and makes it searchable by the model
+  // identity supplied by DataApi. Additionally it stores
+  // the view by index in the _views array
+  _add(view, index = this._views.length) {
+    this._addViewIndexes(view);
+
+    // add to end by default
+    if (index === this._views.length) {
+      this._views.push(view);
+    } else {
+      this._views.splice(index, 0, view);
+    }
+
+    this._updateLength();
+  },
+
+  _addViewIndexes(view) {
+    // store the view
+    this._viewsByCid[view.cid] = view;
+
+    // index it by model
+    if (view.model) {
+      const key = this.Data.key(view.model);
+      this._indexByModel.set(key, view);
+      this._keyByView.set(view, key);
+    }
+  },
+
+  // Sort (mutate) and return the array of the child views.
+  _sort(comparator, context) {
+    if (typeof comparator === 'string') {
+      return this._sortBy(view => stringComparator(this.Data, comparator, view));
+    }
+
+    if (comparator.length === 1) {
+      return this._sortBy(comparator, context);
+    }
+
+    return this._views.sort(comparator.bind(context));
+  },
+
+  // Makes `sortBy` mutate the array to match `this._views.sort`
+  _sortBy(comparator, context) {
+    const sortedViews = sortByCriteria(this._views, comparator, context);
+
+    this._set(sortedViews);
+
+    return sortedViews;
+  },
+
+  // Replace array contents without overwriting the reference.
+  // Should not add/remove views
+  _set(views, shouldReset) {
+    if (views !== this._views) {
+      this._views.length = 0;
+      this._views.push.apply(this._views, views);
+    }
+
+    if (shouldReset) {
+      this._viewsByCid = createIndex();
+      this._indexByModel = new Map();
+      this._keyByView = new Map();
+
+      for (const view of views) {
+        this._addViewIndexes(view);
+      }
+
+      this._updateLength();
+    }
+  },
+
+  // Swap views by index
+  _swap(view1, view2) {
+    const view1Index = this.findIndexByView(view1);
+    const view2Index = this.findIndexByView(view2);
+
+    if (view1Index === -1 || view2Index === -1) {
+      return;
+    }
+
+    const swapView = this._views[view1Index];
+    this._views[view1Index] = this._views[view2Index];
+    this._views[view2Index] = swapView;
+  },
+
+  // Find a view by the model that was attached to it.
+  findByModel(model) {
+    return this._indexByModel.get(this.Data.key(model));
+  },
+
+  findByKey(key) {
+    return this._indexByModel.get(key);
+  },
+
+  // Find a view by index.
+  findByIndex(index) {
+    return this._views[index];
+  },
+
+  // Find the index of a view instance
+  findIndexByView(view) {
+    return this._views.indexOf(view);
+  },
+
+  // Retrieve a view by its `cid` directly
+  findByCid(cid) {
+    return this._viewsByCid[cid];
+  },
+
+  hasView(view) {
+    return this.findByCid(view.cid) === view;
+  },
+
+  // Remove a view and clean up index references.
+  _remove(view) {
+    if (!this.hasView(view)) {
+      return;
+    }
+
+    // delete model index
+    if (view.model) {
+      const modelKey = this._keyByView.get(view);
+      if (this._indexByModel.get(modelKey) === view) {
+        this._indexByModel.delete(modelKey);
+      }
+      this._keyByView.delete(view);
+    }
+
+    // remove the view from the container
+    delete this._viewsByCid[view.cid];
+
+    const index = this.findIndexByView(view);
+    this._views.splice(index, 1);
+
+    this._updateLength();
+  },
+
+  // Update the `.length` attribute on this container
+  _updateLength() {
+    this.length = this._views.length;
+  }
+});
+
+Container.prototype[Symbol.iterator] = function() {
+  return this._views[Symbol.iterator]();
+};
+
+// Collection View
+// ---------------
+
+
+const classErrorName$1 = 'CollectionViewError';
+
+function throwCollectionProtocolError(message) {
+  throw new MarionetteError({
+    code: 'MN0039',
+    name: classErrorName$1,
+    message,
+    url: 'data.api.html#collection-observations'
+  });
+}
+
+function buildCollectionSnapshot(Data, collection, previous) {
+  const models = Data.models(collection);
+  if (!Array.isArray(models)) {
+    throwCollectionProtocolError('DataApi.models() must return an ordered model snapshot.');
+  }
+
+  const previousKeys = new Map(previous.map(entry => [entry.model, entry.key]));
+  const keys = new Map();
+  const modelEntries = new Map();
+  const snapshot = Array(models.length);
+
+  for (let index = 0; index < models.length; index++) {
+    const model = models[index];
+    const key = Data.key(model);
+
+    if (key == null) {
+      throwCollectionProtocolError(`DataApi.key() returned a missing key for model at index ${ index }.`);
+    }
+    if (keys.has(key)) {
+      throwCollectionProtocolError(`DataApi.key() returned duplicate key "${ String(key) }".`);
+    }
+    if (previousKeys.has(model) && !Object.is(previousKeys.get(model), key)) {
+      throwCollectionProtocolError('DataApi.key() changed while a model remained in the CollectionView.');
+    }
+
+    const entry = { model, key };
+    snapshot[index] = entry;
+    keys.set(key, entry);
+    modelEntries.set(model, entry);
+  }
+
+  return { entries: snapshot, models: modelEntries, keys };
+}
+
+function sameModels(actual, expected) {
+  if (actual.length !== expected.length) { return false; }
+  const remaining = new Set(expected);
+
+  for (const model of actual) {
+    if (!remaining.delete(model)) { return false; }
+  }
+
+  return true;
+}
+
+function normalizeCollectionChange(change, previous, current) {
+  if (!change || typeof change !== 'object') {
+    throwCollectionProtocolError('DataApi.observeCollection() must notify with a structural change record.');
+  }
+  if (change.kind === 'reset') { return { kind: 'reset' }; }
+  if (change.kind !== 'reorder' && change.kind !== 'update') {
+    throwCollectionProtocolError(`Unknown collection change kind "${ String(change.kind) }".`);
+  }
+
+  const added = current.entries.filter(entry => !previous.keys.has(entry.key));
+  const removed = previous.entries.filter(entry => !current.keys.has(entry.key));
+  const replacements = current.entries
+    .filter(entry => previous.keys.has(entry.key) && previous.keys.get(entry.key).model !== entry.model)
+    .map(entry => ({
+      key: entry.key,
+      previous: previous.keys.get(entry.key).model,
+      current: entry.model
+    }));
+
+  if (change.kind === 'reorder') {
+    if (added.length || removed.length || replacements.length) {
+      throwCollectionProtocolError('A reorder record cannot add, remove, or replace models.');
+    }
+    return { kind: 'reorder' };
+  }
+
+  if (!Array.isArray(change.added) || !Array.isArray(change.removed) ||
+      !Array.isArray(change.updated)) {
+    throwCollectionProtocolError('An update record requires added, removed, and updated arrays.');
+  }
+  if (!sameModels(change.added, added.map(entry => entry.model)) ||
+      !sameModels(change.removed, removed.map(entry => entry.model))) {
+    throwCollectionProtocolError('An update record must match the source snapshot additions and removals.');
+  }
+
+  const updated = [];
+  const updatedKeys = new Set();
+  for (const pair of change.updated) {
+    if (!pair || typeof pair !== 'object' ||
+        !Object.hasOwn(pair, 'previous') || !Object.hasOwn(pair, 'current')) {
+      throwCollectionProtocolError('Each updated entry must contain previous and current models.');
+    }
+
+    const previousEntry = previous.models.get(pair.previous);
+    const currentEntry = current.models.get(pair.current);
+    if (!previousEntry || !currentEntry || !Object.is(previousEntry.key, currentEntry.key)) {
+      throwCollectionProtocolError('Each updated entry must preserve one existing stable key.');
+    }
+    if (updatedKeys.has(currentEntry.key)) {
+      throwCollectionProtocolError('An update record cannot update the same key more than once.');
+    }
+
+    updatedKeys.add(currentEntry.key);
+    updated.push({ key: currentEntry.key, previous: pair.previous, current: pair.current });
+  }
+
+  for (const replacement of replacements) {
+    if (!updatedKeys.has(replacement.key)) {
+      throwCollectionProtocolError('A same-key replacement must appear in the updated array.');
+    }
+  }
+
+  return { kind: 'update', added, removed, updated };
+}
+
+function isEmptyViewClass(view) {
+  if (typeof view !== 'function' || !view.prototype) { return false; }
+
+  const { render, destroy } = view.prototype;
+
+  return typeof render === 'function' &&
+    (destroy ? typeof destroy === 'function' : typeof view.prototype.remove === 'function');
+}
+
+function modelAttributesMatcher(Data, predicate) {
+  const keys = Object.keys(predicate);
+  const length = keys.length;
+  const values = Array(length);
+  for (let index = 0; index < length; index++) {
+    values[index] = predicate[keys[index]];
+  }
+
+  return function(view) {
+    const model = view.model;
+    if (model == null) { return length === 0; }
+
+    for (let index = 0; index < length; index++) {
+      const key = keys[index];
+      if (!Data.has(model, key) || values[index] !== Data.get(model, key)) { return false; }
+    }
+    return true;
+  };
+}
+
+function isClassDefinition(view) {
+  return /^class(?:\s|\/[/*])/.test(Function.prototype.toString.call(view));
+}
+
+const ClassOptions$2 = [
+  'attributes',
+  'behaviors',
+  'childView',
+  'childViewContainer',
+  'childViewEventPrefix',
+  'childViewEvents',
+  'childViewOptions',
+  'childViewTriggers',
+  'className',
+  'collection',
+  'collectionEvents',
+  'el',
+  'emptyView',
+  'emptyViewOptions',
+  'events',
+  'id',
+  'model',
+  'modelEvents',
+  'stateEvents',
+  'sortWithCollection',
+  'tagName',
+  'template',
+  'templateContext',
+  'triggers',
+  'ui',
+  'viewComparator',
+  'viewFilter'
+];
+
+// A view that iterates over a collection
+// and renders an individual child view for each model.
+const CollectionView$1 = function(options) {
+  this.cid = uniqueId(this.cidPrefix);
+  this._setOptions(options, ClassOptions$2);
+
+  this.preinitialize.apply(this, arguments);
+  this.mergeOptions(options, ViewOptions);
+
+  this._initViewEvents();
+
+  try {
+    this.setElement(this._getEl());
+
+    monitorViewEvents(this);
+
+    this._initState(options);
+
+    this._initChildViewStorage();
+    this._initBehaviors();
+    this._buildEventProxies();
+
+    this.initialize.apply(this, arguments);
+
+    if (this._isDestroyed || this._isDestroying) { return; }
+
+    this._initStateEvents();
+
+    // Init empty region after initialize to preserve the v4 override boundary.
+    this.getEmptyRegion();
+
+    this.delegateEntityEvents();
+
+    this._triggerEventOnBehaviors('initialize', this, options);
+  } catch (error) {
+    this._rollbackView(error);
+  }
+};
+
+assignOwn(CollectionView$1, {
+  extend,
+  setRenderer: setRenderer$1,
+  setDomApi: setDomApi$1,
+  setEventDelegator: setEventDelegator$1,
+  setDataApi: setDataApi$1,
+  setStateApi: setStateApi$1
+});
+
+assignOwn(CollectionView$1.prototype, ViewMixin, {
+  cidPrefix: 'mncv',
+
+  // flag for maintaining the sorted order of the collection
+  sortWithCollection: true,
+
+  // Internal method to set up the `children` object for storing all of the child views
+  // `_children` represents all child views
+  // `children` represents only views filtered to be shown
+  _initChildViewStorage() {
+    this._children = new Container(this.Data);
+    this.children = new Container(this.Data);
+  },
+
+  // Create a region to show the emptyView
+  getEmptyRegion() {
+    if (this._isDestroyed && this._emptyRegion) { return this._emptyRegion; }
+
+    const emptyEl = this.container || this.el;
+
+    if (this._emptyRegion && !this._emptyRegion.isDestroyed()) {
+      this._emptyRegion._setElement(emptyEl);
+      return this._emptyRegion;
+    }
+
+    const RegionClass = this.RegionClass || Region$1;
+    this._emptyRegion = new RegionClass({ el: emptyEl, replaceElement: false });
+
+    this._emptyRegion._parentView = this;
+
+    return this._emptyRegion;
+  },
+
+  // Configured the initial events that the collection view binds to.
+  _initialEvents() {
+    if (this._isRendered || this._dataObserverCleanup) { return; }
+
+    this._dataObserverCleanup = normalizeCleanup(
+      this.Data.observeCollection(this.collection, this._onCollectionChange, this),
+      'DataApi.observeCollection'
+    );
+  },
+
+  _onCollectionChange(change) {
+    if (this._isDestroying || this._isDestroyed) { return; }
+
+    const previous = this._collectionObservedSnapshot || this._collectionSnapshot;
+    const current = buildCollectionSnapshot(this.Data, this.collection, previous.entries);
+    const normalized = this._collectionNeedsReset ? { kind: 'reset' } :
+      normalizeCollectionChange(change, previous, current);
+    const notification = { change: normalized, snapshot: current };
+
+    // Nested notifications normalize against the latest observed source while
+    // the committed snapshot advances only after reconciliation succeeds.
+    this._collectionObservedSnapshot = current;
+    if (this._collectionChangeQueue) {
+      this._collectionChangeQueue.push(notification);
+      return;
+    }
+
+    const queue = this._collectionChangeQueue = [];
+    let pending = notification;
+
+    try {
+      while (pending) {
+        const { change: pendingChange, snapshot } = pending;
+        if (pendingChange.kind === 'reorder') {
+          this._onCollectionReorder(snapshot);
+        } else if (pendingChange.kind === 'reset') {
+          this._onCollectionReset(snapshot);
+        } else {
+          this._onCollectionUpdate(pendingChange, snapshot);
+        }
+        this._collectionSnapshot = snapshot;
+        pending = queue.shift();
+      }
+      delete this._collectionNeedsReset;
+    } catch (error) {
+      this._collectionNeedsReset = true;
+      throw error;
+    } finally {
+      delete this._collectionChangeQueue;
+      delete this._collectionObservedSnapshot;
+    }
+  },
+
+  // Internal method. This checks for any changes in the order of the collection.
+  // If the index of any view doesn't match, it will re-sort.
+  _onCollectionReorder(snapshot) {
+    if (this._isDestroying || this._isDestroyed) { return; }
+
+    if (!this.sortWithCollection) {
+      return;
+    }
+
+    this._setChildrenFromSnapshot(snapshot);
+    this._reconcileChildren([]);
+  },
+
+  _onCollectionReset(snapshot) {
+    if (this._isDestroying || this._isDestroyed) { return; }
+
+    this._destroyChildren();
+
+    this._addChildModels(snapshot.entries.map(entry => entry.model));
+
+    this.sort();
+  },
+
+  // Handle collection update model additions and  removals
+  _onCollectionUpdate(changes, snapshot) {
+    if (this._isDestroying || this._isDestroyed) { return; }
+
+    const updateEntries = changes.updated.map(({ key, previous, current }) => {
+      const view = this._children.findByKey(key);
+      if (!view) {
+        throwCollectionProtocolError(`No child View exists for updated key "${ String(key) }".`);
+      }
+      return { current, previous, view };
+    });
+    const replacementViews = [];
+
+    try {
+      for (const { current, previous } of updateEntries) {
+        if (previous !== current) {
+          replacementViews.push(this._createChildView(current));
+        }
+      }
+    } catch (error) {
+      disposeAll(
+        replacementViews.map(view => () => this._destroyChildView(view)),
+        error
+      );
+    }
+
+    const stagedViews = new Set(replacementViews);
+    const removedViews = [];
+    const addedViews = [];
+    const replacedViews = [];
+    const insertedViews = [];
+    const updatedViews = [];
+    let replacementIndex = 0;
+
+    try {
+      // Remove first since it'll be a shorter array lookup.
+      for (const { key } of changes.removed) {
+        const view = this._children.findByKey(key);
+        if (!view) { continue; }
+        try {
+          this._removeChild(view);
+        } finally {
+          if (!this._children.hasView(view)) { removedViews.push(view); }
+        }
+      }
+
+      for (const { model } of changes.added) {
+        const view = this._createChildView(model);
+        stagedViews.add(view);
+        this._addChild(view);
+        stagedViews.delete(view);
+        addedViews.push(view);
+        insertedViews.push(view);
+      }
+
+      for (const { current, previous, view } of updateEntries) {
+        if (previous !== current) {
+          const childIndex = this._children.findIndexByView(view);
+          try {
+            this._removeChild(view);
+          } finally {
+            if (!this._children.hasView(view)) { removedViews.push(view); }
+          }
+          const replacementView = replacementViews[replacementIndex++];
+          this._addChild(replacementView, childIndex);
+          stagedViews.delete(replacementView);
+          replacedViews.push(replacementView);
+          insertedViews.push(replacementView);
+        } else {
+          updatedViews.push(view);
+        }
+      }
+
+      this._detachChildren(removedViews);
+      if (this.sortWithCollection) {
+        this._setChildrenFromSnapshot(snapshot);
+      }
+      this._reconcileChildren(
+        [...addedViews, ...replacedViews, ...updatedViews],
+        updatedViews.length || replacedViews.length || !addedViews.length ? false : addedViews
+      );
+    } catch (error) {
+      disposeAll([
+        () => this._removeChildViews(removedViews),
+        ...[...insertedViews, ...stagedViews]
+          .map(view => () => this._rollbackChildView(view))
+      ], error);
+    }
+
+    // Destroy removed child views after all of the render is complete
+    this._removeChildViews(removedViews);
+  },
+
+  _setChildrenFromSnapshot(snapshot) {
+    const sourceViews = snapshot.entries
+      .map(({ key }) => this._children.findByKey(key))
+      .filter(Boolean);
+    const sourceViewSet = new Set(sourceViews);
+    const manualViews = this._children._views.filter(view => !sourceViewSet.has(view));
+    const views = sourceViews.concat(manualViews);
+    this._children._set(views, true);
+  },
+
+  _reconcileChildren(renderViews, addedViews = false) {
+    const canReconcile = this.sort === CollectionView$1.prototype.sort &&
+      this.filter === CollectionView$1.prototype.filter &&
+      this.getComparator === CollectionView$1.prototype.getComparator &&
+      this.getFilter === CollectionView$1.prototype.getFilter &&
+      !this.viewComparator &&
+      !this.viewFilter;
+
+    if (!canReconcile) {
+      for (const view of renderViews) { view._isRendered = false; }
+      this._addedViews = addedViews;
+      this._reconcileFallback = true;
+      this.sort();
+      if (this._reconcileFallback) {
+        delete this._reconcileFallback;
+        this._renderChildren();
+      }
+      return;
+    }
+
+    this._reconcileRenderViews = renderViews;
+    this.sort();
+  },
+
+  _renderReconciledChildren(renderViews) {
+    const renderViewSet = new Set(renderViews);
+    if (this._hasUnrenderedViews) {
+      for (const view of this.children) {
+        if (!view._isRendered && !renderViewSet.has(view)) {
+          renderViews.push(view);
+          renderViewSet.add(view);
+        }
+      }
+      delete this._hasUnrenderedViews;
+    }
+    renderViews = renderViews.filter(view => this.children.hasView(view));
+    this.triggerMethod('before:render:children', this, renderViews);
+    if (this.isEmpty()) {
+      this._showEmptyView();
+    } else {
+      this._destroyEmptyView();
+
+      const views = this.children._views;
+      const documentEl = this.container.ownerDocument;
+      const activeElement = documentEl.activeElement;
+      const shouldRestoreFocus = activeElement && views.some(view =>
+        view.el === activeElement || view.el.contains(activeElement)
+      );
+      const selection = shouldRestoreFocus &&
+        typeof activeElement.selectionStart === 'number' && {
+        end: activeElement.selectionEnd,
+        start: activeElement.selectionStart,
+        direction: activeElement.selectionDirection
+      };
+
+      for (const view of renderViews) {
+        view._isRendered = false;
+        renderView(view);
+      }
+
+      const attaching = views.filter(view => view.el.parentNode !== this.container);
+      if (attaching.length) {
+        this._attachChildren(this._getBuffer(attaching), attaching);
+      }
+
+      if (attaching.every(view => view.el.parentNode === this.container)) {
+        const attachingSet = new Set(attaching);
+        let before = null;
+        for (let index = views.length; index--;) {
+          const view = views[index];
+          if (!attachingSet.has(view) && view.el.nextSibling !== before) {
+            this.Dom.moveEl(view.el, this.container, before);
+          }
+          view._isShown = true;
+          before = view.el;
+        }
+      }
+
+      if (shouldRestoreFocus && activeElement.isConnected &&
+          documentEl.activeElement !== activeElement) {
+        activeElement.focus({ preventScroll: true });
+        if (selection) {
+          activeElement.setSelectionRange(selection.start, selection.end, selection.direction);
+        }
+      }
+    }
+
+    this.triggerMethod('render:children', this, renderViews);
+  },
+
+  _removeChild(view) {
+    this.triggerMethod('before:remove:child', this, view);
+
+    this.children._remove(view);
+    this._children._remove(view);
+
+    this.triggerMethod('remove:child', this, view);
+  },
+
+  _addChildModels(models) {
+    const length = models.length;
+    const views = Array(length);
+    for (let index = 0; index < length; index++) {
+      views[index] = this._addChildModel(models[index]);
+    }
+    return views;
+  },
+
+  _addChildModel(model) {
+    const view = this._createChildView(model);
+
+    this._addChild(view);
+
+    return view;
+  },
+
+  _createChildView(model) {
+    const ChildView = this._getChildView(model);
+    const childViewOptions = this._getChildViewOptions(model);
+    const view = this.buildChildView(model, ChildView, childViewOptions);
+
+    return view;
+  },
+
+  _addChild(view, index) {
+    this.triggerMethod('before:add:child', this, view);
+
+    this._setupChildView(view);
+    this._children._add(view, index);
+    this.children._add(view, index);
+
+    this.triggerMethod('add:child', this, view);
+  },
+
+  // Retrieve the `childView` class
+  // The `childView` property can be either a view class or a function that
+  // returns a view class. If it is a function, it will receive the model that
+  // will be passed to the view instance (created from the returned view class)
+  _getChildView(child) {
+    let childView = this.childView;
+
+    if (!childView) {
+      throw new MarionetteError({
+        code: 'MN0011',
+        name: classErrorName$1,
+        message: 'A "childView" must be specified',
+        url: 'marionette.collectionview.html#collectionviews-childview'
+      });
+    }
+
+    childView = this._getView(childView, child);
+
+    if (!childView) {
+      throw new MarionetteError({
+        code: 'MN0012',
+        name: classErrorName$1,
+        message: '"childView" must be a view class or a function that returns a view class',
+        url: 'marionette.collectionview.html#collectionviews-childview'
+      });
+    }
+
+    return childView;
+  },
+
+  // First check if the `view` is a view class (the common case)
+  // Then check if it's a function (which we assume that returns a view class)
+  _getView(view, child) {
+    if (isViewClass(view)) {
+      return view;
+    } else if (typeof view === 'function') {
+      return view.call(this, child);
+    }
+  },
+
+  _getChildViewOptions(child) {
+    if (typeof this.childViewOptions === 'function') {
+      return this.childViewOptions(child);
+    }
+
+    return this.childViewOptions;
+  },
+
+  // Build a `childView` for a model in the collection.
+  // Override to customize the build
+  buildChildView(child, ChildViewClass, childViewOptions) {
+    const options = childViewOptions == null ?
+      { model: child } : assignOwn({ model: child }, childViewOptions);
+    return new ChildViewClass(options);
+  },
+
+  _setupChildView(view) {
+    monitorViewEvents(view);
+
+    // We need to listen for if a view is destroyed in a way other
+    // than through the CollectionView.
+    // If this happens we need to remove the reference to the view
+    // since once a view has been destroyed we can not reuse it.
+    view.on('destroy', this.removeChildView, this);
+
+    // set up the child view event forwarding
+    this._proxyChildViewEvents(view);
+  },
+
+  // used by ViewMixin's `_childViewEventHandler`
+  _getImmediateChildren() {
+    return this.children._views;
+  },
+
+  // Handle a previously defined element, which may already be attached.
+  setElement(element) {
+    if (this._isDestroying || this._isDestroyed) {
+      return this;
+    }
+
+    const el = this._validateEl(element);
+    const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
+
+    this.undelegateEvents();
+    this.el = el;
+    if (this.Dom.wrapEl) {
+      this.$el = wrappedEl;
+    } else {
+      delete this.$el;
+    }
+
+    this._isAttached = this._isElAttached();
+
+    this.delegateEvents();
+
+    return this;
+  },
+
+  // Render children views.
+  render() {
+    if (this._isDestroyed) { return this; }
+    this.triggerMethod('before:render', this);
+
+    this._destroyChildren();
+
+    if (this.collection) {
+      this._collectionSnapshot = buildCollectionSnapshot(this.Data, this.collection, []);
+      this._addChildModels(this._collectionSnapshot.entries.map(entry => entry.model));
+      this._initialEvents();
+    }
+
+    const template = this.getTemplate();
+
+    if (template) {
+      this._renderTemplate(template);
+      this.bindUIElements();
+    }
+    this._getChildViewContainer();
+    this.sort();
+
+    this._isRendered = true;
+
+    this.triggerMethod('render', this);
+    return this;
+  },
+
+  // Get a container within the template to add the children within
+  _getChildViewContainer() {
+    const childViewContainer = getValue(this, 'childViewContainer');
+    this.container = childViewContainer ? this.$(childViewContainer)[0] : this.el;
+
+    if (!this.container) {
+      throw new MarionetteError({
+        code: 'MN0013',
+        name: classErrorName$1,
+        message: `The specified "childViewContainer" was not found: ${childViewContainer}`,
+        url: 'marionette.collectionview.html#defining-the-childviewcontainer'
+      });
+    }
+  },
+
+  // Sorts the children then filters and renders the results.
+  sort() {
+    this._sortChildren();
+
+    this.filter();
+
+    return this;
+  },
+
+  // Sorts views by viewComparator and sets the children to the new order
+  _sortChildren() {
+    if (!this._children.length) { return; }
+
+    let viewComparator = this.getComparator();
+
+    if (!viewComparator) { return; }
+
+    // If children are sorted prevent added to end perf
+    delete this._addedViews;
+
+    this.triggerMethod('before:sort', this);
+
+    this._children._sort(viewComparator, this);
+
+    this.triggerMethod('sort', this);
+  },
+
+  // Sets the view's `viewComparator` and applies the sort if the view is ready.
+  // To prevent the render pass `{ preventRender: true }` as the 2nd argument.
+  setComparator(comparator, { preventRender } = {}) {
+    const comparatorChanged = this.viewComparator !== comparator;
+    const shouldSort = comparatorChanged && !preventRender;
+
+    this.viewComparator = comparator;
+
+    if (shouldSort) {
+      this.sort();
+    }
+
+    return this;
+  },
+
+  // Clears the `viewComparator` and follows the same rules for rendering as `setComparator`.
+  removeComparator(options) {
+    return this.setComparator(null, options);
+  },
+
+  // If viewComparator is overridden it will be returned here.
+  // Additionally override this function to provide custom
+  // viewComparator logic
+  getComparator() {
+    if (this.viewComparator) { return this.viewComparator; }
+
+    if (!this.sortWithCollection || this.viewComparator === false || !this.collection) {
+      return false;
+    }
+
+    return this._viewComparator;
+  },
+
+  // Default internal view comparator that order the views by
+  // the order of the collection
+  _viewComparator(view) {
+    return this.Data.models(this.collection).indexOf(view.model);
+  },
+
+  // This method filters the children views and renders the results
+  filter() {
+    if (this._isDestroyed) { return this; }
+
+    this._filterChildren();
+
+    this._renderChildren();
+
+    return this;
+  },
+
+  _filterChildren() {
+    if (!this._children.length) { return; }
+
+    const viewFilter = this._getFilter();
+
+    if (!viewFilter) {
+      const shouldReset = this.children.length !== this._children.length;
+
+      this.children._set(this._children._views, shouldReset);
+
+      return;
+    }
+
+    // If children are filtered prevent added to end perf
+    delete this._addedViews;
+
+    this.triggerMethod('before:filter', this);
+
+    const attachViews = [];
+    const detachViews = [];
+
+    const children = this._children._views;
+    const length = children.length;
+    for (let index = 0; index < length; index++) {
+      const view = children[index];
+      (viewFilter.call(this, view, index, children) ? attachViews : detachViews).push(view);
+    }
+
+    this._detachChildren(detachViews);
+
+    // reset children
+    this.children._set(attachViews, true);
+
+    this.triggerMethod('filter', this, attachViews, detachViews);
+  },
+
+  // This method returns a function for the viewFilter
+  _getFilter() {
+    const viewFilter = this.getFilter();
+
+    if (!viewFilter) { return false; }
+
+    if (typeof viewFilter === 'function') {
+      return viewFilter;
+    }
+
+    // Support filter predicates `{ fooFlag: true }`
+    if (typeof viewFilter === 'object' && !Array.isArray(viewFilter)) {
+      return modelAttributesMatcher(this.Data, viewFilter);
+    }
+
+    // Filter by model attribute
+    if (isString(viewFilter)) {
+      return view => view.model && this.Data.has(view.model, viewFilter) &&
+        this.Data.get(view.model, viewFilter);
+    }
+
+    throw new MarionetteError({
+      code: 'MN0014',
+      name: classErrorName$1,
+      message: '"viewFilter" must be a function, predicate object literal, a string indicating a model attribute, or falsy',
+      url: 'marionette.collectionview.html#defining-the-viewfilter'
+    });
+  },
+
+  // Override this function to provide custom
+  // viewFilter logic
+  getFilter() {
+    return this.viewFilter;
+  },
+
+  // Sets the view's `viewFilter` and applies the filter if the view is ready.
+  // To prevent the render pass `{ preventRender: true }` as the 2nd argument.
+  setFilter(filter, { preventRender } = {}) {
+    const filterChanged = this.viewFilter !== filter;
+    const shouldRender = filterChanged && !preventRender;
+
+    this.viewFilter = filter;
+
+    if (shouldRender) {
+      this.filter();
+    }
+
+    return this;
+  },
+
+  // Clears the `viewFilter` and follows the same rules for rendering as `setFilter`.
+  removeFilter(options) {
+    return this.setFilter(null, options);
+  },
+
+  _detachChildren(detachingViews) {
+    const length = detachingViews.length;
+    for (let index = 0; index < length; index++) {
+      this._detachChildView(detachingViews[index]);
+    }
+  },
+
+  _detachChildView(view) {
+    const shouldTriggerDetach = view._isAttached && this.monitorViewEvents !== false;
+    if (shouldTriggerDetach) {
+      view.triggerMethod('before:detach', view);
+    }
+
+    this.detachHtml(view);
+
+    if (shouldTriggerDetach) {
+      view._isAttached = false;
+      view.triggerMethod('detach', view);
+    }
+
+    view._isShown = false;
+  },
+
+  // Override this method to change how the collectionView detaches a child view
+  detachHtml(view) {
+    this.Dom.detachEl(view.el);
+  },
+
+  _renderChildren() {
+    delete this._reconcileFallback;
+
+    if (this._reconcileRenderViews) {
+      const renderViews = this._reconcileRenderViews;
+      delete this._reconcileRenderViews;
+      this._renderReconciledChildren(renderViews);
+      return;
+    }
+
+    // If there are unrendered views prevent add to end perf
+    if (this._hasUnrenderedViews) {
+      delete this._addedViews;
+      delete this._hasUnrenderedViews;
+    }
+
+    const views = this._addedViews || this.children._views;
+
+    this.triggerMethod('before:render:children', this, views);
+
+    if (this.isEmpty()) {
+      this._showEmptyView();
+    } else {
+      this._destroyEmptyView();
+
+      const els = this._getBuffer(views);
+
+      this._attachChildren(els, views);
+    }
+
+    delete this._addedViews;
+
+    this.triggerMethod('render:children', this, views);
+  },
+
+  // Renders each view and creates a fragment buffer from them
+  _getBuffer(views) {
+    const elBuffer = this.Dom.createBuffer();
+
+    const length = views.length;
+    for (let index = 0; index < length; index++) {
+      const view = views[index];
+      renderView(view);
+      // corresponds that view is shown in a Region or CollectionView
+      view._isShown = true;
+      this.Dom.appendContents(elBuffer, view.el);
+    }
+
+    return elBuffer;
+  },
+
+  _attachChildren(els, views) {
+    const shouldTriggerAttach = this._isAttached && this.monitorViewEvents !== false;
+
+    views = shouldTriggerAttach ? views : [];
+
+    const beforeAttachLength = views.length;
+    for (let index = 0; index < beforeAttachLength; index++) {
+      const view = views[index];
+      if (view._isAttached) { continue; }
+      view.triggerMethod('before:attach', view);
+    }
+
+    this.attachHtml(els, this.container);
+
+    const attachLength = views.length;
+    for (let index = 0; index < attachLength; index++) {
+      const view = views[index];
+      if (view._isAttached) { continue; }
+      view._isAttached = true;
+      view.triggerMethod('attach', view);
+    }
+  },
+
+  // Override this method to do something other than `.append`.
+  // You can attach any HTML at this point including the els.
+  attachHtml(els, container) {
+    this.Dom.appendContents(container, els);
+  },
+
+  isEmpty() {
+    return !this.children.length;
+  },
+
+  _showEmptyView() {
+    const EmptyView = this._getEmptyView();
+
+    if (!EmptyView) {
+      return;
+    }
+
+    const options = this._getEmptyViewOptions();
+
+    const emptyRegion = this.getEmptyRegion();
+
+    emptyRegion.show(new EmptyView(options));
+  },
+
+  // Retrieve the empty view class
+  _getEmptyView() {
+    const emptyView = this.emptyView;
+
+    if (emptyView == null || emptyView === false) { return; }
+
+    if (isEmptyViewClass(emptyView)) { return emptyView; }
+
+    const isResolver = typeof emptyView === 'function' && !isClassDefinition(emptyView);
+    const EmptyView = isResolver ? emptyView.call(this) : undefined;
+
+    if (isResolver && (EmptyView == null || EmptyView === false)) { return; }
+
+    if (isEmptyViewClass(EmptyView)) { return EmptyView; }
+
+    throw new MarionetteError({
+      code: 'MN0022',
+      name: classErrorName$1,
+      message: '"emptyView" must be a view class or a function that returns a view class',
+      url: 'marionette.collectionview.html#collectionviews-emptyview'
+    });
+  },
+
+  // Remove the emptyView
+  _destroyEmptyView() {
+    const emptyRegion = this.getEmptyRegion();
+    // Only empty if a view is show so the region
+    // doesn't detach any other unrelated HTML
+    if (emptyRegion.hasView()) {
+      emptyRegion.empty();
+    }
+  },
+
+  _getEmptyViewOptions() {
+    const emptyViewOptions = this.emptyViewOptions || this.childViewOptions;
+
+    if (typeof emptyViewOptions === 'function') {
+      return emptyViewOptions.call(this);
+    }
+
+    return emptyViewOptions;
+  },
+
+  swapChildViews(view1, view2) {
+    if (!this._children.hasView(view1) || !this._children.hasView(view2)) {
+      throw new MarionetteError({
+        code: 'MN0015',
+        name: classErrorName$1,
+        message: 'Both views must be children of the collection view to swap.',
+        url: 'marionette.collectionview.html#swapping-child-views'
+      });
+    }
+
+    this._children._swap(view1, view2);
+    this.Dom.swapEl(view1.el, view2.el);
+
+    // If the views are not filtered the same, refilter
+    if (this.children.hasView(view1) !== this.children.hasView(view2)) {
+      this.filter();
+    } else {
+      this.children._swap(view1, view2);
+    }
+
+    return this;
+  },
+
+  // Render the child's view and add it to the HTML for the collection view at a given index, based on the current sort
+  addChildView(view, index, options = {}) {
+    if (this._isDestroying || this._isDestroyed) {
+      return view;
+    }
+
+    if (!view || view._isDestroyed) {
+      return view;
+    }
+
+    if (view._isShown) {
+      throw new MarionetteError({
+        code: 'MN0003',
+        name: classErrorName$1,
+        message: 'View is already shown in a Region or CollectionView',
+        url: 'marionette.region.html#showing-a-view'
+      });
+    }
+
+    const indexType = typeof index;
+    if (index !== null && (indexType === 'object' || indexType === 'function')) {
+      options = index;
+    }
+
+    // If options has defined index we should use it
+    if (options.index != null) {
+      index = options.index;
+    }
+
+    if (!this._isRendered) {
+      this.render();
+    }
+
+    this._addChild(view, index);
+
+    if (options.preventRender) {
+      this._hasUnrenderedViews = true;
+      return view;
+    }
+
+    const hasIndex = (typeof index !== 'undefined');
+    const isAddedToEnd = !hasIndex || index >= this._children.length;
+
+    // Only cache views if added to the end and there is no unrendered views
+    if (isAddedToEnd && !this._hasUnrenderedViews) {
+      this._addedViews = [view];
+    }
+
+    if (hasIndex) {
+      this._renderChildren();
+    } else {
+      this.sort();
+    }
+
+    return view;
+  },
+
+  // Detach a view from the children.  Best used when adding a
+  // childView from `addChildView`
+  detachChildView(view) {
+    this.removeChildView(view, { shouldDetach: true });
+
+    return view;
+  },
+
+  // Remove the child view and destroy it.  Best used when adding a
+  // childView from `addChildView`
+  // The options argument is for internal use only
+  removeChildView(view, options) {
+    if (!view || !this._children.hasView(view)) {
+      return view;
+    }
+
+    this._removeChildView(view, options);
+
+    this._removeChild(view);
+
+    if (this.isEmpty()) {
+      this._showEmptyView();
+    }
+
+    return view;
+  },
+
+  _removeChildViews(views) {
+    let firstError;
+    let hasError = false;
+
+    // Preserve disposeAll's attempt-all, first-error contract without closures.
+    for (const view of views) {
+      try {
+        this._removeChildView(view);
+      } catch (error) {
+        if (!hasError) {
+          firstError = error;
+          hasError = true;
+        }
+      }
+    }
+
+    if (hasError) { throw firstError; }
+  },
+
+  _removeChildView(view, { shouldDetach } = {}) {
+    view.off('destroy', this.removeChildView, this);
+
+    let firstError;
+    let hasError = false;
+    // Preserve disposeAll's attempt-all, first-error contract without closures.
+    try {
+      shouldDetach ? this._detachChildView(view) : this._destroyChildView(view);
+    } catch (error) {
+      firstError = error;
+      hasError = true;
+    }
+
+    try {
+      this.stopListening(view);
+    } catch (error) {
+      if (!hasError) {
+        firstError = error;
+        hasError = true;
+      }
+    }
+
+    if (hasError) { throw firstError; }
+  },
+
+  _rollbackChildView(view) {
+    view.off('destroy', this.removeChildView, this);
+    this.stopListening(view);
+    try {
+      if (this._children.hasView(view)) {
+        this._removeChild(view);
+      }
+    } finally {
+      this.children._remove(view);
+      this._children._remove(view);
+      this._destroyChildView(view);
+    }
+  },
+
+  _destroyChildView(view) {
+    if (view._isDestroyed) {
+      return;
+    }
+
+    const shouldDisableEvents = this.monitorViewEvents === false;
+    destroyView(view, shouldDisableEvents);
+  },
+
+  // called by ViewMixin destroy
+  _removeChildren() {
+    const emptyRegion = this.getEmptyRegion();
+    disposeAll([
+      () => { delete this._addedViews; },
+      () => emptyRegion.destroy(),
+      () => this._destroyChildren()
+    ]);
+  },
+
+  // Destroy the child views that this collection view is holding on to, if any
+  _destroyChildren() {
+    if (!this._children.length) {
+      return;
+    }
+
+    this.triggerMethod('before:destroy:children', this);
+    const detach = this.monitorViewEvents === false &&
+      (() => this.Dom.detachContents(this.el));
+
+    disposeAll([
+      () => {
+        this._children._init();
+        this.children._init();
+      },
+      () => this._removeChildViews(this._children._views),
+      detach
+    ]);
+
+    this.triggerMethod('destroy:children', this);
+  }
+});
+
+// Behavior
+// --------
+
+
+const ClassOptions$1 = [
+  'collectionEvents',
+  'events',
+  'modelEvents',
+  'stateEvents',
+  'triggers',
+  'ui'
+];
+
+const Behavior$1 = function(options, view) {
+  // Setup reference to the view.
+  // this comes in handy when a behavior
+  // wants to directly talk up the chain
+  // to the view.
+  this.view = view;
+
+  this._setOptions(options, ClassOptions$1);
+  this.cid = uniqueId(this.cidPrefix);
+
+  this._initViewEvents();
+  this.el = view.el;
+  if (view.$el) {
+    this.$el = view.$el;
+  }
+  this._initState(options);
+
+  try {
+    // Construct an internal UI hash using the behaviors UI
+    // hash combined and overridden by the view UI hash.
+    // This allows the user to use UI hash elements defined
+    // in the parent view as well as those defined in the behavior.
+    // This order will help the reuse and share of a behavior
+    // between multiple views, while letting a view override
+    // a selector under an UI key.
+    this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
+
+    // Proxy view triggers
+    this.listenTo(view, 'all', this.triggerMethod);
+
+    this.initialize.apply(this, arguments);
+
+    this._initStateEvents();
+    this._syncElement();
+  } catch (error) {
+    try {
+      this.destroy();
+    } catch {
+      // Preserve the construction error after best-effort teardown.
+    }
+    throw error;
+  }
+};
+
+assignOwn(Behavior$1, { extend, setEventDelegator: setEventDelegator$1, setStateApi: setStateApi$1 });
+
+// Behavior Methods
+// --------------
+
+assignOwn(Behavior$1.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin, UIMixin, ViewEventsMixin, {
+  cidPrefix: 'mnb',
+
+  // proxy behavior $ method to the view
+  // this performs a configured DOM lookup scoped to the behavior's view.
+  $() {
+    return this.view.$.apply(this.view, arguments);
+  },
+
+  // Stops the behavior from listening to events.
+  destroy() {
+    this._isDestroyed = true;
+    disposeAll([
+      () => this._deleteEntityEventHandlers(),
+      () => this.view._removeBehavior(this),
+      () => this.stopListening(),
+      () => this._destroyState(),
+      () => this._undelegateViewEvents()
+    ]);
+
+    return this;
+  },
+
+  _syncElement() {
+    this._undelegateViewEvents();
+
+    this.el = this.view.el;
+    if (this.view.$el) {
+      this.$el = this.view.$el;
+    } else {
+      delete this.$el;
+    }
+
+    this._delegateViewEvents(this.view);
+
+    return this;
+  },
+
+  bindUIElements() {
+    if (this.view._isDestroying || this.view._isDestroyed) { return this; }
+
+    this._bindUIElements();
+
+    return this;
+  },
+
+  unbindUIElements() {
+    this._unbindUIElements();
+
+    return this;
+  },
+
+  getUI(name) {
+    return this._getUI(name);
+  },
+
+  // Handle `modelEvents`, and `collectionEvents` configuration
+  delegateEntityEvents() {
+    if (this.view._isDestroying || this.view._isDestroyed) { return this; }
+
+    this._delegateEntityEvents(this.view.model, this.view.collection, this.view.Data);
+
+    return this;
+  },
+
+  undelegateEntityEvents() {
+    this._undelegateEntityEvents(this.view.model, this.view.collection);
+
+    return this;
+  }
+});
+
+// Application
+// -----------
+
+
+const ClassOptions = [
+  'channelName',
+  'radioEvents',
+  'radioRequests',
+  'region',
+  'regionClass',
+  'stateEvents'
+];
+
+const DESTROYED = 'destroyed';
+const DESTROYING = 'destroying';
+const RESTARTING = 'restarting';
+const RUNNING = 'running';
+const STARTING = 'starting';
+const STOPPED = 'stopped';
+const STOPPING = 'stopping';
+const classErrorName = 'ApplicationError';
+
+const Application$1 = function(options) {
+  this._setOptions(options, ClassOptions);
+  this.cid = uniqueId(this.cidPrefix);
+
+  try {
+    this._initRegion();
+    this._initRadio();
+    this._initState(options);
+    this.initialize.apply(this, arguments);
+    this._initStateEvents();
+  } catch (error) {
+    const ownedRegion = this._ownedRegion;
+    delete this._region;
+    delete this._ownedRegion;
+    disposeAll([
+      () => this.stopListening(),
+      () => ownedRegion?.destroy(),
+      () => this._destroyRadio(),
+      () => this._destroyState()
+    ], error);
+  }
+};
+
+function isCurrentOperation(application, operation) {
+  return application._lifecycleOperation === operation;
+}
+
+function throwApplicationOwnershipConflict(message) {
+  throw new MarionetteError({
+    code: 'MN0031',
+    name: classErrorName,
+    message
+  });
+}
+
+function isTerminal(application) {
+  return application._lifecycleState === DESTROYING ||
+    application._lifecycleState === DESTROYED;
+}
+
+function hasTerminalOwner(application) {
+  let owner = application._parentApp;
+
+  while (owner) {
+    if (isTerminal(owner)) { return true; }
+    owner = owner._parentApp;
+  }
+
+  return false;
+}
+
+function isSameChildApp(owner, name, application) {
+  return application._parentApp === owner && application._name === name &&
+    owner._childApps?.get(name) === application;
+}
+
+function assertChildAppCanRegister(owner, name, application) {
+  if (typeof name !== 'string' || name.length === 0) {
+    throwApplicationOwnershipConflict('A child Application name must be a non-empty string.');
+  }
+
+  if (!(application instanceof Application$1)) {
+    throwApplicationOwnershipConflict('A child Application must be an Application instance.');
+  }
+
+  if (application[runtimeId] !== owner[runtimeId]) {
+    throwApplicationOwnershipConflict('A child Application must belong to the same Marionette runtime as its owner.');
+  }
+
+  if (isSameChildApp(owner, name, application)) { return; }
+
+  if (application === owner) {
+    throwApplicationOwnershipConflict('An Application cannot own itself.');
+  }
+
+  if (application._parentApp !== undefined) {
+    throwApplicationOwnershipConflict('An Application instance cannot be registered with more than one owner or name.');
+  }
+
+  if (owner._childApps?.has(name)) {
+    throwApplicationOwnershipConflict(`Child Application name "${name}" is already registered.`);
+  }
+
+  let parent = owner;
+  while (parent) {
+    if (parent === application) {
+      throwApplicationOwnershipConflict('A child Application cannot be an ancestor of its owner.');
+    }
+    parent = parent._parentApp;
+  }
+}
+
+function removeChildAppReference(owner, name, application) {
+  owner._childApps.delete(name);
+  delete application._parentApp;
+  delete application._name;
+
+  if (owner._childApps.size === 0) {
+    delete owner._childApps;
+  }
+}
+
+async function destroyChildApps(application, options) {
+  // Destroy removes the current child from this Map without skipping the next.
+  for (const child of application._childApps.values()) {
+    await child.destroy(options);
+  }
+}
+
+function hasStableLifecycleState(application, state) {
+  return application._lifecycleState === state && !application._lifecycleOperation;
+}
+
+async function startChildApps(application, operation, options) {
+  if (!application._childApps) { return true; }
+
+  for (const child of application._childApps.values()) {
+    if (!isCurrentOperation(application, operation)) { return false; }
+    const started = await child.start(options);
+    if (!isCurrentOperation(application, operation) ||
+        !started || !hasStableLifecycleState(child, RUNNING)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+async function stopChildApps(application, operation, options) {
+  if (!application._childApps) { return true; }
+
+  for (const child of application._childApps.values()) {
+    if (!isCurrentOperation(application, operation)) { return false; }
+    const stopped = await child.stop(options);
+    if (!isCurrentOperation(application, operation)) { return false; }
+    if (stopped && hasStableLifecycleState(child, STOPPED)) { continue; }
+    if (!isTerminal(application)) { return false; }
+    await child.destroy(options);
+  }
+
+  return true;
+}
+
+function hasActiveChildApps(application) {
+  for (const child of application._childApps.values()) {
+    if (child._lifecycleState !== STOPPED && child._lifecycleState !== DESTROYED) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function clearRootView(application) {
+  const region = application._region;
+
+  region?.off('empty', application._onRootRegionEmpty, application);
+  delete application._view;
+}
+
+function getRootView(application) {
+  const view = application._view;
+
+  if (view && application._region?.currentView !== view) {
+    clearRootView(application);
+    return;
+  }
+
+  return view;
+}
+
+function emptyRootView(application, options) {
+  if (!getRootView(application)) { return; }
+
+  try {
+    application._region.empty(options);
+  } finally {
+    getRootView(application);
+  }
+}
+
+function createDeferred() {
+  let resolve;
+  let reject;
+  const promise = new Promise((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+
+  return { promise, reject, resolve };
+}
+
+function beginReadiness(operation, options, callback) {
+  const deferred = createDeferred();
+  const controller = new AbortController();
+  const readiness = {
+    ...deferred,
+    context: { signal: controller.signal },
+    controller,
+    options
+  };
+
+  operation.readiness = readiness;
+
+  try {
+    Promise.resolve(callback(readiness.context)).then(readiness.resolve, readiness.reject);
+  } catch (error) {
+    readiness.reject(error);
+  }
+
+  return readiness;
+}
+
+function completeReadiness(operation) {
+  delete operation.readiness;
+}
+
+function getFailureState(application, operation) {
+  if (operation?.stopReadiness) { return operation.failureState; }
+  return application._lifecycleState === RUNNING ? RUNNING : STOPPED;
+}
+
+function supersedeOperation(application) {
+  const operation = application._lifecycleOperation;
+  if (!operation) { return; }
+
+  delete application._lifecycleOperation;
+  operation.resolve(!!operation.isCompleting);
+  return operation;
+}
+
+function completeOperation(application, operation) {
+  if (!isCurrentOperation(application, operation)) { return; }
+
+  delete application._lifecycleOperation;
+  operation.resolve(true);
+}
+
+function cancelOperation(application, operation) {
+  delete application._lifecycleOperation;
+  application._lifecycleState = operation.failureState;
+  operation.resolve(false);
+}
+
+function failOperation(application, operation, error) {
+  if (!isCurrentOperation(application, operation)) { return; }
+
+  delete application._lifecycleOperation;
+  application._lifecycleState = operation.failureState;
+  operation.reject(error);
+}
+
+// A lifecycle callback may settle after a newer operation has superseded it.
+// Only the current operation may commit or restore Application state.
+function runOperation(application, operation, callback) {
+  (async() => {
+    try {
+      await callback();
+      completeOperation(application, operation);
+    } catch (error) {
+      failOperation(application, operation, error);
+    }
+  })();
+}
+
+function beginOperation(application, kind, state, failureState, callback) {
+  const superseded = supersedeOperation(application);
+  const deferred = createDeferred();
+  const stopReadiness = superseded?.stopReadiness;
+
+  const operation = {
+    ...deferred,
+    kind,
+    failureState,
+    readiness: stopReadiness,
+    stopReadiness
+  };
+
+  application._lifecycleOperation = operation;
+  application._lifecycleState = state;
+
+  if (superseded?.readiness && superseded.readiness !== stopReadiness) {
+    superseded.readiness.controller.abort();
+  }
+
+  if (!isCurrentOperation(application, operation)) { return deferred.promise; }
+  runOperation(application, operation, () => callback(operation));
+
+  return deferred.promise;
+}
+
+async function startApplication(application, operation, options) {
+  if (operation.stopReadiness) {
+    const readiness = operation.stopReadiness;
+    await readiness.promise;
+    if (!isCurrentOperation(application, operation)) { return; }
+
+    completeReadiness(operation);
+    operation.failureState = STOPPED;
+    delete operation.stopReadiness;
+  }
+
+  const readiness = beginReadiness(operation, options, async context => {
+    await application.triggerMethod('before:start', application, options, context);
+    return startChildApps(application, operation, options);
+  });
+
+  const childrenStarted = await readiness.promise;
+  if (!isCurrentOperation(application, operation)) { return; }
+
+  completeReadiness(operation);
+  if (!childrenStarted) {
+    cancelOperation(application, operation);
+    return;
+  }
+  application._lifecycleState = RUNNING;
+  operation.failureState = RUNNING;
+  operation.isCompleting = true;
+  application.triggerMethod('start', application, options);
+}
+
+async function stopApplication(application, operation, options) {
+  try {
+    if (!operation.stopReadiness) {
+      const readiness = beginReadiness(operation, options, async context => {
+        await application.triggerMethod('before:stop', application, options, context);
+        return stopChildApps(application, operation, options);
+      });
+      operation.stopReadiness = readiness;
+    }
+
+    const readiness = operation.stopReadiness;
+    const childrenStopped = await readiness.promise;
+    if (!isCurrentOperation(application, operation)) { return; }
+
+    completeReadiness(operation);
+    delete operation.stopReadiness;
+    if (!childrenStopped) {
+      cancelOperation(application, operation);
+      return;
+    }
+    emptyRootView(application, readiness.options);
+    if (!isCurrentOperation(application, operation)) { return; }
+    operation.failureState = STOPPED;
+    operation.isStopped = true;
+    if (operation.kind === 'stop') {
+      application._lifecycleState = STOPPED;
+      operation.isCompleting = true;
+    }
+    application.triggerMethod('stop', application, readiness.options);
+    operation.stopDeferred?.resolve(true);
+  } catch (error) {
+    operation.stopDeferred?.reject(error);
+    throw error;
+  }
+}
+
+// Application Methods
+// --------------
+
+// Keep prototype composition inside the exported initialization boundary so an
+// unused Application can be removed without treating its local mutations as global.
+var ApplicationBase = /* @__PURE__ */ (methods => {
+  assignOwn(Application$1, { extend, setStateApi: setStateApi$1 });
+  assignOwn(Application$1.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, methods);
+  Object.defineProperty(Application$1.prototype, runtimeId, { value: defaultRuntimeId });
+  return Application$1;
+})({
+  cidPrefix: 'mna',
+
+  _lifecycleState: STOPPED,
+
+  isRunning() {
+    return this._lifecycleState === RUNNING;
+  },
+
+  // Kick off all of the application's processes.
+  start(options) {
+    if (isTerminal(this) || hasTerminalOwner(this)) {
+      return Promise.resolve(false);
+    }
+
+    const operation = this._lifecycleOperation;
+    if (operation?.kind === 'start') { return operation.promise; }
+    if (this._lifecycleState === RUNNING && !operation) { return Promise.resolve(true); }
+
+    const failureState = getFailureState(this, operation);
+    return beginOperation(this, 'start', STARTING, failureState, nextOperation => {
+      return startApplication(this, nextOperation, options);
+    });
+  },
+
+  stop(options) {
+    if (this._lifecycleState === DESTROYED) {
+      return Promise.resolve(true);
+    }
+
+    const operation = this._lifecycleOperation;
+    if (this._lifecycleState === DESTROYING) {
+      if (!operation?.stopReadiness) { return Promise.resolve(true); }
+      // Destroy cannot be superseded and starts its stop phase synchronously.
+      if (!operation.stopDeferred) {
+        operation.stopDeferred = createDeferred();
+      }
+      return operation.stopDeferred.promise;
+    }
+    if (operation?.kind === 'stop') { return operation.promise; }
+    if (operation?.isStopped) {
+      const superseded = supersedeOperation(this);
+      this._lifecycleState = STOPPED;
+      superseded.readiness?.controller.abort();
+      return Promise.resolve(true);
+    }
+    if (this._lifecycleState === STOPPED && !operation) {
+      try {
+        emptyRootView(this, options);
+        return Promise.resolve(true);
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    }
+    const failureState = getFailureState(this, operation);
+
+    return beginOperation(this, 'stop', STOPPING, failureState, nextOperation => {
+      return stopApplication(this, nextOperation, options);
+    });
+  },
+
+  restart(options) {
+    if (isTerminal(this) || hasTerminalOwner(this)) {
+      return Promise.resolve(false);
+    }
+
+    const operation = this._lifecycleOperation;
+    if (operation?.kind === 'restart') { return operation.promise; }
+    const shouldStop = !operation?.isStopped && this._lifecycleState !== STOPPED;
+    const failureState = getFailureState(this, operation);
+
+    return beginOperation(this, 'restart', RESTARTING, failureState, async nextOperation => {
+      if (shouldStop) {
+        await stopApplication(this, nextOperation, options);
+      } else { emptyRootView(this, options); }
+      if (!isCurrentOperation(this, nextOperation)) { return; }
+      await startApplication(this, nextOperation, options);
+    });
+  },
+
+  destroy(options) {
+    if (this._lifecycleState === DESTROYED) { return Promise.resolve(true); }
+
+    const operation = this._lifecycleOperation;
+    if (operation?.kind === 'destroy') { return operation.promise; }
+    const shouldStop = !operation?.isStopped && this._lifecycleState !== STOPPED;
+    const failureState = getFailureState(this, operation);
+
+    return beginOperation(this, 'destroy', DESTROYING, failureState, async nextOperation => {
+      if (shouldStop) {
+        await stopApplication(this, nextOperation, options);
+      } else if (this._childApps && hasActiveChildApps(this)) {
+        await stopChildApps(this, nextOperation, options);
+      }
+
+      emptyRootView(this, options);
+
+      const readiness = beginReadiness(nextOperation, options, context => {
+        return this.triggerMethod('before:destroy', this, options, context);
+      });
+
+      await readiness.promise;
+      completeReadiness(nextOperation);
+      if (this._childApps) {
+        await destroyChildApps(this, options);
+      }
+      const ownedRegion = this._ownedRegion;
+      disposeAll([
+        () => {
+          if (ownedRegion && !ownedRegion.isDestroyed()) { return; }
+          delete this._region;
+          delete this._ownedRegion;
+          this._isDestroyed = true;
+          this._lifecycleState = DESTROYED;
+          nextOperation.failureState = DESTROYED;
+          nextOperation.isCompleting = true;
+          if (this._parentApp) {
+            removeChildAppReference(this._parentApp, this._name, this);
+          }
+          disposeAll([
+            () => this.stopListening(),
+            () => this.triggerMethod('destroy', this, options),
+            () => this._destroyState(),
+            () => this._destroyRadio()
+          ]);
+        },
+        () => ownedRegion?.destroy(options)
+      ]);
+    });
+  },
+
+  addChildApp(name, application) {
+    if (isTerminal(this)) { return application; }
+
+    if (application instanceof Application$1 && application[runtimeId] === this[runtimeId] && isTerminal(application)) {
+      return application;
+    }
+
+    assertChildAppCanRegister(this, name, application);
+    if (isSameChildApp(this, name, application)) { return application; }
+
+    const children = this._childApps || (this._childApps = new Map());
+    application._parentApp = this;
+    application._name = name;
+    children.set(name, application);
+    return application;
+  },
+
+  removeChildApp(name, options) {
+    const application = this.getChildApp(name);
+    if (!application) { return Promise.resolve(); }
+
+    return application.destroy(options).then(() => application);
+  },
+
+  hasChildApp(name) {
+    return !!this._childApps?.has(name);
+  },
+
+  getChildApp(name) {
+    return this._childApps?.get(name);
+  },
+
+  getChildApps() {
+    const applications = {};
+    this._childApps?.forEach((application, name) => {
+      setProperty(applications, name, application);
+    });
+    return applications;
+  },
+
+  getName() {
+    return this._name;
+  },
+
+  regionClass: Region$1,
+
+  _initRegion() {
+    const region = this.region;
+
+    if (!region) { return; }
+
+    const defaults = {
+      [runtimeId]: this[runtimeId],
+      regionClass: this.regionClass
+    };
+
+    this._region = buildRegion(region, defaults);
+
+    if (!(region instanceof Region$1)) {
+      this._ownedRegion = this._region;
+    }
+  },
+
+  getRegion() {
+    return this._region;
+  },
+
+  _onRootRegionEmpty() {
+    clearRootView(this);
+  },
+
+  showView(view, ...args) {
+    if (isTerminal(this)) { return view; }
+
+    const region = this.getRegion();
+    region.show(view, ...args);
+    if (region.currentView === view) {
+      if (this._view !== view) {
+        clearRootView(this);
+        region.on('empty', this._onRootRegionEmpty, this);
+      }
+      this._view = view;
+    }
+    return view;
+  },
+
+  getView() {
+    return getRootView(this);
+  }
+});
+
+function copyApi(api) {
+  return assignOwn({}, api);
+}
+
+const DefaultDataApi = copyApi(DataApi);
+const DefaultDomApi = copyApi(DomApi);
+const DefaultEventDelegator = copyApi(EventDelegator);
+const DefaultStateApi = copyApi(StateApi);
+
+function composeClass(BaseClass, properties) {
+  return BaseClass.extend(properties);
+}
+
+function setClassReference(Class, name, value) {
+  Object.defineProperty(Class.prototype, name, {
+    configurable: true,
+    value,
+    writable: true
+  });
+}
+
+function setDomApiFor(CollectionView, Region, View, mixin) {
+  CollectionView.setDomApi(mixin);
+  Region.setDomApi(mixin);
+  View.setDomApi(mixin);
+}
+
+function setDataApiFor(CollectionView, View, mixin) {
+  CollectionView.setDataApi(mixin);
+  View.setDataApi(mixin);
+}
+
+function setStateApiFor(Application, Behavior, CollectionView, MnObject, View, mixin) {
+  Application.setStateApi(mixin);
+  Behavior.setStateApi(mixin);
+  CollectionView.setStateApi(mixin);
+  MnObject.setStateApi(mixin);
+  View.setStateApi(mixin);
+}
+
+function setRendererFor(CollectionView, View, renderer) {
+  CollectionView.setRenderer(renderer);
+  View.setRenderer(renderer);
+}
+
+function setEventDelegatorFor(Behavior, CollectionView, View, delegator) {
+  Behavior.setEventDelegator(delegator);
+  CollectionView.setEventDelegator(delegator);
+  View.setEventDelegator(delegator);
+}
+
+const Region = Region$1;
+const View = View$1;
+const CollectionView = CollectionView$1;
+const Behavior = Behavior$1;
+const MnObject = MarionetteObject;
+const Application = ApplicationBase;
+
+function setDomApi(mixin) {
+  setDomApiFor(CollectionView, Region, View, mixin);
+}
+
+function setDataApi(mixin) {
+  setDataApiFor(CollectionView, View, mixin);
+}
+
+function setStateApi(mixin) {
+  setStateApiFor(Application, Behavior, CollectionView, MnObject, View, mixin);
+}
+
+function setRenderer(renderer) {
+  setRendererFor(CollectionView, View, renderer);
+}
+
+function setEventDelegator(delegator) {
+  setEventDelegatorFor(Behavior, CollectionView, View, delegator);
+}
+
+function createMarionette() {
+  const Data = copyApi(DefaultDataApi);
+  const Dom = copyApi(DefaultDomApi);
+  const Delegator = copyApi(DefaultEventDelegator);
+  const State = copyApi(DefaultStateApi);
+  const runtimeRadio = createRadio();
+  const isolatedRuntimeId = {};
+  const RuntimeRegion = composeClass(Region$1, { Dom });
+  const RuntimeView = composeClass(View$1, {
+    Data,
+    Dom,
+    EventDelegator: Delegator,
+    State,
+    _renderHtml: TemplateRenderMixin._renderHtml,
+    regionClass: RuntimeRegion
+  });
+  const RuntimeCollectionView = composeClass(CollectionView$1, {
+    Data,
+    Dom,
+    EventDelegator: Delegator,
+    State,
+    _renderHtml: TemplateRenderMixin._renderHtml
+  });
+  const RuntimeBehavior = composeClass(Behavior$1, {
+    EventDelegator: Delegator,
+    State
+  });
+  const RuntimeMnObject = composeClass(MarionetteObject, { Radio: runtimeRadio, State });
+  const RuntimeApplication = composeClass(ApplicationBase, {
+    Radio: runtimeRadio,
+    State,
+    regionClass: RuntimeRegion
+  });
+
+  setClassReference(RuntimeRegion, runtimeId, isolatedRuntimeId);
+  setClassReference(RuntimeView, runtimeId, isolatedRuntimeId);
+  setClassReference(RuntimeCollectionView, 'RegionClass', RuntimeRegion);
+  setClassReference(RuntimeApplication, runtimeId, isolatedRuntimeId);
+
+  return {
+    Application: RuntimeApplication,
+    Behavior: RuntimeBehavior,
+    CollectionView: RuntimeCollectionView,
+    DataApi: Data,
+    DomApi: Dom,
+    Events,
+    MarionetteError,
+    MnObject: RuntimeMnObject,
+    Radio: runtimeRadio,
+    Region: RuntimeRegion,
+    StateApi: State,
+    VERSION: version,
+    View: RuntimeView,
+    extend,
+    monitorViewEvents,
+    setDataApi(mixin) {
+      setDataApiFor(RuntimeCollectionView, RuntimeView, mixin);
+    },
+    setDomApi(mixin) {
+      setDomApiFor(RuntimeCollectionView, RuntimeRegion, RuntimeView, mixin);
+    },
+    setEventDelegator(delegator) {
+      setEventDelegatorFor(RuntimeBehavior, RuntimeCollectionView, RuntimeView, delegator);
+    },
+    setRenderer(renderer) {
+      setRendererFor(RuntimeCollectionView, RuntimeView, renderer);
+    },
+    setStateApi(mixin) {
+      setStateApiFor(
+        RuntimeApplication,
+        RuntimeBehavior,
+        RuntimeCollectionView,
+        RuntimeMnObject,
+        RuntimeView,
+        mixin
+      );
+    }
+  };
+}
+
+export { Application, Behavior, CollectionView, DataApi, DomApi, Events, MarionetteError, MnObject, Radio, Region, StateApi, version as VERSION, View, createMarionette, extend, monitorViewEvents, setDataApi, setDomApi, setEventDelegator, setRenderer, setStateApi };

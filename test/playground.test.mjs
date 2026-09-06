@@ -1,0 +1,61 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import { starter, validateApp, validateAction, runnerDocument, standaloneDocument } from '../site/assets/playground-runtime.js';
+
+test('the discoverable brief embeds the exact executable starter', async () => {
+  const brief = await readFile(new URL('../dist/agent-prompt.md', import.meta.url), 'utf8');
+  assert.ok(brief.includes(`\`\`\`js\n${starter.code}\n\`\`\``));
+  assert.ok(!brief.includes('<!-- playground-starter -->'));
+});
+
+test('app submissions reject malformed, oversized and extra inputs before execution', () => {
+  assert.deepEqual(validateApp(starter), starter);
+  for (const input of [null, [], {}, { ...starter, title: '' }, { ...starter, code: ' ' },
+    { ...starter, code: 'a'.repeat(60001) }, { ...starter, css: 'a'.repeat(20001) },
+    { ...starter, css: null }, { ...starter, url: 'https://example.com' }]) {
+    assert.throws(() => validateApp(input));
+  }
+  const copy = validateApp(starter);
+  copy.code = 'changed';
+  assert.notEqual(copy.code, starter.code);
+});
+
+test('preview interactions accept only bounded control ids and explicit actions', () => {
+  assert.deepEqual(validateAction({ id: 'celebrate', action: 'click' }), { id: 'celebrate', action: 'click' });
+  assert.deepEqual(validateAction({ id: 'idea', action: 'input', value: '' }), { id: 'idea', action: 'input', value: '' });
+  for (const input of [null, [], {}, { id: 'a', action: 'navigate' },
+    { id: '#app button', action: 'click' }, { id: 'a', action: 'input' },
+    { id: 'a', action: 'click', value: 'extra' }, { id: 'a', action: 'click', url: 'extra' },
+    { id: 'a', action: 'input', value: 'x'.repeat(2001) }]) assert.throws(() => validateAction(input));
+});
+
+test('HTML parser breakouts stay inside serialized app data and policy precedes execution', () => {
+  const attack = '</script><img src=x onerror="parent.compromised=true"><script>';
+  const output = runnerDocument({ app: { title: attack, code: `document.querySelector('#app').textContent=${JSON.stringify(attack)}`, css: `/* ${attack} */` }, vendor: '// pinned', token: randomUUID() });
+  assert.equal((output.match(/<script\b/g) || []).length, 1);
+  assert.equal((output.match(/<\/script>/g) || []).length, 1);
+  assert.ok(!output.includes('<img src=x'));
+  assert.ok(output.indexOf('Content-Security-Policy') < output.indexOf('<script'));
+  assert.match(output, /connect-src 'none'/);
+  assert.match(output, /frame-src 'none'; worker-src 'none'/);
+  assert.ok(!output.includes("'unsafe-eval'"));
+  assert.throws(() => runnerDocument({ app: starter, vendor: '', token: '" onload="attack' }));
+});
+
+test('download contains the same pinned library, license and sandboxed standalone app', async () => {
+  const vendor = await readFile(new URL('../site/vendor/marionette.js', import.meta.url), 'utf8');
+  const license = await readFile(new URL('../site/vendor/MARIONETTE-LICENSE.txt', import.meta.url), 'utf8');
+  const output = standaloneDocument(starter, vendor, license, randomUUID());
+  assert.match(output, /sandbox="allow-scripts"/);
+  assert.ok(!output.includes('allow-same-origin'));
+  assert.ok(!output.includes('<script src='));
+  assert.match(output, /8c8720317cfd59631335b9bc2d75269172b3db7f/);
+  assert.match(output, /MIT/);
+  const runner = output.match(/srcdoc="([^"]*)"/)[1].replaceAll('&quot;', '"').replaceAll('&gt;', '>').replaceAll('&lt;', '<').replaceAll('&amp;', '&');
+  const config = JSON.parse(runner.slice(runner.indexOf('})({"app":') + 3, runner.lastIndexOf(');</script>')));
+  assert.equal(config.vendor, vendor);
+  assert.deepEqual(config.app, starter);
+  assert.equal(config.standalone, true);
+});

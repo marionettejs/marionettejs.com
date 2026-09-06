@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="290" viewBox="0 0 280 290" role="img" aria-labelledby="title description">
+  <title id="title">Marionettejs monochrome mark</title>
+  <desc id="description">A one-color geometric Marionette M.</desc>
+
+  <path d="M38 250 58 58l47-10 35 55 35-55 47 10 20 192h-47l-15-112-40 55-40-55-15 112Z" fill="#15171B"/>
+</svg>

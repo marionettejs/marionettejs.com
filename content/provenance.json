@@ -1,0 +1,12 @@
+{
+  "libraryRepository": "https://github.com/marionettejs/marionette",
+  "libraryRevision": "8c8720317cfd59631335b9bc2d75269172b3db7f",
+  "packageVersion": "5.0.0-alpha.2",
+  "sourceStatus": "Development source snapshot; not the npm alpha artifact or a beta release",
+  "libraryBuild": "Rollup ESM bundle of the pinned index.js, without transpilation or minification",
+  "referenceSource": "docs/marionette.region.md",
+  "brandSource": "marionettejs/branding assets/marionette-mark.svg and assets/marionette-horizontal.svg",
+  "brandStatus": "Draft assets, local review only; redistribution terms not yet settled",
+  "publication": "Local only; substantial beta testing and explicit approval required",
+  "bundleSha256": "6c82b2db3ce502249a8dd61c5092137a9b8244e56d940912bc2448b580f3098d"
+}
