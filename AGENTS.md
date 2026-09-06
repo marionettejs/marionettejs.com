@@ -1,11 +1,10 @@
 # Website prototype
 
-Paul authorized a source backup on the remote feature branch
-`feat/website` in `marionettejs/website`. This does not authorize website publication. Do not deploy,
-enable hosting, push to `master` or `gh-pages`, or add an automatic deployment
-workflow. Paul requires substantial beta testing before considering a public
-launch, followed by explicit publication authorization. Passing tests or reaching
-beta does not authorize publication.
+Paul authorized a public test preview at `v5.marionettejs.com` on 2026-09-06.
+Use manual Cloudflare Pages deployments when requested. Do not add automatic
+publishing or move the main `marionettejs.com` website without separate explicit
+authorization. Keep the preview noindexed and preserve the existing GitHub Pages
+production site. Domain registration remains in DNSimple; DNS is in Cloudflare.
 
 This is the independent website repository. The earlier prototype and design
 options remain in their existing checkouts; preserve them. Keep the website independent of the library's working directory.

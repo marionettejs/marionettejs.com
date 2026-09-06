@@ -1,30 +1,27 @@
 # Marionette v5 website — local prototype
 
-**Do not publish.** Paul requires substantial beta testing before considering a
-public launch, and explicit authorization before any publication. This checkout has
-no deployment command, workflow, CNAME, hosting registration, or credentials.
-`private: true` prevents npm publication; the local server binds to loopback only.
-Those controls do not make a later public deployment safe or authorized.
+The public test preview at `v5.marionettejs.com` was authorized on 2026-09-06.
+The main website remains on the old GitHub Pages site. A preview deployment does
+not authorize a main-domain launch or automatic deployment on repository pushes.
 
-Source lives in the public `marionettejs/website` repository on `feat/website`.
-This repository starts with the current prototype and a clean Git history. The
-earlier design commits remain in `marionettejs/marionettejs.com` on
-`feat/v5-local-website` and in the preserved local checkouts.
+Source lives in `marionettejs/website`. Earlier design commits and checkouts remain
+preserved in the old website repository. The local preview still binds to loopback.
 
-GitHub Pages is disabled here. The existing production site continues publishing
-from `gh-pages` in the old repository. Website publication requires separate
-explicit authorization.
+## Preview deployment
 
-## Hosting plan
+Use Cloudflare Pages Direct Upload for an explicitly requested deployment:
+1. Run `npm run check`.
+2. Upload the contents of `dist/` as the site root, not the repository or a containing folder.
+3. Verify the homepage, Why page, docs, agent briefs, and real playground interaction.
 
-When authorized, publish a preview at `v5.marionettejs.com` through this repository.
-That requires GitHub Pages configuration and a DNS record at the domain provider.
-No DNS records, custom domain, or deployment workflows have been configured here.
+The preview stays noindexed. No GitHub Actions workflow, automatic Git integration,
+backend, or paid service is required. Future automation can deploy the same built
+assets explicitly if requested. Direct Upload projects cannot be converted to the
+built-in Git integration; that would require a separate Pages project.
 
-At launch, move the `marionettejs.com` Pages domain assignment from the old
-repository to this one, coordinate DNS and HTTPS, and verify redirects and older
-documentation paths. Preserve the old site as the rollback source. This plan does
-not authorize either the preview deployment or the main-domain cutover.
+At main-site launch, coordinate the domain assignment, DNS, HTTPS, and older docs
+paths. Preserve the existing website as the rollback source. That cutover requires
+separate authorization.
 
 ## View locally
 
@@ -110,7 +107,7 @@ CSS uses system sans, serif, and monospace families; no fonts or analytics are f
 
 Public-facing copy is written for the intended completed Marionette 5.0 launch,
 as requested by Paul. This is an editorial assumption, not a release action.
-Keep this site local and preserve the actual pinned runtime/version in provenance.
+Preserve the actual pinned runtime/version in provenance.
 Do not invent benchmark numbers, migration results, or adoption claims.
 The A/B previews remain available at their existing local ports.
 
