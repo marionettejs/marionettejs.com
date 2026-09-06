@@ -259,7 +259,7 @@ const promptText = document.querySelector('#agent-invitation-prompt');
 promptText.value = copyPrompt;
 copyButton.disabled = false;
 copyButton.addEventListener('click', async () => {
-  try { await navigator.clipboard.writeText(copyPrompt); invitationStatus.textContent = 'Copied. Give it to your agent. See what happens.'; }
+  try { await navigator.clipboard.writeText(copyPrompt); invitationStatus.textContent = 'Copied. Paste it into your agent’s chat.'; }
   catch { document.querySelector('#prompt-details').open = true; promptText.focus(); promptText.select(); invitationStatus.textContent = 'Select and copy the prompt below.'; }
 });
 const instructions = dialog.querySelector('#workshop-instructions');
