@@ -7,6 +7,8 @@
   "referenceSource": "docs/marionette.region.md",
   "brandSource": "marionettejs/branding assets/marionette-mark.svg and assets/marionette-horizontal.svg",
   "brandStatus": "Draft assets, local review only; redistribution terms not yet settled",
-  "publication": "Local only; substantial beta testing and explicit approval required",
-  "bundleSha256": "6c82b2db3ce502249a8dd61c5092137a9b8244e56d940912bc2448b580f3098d"
+  "publication": "Public v5 development preview; not a library release",
+  "bundleSha256": "6c82b2db3ce502249a8dd61c5092137a9b8244e56d940912bc2448b580f3098d",
+  "documentationManifest": "/docs/manifest.json",
+  "documentationNote": "This file identifies the homepage demonstration runtime. The documentation snapshot has its own source revision and content hashes."
 }

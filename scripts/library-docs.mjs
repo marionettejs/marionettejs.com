@@ -1,6 +1,6 @@
-import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { readFile, mkdir, writeFile, realpath } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { resolve, posix } from 'node:path';
+import { resolve, posix, relative, isAbsolute, sep } from 'node:path';
 import { Marked, Renderer } from 'marked';
 import * as pagefind from 'pagefind';
 
@@ -24,12 +24,17 @@ export async function readSnapshot(directory) {
   const assets = [];
   if (!Array.isArray(manifest.assets)) throw new Error('Documentation snapshot assets are required.');
   for (const asset of manifest.assets) {
-    if (asset.source !== 'config/diagnostics/catalog.json' || sources.has(asset.source)) throw new Error('Unsupported documentation asset.');
-    const content = await readFile(resolve(directory, asset.source), 'utf8');
+    if (!safePath(asset.source) || !/\.(?:md|json|mjs)$/.test(asset.source) ||
+        !/^(?:config\/diagnostics\/|test\/fixtures\/docs-[a-z-]+\/|skills\/marionette\/|benchmarks\/docs\/)/.test(asset.source) || sources.has(asset.source)) throw new Error('Unsupported documentation asset.');
+    const base = await realpath(directory);
+    const path = await realpath(resolve(base, asset.source));
+    const local = relative(base, path);
+    if (local === '..' || local.startsWith(`..${sep}`) || isAbsolute(local)) throw new Error('Documentation asset escapes snapshot.');
+    const content = await readFile(path, 'utf8');
     if (hash(content) !== asset.sha256) throw new Error(`Documentation hash mismatch: ${asset.source}`);
     assets.push({ ...asset, content }); sources.add(asset.source);
   }
-  if (assets.length !== 1) throw new Error('Expected diagnostic catalog asset.');
+  if (!assets.some(asset => asset.source === 'config/diagnostics/catalog.json')) throw new Error('Expected diagnostic catalog asset.');
   const digest = hash([...pages, ...assets].sort((a, b) => a.source.localeCompare(b.source, 'en')).map(page => `${page.source}\0${page.sha256}\n`).join(''));
   if (digest !== manifest.contentSha256) throw new Error('Documentation snapshot digest mismatch.');
   if (!routes.has('docs')) throw new Error('Documentation snapshot has no landing page.');
@@ -42,10 +47,11 @@ const pageUrl = page => `/${page.route}/`;
 const githubUrl = (manifest, source) => `${manifest.sourceRepository}/blob/${manifest.sourceRevision}/${source}`;
 function linkResolver(page, pages, manifest, format = 'html') {
   const bySource = new Map(pages.map(item => [item.source, item]));
+  const resources = new Set((manifest.assets || []).map(asset => asset.source));
   return href => {
     if (/[\u0000-\u0020]/.test(href) || (/^[a-z][a-z0-9+.-]*:/i.test(href) && !/^(?:https?:|mailto:|tel:)/i.test(href))) return '#';
     if (href.startsWith('#')) return href;
-    const github = href.match(/^https:\/\/github\.com\/(?:marionettejs\/marionette|marionettejs\/backbone\.marionette)\/blob\/(master|main|v5|[a-f0-9]{40})\/(.*)$/);
+    const github = href.match(/^https:\/\/github\.com\/marionettejs\/marionette\/blob\/(master|main|v5|[a-f0-9]{40})\/(.*)$/);
     if (github && /^[a-f0-9]{40}$/.test(github[1]) && github[1] !== manifest.sourceRevision) return href;
     if (/^[a-z]+:|^\/\//i.test(href) && !github) return href;
     if (href.startsWith('/')) {
@@ -55,7 +61,7 @@ function linkResolver(page, pages, manifest, format = 'html') {
     const [pathname, fragment] = (github ? github[2] : href).split('#');
     const source = github ? pathname : posix.normalize(posix.join(posix.dirname(page.source), pathname));
     const target = bySource.get(source);
-    return `${target ? (format === 'markdown' ? markdownUrl(target) : pageUrl(target)) : githubUrl(manifest, source)}${fragment ? `#${fragment}` : ''}`;
+    return `${target ? (format === 'markdown' ? markdownUrl(target) : pageUrl(target)) : resources.has(source) ? `/docs/source/${source}` : githubUrl(manifest, source)}${fragment ? `#${fragment}` : ''}`;
   };
 }
 
@@ -113,7 +119,13 @@ export async function buildLibraryDocs({ directory, out, shell }) {
   }
   await writeFile(resolve(out, 'docs/manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   await writeFile(resolve(out, 'docs/llms.txt'), `# Marionette documentation\n\nVersion: ${manifest.packageVersion}\nChannel: ${manifest.channel}\nSource revision: ${manifest.sourceRevision}\nLocal changes: ${manifest.sourceDirty}\nContent SHA-256: ${manifest.contentSha256}\n\nUse the installed package version and source revision to select contracts. These development docs are not proof that the same API has been released. The reading Markdown rewrites links to this snapshot. Canonical source files remain available byte for byte under /docs/markdown/.\n\n${[...Map.groupBy(pages, page => page.section)].map(([section, entries]) => `## ${section}\n\n${entries.map(page => `- [${page.title}](${markdownUrl(page)})`).join('\n')}`).join('\n\n')}\n\n- [Diagnostic codes](/errors/index.md): active and retired runtime errors.\n- [Snapshot manifest](/docs/manifest.json): page routes, source paths, and original content hashes.\n`);
-  await buildDiagnostics({ out, shell, manifest, asset: assets[0] });
+  for (const asset of assets) {
+    const destination = resolve(out, 'docs/source', asset.source);
+    await mkdir(posix.dirname(destination), { recursive: true });
+    await writeFile(destination, asset.content);
+  }
+  const catalog = assets.find(asset => asset.source === 'config/diagnostics/catalog.json');
+  await buildDiagnostics({ out, shell, manifest, asset: catalog });
   const { index } = await pagefind.createIndex();
   try {
     const added = await index.addDirectory({ path: out, glob: '{docs,errors}/**/*.html' });
@@ -121,7 +133,7 @@ export async function buildLibraryDocs({ directory, out, shell }) {
     const written = await index.writeFiles({ outputPath: resolve(out, 'pagefind') });
     if (written.errors?.length) throw new Error(written.errors.join('\n'));
   } finally { await pagefind.close(); }
-  return pages.length + JSON.parse(assets[0].content).diagnostics.length + 1;
+  return pages.length + JSON.parse(catalog.content).diagnostics.length + 1;
 }
 
 async function buildDiagnostics({ out, shell, manifest, asset }) {

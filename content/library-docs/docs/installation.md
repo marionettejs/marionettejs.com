@@ -29,6 +29,13 @@ The v5 package name is `marionette`.
 npm install marionette
 ```
 
+This installs a published registry package. Use documentation matching that
+artifact. To use the current-source APIs described here, [build and pack the
+checkout](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository)
+and install the package artifacts from that same source revision. A matching
+alpha version string alone does not establish that a published package contains
+the same APIs as this checkout.
+
 > The v4 package name has changed. See the [upgrade guide](../upgradeGuide.md)
 > for migration guidance from earlier releases.
 
@@ -204,8 +211,9 @@ future major version, not a removal commitment.
 ## Backbone is optional
 
 Starting with v5, Marionette core does not depend on Backbone at runtime. Plain
-objects and arrays use the default DataApi. Applications using Backbone must
-select its data and event integration at application boot:
+objects and arrays use the default DataApi. Applications passing Backbone Models
+or Collections to Marionette must configure the Backbone DataApi before
+constructing those consumers:
 
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';

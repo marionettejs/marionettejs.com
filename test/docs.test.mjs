@@ -125,3 +125,37 @@ test('demo reading Markdown preserves code and pins references to its own source
     assert.ok(!href.includes('/docs/upgrade.md'), 'Obsolete migration path');
   }
 });
+
+test('supporting resources publish exact bytes and resolve from HTML and agent Markdown', async () => {
+  const { manifest, pages, assets } = await readSnapshot(source);
+  for (const asset of assets) {
+    assert.equal(await readFile(resolve(root, 'dist/docs/source', asset.source), 'utf8'), asset.content);
+  }
+  const fixture = 'test/fixtures/docs-routing/validate.mjs';
+  const page = { source: 'docs/example.md', title: 'Example', sha256: 'a'.repeat(64), markdown: `# Example\n\n[Fixture](https://github.com/marionettejs/marionette/blob/master/${fixture})\n` };
+  assert.ok(renderMarkdown(page, pages, manifest).html.includes(`/docs/source/${fixture}`));
+  assert.ok(deriveMarkdown(page, pages, manifest).includes(`[Fixture](/docs/source/${fixture})`));
+  const headers = await readFile(resolve(root, 'dist/_headers'), 'utf8');
+  assert.match(headers, /\/docs\/source\/\*\n  Content-Type: text\/plain; charset=utf-8\n  X-Content-Type-Options: nosniff/);
+});
+
+test('historical Backbone repository links retain their original owner', () => {
+  const href = 'https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.region.md';
+  const page = { source: 'docs/example.md', markdown: `# Example\n\n[Historical](${href})\n` };
+  const manifest = { sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) };
+  assert.ok(renderMarkdown(page, [{ source: 'docs/marionette.region.md', route: 'docs/region' }], manifest).html.includes(href));
+});
+
+test('supporting assets reject altered content and traversal', async () => {
+  const directory = await mkdtemp(resolve(tmpdir(), 'marionette-assets-'));
+  try {
+    await cp(source, directory, { recursive: true });
+    const manifest = JSON.parse(await readFile(resolve(directory, 'manifest.json'), 'utf8'));
+    const asset = manifest.assets.find(item => item.source.endsWith('.mjs'));
+    await writeFile(resolve(directory, asset.source), 'altered');
+    await assert.rejects(readSnapshot(directory), /hash mismatch/);
+    asset.source = '../outside.mjs';
+    await writeFile(resolve(directory, 'manifest.json'), JSON.stringify(manifest));
+    await assert.rejects(readSnapshot(directory), /Unsupported documentation asset/);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});

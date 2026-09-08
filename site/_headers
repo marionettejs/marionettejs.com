@@ -4,3 +4,8 @@
 
 /errors/*
   Cache-Control: public, max-age=0, must-revalidate, no-transform
+
+# Supporting source is downloadable text, never an executable site module.
+/docs/source/*
+  Content-Type: text/plain; charset=utf-8
+  X-Content-Type-Options: nosniff

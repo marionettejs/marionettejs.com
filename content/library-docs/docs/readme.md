@@ -1,78 +1,61 @@
-# Marionette documentation
+# Build your first piece of UI
 
-Start with the part of the interface you want to build. The same classes work
-together as the application grows; you do not need to learn every integration
-before showing your first View.
+A View handles a piece of the interface. A Region puts it on the page and cleans
+it up when it is replaced. Start there; add the other pieces when you need them.
 
-These repository guides describe the current v5 source. Published alphas may lag
-behind it.
+## Where do you want to start?
 
-Start an [agent-led task](agents.md), or follow the guides directly. Both paths use
-the same public contracts and examples.
+- **[Build something](installation.md#quick-start)** — set up Marionette and show your first View.
+- **[Work with an agent](agents.md)** — give your agent the right contract and a concrete task.
+- **[Look up an API](public-api.md)** — find the class, method, or integration you need.
 
-## Build something
+## A button that does something
 
-- [Install Marionette](installation.md) and show a first View.
-- [Choose a class for the job](classes.md).
-- [Build a screen with a View](marionette.view.md).
-- [Show and replace a View in a Region](marionette.region.md).
-- [Render a list with CollectionView](marionette.collectionview.md).
-- [Share interactions with Behaviors](marionette.behavior.md).
-- [Start and stop a feature with Application](marionette.application.md).
+With a [matching v5 build](installation.md#install) installed, add a place for the
+View in your HTML:
 
-## Build and ship an application
+```html
+<main id="app"></main>
+```
 
-- [Common application tasks](task-recipes.md): editable lists, navigation, widgets, and shared state.
-- [TypeScript](typescript.md): type a consumer application using public exports.
-- [Testing](testing.md): check behavior through the public interface.
-- [Forms and accessibility](forms-and-accessibility.md): preserve drafts, labels, focus, and useful feedback.
-- [Security](security.md): render untrusted content and identify application boundaries.
-- [Production and performance](production-and-performance.md): prepare and measure the actual application.
+Then run this module in your application:
 
-## Connect the parts
+<!-- executable-example: first-view-counter -->
+```javascript
+import { Region, View } from 'marionette';
 
-- [Configuration and inheritance](basics.md)
-- [Templates and rendering](view.rendering.md)
-- [DOM interactions](dom.interactions.md)
-- [Lifecycle and cleanup](view.lifecycle.md)
-- [Events](events.md) and [Radio channels](radio.md)
-- [State sources and observation](marionette.state.md)
-- [Data and observable collections](data.api.md)
-- [Routing](routing.md)
+const Counter = View.extend({
+  initialize() { this.count = 0; },
+  template: ({ count }) => `<button type="button">Count: <span>${count}</span></button>`,
+  templateContext() { return { count: this.count }; },
+  events: { 'click button': 'increment' },
+  increment() {
+    this.count += 1;
+    this.el.querySelector('span').textContent = String(this.count);
+  }
+});
 
-## Choose your integrations
+export const region = new Region({ el: '#app' });
+region.show(new Counter());
+```
 
-Start with the [integration decision guide](choosing-integrations.md). Keep existing
-choices that meet the task; select each adapter for its own capability.
+Click the button: **Count: 0 → Count: 1 → Count: 2**. The View handles the click
+and updates the number in place. The button stays the same DOM element.
 
-- [Optional Backbone integration](optional-backbone.md)
-- [The DOM API](dom.api.md)
-- [Pre-rendered DOM](dom.prerendered.md)
-- [Runtime isolation](runtime-isolation.md)
+When that part of the screen is finished, `region.empty()` destroys the View and
+removes its event handlers. The `#app` mount remains, ready for the next View.
 
-## Work with an agent
+## Give it a little more to do
 
-[Set up the consumer skill](agent-tools.md) to find documentation matching the
-installed package. Record your project's choices in [application instructions](application-agent-template.md).
-These are optional ways to use the same reference; a service is not required.
+| You want to… | Next step |
+| --- | --- |
+| Show a list that changes | [Render children with CollectionView](marionette.collectionview.md) |
+| Open a detail screen | [Show and replace a View](marionette.region.md) |
+| Save a form without losing a draft | [Forms and accessibility](forms-and-accessibility.md) |
+| Connect an existing router or data source | [Choose integrations](choosing-integrations.md) |
+| Check that it works | [Test an application](testing.md) |
 
-## Look up the details
-
-- [Public exports and configuration](public-api.md)
-
-- [Common class methods](common.md) and [utility exports](utils.md)
-- [Class events](events.class.md) and [model and collection events](events.entity.md)
-- [MnObject](marionette.mnobject.md)
-- [Terminology](terminology.md)
-- [Diagnostics](diagnostic-catalog.md)
-- [v4-to-v5 compatibility ledger](migration-from-v4.md)
-- [Upgrade guide](../upgradeGuide.md)
-- [Contributing](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md), [performance baselines](https://github.com/marionettejs/marionette/blob/master/docs/performance-baselines.md),
-  and the [release profile](https://github.com/marionettejs/marionette/blob/master/docs/release-profile.md)
-
-The API reference is being reconciled for stable v5 in
-[issue #147](https://github.com/marionettejs/marionette/issues/147). Until that
-work is complete, do not treat the hosted `/docs/current` site as v5
-documentation; it describes earlier releases.
+You can keep Backbone models, an existing router, or a preferred template system.
+Choose each integration for the job it does; the button above needs none of them.
 
 For versions before v5, see the [backbone.marionette repository](https://github.com/marionettejs/backbone.marionette).

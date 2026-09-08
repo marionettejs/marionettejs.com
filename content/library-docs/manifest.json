@@ -6,21 +6,21 @@
   "sourceRepository": "https://github.com/marionettejs/marionette",
   "sourceRevision": "2b5fde974abd94c2da911a02a4bbc0b486c7f661",
   "sourceDirty": true,
-  "contentSha256": "f7bab845bf02f6acceb9c0c2d17182e11e4c6ceb9771f74acccef683e56b6f7b",
+  "contentSha256": "6e4e563498cd2dec0a5e3dd39b3c3bfaa00cde55f5196ad2baf6e00f5f84d9fb",
   "pages": [
     {
       "source": "docs/readme.md",
       "route": "docs",
       "title": "Documentation",
       "section": "Start here",
-      "sha256": "8939c03aab0468900f9a315c3b1b23c5865db8d774915af8009382e72bbbff61"
+      "sha256": "53351f26653e57cdb5acd0b68e84e7b427055a61bdbdec18d026a3fb4f52c5c7"
     },
     {
       "source": "docs/installation.md",
       "route": "docs/installation",
       "title": "Install and show a View",
       "section": "Start here",
-      "sha256": "f7d725a0d8beaf2aa9266e009d3d42c1638cca285f1aa524e2988e228e90f4c4"
+      "sha256": "c5d716a1902c118e48027208a1625df23ebb4cd756e0d4f5b8a68d7a0547fbbb"
     },
     {
       "source": "docs/agents.md",
@@ -370,14 +370,14 @@
       "route": "docs/maintainers/documentation-trial",
       "title": "Documentation reading trial",
       "section": "Maintaining Marionette",
-      "sha256": "735e0708bc9c07ec802fea19767360476756e8364ffd5e2a6608abb39455bd69"
+      "sha256": "72740a9bef0ae4d5fc3b249af31bb29697c8e74f544b4f43ffaafeacfe386dbd"
     },
     {
       "source": "docs-site/README.md",
       "route": "docs/maintainers/publication",
       "title": "Build and distribute docs",
       "section": "Maintaining Marionette",
-      "sha256": "89346bbe1f12d92c1506ab7424ffb291ca604f0796da65ae1d2551e1122fd7d6"
+      "sha256": "61e5e05f140f6b5a27d19067ea9f2cbcb5707f1fd136f710e74760683edff584"
     },
     {
       "source": "CONTRIBUTING.md",
@@ -440,6 +440,114 @@
     {
       "source": "config/diagnostics/catalog.json",
       "sha256": "8aaf72a68997636ef31de752f45110222104a5dc0e7e884a104e462cee7cda9c"
+    },
+    {
+      "source": "test/fixtures/docs-application-guides/package.json",
+      "sha256": "1a8af850e4c368f33ac50b20161a4428e0e7f533869f8f973f94ee7faab8ffe4"
+    },
+    {
+      "source": "test/fixtures/docs-application-guides/validate.mjs",
+      "sha256": "f1e70c2f001090e0881383c6d758681d745687242558ca2d23300a03c4b92f60"
+    },
+    {
+      "source": "test/fixtures/docs-routing/package.json",
+      "sha256": "b8306e9e7edfd528560eea35467c34597ed919f98f1e787aaced127997549c64"
+    },
+    {
+      "source": "test/fixtures/docs-routing/validate.mjs",
+      "sha256": "65d40076e3ef6f03296339d54d3449e34d0632657d5e20d7f3f0ff801d4db910"
+    },
+    {
+      "source": "test/fixtures/docs-prerendered-content/package.json",
+      "sha256": "b8306e9e7edfd528560eea35467c34597ed919f98f1e787aaced127997549c64"
+    },
+    {
+      "source": "test/fixtures/docs-prerendered-content/validate.mjs",
+      "sha256": "1ef28e7000b8d79b7675b0dbacabe8c68c3baa43656618d52d4c451b3bfd280a"
+    },
+    {
+      "source": "test/fixtures/docs-region-lifecycle/package.json",
+      "sha256": "7e598ef0bde74bf43180c8111e13951a4c0cb566a34a29c253d88e409ef681fe"
+    },
+    {
+      "source": "test/fixtures/docs-region-lifecycle/validate.mjs",
+      "sha256": "7da375fdc0e75682abd129b73e9c6df661a3babcf313cda04a43971098a4fc69"
+    },
+    {
+      "source": "skills/marionette/SKILL.md",
+      "sha256": "da5b3ebc4c3d4850cf1954e8ab1eb1b5150987dac3e2d36b6dc1ef5bd613888e"
+    },
+    {
+      "source": "skills/marionette/scripts/docs.mjs",
+      "sha256": "a8d70ace635bee19aa3d8ba24a0f1078e62b2d7fe5efd199299756b24dc2bb13"
+    },
+    {
+      "source": "benchmarks/docs/README.md",
+      "sha256": "fbd25d72631cd4482a7e010cb62cafe79dd11a7365c8a6a12a5d425dd87fd084"
+    },
+    {
+      "source": "benchmarks/docs/prepare.mjs",
+      "sha256": "633219a270ebc66d666c72399eb02349458204bb2f3659fcd2e75bcea3ce09e4"
+    },
+    {
+      "source": "benchmarks/docs/acceptance/run.mjs",
+      "sha256": "e23dd40bcc16a4fa29517c821837de44063fe8002fba74ae936e4f80dca8cdaa"
+    },
+    {
+      "source": "benchmarks/docs/tasks/editable-list.md",
+      "sha256": "e6514701aa8ed66100dac82e1b498b646a60d3f188b804196118a7470b415e24"
+    },
+    {
+      "source": "benchmarks/docs/tasks/latest-navigation.md",
+      "sha256": "7d6b670ea8107a7e6150d6d3477fa79659b7937717840d4a8936c6771af386e1"
+    },
+    {
+      "source": "benchmarks/docs/tasks/widget-lifetime.md",
+      "sha256": "e3b1326b1c790e49f71b5b24bdf16f8f48acced361b6e6c63f86f4ed6536796d"
+    },
+    {
+      "source": "benchmarks/docs/results/2026-09-08/README.md",
+      "sha256": "f756fc3b25617f022720ef4ff0269aa875395053f6ecaeb81fe7d7e386a1b436"
+    },
+    {
+      "source": "benchmarks/docs/results/2026-09-08/provenance.json",
+      "sha256": "59ed91b12db725711e6b821ba984c47364ddb58e8de0bc1c44369f2d2f40c76b"
+    },
+    {
+      "source": "benchmarks/docs/results/2026-09-08/editable-list/REPORT.md",
+      "sha256": "0fe0bef15f4a9d986d697ff8bb1419b49bc386131a94650d3944bf4c76673b6b"
+    },
+    {
+      "source": "benchmarks/docs/results/2026-09-08/editable-list/solution.mjs",
+      "sha256": "da88e74bd45d8b7560e7aef71f90d76c7717e318dc60e880e02f69ef4a2acb01"
+    },
+    {
+      "source": "benchmarks/docs/results/2026-09-08/editable-list/validate.mjs",
+      "sha256": "283872e73b4ad66b54be7d2a62a62e659809ac788ce659a33142bf878d0a77af"
+    },
+    {
+      "source": "benchmarks/docs/results/2026-09-08/latest-navigation/REPORT.md",
+      "sha256": "645b213deec78183ebaad83c671d1900fe1af6f88ad6303e2064a26ebd24b8b6"
+    },
+    {
+      "source": "benchmarks/docs/results/2026-09-08/latest-navigation/solution.mjs",
+      "sha256": "5d367d757f7cd4b79a76a486899bab4ff633f9a846a10abf3b149328d702171c"
+    },
+    {
+      "source": "benchmarks/docs/results/2026-09-08/latest-navigation/smoke.test.mjs",
+      "sha256": "db595df7c19da6e4fff2e74bf98ae04377aaa55be2e282c1a9b574bcaf2f1967"
+    },
+    {
+      "source": "benchmarks/docs/results/2026-09-08/widget-lifetime/REPORT.md",
+      "sha256": "6f77abf0102cb3431d029c125fb4e910dfd0d0db7970989b499759cbc2937e11"
+    },
+    {
+      "source": "benchmarks/docs/results/2026-09-08/widget-lifetime/solution.mjs",
+      "sha256": "3b70c8b4f9b078a61eca35062e997ae47bd120188737ad05c5b8291900a50e13"
+    },
+    {
+      "source": "benchmarks/docs/results/2026-09-08/widget-lifetime/validate.mjs",
+      "sha256": "63ce7734a20aa0b15717a2f22e032df3be306cbc26256c618354c0e98ffcd30e"
     }
   ]
 }

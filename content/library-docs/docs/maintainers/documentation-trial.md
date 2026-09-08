@@ -71,7 +71,7 @@ No paid plan, shared API credential, or website dependency was introduced.
 A subsequent trial gave three fresh agents installed packages, the portable skill,
 and a task each: latest navigation, editable list updates, and widget lifetime.
 All three submitted implementations passed the withheld acceptance checks after
-completion. The [saved implementations and reports](https://github.com/marionettejs/marionette/tree/master/benchmarks/docs/results/2026-09-08)
+completion. The [saved implementations and reports](https://github.com/marionettejs/marionette/blob/master/benchmarks/docs/results/2026-09-08/README.md)
 include the exact documentation digest and the limitations of this local snapshot.
 The [trial procedure](https://github.com/marionettejs/marionette/blob/master/benchmarks/docs/README.md)
 withholds acceptance files until an attempt ends and does not configure paid inference.
