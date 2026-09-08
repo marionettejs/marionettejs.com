@@ -1,27 +1,24 @@
-# Marionette v5 website — public test preview
+# Marionette website — 5.0.0-beta.1
 
-The public test preview at `v5.marionettejs.com` was authorized on 2026-09-06.
-The main website remains on the old GitHub Pages site. A preview deployment does
-not authorize a main-domain launch or automatic deployment on repository pushes.
+The beta launch is authorized on marionettejs.com, www.marionettejs.com, and
+v5.marionettejs.com. Cloudflare Pages serves one complete artifact.
+The apex is canonical; v5 remains a noindexed mirror.
 
 Source lives in `marionettejs/website`. Earlier design commits and checkouts remain
 preserved in the old website repository. The local preview still binds to loopback.
 
-## Preview deployment
+## Deployment
 
 Use Cloudflare Pages Direct Upload for an explicitly requested deployment:
 1. Run `npm run check`.
 2. Upload the contents of `dist/` as the site root, not the repository or a containing folder.
 3. Verify the homepage, Why page, docs, agent briefs, and real playground interaction.
 
-The preview stays noindexed. No GitHub Actions workflow, automatic Git integration,
-backend, or paid service is required. Future automation can deploy the same built
-assets explicitly if requested. Direct Upload projects cannot be converted to the
-built-in Git integration; that would require a separate Pages project.
-
-At main-site launch, coordinate the domain assignment, DNS, HTTPS, and older docs
-paths. Preserve the existing website as the rollback source. That cutover requires
-separate authorization.
+Keep deployments manual. The v4 GitHub Pages archive preserves the existing
+versioned documentation and download paths. `_redirects` maps only those legacy
+paths; current `/docs/` serves beta documentation. The old root `sw.js` unregisters
+retained legacy service workers and clears only their named precache. Keep that
+retirement file while returning browsers can retain those registrations.
 
 ## Search and sharing metadata
 
@@ -32,11 +29,9 @@ The built HTML contains descriptive page titles, descriptions, canonical URLs,
 Open Graph tags, and large-image social cards without requiring JavaScript.
 The canonical origin is `siteOrigin` in `scripts/build.mjs`.
 
-The preview allows crawling so link previews and agents can read the site.
-HTML robots metadata and Cloudflare's `_headers` retain `noindex, nofollow`;
-allowing crawling also lets search engines see that instruction. This preview
-is not intended to rank in search. At an authorized main-site launch, update
-`siteOrigin`, indexing directives, and add a sitemap for the final public routes.
+The main site is indexable and publishes `/sitemap.xml`. All hosts use canonical
+URLs on https://marionettejs.com. Host-specific headers keep v5 and the default
+Pages domain noindexed while still allowing agents and social crawlers to read.
 
 The editable share-card artwork is `content/social-card.svg`; the published
 1200 × 630 export is `site/assets/marionette-social.png`. Export with an SVG
@@ -110,22 +105,12 @@ reassessment and remaining gates.
 CSS, the live example, and copied draft brand SVGs. `scripts/build.mjs` produces
 static files in ignored `dist/`. `scripts/dev.mjs` serves only that output.
 
-`site/vendor/marionette.js` is a plain ESM bundle of library source at
-`8c8720317cfd59631335b9bc2d75269172b3db7f`, built with Rollup from a clean git archive
-and the package version in that archive. It has no external imports. The MIT notice
-is adjacent. `content/provenance.json` records the source and bundle hash. This is a
-development snapshot, not the older published npm artifact also called alpha.2.
-
-Do not regenerate the bundle from a moving working directory. For an intentional
-refresh, archive a chosen clean source commit, generate its version module from that
-commit's package.json, bundle its index.js as ESM using Rollup, copy its license and
-Region reference, update provenance and the guide's version links, then revalidate
-the demo. Rollup is needed only for that deliberate vendor refresh, not site builds.
-
-Brand SVGs come from `marionettejs/branding` and remain draft, local-review assets.
-Asset redistribution terms and font provenance must be resolved before public use.
-Option C uses HTML/CSS/SVG diagrams; the generated theatre image is preserved only in Option B.
-CSS uses system sans, serif, and monospace families; no fonts or analytics are fetched.
+`site/vendor/marionette.js` bundles the published `marionette@5.0.0-beta.1`
+with matching `@mnjs/radio` and `@mnjs/utils` from package-lock.json. Run
+`npm run vendor:build` after an intentional package upgrade. It verifies the
+package/docs versions, bundles ESM with esbuild, includes all MIT licenses, and
+records the npm integrity and resulting bundle hash in `content/provenance.json`.
+The homepage and playground use the same runtime and docs as the beta package.
 
 ## Launch copy
 
@@ -199,28 +184,12 @@ template data, replacement, and destruction. It is a browser check, not part of 
 Node-only test command. The build generates the agent brief's code example from the
 executable starter; a source test prevents the two from drifting.
 
-## Remaining work before launch
-
-- Iterate on the design and copy with Paul, then extend the shared visual language to the actual docs build.
-- Complete broader browser/accessibility testing and validate WebMCP in supported clients.
-- Add migration/benchmark results only after they exist and have been reviewed.
-- Map and preserve required historical documentation URLs from the current site.
-- Plan retirement of its existing service worker and test returning visitors.
-- Resolve asset publication terms, final naming, support/Patreon links, and hosting/rollback procedures.
-- Test the library beta extensively and obtain separate publication approval.
-
-The original website checkout and main website are untouched. Historical source remains
-in Git; this branch replaces the obsolete build rather than retaining two pipelines.
-
-The store artwork in `site/assets/store-header.png` is reused from the Marionette store header. Support links point to Patreon and `store.marionettejs.com`; membership prices and product inventory stay on those services.
-
 ## Documentation source
 
-In the library checkout, run `npm run docs:export`. Then explicitly import its
-export directory here:
+Import documentation from the exact published npm package used by the demos:
 
 ```sh
-npm run docs:import -- /absolute/path/to/library/.docs-export
+npm run docs:import -- /absolute/path/to/package/dist/docs
 npm run check
 ```
 
@@ -241,7 +210,7 @@ publishes `/docs/llms.txt` and
 `/docs/manifest.json`. Diagnostic pages at `/errors/` and their Markdown exports
 come from the included catalog. The catalog names `docs.marionettejs.com` diagnostic routes, while runtime errors
 still use the legacy versioned URL prefix. Align runtime URLs and diagnostic
-hosting in a separate release change; this v5 preview does not configure that host.
+hosting in a separate release change; this website serves its diagnostic reference under /errors/.
 
 Marked 18.0.12 renders Markdown with raw HTML escaped and unsafe URL schemes blocked.
 Pagefind 1.5.2 indexes generated pages during the build and serves search entirely
@@ -250,18 +219,12 @@ maintainer material with the Audience filter. There are no service
 keys, hosted search requests, AI inference calls, or request-based service charges
 in this implementation. Hosting providers can still impose free-tier limits.
 
-The homepage demo retains its separately pinned runtime and matching Markdown at
-`/reference/demo-region.md`; its source identity is `/reference/provenance.json`.
-This reading copy includes the demo revision, pins source links to that revision,
-and links diagnostic codes to its catalog. The unchanged reference source is at
-`/reference/demo-region-source.md`. The reading copy repairs one obsolete migration
-link to the matching historical guide; executable code remains unchanged.
-Refreshing canonical docs does not replace that runtime. Remove this separate
-reference when the demo is deliberately upgraded and verified against the same
-reviewed documentation snapshot.
+Publication wording fixes for the reading copies live in
+`content/docs-publication-edits.json`. Both HTML and agent Markdown apply these
+exact prose edits. Archived package Markdown and its hashes remain unchanged.
+Do not silently describe an edited source archive as the released artifact.
 
-The normal build creates a single `dist/` artifact containing marketing pages,
-documentation, search, and the browser workshop. Main-site hosting approval, historical URL mapping, and service-worker retirement
-remain broader launch work. This change adds no deploy command or automatic publication workflow.
+The normal build creates one `dist/` artifact containing marketing, documentation,
+search, and the workshop. Deploy the complete output to all three active hosts.
 
 Always deploy from this repository and branch with both marketing and documentation present. The old `marionettejs.com` docs worktree is not the deployment source. Preserve the full `dist/` build, including `/thanks/`, documentation, search, agent briefs, and pinned demo assets.

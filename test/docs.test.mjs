@@ -94,38 +94,6 @@ test('explicit historical revisions are not rewritten to the current snapshot', 
   assert.ok(html.includes(`/blob/${revision}/docs/marionette.region.md`));
 });
 
-test('demo reading Markdown preserves code and pins references to its own source', async () => {
-  const provenance = JSON.parse(await readFile(resolve(root, 'content/provenance.json'), 'utf8'));
-  const original = await readFile(resolve(root, 'content/demo-region-reference.md'), 'utf8');
-  const markdown = await readFile(resolve(root, 'dist/reference/demo-region.md'), 'utf8');
-  const base = `${provenance.libraryRepository}/blob/${provenance.libraryRevision}/`;
-  assert.ok(markdown.includes(`base revision ${provenance.libraryRevision}`));
-  assert.ok(markdown.includes('[Canonical source](/reference/demo-region-source.md)'));
-  assert.ok(markdown.includes('[Source identity](/reference/provenance.json)'));
-  assert.ok(markdown.includes(`${base}docs/upgrade-v2-v3.md#changes-to-regionshow`));
-  assert.ok(markdown.includes(`${base}config/diagnostics/catalog.json`));
-  const parser = new Marked();
-  const code = source => {
-    const blocks = [];
-    parser.walkTokens(parser.lexer(source), token => {
-      if (token.type === 'code' || token.type === 'codespan') blocks.push(token.text);
-    });
-    return blocks;
-  };
-  assert.deepEqual(code(markdown), code(original));
-  const links = [];
-  parser.walkTokens(parser.lexer(markdown), token => {
-    if (token.type === 'link') links.push(token.href);
-  });
-  for (const href of links) {
-    assert.ok(/^(?:#|\/reference\/|https?:)/.test(href), `Unresolved demo link: ${href}`);
-    if (href.startsWith(`${provenance.libraryRepository}/blob/`)) {
-      assert.ok(href.startsWith(base), `Demo link uses another revision: ${href}`);
-    }
-    assert.ok(!href.includes('/docs/upgrade.md'), 'Obsolete migration path');
-  }
-});
-
 test('supporting resources publish exact bytes and resolve from HTML and agent Markdown', async () => {
   const { manifest, pages, assets } = await readSnapshot(source);
   for (const asset of assets) {

@@ -50,8 +50,8 @@ ordinary imports do not create a runtime per View or Application instance. Class
 setters remain subclass-local within either form.
 
 Configure object-style adapters against the selected runtime's setters. For example,
-pass the `@marionette/adapters/dom/jquery` export to `isolated.setDomApi()`.
-Likewise, pass the `@marionette/adapters/backbone` export to the isolated
+pass the `@mnjs/adapters/dom/jquery` export to `isolated.setDomApi()`.
+Likewise, pass the `@mnjs/adapters/backbone` export to the isolated
 runtime's `setDataApi()` and `setStateApi()` methods when it consumes Backbone
 data or state. No implicit adapter configuration crosses runtime boundaries.
 
@@ -68,7 +68,7 @@ of the feature's adapters or resources.
 | `setDomApi(api)` | `View`, `CollectionView`, `Region` | Overlays own enumerable methods on each class's current DomApi. |
 | `setStateApi(api)` | `Application`, `Behavior`, `CollectionView`, `MnObject`, `View` | Overlays own enumerable methods on each class's current StateApi. |
 | `setRenderer(renderer)` | `View`, `CollectionView` | Replaces template evaluation with the supplied function. |
-| `setEventDelegator(delegator)` | `Behavior`, `CollectionView`, `View` | Replaces the delegator with an object exposing `delegate(options)`. |
+| `setEventDelegator(delegator)` | `Behavior`, `CollectionView`, `View` | Replaces the delegator with an object exposing `delegate(options)` that returns the cleanup function for that registration. |
 
 Root and runtime setter functions return `undefined`. Corresponding class
 methods, such as `CustomView.setDataApi(api)`, return that class and configure

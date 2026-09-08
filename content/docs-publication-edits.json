@@ -1,0 +1,51 @@
+{
+  "packageVersion": "5.0.0-beta.1",
+  "reason": "Publication wording updates for the website reading copy. Original npm documentation remains byte-for-byte available under /docs/markdown/.",
+  "edits": [
+    {
+      "source": "docs/installation.md",
+      "before": "This guide describes the current v5 source. Published alphas may lag behind it;\nsee [contributor setup](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository) to build and pack\nan unreleased checkout locally.",
+      "after": "This guide covers the published Marionette 5.0.0-beta.1 package and its matching companion packages."
+    },
+    {
+      "source": "docs/installation.md",
+      "before": "This command becomes available after the beta is published. Use documentation matching that\nartifact. To use the current-source APIs described here, [build and pack the\ncheckout](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository)\nand install the package artifacts from that same source revision. A matching\nalpha version string alone does not establish that a published package contains\nthe same APIs as this checkout.",
+      "after": "The beta is available on npm. Pin this exact version and use the matching documentation. For unreleased changes, build and pack a known source revision separately."
+    },
+    {
+      "source": "docs/installation.md",
+      "before": "The current v5 source includes declarations",
+      "after": "Marionette 5.0.0-beta.1 includes declarations"
+    },
+    {
+      "source": "docs/agents.md",
+      "before": "This documentation describes the current source. An npm alpha with the same\nversion string may contain older code. A website example, a copied prompt, or a\nthird-party search result is not proof that the installed package has that API.\nMatch the documentation's source revision to the artifact when available, then\ncheck the installed exports and declarations. Reproduce uncertain behavior with\na small test against that package.",
+      "after": "This documentation matches the published Marionette 5.0.0-beta.1 package. A website example, a copied prompt, or a third-party search result is not proof that another installed version has that API. Check the installed version, exports, and declarations; reproduce uncertain behavior with a small test against that package."
+    },
+    {
+      "source": "docs/production-and-performance.md",
+      "before": "During\n   alpha, align package versions and record the exact source revision when using\n   locally packed builds. The same alpha label may describe different source.",
+      "after": "During\n   prereleases, align package versions. Record the exact source revision when using\n   locally packed builds; a local build may differ from the published package."
+    },
+    {
+      "source": "docs/agent-tools.md",
+      "before": "An\nalpha version alone cannot identify a source commit;",
+      "after": "For local builds, the\nversion alone cannot identify a source commit;"
+    },
+    {
+      "source": "docs/beta.md",
+      "before": "`5.0.0-beta.1` is intended for application trials. Install that exact version from\nthe registry when available, or use the certified candidate tarballs before\npublication. A matching version string alone does not prove that a locally built\nartifact matches a release.",
+      "after": "`5.0.0-beta.1` is published on npm and ready for application trials. Install the exact registry version. A locally built artifact with the same version string may differ from the published release."
+    },
+    {
+      "source": "docs/beta.md",
+      "before": "The current registry alpha is an older implementation and is not this beta's API.",
+      "after": "Older registry alphas are different implementations and do not define this beta's API."
+    },
+    {
+      "source": "docs/beta.md",
+      "before": "After publication, install core and the optional native data package explicitly:",
+      "after": "Install core and the optional native data package explicitly:"
+    }
+  ]
+}

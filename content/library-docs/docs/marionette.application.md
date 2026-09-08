@@ -64,8 +64,9 @@ readiness.
 
 Constructor errors propagate to the caller. Marionette does not undo partially
 completed initialization or automatically release resources from a constructor
-that throws. Application's asynchronous lifecycle has its own cancellation and
-failure contract, described below.
+that throws. See the shared [synchronous failure boundary](./view.lifecycle.md#synchronous-failures).
+Application's asynchronous lifecycle has its own cancellation and failure contract,
+described below.
 
 ## Application Lifecycle
 
@@ -184,6 +185,9 @@ export function createSessionApplication({ el, loadSession }) {
 
 Create and start it at the application entry point:
 
+Serve this application and its API over HTTPS in production; relative requests
+use the application origin.
+
 ```javascript
 const app = createSessionApplication({
   el: document.querySelector('#root-element'),
@@ -221,7 +225,7 @@ instance. Registration does not construct or implicitly start the child. Use
 `hasChildApp(name)` before constructing a dynamic child when duplicate
 allocation matters. Registering the same instance again under its existing
 owner and name is an idempotent no-op. A conflicting owner, name, runtime, or cyclic ownership relationship throws
-[`MN0031`](/errors/MN0031/).
+[`MN0031`](diagnostic-catalog.md#look-up-a-code).
 
 Calls to `addChildApp` after the owner's destruction begins return the supplied
 value without inspecting or adopting it. A child from the same runtime whose

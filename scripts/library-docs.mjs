@@ -1,3 +1,4 @@
+import { publishedMarkdown } from './published-docs.mjs';
 import { readFile, mkdir, writeFile, realpath } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { resolve, posix, relative, isAbsolute, sep } from 'node:path';
@@ -49,6 +50,7 @@ function linkResolver(page, pages, manifest, format = 'html') {
   const bySource = new Map(pages.map(item => [item.source, item]));
   const resources = new Set((manifest.assets || []).map(asset => asset.source));
   return href => {
+    href = href.replace(/^https:\/\/v5\.marionettejs\.com(?=\/)/, '');
     if (/[\u0000-\u0020]/.test(href) || (/^[a-z][a-z0-9+.-]*:/i.test(href) && !/^(?:https?:|mailto:|tel:)/i.test(href))) return '#';
     if (href.startsWith('#')) return href;
     const github = href.match(/^https:\/\/github\.com\/marionettejs\/marionette\/blob\/(master|main|v5|[a-f0-9]{40})\/(.*)$/);
@@ -85,7 +87,7 @@ export function renderMarkdown(page, pages, manifest) {
   };
   renderer.image = ({ href, title, text }) => `<img src="${escapeHtml(rewrite(href))}" alt="${escapeHtml(text)}"${title ? ` title="${escapeHtml(title)}"` : ''} loading="lazy">`;
   const parser = new Marked({ renderer });
-  let html = parser.parse(page.markdown);
+  let html = parser.parse(publishedMarkdown(page));
   if (!headings.some(heading => heading.depth === 1)) html = `<h1>${escapeHtml(page.title)}</h1>\n${html}`;
   return { html, headings };
 }
@@ -108,17 +110,18 @@ export async function buildLibraryDocs({ directory, out, shell }) {
   const { manifest, pages, assets } = await readSnapshot(directory);
   for (const page of pages) {
     const { html, headings } = renderMarkdown(page, pages, manifest);
-    const provenance = `${manifest.packageVersion} · ${manifest.channel} · ${manifest.sourceRevision.slice(0, 8)}${manifest.sourceDirty ? ' + local changes' : ''}`;
-    const body = `<div class="docs-layout canonical-docs">${sidebar(page, pages)}<article class="prose docs-prose" data-pagefind-body><div class="docs-breadcrumb" data-pagefind-ignore>${escapeHtml(page.section)}</div><div class="docs-tools" data-pagefind-ignore><a href="${markdownUrl(page)}">Read Markdown</a><button type="button" data-copy-markdown="${markdownUrl(page)}">Copy Markdown</button><a href="${canonicalSourceUrl(page)}">Canonical source</a><a href="/docs/manifest.json">Source details</a><span class="copy-status" role="status"></span></div><p class="docs-version" data-pagefind-ignore>${escapeHtml(provenance)}. Development documentation; verify your installed source.</p><span hidden data-pagefind-filter="Audience">${page.section === 'Maintaining Marionette' ? 'Maintainers' : 'Consumer'}</span>${html}${adjacentPages(page, pages)}</article><aside class="docs-margin"><nav aria-label="On this page"><p class="eyebrow">ON THIS PAGE</p>${headings.filter(item => item.depth === 2).map(item => `<a href="#${escapeHtml(item.id)}">${item.text}</a>`).join('')}</nav><div class="docs-note"><p>The homepage demo uses its own pinned runtime snapshot.</p><a href="/reference/provenance.json">Demo source notes ↗</a></div></aside></div>`;
-    const rendered = shell({ title: page.title, description: `${page.title}. Marionette development documentation.`, active: 'docs', body, route: `/${page.route}/`, markdown: markdownUrl(page) });
+    const provenance = `${manifest.packageVersion} · Published beta · ${manifest.sourceRevision.slice(0, 8)}${manifest.sourceDirty ? ' + local changes' : ''}`;
+    const body = `<div class="docs-layout canonical-docs">${sidebar(page, pages)}<article class="prose docs-prose" data-pagefind-body><div class="docs-breadcrumb" data-pagefind-ignore>${escapeHtml(page.section)}</div><div class="docs-tools" data-pagefind-ignore><a href="${markdownUrl(page)}">Read Markdown</a><button type="button" data-copy-markdown="${markdownUrl(page)}">Copy Markdown</button><a href="${canonicalSourceUrl(page)}">Canonical source</a><a href="/docs/manifest.json">Source details</a><span class="copy-status" role="status"></span></div><p class="docs-version" data-pagefind-ignore>${escapeHtml(provenance)}. Published on npm. Match your installed version.</p><span hidden data-pagefind-filter="Audience">${page.section === 'Maintaining Marionette' ? 'Maintainers' : 'Consumer'}</span>${html}${adjacentPages(page, pages)}</article><aside class="docs-margin"><nav aria-label="On this page"><p class="eyebrow">ON THIS PAGE</p>${headings.filter(item => item.depth === 2).map(item => `<a href="#${escapeHtml(item.id)}">${item.text}</a>`).join('')}</nav><div class="docs-note"><p>The homepage demo runs this beta. Reading copies include publication wording updates; original packaged sources remain available above.</p><a href="/reference/provenance.json">Demo source notes ↗</a></div></aside></div>`;
+    const rendered = shell({ title: page.title, description: `${page.title}. Marionette 5.0.0-beta.1 documentation.`, active: 'docs', body, route: `/${page.route}/`, markdown: markdownUrl(page) });
     await mkdir(resolve(out, page.route), { recursive: true });
     await writeFile(resolve(out, page.route, 'index.html'), rendered);
     await mkdir(resolve(out, 'docs/markdown', posix.dirname(page.source)), { recursive: true });
     await writeFile(resolve(out, 'docs/markdown', page.source), page.markdown);
     await writeFile(resolve(out, markdownUrl(page).slice(1)), deriveMarkdown(page, pages, manifest));
   }
+  await writeFile(resolve(out, 'docs/publication.json'), await readFile(new URL('../content/docs-publication-edits.json', import.meta.url)));
   await writeFile(resolve(out, 'docs/manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
-  await writeFile(resolve(out, 'docs/llms.txt'), `# Marionette documentation\n\nVersion: ${manifest.packageVersion}\nChannel: ${manifest.channel}\nSource revision: ${manifest.sourceRevision}\nLocal changes: ${manifest.sourceDirty}\nContent SHA-256: ${manifest.contentSha256}\n\nUse the installed package version and source revision to select contracts. These development docs are not proof that the same API has been released. The reading Markdown rewrites links to this snapshot. Canonical source files remain available byte for byte under /docs/markdown/.\n\n${[...Map.groupBy(pages, page => page.section)].map(([section, entries]) => `## ${section}\n\n${entries.map(page => `- [${page.title}](${markdownUrl(page)})`).join('\n')}`).join('\n\n')}\n\n- [Diagnostic codes](/errors/index.md): active and retired runtime errors.\n- [Snapshot manifest](/docs/manifest.json): page routes, source paths, and original content hashes.\n`);
+  await writeFile(resolve(out, 'docs/llms.txt'), `# Marionette documentation\n\nVersion: ${manifest.packageVersion}\nChannel: beta (published on npm)\nSource revision: ${manifest.sourceRevision}\nLocal changes: ${manifest.sourceDirty}\nContent SHA-256: ${manifest.contentSha256}\n\nUse the installed package version and source revision to select contracts. These docs ship with the published marionette@5.0.0-beta.1 package. Website reading copies include publication wording updates; original packaged sources retain their original hashes. The reading Markdown rewrites links to this snapshot. Canonical source files remain available byte for byte under /docs/markdown/.\n\n${[...Map.groupBy(pages, page => page.section)].map(([section, entries]) => `## ${section}\n\n${entries.map(page => `- [${page.title}](${markdownUrl(page)})`).join('\n')}`).join('\n\n')}\n\n- [Diagnostic codes](/errors/index.md): active and retired runtime errors.\n- [Snapshot manifest](/docs/manifest.json): page routes, source paths, and original content hashes.\n`);
   for (const asset of assets) {
     const destination = resolve(out, 'docs/source', asset.source);
     await mkdir(posix.dirname(destination), { recursive: true });
@@ -165,7 +168,7 @@ async function buildDiagnostics({ out, shell, manifest, asset }) {
 export function deriveMarkdown(page, pages, manifest, { sourceUrl = canonicalSourceUrl(page), manifestUrl = '/docs/manifest.json' } = {}) {
   const rewrite = linkResolver(page, pages, manifest, 'markdown');
   let fence;
-  const lines = page.markdown.split('\n').map(line => {
+  const lines = publishedMarkdown(page).split('\n').map(line => {
     const marker = line.match(/^\s*(?:>\s*)?(`{3,}|~{3,})/);
     if (marker) {
       if (!fence) fence = marker[1];

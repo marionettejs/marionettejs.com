@@ -194,7 +194,7 @@ After application code places parent-owned DOM inside a template-less
 `CollectionView`, call `bindUIElements()` before reading it with `getUI()`. Use
 that method only to bind the CollectionView's own DOM, not child View DOM.
 Calling `getUI()` without a declared `ui` map or while UI elements are unbound throws
-[`MN0023`](/errors/MN0023/).
+[`MN0023`](diagnostic-catalog.md#look-up-a-code).
 
 When parent code needs a child, [retrieve the child View through the public
 `children` lookup APIs](#accessing-a-child-view) and call an intentional public
@@ -261,7 +261,7 @@ views to the collection's source order unless the `sortWithCollection` attribute
 presentation sort; it does not disable keyed source-order reconciliation.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { CollectionView, setDataApi, View } from 'marionette';
 
@@ -370,7 +370,7 @@ the ability to customize per `Model` `ChildViews`.
 
 ```javascript
 import _ from 'underscore';
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { CollectionView, setDataApi, View } from 'marionette';
 
@@ -440,7 +440,7 @@ if you need to determine _which_ View class to instantiate.
 
 ```javascript
 import _ from 'underscore';
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { CollectionView, setDataApi } from 'marionette';
 import MyListView from './my-list-view';
@@ -746,7 +746,7 @@ Use `map(view => view.id)` or `pluck('id')` instead of property-name shorthand.
 When `initialValue` is supplied, every child View is visited; an empty container
 returns that exact value without calling the callback. When it is omitted, the
 first child View becomes the accumulator and traversal starts at index `1`. An
-empty container without an initial value throws [`MN0024`](/errors/MN0024/).
+empty container without an initial value throws [`MN0024`](diagnostic-catalog.md#look-up-a-code).
 
 `pluck(key)` reads `key` directly from each child View. For example,
 `children.pluck('model')` returns the child Views' model objects, and a child
@@ -803,7 +803,7 @@ excluding `count` Views from the end or start of the container, respectively.
 The count is a nonnegative integer: `0` returns a new array of every child View,
 and a count greater than or equal to the container length returns `[]`. An empty
 container also returns `[]`. `first`, `initial`, `rest`, and `last` throw
-[`MN0024`](/errors/MN0024/) when a supplied count is not a nonnegative integer.
+[`MN0024`](diagnostic-catalog.md#look-up-a-code) when a supplied count is not a nonnegative integer.
 
 `without(...views)` returns a new ordered array excluding the exact child View
 instances supplied. Models and lookalike objects do not exclude their associated
@@ -825,7 +825,7 @@ The former undocumented Underscore aliases `forEach`, `detect`, `select`, `all`,
 `filter`, `every`, `some`, and `contains`, respectively.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { CollectionView, setDataApi } from 'marionette';
 
@@ -906,7 +906,7 @@ A numeric index bypasses sorting and filtering for that addition only. A later
 options object takes precedence over the separate positional argument.
 
 **Errors** Adding a View that is still managed by a Region or
-`CollectionView` throws [`MN0003`](/errors/MN0003/). Detach the View from its
+`CollectionView` throws [`MN0003`](diagnostic-catalog.md#look-up-a-code). Detach the View from its
 current owner before transferring it.
 
 Filtering a child out or adding it with `preventRender` still leaves it managed
@@ -976,7 +976,7 @@ If only one of the two children is in the presentation `children` container,
 [filter](#filtering-the-children) is called after swapping their owned order.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { CollectionView, setDataApi } from 'marionette';
 import MyChildView from './my-child-view';
@@ -1047,7 +1047,7 @@ const myCollectionView = new CollectionView({
 ```
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { CollectionView, setDataApi, View } from 'marionette';
 
@@ -1101,7 +1101,7 @@ the child order.
 Override this method to determine which `viewComparator` to use.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import { CollectionView, setDataApi } from 'marionette';
 
 setDataApi(BackboneApi);
@@ -1179,7 +1179,7 @@ in the DOM. This behavior can be disabled by specifying `{sortWithCollection: fa
 on initialize or on the view definiton.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { CollectionView, setDataApi, View } from 'marionette';
 
@@ -1253,7 +1253,7 @@ length, visits every index densely, and does not visit entries appended during
 that pass.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { CollectionView, setDataApi, View } from 'marionette';
 
@@ -1291,7 +1291,7 @@ must compare strictly equal; nested objects therefore match by identity. Arrays
 are not predicate objects.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { CollectionView, setDataApi, View } from 'marionette';
 
@@ -1323,7 +1323,7 @@ The `viewFilter` string represents the view's model attribute and will filter
 truthy values.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { CollectionView, setDataApi, View } from 'marionette';
 
@@ -1356,7 +1356,7 @@ Override this function to programatically decide which
 `viewFilter` to use when `filter` is called.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import { CollectionView, setDataApi } from 'marionette';
 
 setDataApi(BackboneApi);
@@ -1382,7 +1382,7 @@ returns the CollectionView without running the parent render lifecycle. Call
 it after initial rendering, or defer the pass until the initial `render()`.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { CollectionView, setDataApi, View } from 'marionette';
 
@@ -1412,7 +1412,7 @@ This function is actually an alias of `setFilter(null, options)`. It is useful
 for removing filters. `removeFilter` also accepts `preventRender` as a option.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { CollectionView, setDataApi, View } from 'marionette';
 

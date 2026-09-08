@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "packageName": "marionette",
-  "packageVersion": "5.0.0-alpha.2",
+  "packageVersion": "5.0.0-beta.1",
   "channel": "next",
   "sourceRepository": "https://github.com/marionettejs/marionette",
-  "sourceRevision": "2b5fde974abd94c2da911a02a4bbc0b486c7f661",
-  "sourceDirty": true,
-  "contentSha256": "6e4e563498cd2dec0a5e3dd39b3c3bfaa00cde55f5196ad2baf6e00f5f84d9fb",
+  "sourceRevision": "b06750c507494441f0b2298766b70087e45346a2",
+  "sourceDirty": false,
+  "contentSha256": "3fe8788a771994d9effd124fee94d7444637a27ec974a5b520ccbf43b55bbec9",
   "pages": [
     {
       "source": "docs/readme.md",
@@ -20,7 +20,14 @@
       "route": "docs/installation",
       "title": "Install and show a View",
       "section": "Start here",
-      "sha256": "c5d716a1902c118e48027208a1625df23ebb4cd756e0d4f5b8a68d7a0547fbbb"
+      "sha256": "54ce13baa827d4d776eca1dd8db948c5227d20460dad672e6483aea0c49dcaa9"
+    },
+    {
+      "source": "docs/beta.md",
+      "route": "docs/beta",
+      "title": "Try the beta candidate",
+      "section": "Start here",
+      "sha256": "f5ccc6d0dcfa278a26c6f2616d07dda2b33a620eb46f932549cd2d12442e9f32"
     },
     {
       "source": "docs/agents.md",
@@ -41,7 +48,7 @@
       "route": "docs/basics",
       "title": "Configuration and inheritance",
       "section": "Start here",
-      "sha256": "0bfe2f1977d11820704924e71acf1e66d3f1ddfe0dfa4716f99f8d7947f95c49"
+      "sha256": "3c4d2b2db02e5b83235bb223451236d37be9251ec7c8b29e9c32d83923463d32"
     },
     {
       "source": "docs/terminology.md",
@@ -69,63 +76,63 @@
       "route": "docs/view",
       "title": "View",
       "section": "Build interfaces",
-      "sha256": "28a7443d4117c3673f38961316321c63ce7505b8c2ef711c53a573a874ab37c8"
+      "sha256": "b7b5871b0b56474cc3bc2513c2e2c4fdabdafcd724bfbaa8076ea7eee40d5ab5"
     },
     {
       "source": "docs/marionette.region.md",
       "route": "docs/region",
       "title": "Region",
       "section": "Build interfaces",
-      "sha256": "b324868636b328f2e76d4b349b5a9bd38cecff7929eea2a2d319c0303d5d703d"
+      "sha256": "ac3ddce3ccc4a5ba6980986cec0ca6cfacb7ff9271e11bf3f21593636e1e94ce"
     },
     {
       "source": "docs/marionette.collectionview.md",
       "route": "docs/collection-view",
       "title": "CollectionView",
       "section": "Build interfaces",
-      "sha256": "73199897683244946ef156f5fc235ac3b3345a01a00079e6ac4cdf696b86ec7b"
+      "sha256": "5af1ed04daaf0e976fdd0538b0931fd370fd09167079d0c21b01195f8628cefe"
     },
     {
       "source": "docs/marionette.application.md",
       "route": "docs/application",
       "title": "Application",
       "section": "Build interfaces",
-      "sha256": "039409d5bde527746c309121f5360219a4bf2318b4407a68cf73d895ea9c8c51"
+      "sha256": "0c820bfdad7a67a5f0697aca747da3f8c8354246ddc0882aba7675bac5c48ddc"
     },
     {
       "source": "docs/marionette.behavior.md",
       "route": "docs/behavior",
       "title": "Behavior",
       "section": "Build interfaces",
-      "sha256": "440e2ce4b5809109aef4511f08f14e0de6aaa84eff6b7a81e5b0a95ef4efc232"
+      "sha256": "bf002b5ba380cf1bb1054b98f9813d89b4aef16ba6495d02b823ed178ab3f0c4"
     },
     {
       "source": "docs/view.lifecycle.md",
       "route": "docs/lifecycle",
       "title": "Lifecycle and cleanup",
       "section": "Build interfaces",
-      "sha256": "5d4a53950df4fd8f81ff9c7e905bdbd5b18e6ee62d48be2df5ab480e62c8fa13"
+      "sha256": "2cc29e59e056174bb2fcbd2888ee508ff6fb044b86e9fcacd1025c1f4e036133"
     },
     {
       "source": "docs/view.rendering.md",
       "route": "docs/rendering",
       "title": "Templates and rendering",
       "section": "Build interfaces",
-      "sha256": "db7162dad626891a00eda5169d7a59252232e439377a8b9c8a71d4ddebf7acea"
+      "sha256": "6b397b0925b00c06ff644cd549b2273ba6235e1d6148ad6fa0514394f9c92df5"
     },
     {
       "source": "docs/dom.interactions.md",
       "route": "docs/dom-interactions",
       "title": "DOM interactions",
       "section": "Build interfaces",
-      "sha256": "cdf80103aba747e71f6435fe2931d4ab688b93df891bb0e4aca86cc0ff31de80"
+      "sha256": "81bd678c7d498e08c08c84cfc3bbe1d27451ef46ed521e67fff4f72450bdbadb"
     },
     {
       "source": "docs/routing.md",
       "route": "docs/routing",
       "title": "Routing",
       "section": "Build interfaces",
-      "sha256": "382d88f11e81a85d2103940b63947e01c51a4085d02665b732fbf3f43b93e1ed"
+      "sha256": "060d74831a1b5fca0cfc161cec5ebcc4abb8775a205189ef80c4405bcb466e3f"
     },
     {
       "source": "docs/task-recipes.md",
@@ -160,7 +167,7 @@
       "route": "docs/security",
       "title": "Render untrusted content safely",
       "section": "Application guides",
-      "sha256": "466fac39255c91cc3e6cd089809953ce25b4d16d78d228f37e4f341f293518d3"
+      "sha256": "a84617af6d01cb2267c085a47a2022c9a4e14fa6d26d3b4609bd841dea59db9d"
     },
     {
       "source": "docs/production-and-performance.md",
@@ -174,7 +181,7 @@
       "route": "docs/choosing-integrations",
       "title": "Choose integrations",
       "section": "Choose integrations",
-      "sha256": "45e82a8260ff07a0c36fdfd6f14ce1ab2b71320b8755149c26d2913f67737ebc"
+      "sha256": "24ce6295dcc8cf8f587a52a935e2b351ebab4e9721e6ed311625c611eec0bc6c"
     },
     {
       "source": "docs/marionette.state.md",
@@ -188,14 +195,14 @@
       "route": "docs/data-api",
       "title": "Data and collections",
       "section": "Choose integrations",
-      "sha256": "66d916fb337a74200928f65f1c3983188728ee72ae6ec319376e817dcbf164d7"
+      "sha256": "73f0fa0c0ea339b15c07c17e8eee87d9cbbd8a2393195d777e3d4948f47e287f"
     },
     {
       "source": "docs/dom.api.md",
       "route": "docs/dom-api",
       "title": "DOM API",
       "section": "Choose integrations",
-      "sha256": "5508f9509858354aac21fb4a8cdb773fb330a06f8a8ab217cb49063756646e3e"
+      "sha256": "a697a637ae4c6cc92aa5d72850b404763f08e0417800feacc0b431ec073d3916"
     },
     {
       "source": "docs/dom.prerendered.md",
@@ -209,42 +216,42 @@
       "route": "docs/backbone",
       "title": "Backbone",
       "section": "Choose integrations",
-      "sha256": "19d900bbbab76db941ae28f251e66439de2ce77f5f99955d32d4d0b31a075bd4"
+      "sha256": "05bd7e97a8e76372aedcf05641184ec14ac1238bbc928723e2dc49cd3d73f854"
     },
     {
       "source": "docs/runtime-isolation.md",
       "route": "docs/runtime-isolation",
       "title": "Runtime isolation",
       "section": "Choose integrations",
-      "sha256": "f47e06e71c4ce357a13dc29cb31f2d3a05a65697673870db61529807c7070057"
+      "sha256": "e18927a5aa30558805018c9c28dffceaf02d953394efce8eaa7d35f0711de7f4"
     },
     {
       "source": "packages/data/readme.md",
       "route": "docs/data-package",
       "title": "Data package",
       "section": "Choose integrations",
-      "sha256": "cb0de01cb54512f5befdbe7863a7f10dee1395c3dc4b12a3248dee76bacdda62"
+      "sha256": "fc111bfead076ede1d9cf00fe9cd7d02ef5aac4ab2317bffba529dcca850b360"
     },
     {
       "source": "packages/adapters/readme.md",
       "route": "docs/adapters-package",
       "title": "Adapters package",
       "section": "Choose integrations",
-      "sha256": "0fd3cd1889b06de33a2e0be4d200c21bccf0464ec4840b63ba8cd45f57b98771"
+      "sha256": "2bdba0d62222d76124ce0e90fa2fe425cf16e3cf46b00a6ad7aaf33872f015b3"
     },
     {
       "source": "docs/common.md",
       "route": "docs/common",
       "title": "Common methods",
       "section": "API reference",
-      "sha256": "864ade4b79b56cc794ca16ebf1e89b376ba3d7e53c45b36a7d4309e9cf893836"
+      "sha256": "7187e547873539242ce1391e3d2af96c81a334c86900ba9a14c336e638775df6"
     },
     {
       "source": "docs/events.md",
       "route": "docs/events",
       "title": "Events",
       "section": "API reference",
-      "sha256": "9de90727d264c149030aa4d9b380f5a277a8263b68b6bce97bd1c24741c6a23a"
+      "sha256": "ecc54967f0964ae721d16a769db30016986a252eb391da5f3380f7d3b6b5adc3"
     },
     {
       "source": "docs/events.class.md",
@@ -258,21 +265,21 @@
       "route": "docs/entity-events",
       "title": "Model and collection events",
       "section": "API reference",
-      "sha256": "ca4aadd012e3221c83b4b7e8bcc891377de3d471f12a4cac6c6994b03912c539"
+      "sha256": "68b17daed92fab3108029e728c6f0263188e55ae860cf25df9a4307754457c00"
     },
     {
       "source": "docs/radio.md",
       "route": "docs/radio",
       "title": "Radio",
       "section": "API reference",
-      "sha256": "48f0ac747d3c040c7aae1af8790fffb0c867fbe45696e82dffb0bd22deb8b155"
+      "sha256": "a5180c67bddc1c84125b0c7ca7fe9db0efc633b669bab2dfd566db47527a2635"
     },
     {
       "source": "docs/utils.md",
       "route": "docs/utils",
       "title": "Utilities",
       "section": "API reference",
-      "sha256": "2306c8c61bfedb8d858882d36bb820243681522935a7566cdd0a6c48201af6d5"
+      "sha256": "5c2d0854895bb19f613926788cf81c5849cf18af1e43ac540e860b226fa80d2a"
     },
     {
       "source": "docs/marionette.mnobject.md",
@@ -286,154 +293,42 @@
       "route": "docs/diagnostics",
       "title": "Diagnostics",
       "section": "API reference",
-      "sha256": "19aeff1aaed0e915eaa24d5f8be83ef48debd0b18a6ad5ec08b7a8d52b961c13"
+      "sha256": "1df844c7e8edbea59a8c07776d656d45f77266108babb770d7690183fe85d180"
     },
     {
       "source": "docs/public-api.md",
       "route": "docs/public-api",
       "title": "Public exports",
       "section": "API reference",
-      "sha256": "45a19e54d7211895ec726ce12440f11607eba9c6c7f19e61d04da7b18ebd00ab"
+      "sha256": "e25fca5580c61df0c4971f4dfc9b1947667917eb650a76dab6be8c42be217e26"
     },
     {
       "source": "packages/radio/readme.md",
       "route": "docs/radio-package",
       "title": "Radio package",
       "section": "API reference",
-      "sha256": "6274b851774f731d0b718ce8f1d215c0bade00c3b0c1b9cbc7f92284be45f164"
+      "sha256": "60f7fc8cb3f782480cc9f91c565d9b8106c167d6089fa58da55381de972d207e"
     },
     {
       "source": "packages/utils/readme.md",
       "route": "docs/utils-package",
       "title": "Utils package",
       "section": "API reference",
-      "sha256": "9fb0c87fdb7f74dadcc79ba5c4a68c53ed8648fb5350bcdc5710ec86f87c9a0a"
+      "sha256": "c3529b92e78f3c25e894316d4776a6a355644f662dc412be769d2da597650b10"
     },
     {
       "source": "docs/migration-from-v4.md",
       "route": "docs/migration-from-v4",
       "title": "v4 compatibility ledger",
       "section": "Migration",
-      "sha256": "66fdcdf94e19fd8b22fef96eddbb81f41fcb37ec44e9c4ae3e3c3c482baa3a1b"
+      "sha256": "a835cd45ae3fe1bf0a35d6684d74bb9ac2806a91907e57a7cb4e344734e8aba1"
     },
     {
       "source": "upgradeGuide.md",
       "route": "docs/upgrade-guide",
       "title": "Upgrade guide",
       "section": "Migration",
-      "sha256": "fc92602f37058e73fbd81094b23ee419f3fc7ae21cec5f99dcdd228ab6dec367"
-    },
-    {
-      "source": "docs/performance-baselines.md",
-      "route": "docs/maintainers/performance",
-      "title": "Performance baselines",
-      "section": "Maintaining Marionette",
-      "sha256": "4d3d55c5ae8b343df2c3955716c0ba86b2eacd7d8be34de83623b7f0243e8ac5"
-    },
-    {
-      "source": "docs/release-profile.md",
-      "route": "docs/maintainers/release-profile",
-      "title": "Release profile",
-      "section": "Maintaining Marionette",
-      "sha256": "9a5ad1bfb3bc668326a73a4801f86a81fa0438da2d3e2edf19ee558fbf0cdb8f"
-    },
-    {
-      "source": "docs/release-promotion.md",
-      "route": "docs/maintainers/release-promotion",
-      "title": "Release promotion",
-      "section": "Maintaining Marionette",
-      "sha256": "40c1f33c319d99eb80c231eb91f6b875eba4f05b91971ec5e41bb2496c4895e5"
-    },
-    {
-      "source": "docs/maintainers/readme.md",
-      "route": "docs/maintainers",
-      "title": "Maintain Marionette",
-      "section": "Maintaining Marionette",
-      "sha256": "cd2d634f94ff986ed2a81b25616a033a42de6ddd8e0b90e7612996e97d57c0f9"
-    },
-    {
-      "source": "docs/maintainers/types.md",
-      "route": "docs/maintainers/types",
-      "title": "Type implementation",
-      "section": "Maintaining Marionette",
-      "sha256": "8aabfe7fccdcb54c3d17b976d9d7cc7e03240ca551639084ac3cfc7bb12f17e1"
-    },
-    {
-      "source": "docs/maintainers/documentation.md",
-      "route": "docs/maintainers/documentation",
-      "title": "Write and distribute documentation",
-      "section": "Maintaining Marionette",
-      "sha256": "2f1ac0e9ba59329b4f8283183b3814fec37452652d9d030a4a9e3b2840aaf5c0"
-    },
-    {
-      "source": "docs/maintainers/documentation-trial.md",
-      "route": "docs/maintainers/documentation-trial",
-      "title": "Documentation reading trial",
-      "section": "Maintaining Marionette",
-      "sha256": "72740a9bef0ae4d5fc3b249af31bb29697c8e74f544b4f43ffaafeacfe386dbd"
-    },
-    {
-      "source": "docs-site/README.md",
-      "route": "docs/maintainers/publication",
-      "title": "Build and distribute docs",
-      "section": "Maintaining Marionette",
-      "sha256": "61e5e05f140f6b5a27d19067ea9f2cbcb5707f1fd136f710e74760683edff584"
-    },
-    {
-      "source": "CONTRIBUTING.md",
-      "route": "docs/maintainers/contributing",
-      "title": "Contribute to Marionette",
-      "section": "Maintaining Marionette",
-      "sha256": "771c7048878620d353e6300e6e9ea18704222647a2ce19addf13399fc5762327"
-    },
-    {
-      "source": "AGENTS.md",
-      "route": "docs/maintainers/agent-instructions",
-      "title": "Maintainer agent instructions",
-      "section": "Maintaining Marionette",
-      "sha256": "9a8fccf74857b932a74dfb4788ac591cbaac6bc41f2ec163011307016712cced"
-    },
-    {
-      "source": "docs/maintainers/reference-audit.md",
-      "route": "docs/maintainers/reference-audit",
-      "title": "Reference accuracy audit",
-      "section": "Maintaining Marionette",
-      "sha256": "51faed73a5ad0fd4242cba39c41dc0c060385fdc9203c896cf8d59e3cee976e9"
-    },
-    {
-      "source": "docs/maintainers/source-comment-audit.md",
-      "route": "docs/maintainers/source-comment-audit",
-      "title": "Core source comment audit",
-      "section": "Maintaining Marionette",
-      "sha256": "72ecbad6ddd21e693b1252f747980093702b845c0331f37d9dcde3c6c393d8c1"
-    },
-    {
-      "source": "docs/maintainers/package-comment-audit.md",
-      "route": "docs/maintainers/package-comment-audit",
-      "title": "Companion source comment audit",
-      "section": "Maintaining Marionette",
-      "sha256": "4778beda55d06f2f617117523e331f80bd811eb5313b97712a05c8d21b361c01"
-    },
-    {
-      "source": "docs/maintainers/line-audit-core.md",
-      "route": "docs/maintainers/line-audit-core",
-      "title": "Core documentation line audit",
-      "section": "Maintaining Marionette",
-      "sha256": "d6beb2de71098f7b9b674982c708d7e39c41cdb045e2c18c00e78f6abeaef48e"
-    },
-    {
-      "source": "docs/maintainers/line-audit-integrations.md",
-      "route": "docs/maintainers/line-audit-integrations",
-      "title": "Integration documentation line audit",
-      "section": "Maintaining Marionette",
-      "sha256": "2992a87cea785d06fe4817db6f3d91787217387c7248e3c3bb40079239e4a245"
-    },
-    {
-      "source": "docs/maintainers/line-audit-operations.md",
-      "route": "docs/maintainers/line-audit-operations",
-      "title": "Operations documentation line audit",
-      "section": "Maintaining Marionette",
-      "sha256": "9a8eae662f8de460fe5d0c0e2e2b2802bee4beddda4543acd798fd12c320a722"
+      "sha256": "d107bb7018e6b8b352bce0d5d9699add3562bf18399d7b529d97c612a17956a3"
     }
   ],
   "assets": [
@@ -467,7 +362,7 @@
     },
     {
       "source": "test/fixtures/docs-region-lifecycle/package.json",
-      "sha256": "7e598ef0bde74bf43180c8111e13951a4c0cb566a34a29c253d88e409ef681fe"
+      "sha256": "6b741efe43994c16a687b0cd9d7b6ac5dce9cc761c36c80de9e45436126c5c6a"
     },
     {
       "source": "test/fixtures/docs-region-lifecycle/validate.mjs",
@@ -479,75 +374,7 @@
     },
     {
       "source": "skills/marionette/scripts/docs.mjs",
-      "sha256": "a8d70ace635bee19aa3d8ba24a0f1078e62b2d7fe5efd199299756b24dc2bb13"
-    },
-    {
-      "source": "benchmarks/docs/README.md",
-      "sha256": "fbd25d72631cd4482a7e010cb62cafe79dd11a7365c8a6a12a5d425dd87fd084"
-    },
-    {
-      "source": "benchmarks/docs/prepare.mjs",
-      "sha256": "633219a270ebc66d666c72399eb02349458204bb2f3659fcd2e75bcea3ce09e4"
-    },
-    {
-      "source": "benchmarks/docs/acceptance/run.mjs",
-      "sha256": "e23dd40bcc16a4fa29517c821837de44063fe8002fba74ae936e4f80dca8cdaa"
-    },
-    {
-      "source": "benchmarks/docs/tasks/editable-list.md",
-      "sha256": "e6514701aa8ed66100dac82e1b498b646a60d3f188b804196118a7470b415e24"
-    },
-    {
-      "source": "benchmarks/docs/tasks/latest-navigation.md",
-      "sha256": "7d6b670ea8107a7e6150d6d3477fa79659b7937717840d4a8936c6771af386e1"
-    },
-    {
-      "source": "benchmarks/docs/tasks/widget-lifetime.md",
-      "sha256": "e3b1326b1c790e49f71b5b24bdf16f8f48acced361b6e6c63f86f4ed6536796d"
-    },
-    {
-      "source": "benchmarks/docs/results/2026-09-08/README.md",
-      "sha256": "f756fc3b25617f022720ef4ff0269aa875395053f6ecaeb81fe7d7e386a1b436"
-    },
-    {
-      "source": "benchmarks/docs/results/2026-09-08/provenance.json",
-      "sha256": "59ed91b12db725711e6b821ba984c47364ddb58e8de0bc1c44369f2d2f40c76b"
-    },
-    {
-      "source": "benchmarks/docs/results/2026-09-08/editable-list/REPORT.md",
-      "sha256": "0fe0bef15f4a9d986d697ff8bb1419b49bc386131a94650d3944bf4c76673b6b"
-    },
-    {
-      "source": "benchmarks/docs/results/2026-09-08/editable-list/solution.mjs",
-      "sha256": "da88e74bd45d8b7560e7aef71f90d76c7717e318dc60e880e02f69ef4a2acb01"
-    },
-    {
-      "source": "benchmarks/docs/results/2026-09-08/editable-list/validate.mjs",
-      "sha256": "283872e73b4ad66b54be7d2a62a62e659809ac788ce659a33142bf878d0a77af"
-    },
-    {
-      "source": "benchmarks/docs/results/2026-09-08/latest-navigation/REPORT.md",
-      "sha256": "645b213deec78183ebaad83c671d1900fe1af6f88ad6303e2064a26ebd24b8b6"
-    },
-    {
-      "source": "benchmarks/docs/results/2026-09-08/latest-navigation/solution.mjs",
-      "sha256": "5d367d757f7cd4b79a76a486899bab4ff633f9a846a10abf3b149328d702171c"
-    },
-    {
-      "source": "benchmarks/docs/results/2026-09-08/latest-navigation/smoke.test.mjs",
-      "sha256": "db595df7c19da6e4fff2e74bf98ae04377aaa55be2e282c1a9b574bcaf2f1967"
-    },
-    {
-      "source": "benchmarks/docs/results/2026-09-08/widget-lifetime/REPORT.md",
-      "sha256": "6f77abf0102cb3431d029c125fb4e910dfd0d0db7970989b499759cbc2937e11"
-    },
-    {
-      "source": "benchmarks/docs/results/2026-09-08/widget-lifetime/solution.mjs",
-      "sha256": "3b70c8b4f9b078a61eca35062e997ae47bd120188737ad05c5b8291900a50e13"
-    },
-    {
-      "source": "benchmarks/docs/results/2026-09-08/widget-lifetime/validate.mjs",
-      "sha256": "63ce7734a20aa0b15717a2f22e032df3be306cbc26256c618354c0e98ffcd30e"
+      "sha256": "6f31b8546188937d173ea429d585e5de9913246c1eb852362efb840375fa2735"
     }
   ]
 }

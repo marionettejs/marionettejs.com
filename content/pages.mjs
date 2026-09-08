@@ -7,11 +7,11 @@ const demo = `<section class="demo application-demo" id="demo" aria-labelledby="
   <p class="demo-status" id="demo-status" role="status">One Application. A screen with independently owned parts.</p>
 </section>`;
 
-export const home = {title:'Marionette 5 — JavaScript library for agent-led development',description:'Build JavaScript applications with explicit structure, ownership, and lifecycles. Tuned for coding agents, with data and rendering tools you choose.',active:'home',body:`
+export const home = {title:'Marionette 5 Beta — JavaScript library for agent-led development',description:'Build JavaScript applications with explicit structure, ownership, and lifecycles. Tuned for coding agents, with data and rendering tools you choose.',active:'home',body:`
 <div class="opening-act"><svg class="opening-thread" aria-hidden="true"><path/></svg>
 <section class="night-hero">
   <div class="hero-grid" aria-hidden="true"></div>
-  <div class="night-copy"><p class="eyebrow"><span class="signal-dot"></span> MARIONETTE 5.0</p><h1>Pull a few<br><em>strings.</em></h1><p class="night-intro">A JavaScript library for interfaces,<br>tuned for agent-led development.</p><div class="night-actions"><a class="button" href="/why/">Explore Marionette <span aria-hidden="true">↗</span></a><a class="text-link" href="/docs/">Read the docs →</a></div></div>
+  <div class="night-copy"><p class="eyebrow"><span class="signal-dot"></span> MARIONETTE 5.0 · BETA 1</p><h1>Pull a few<br><em>strings.</em></h1><p class="night-intro">A JavaScript library for interfaces,<br>tuned for agent-led development.</p><div class="night-actions"><a class="button" href="/why/">Explore Marionette <span aria-hidden="true">↗</span></a><a class="text-link" href="/docs/">Read the docs →</a></div></div>
   <div class="rig" data-rig>
     <div class="rig-decoration" aria-hidden="true"><div class="rig-control"><span class="yoke-pin pin-left"></span><img src="/assets/mark.svg" width="68" height="70" alt=""><span class="yoke-pin pin-right"></span></div><svg class="rig-strings" viewBox="0 0 560 96" preserveAspectRatio="none"><path d="M84 0 V96 M476 0 V96"/><circle cx="84" cy="94" r="3"/><circle cx="476" cy="94" r="3"/></svg><span class="rig-annotation">A PLACE FOR EVERYTHING.</span></div>
     ${demo}
@@ -49,7 +49,7 @@ ${invitation}
  </figure>
 </section>
 <section class="night-honesty"><p class="eyebrow">03 / REASONABLE SUPERVISION</p><h2>We’re optimistic<br>about agents.<br><em>We’ve also read<br>the diffs.</em></h2><div><p>An agent can write the next feature. You should be able to follow what changed.</p><p>Marionette makes ownership explicit, gives changes a place to belong, and keeps the structure visible to whoever reads the diff.</p><a class="text-link" href="/why/#evidence">See the structure at work →</a></div><span class="honesty-mark" aria-hidden="true">*</span></section>
-<section class="night-closing"><p class="eyebrow">YES, THAT MARIONETTE.</p><h2>A familiar name.<br><span>Still pulling strings.</span></h2><p>Choose your data and rendering tools.<br>Marionette gives the application its structure.</p><a class="button" href="/why/">Explore Marionette 5.0 <span aria-hidden="true">↗</span></a></section>
+<section class="night-closing"><p class="eyebrow">YES, THAT MARIONETTE.</p><h2>A familiar name.<br><span>Still pulling strings.</span></h2><p>Choose your data and rendering tools.<br>Marionette gives the application its structure.</p><a class="button" href="/why/">Explore Marionette 5 Beta <span aria-hidden="true">↗</span></a></section>
 <section class="home-support" aria-labelledby="home-support-title">
  <div><p class="eyebrow">OPEN SOURCE / HUMAN MAINTAINED</p><h2 id="home-support-title">A little help behind the strings.</h2><p>Support the maintenance, docs, and releases on Patreon.<br>Or put your very specific taste in JavaScript on a T-shirt.</p><a class="text-link" href="/thanks/">Meet the people and tools behind Marionette →</a></div>
  <div class="support-actions"><a class="button" href="https://www.patreon.com/marionettejs">Support on Patreon <span aria-hidden="true">↗</span></a><a class="text-link" href="https://store.marionettejs.com/">Browse the merch store <span aria-hidden="true">↗</span></a></div>

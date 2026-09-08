@@ -10,7 +10,7 @@ arrays. Plain arrays are static snapshots: mutating one does not notify
 Marionette. Call `render()` after changing a plain array. Declaring
 `modelEvents` or `collectionEvents` for an unobservable plain value throws
 `MN0037` instead of manufacturing an event system. Both Backbone models and
-collections (through `BackboneApi`) and `@marionette/data` models and collections
+collections (through `BackboneApi`) and `@mnjs/data` models and collections
 are observable alternatives; preserve an existing provider that meets the task.
 
 ```javascript
@@ -93,7 +93,8 @@ constructor options, `initialize`, Behaviors, entity events, and other
 model-dependent state all belong to the current object. Marionette constructs
 every same-key replacement View before removing any existing child. A
 replacement-construction or rendering failure propagates to the caller. Core
-does not undo a partial update or promise recovery on the next notification.
+does not undo a partial update or promise recovery on the next notification. See
+[synchronous failures](https://github.com/marionettejs/marionette/blob/master/docs/view.lifecycle.md#synchronous-failures).
 
 An in-place `updated` entry requests a child render. Adapters for mutable models
 with their own change events can leave `updated` empty and let child
@@ -154,7 +155,7 @@ one role never selects the other.
 
 ## XState actors
 
-`@marionette/adapters/xstate` supports a parent XState v5 actor whose selected
+`@mnjs/adapters/xstate` supports a parent XState v5 actor whose selected
 ordered collection contains stable child actor references. The adapter uses
 the actor reference itself as `DataApi.key()`, reads and serializes the child
 actor's current `snapshot.context`, and observes the parent through its snapshot
@@ -166,7 +167,7 @@ actor whose `context.children` contains stable child actor references. The
 application owns actor creation, startup, and eventual shutdown.
 
 ```javascript
-import createXStateActorApi from '@marionette/adapters/xstate';
+import createXStateActorApi from '@mnjs/adapters/xstate';
 import { CollectionView, View } from 'marionette';
 
 const XStateActorApi = createXStateActorApi({
@@ -209,18 +210,18 @@ actor returned from `createState()` is owned and is stopped only after its
 Marionette-managed subscriptions are released. The adapter never traverses or
 stops child actors.
 
-## Optional `@marionette/data` sources
+## Optional `@mnjs/data` sources
 
-Install `@marionette/data` with `marionette` when an application wants a small
+Install `@mnjs/data` with `marionette` when an application wants a small
 first-party observable Model and ordered Collection without Backbone:
 
 ```sh
-npm install marionette @marionette/data
+npm install marionette@5.0.0-beta.1 @mnjs/data@5.0.0-beta.1
 ```
 
 ```javascript
 import { CollectionView, setDataApi, setStateApi, View } from 'marionette';
-import { Collection, DataApi, Model, StateApi } from '@marionette/data';
+import { Collection, DataApi, Model, StateApi } from '@mnjs/data';
 
 setDataApi(DataApi);
 setStateApi(StateApi);

@@ -17,11 +17,11 @@ test('every built page has valid local links, fragments, and asset references',a
     const html=await readFile(resolve(out,route),'utf8');
     assert.equal((html.match(/<h1[ >]/g)||[]).length,1,route);
     assert.match(html,/<html lang="en">/);
-    for (const link of ['/thanks/', 'https://www.patreon.com/marionettejs', 'https://store.marionettejs.com/', 'https://www.npmjs.com/package/marionette']) {
+    for (const link of ['/thanks/', 'https://www.patreon.com/marionettejs', 'https://store.marionettejs.com/', 'https://www.npmjs.com/package/marionette/v/5.0.0-beta.1']) {
       assert.ok(html.includes(`href="${link}"`), `${route}: missing shared footer link ${link}`);
     }
     assert.ok(html.includes('property="og:image"'), `${route}: missing social preview`);
-    assert.match(html,/<meta name="robots" content="noindex, nofollow">/);
+    assert.match(html,/<meta name="robots" content="index, follow">/);
     const base=new URL(route.replace(/index.html$/,''),'http://preview.local/');
     for(const [,ref]of html.matchAll(/(?:href|src)="([^"]+)"/g)){
       const url=new URL(ref,base);
@@ -49,12 +49,15 @@ test('all local JavaScript imports and CSS imports resolve in the built output',
   }
 });
 
-test('the published demo assets match the pinned local snapshot',async()=>{
+test('the demo runtime and documentation match the published beta',async()=>{
   const provenance=JSON.parse(await readFile(resolve(out,'reference/provenance.json'),'utf8'));
   assert.match(provenance.libraryRevision,/^[a-f0-9]{40}$/);
   const hash=createHash('sha256').update(await readFile(resolve(out,'vendor/marionette.js'))).digest('hex');
   assert.equal(hash,provenance.bundleSha256);
-  assert.equal(await readFile(resolve(out,'reference/demo-region-source.md'),'utf8'),await readFile(resolve(root,'content/demo-region-reference.md'),'utf8'));
+  assert.equal(provenance.packageVersion, '5.0.0-beta.1');
+  assert.equal(provenance.packageVersion, manifest.packageVersion);
+  assert.equal(provenance.libraryRevision, manifest.sourceRevision);
+  assert.equal(manifest.sourceDirty, false);
   assert.match(await readFile(resolve(out,'vendor/MARIONETTE-LICENSE.txt'),'utf8'),/MIT/);
 });
 

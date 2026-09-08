@@ -1,15 +1,15 @@
 # Website prototype
 
-Paul authorized a public test preview at `v5.marionettejs.com` on 2026-09-06.
-Use manual Cloudflare Pages deployments when requested. Do not add automatic
-publishing or move the main `marionettejs.com` website without separate explicit
-authorization. Keep the preview noindexed and preserve the existing GitHub Pages
-production site. Domain registration remains in DNSimple; DNS is in Cloudflare.
+Paul authorized the beta.1 launch on marionettejs.com, www.marionettejs.com,
+and v5.marionettejs.com on 2026-09-09. Use manual Cloudflare Pages deployments
+when requested. The apex is canonical and indexable; v5 is a noindexed mirror.
+Do not add automatic publishing. Preserve old documentation links via the
+v4.marionettejs.com GitHub Pages archive while those releases have consumers.
 
 This is the independent website repository. The earlier prototype and design
 options remain in their existing checkouts; preserve them. Keep the website independent of the library's working directory.
-Use the pinned vendor snapshot for the demo; never silently substitute npm's older
-alpha package or a moving local library build.
+Use the exact published beta pinned in package-lock.json for the demos.
+Rebuild the vendor bundle with npm run vendor:build; never substitute a moving local build.
 
 Use `npm run dev` for the loopback-only preview and `npm run check` for build and tests.
 Run `npm ci` with Node 24 before the first build. Static pages remain readable without JavaScript.

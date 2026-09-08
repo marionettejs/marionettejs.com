@@ -1,4 +1,4 @@
-import { View, Region } from '../vendor/marionette.js';
+import { View, Region } from '../vendor/marionette.js?v=5.0.0-beta.1';
 
 const hero = document.querySelector('.night-hero');
 const rig = document.querySelector('[data-rig]');

@@ -106,7 +106,7 @@ declared `ui` key, as the canonical example does with `@ui.save`.
 The handler receives the native DOM event as its first argument and runs with
 the View as its context. An `events` value must be a function or a string that
 resolves to a callable method. Invalid handlers throw `MarionetteError` with
-code [`MN0019`](/errors/MN0019/) before Marionette delegates any handler from
+code [`MN0019`](diagnostic-catalog.md#look-up-a-code) before Marionette delegates any handler from
 that event map.
 
 Delegation sees matching descendants throughout `el`. If a child View contains
@@ -191,7 +191,8 @@ adapter must not mutate View internals.
 Marionette invokes the returned cleanups during redelegation or destruction,
 in reverse registration order. Registration and cleanup errors propagate to the
 caller and stop the operation. Core does not roll back failed registration or
-attempt remaining cleanup after a callback throws.
+attempt remaining cleanup after a callback throws. See the shared
+[synchronous failure boundary](./view.lifecycle.md#synchronous-failures).
 
 `setEventDelegator` requires an adapter with a callable `delegate` method.
 Each registration must return a working cleanup. The TypeScript contract
@@ -290,14 +291,14 @@ each render.
 Use `getUI(name)` after declaring a `ui` map and binding its elements when
 application code needs a named element. Calling it without a declared map,
 before binding, or after unbinding throws
-`MarionetteError` with code [`MN0023`](/errors/MN0023/). Once bound, a missing
+`MarionetteError` with code [`MN0023`](diagnostic-catalog.md#look-up-a-code). Once bound, a missing
 key preserves the existing `undefined` result. Use the `@ui.<name>`
 form in `events`, `triggers`, Behaviors, and Regions so a selector change has one
 source of truth.
 
 Every `@ui.<name>` reference must contain a non-empty name for an own, declared
 key in the applicable `ui` map. Missing or inherited keys throw
-`MarionetteError` with code [`MN0018`](/errors/MN0018/) during normalization.
+`MarionetteError` with code [`MN0018`](diagnostic-catalog.md#look-up-a-code) during normalization.
 Selector values must be strings. An own key with `undefined` is not diagnosed
 as missing by core; do not rely on a particular result for that unsupported value.
 An explicitly declared empty selector is a known key, though the DOM API may
@@ -306,7 +307,7 @@ reject it when the selector is used.
 ## Optional jQuery DOM Adapter
 
 Applications that explicitly configure
-[`@marionette/adapters/dom/jquery`](./installation.md#jquery-dom-adapter-is-optional)
+[`@mnjs/adapters/dom/jquery`](./installation.md#jquery-dom-adapter-is-optional)
 before constructing Views receive jQuery collections from query methods. The
 [application-owned `$el` setup](./dom.api.md#optional-jquery-adapter) can add a
 wrapper on View, CollectionView, and Behavior subclasses; no base-class helper
