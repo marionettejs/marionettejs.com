@@ -24,7 +24,7 @@ for (const [expression, path] of entryModule.matchAll(/import\('(\.\/[^']+\.js)'
 }
 const entryUrl = `/assets/site.js?v=${createHash('sha256').update(entryModule).digest('hex').slice(0, 12)}`;
 export const escape = text => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
-const navigation = active => `<nav aria-label="Main navigation"><a ${active === 'why' ? 'aria-current="page"' : ''} href="/why/">Why Marionette</a><a ${active === 'docs' ? 'aria-current="page"' : ''} href="/docs/">Documentation</a><a class="nav-example" href="/#demo">Try it <span aria-hidden="true">↗</span></a></nav>`;
+const navigation = active => `<nav aria-label="Main navigation"><a ${active === 'why' ? 'aria-current="page"' : ''} href="/why/">Why Marionette</a><a ${active === 'docs' ? 'aria-current="page"' : ''} href="/docs/">Documentation</a><a class="nav-example" href="https://github.com/marionettejs/marionette">GitHub <span aria-hidden="true">↗</span></a></nav>`;
 const siteOrigin = 'https://v5.marionettejs.com';
 const shareImage = `${siteOrigin}/assets/marionette-social.png`;
 const socialMetadata = ({title, description, route}) => `
