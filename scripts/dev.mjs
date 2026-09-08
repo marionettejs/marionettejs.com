@@ -11,7 +11,7 @@ const port = Number(process.env.MARIONETTE_PREVIEW_PORT || 4175);
 const clients = new Set();
 const build = () => spawnSync(process.execPath,['scripts/build.mjs'],{cwd:root,stdio:'inherit'}).status === 0;
 if (!build()) process.exit(1);
-const types={'.png':'image/png','.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.md':'text/plain; charset=utf-8','.txt':'text/plain; charset=utf-8','.json':'application/json; charset=utf-8'};
+const types={'.png':'image/png','.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.md':'text/markdown; charset=utf-8','.txt':'text/plain; charset=utf-8','.json':'application/json; charset=utf-8','.wasm':'application/wasm'};
 const server=createServer(async(req,res)=>{
   res.setHeader('Cache-Control','no-store');
   res.setHeader('X-Content-Type-Options','nosniff');

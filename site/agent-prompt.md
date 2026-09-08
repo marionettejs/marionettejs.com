@@ -160,7 +160,7 @@ check. Do not claim these checks passed unless you ran them.
 - Provide separate CSS as text. System fonts and inline graphics are sufficient.
   The editor limit is 60,000 JS characters, 20,000 CSS characters, and a 100-character
   title. All three fields are required, although CSS may be empty.
-- [Region reference](/reference/region.md), [guide](/docs/regions/).
+- [Demo snapshot Region reference](/reference/demo-region.md), [guide](/docs/region/).
 
 The example below is generated from the same executable starter used by the
 workshop. Adapt its structure to the person; do not simply rename the counter.

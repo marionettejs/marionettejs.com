@@ -7,7 +7,9 @@ import { createHash } from 'node:crypto';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const out=resolve(root,'dist');
-const routes=['index.html','why/index.html','docs/regions/index.html','thanks/index.html','404.html'];
+const manifest=JSON.parse(await readFile(resolve(out,'docs/manifest.json'),'utf8'));
+const catalog=JSON.parse(await readFile(resolve(out,'docs/diagnostics.json'),'utf8'));
+const routes=['errors/index.html',...catalog.diagnostics.map(entry=>`errors/${entry.code}/index.html`),'thanks/index.html','index.html','why/index.html','404.html',...manifest.pages.map(page=>`${page.route}/index.html`)];
 
 test('every built page has valid local links, fragments, and asset references',async()=>{
   let checked=0;
@@ -15,6 +17,10 @@ test('every built page has valid local links, fragments, and asset references',a
     const html=await readFile(resolve(out,route),'utf8');
     assert.equal((html.match(/<h1[ >]/g)||[]).length,1,route);
     assert.match(html,/<html lang="en">/);
+    for (const link of ['/thanks/', 'https://www.patreon.com/marionettejs', 'https://store.marionettejs.com/', 'https://www.npmjs.com/package/marionette']) {
+      assert.ok(html.includes(`href="${link}"`), `${route}: missing shared footer link ${link}`);
+    }
+    assert.ok(html.includes('property="og:image"'), `${route}: missing social preview`);
     assert.match(html,/<meta name="robots" content="noindex, nofollow">/);
     const base=new URL(route.replace(/index.html$/,''),'http://preview.local/');
     for(const [,ref]of html.matchAll(/(?:href|src)="([^"]+)"/g)){
@@ -34,7 +40,7 @@ test('every built page has valid local links, fragments, and asset references',a
 });
 
 test('all local JavaScript imports and CSS imports resolve in the built output',async()=>{
-  for(const file of ['assets/site.js','assets/demo.js','assets/motion.js','assets/playground.js','assets/playground-runtime.js','assets/playground.css','assets/site.css','assets/night.css']){
+  for(const file of ['assets/site.js','assets/demo.js','assets/motion.js','assets/playground.js','assets/playground-runtime.js','assets/playground.css','assets/site.css','assets/night.css','assets/docs.js','assets/docs.css']){
     const body=await readFile(resolve(out,file),'utf8');
     for(const match of body.matchAll(/(?:from\s*|import\(|@import url\()['"]([^'"]+)['"]/g)){
       const target=resolve(dirname(resolve(out,file)),match[1].split('?')[0]);
@@ -48,7 +54,7 @@ test('the published demo assets match the pinned local snapshot',async()=>{
   assert.match(provenance.libraryRevision,/^[a-f0-9]{40}$/);
   const hash=createHash('sha256').update(await readFile(resolve(out,'vendor/marionette.js'))).digest('hex');
   assert.equal(hash,provenance.bundleSha256);
-  assert.equal(await readFile(resolve(out,'reference/region.md'),'utf8'),await readFile(resolve(root,'content/region-reference.md'),'utf8'));
+  assert.equal(await readFile(resolve(out,'reference/demo-region-source.md'),'utf8'),await readFile(resolve(root,'content/demo-region-reference.md'),'utf8'));
   assert.match(await readFile(resolve(out,'vendor/MARIONETTE-LICENSE.txt'),'utf8'),/MIT/);
 });
 

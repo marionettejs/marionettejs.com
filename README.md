@@ -45,7 +45,7 @@ Social services may cache old previews after deployment.
 
 ## View locally
 
-Requires Node.js 24 or newer. There are no package dependencies to install.
+Requires Node.js 24 or newer. Run `npm ci` before the first build to install the pinned documentation renderer and search tools.
 
 ```sh
 npm run dev
@@ -72,15 +72,16 @@ the event trace come from the pinned runtime. See `planning/design-directions.md
 
 - Homepage: dark interactive composition, draft brand assets, candid positioning, and a real Application with a screen View, CollectionView, and detail Region.
 - `/why/`: adoption criteria, community/hiring concerns, the AI-slop question, and evidence boundaries.
-- `/docs/regions/`: a focused guide with source links and a matching Markdown reference.
+- `/docs/`: the canonical documentation snapshot, with local search, task navigation, diagnostics, and copyable Markdown.
 - `/thanks/`: Patreon support, the merch store, credits and review tools, and maintainer acknowledgements. Future supporter names belong here only after confirmation and permission.
 - `/llms.txt`: a compact task-oriented entry point with explicit version/status.
 - `/agent-prompt.md`: optional visible-browser workshop brief with explicit effort limits.
 - `/#playground`: theatrical reveal, editable JS/CSS, agent build notes, and actual app preview.
 - Optional WebMCP tools operate the same demo where `document.modelContext` is supported.
 
-The full documentation site remains owned by the library repository. The local docs
-page is a representative design/learning slice, not a second complete reference site.
+Canonical documentation is authored in the library repository and imported here as
+a verified snapshot. This website renders that full snapshot alongside marketing;
+do not maintain a second handwritten reference.
 
 ## Agent workshop
 
@@ -208,7 +209,59 @@ executable starter; a source test prevents the two from drifting.
 - Resolve asset publication terms, final naming, support/Patreon links, and hosting/rollback procedures.
 - Test the library beta extensively and obtain separate publication approval.
 
-The original website checkout and live site are untouched. Historical source remains
+The original website checkout and main website are untouched. Historical source remains
 in Git; this branch replaces the obsolete build rather than retaining two pipelines.
 
 The store artwork in `site/assets/store-header.png` is reused from the Marionette store header. Support links point to Patreon and `store.marionettejs.com`; membership prices and product inventory stay on those services.
+
+## Documentation source
+
+In the library checkout, run `npm run docs:export`. Then explicitly import its
+export directory here:
+
+```sh
+npm run docs:import -- /absolute/path/to/library/.docs-export
+npm run check
+```
+
+The importer validates source paths, routes, every content hash, and the aggregate
+digest before replacing `content/library-docs/`. Commit that generated snapshot
+with its manifest after reviewing the source diff. Do not edit imported Markdown.
+The manifest records the package version, base source revision, content digest, and
+whether the source checkout includes local changes. A local-change snapshot is suitable
+for review; publish from a reviewed committed revision. Version alone is not enough
+to identify development snapshots that share the same alpha number.
+
+The build renders all pages at manifest routes under `/docs/`, publishes reading Markdown at the same route with `.md` (the index uses `/docs/index.md`),
+and preserves canonical source byte for byte under `/docs/markdown/`. Reading
+Markdown resolves documentation links to the snapshot and other source links to its
+base revision; fenced examples and inline code remain unchanged. Its metadata names
+the original source hash, not a hash of the transformed Markdown. The build also
+publishes `/docs/llms.txt` and
+`/docs/manifest.json`. Diagnostic pages at `/errors/` and their Markdown exports
+come from the included catalog. The catalog names `docs.marionettejs.com` diagnostic routes, while runtime errors
+still use the legacy versioned URL prefix. Align runtime URLs and diagnostic
+hosting in a separate release change; this v5 preview does not configure that host.
+
+Marked 18.0.12 renders Markdown with raw HTML escaped and unsafe URL schemes blocked.
+Pagefind 1.5.2 indexes generated pages during the build and serves search entirely
+from static files. Search begins with consumer docs selected; readers can include
+maintainer material with the Audience filter. There are no service
+keys, hosted search requests, AI inference calls, or request-based service charges
+in this implementation. Hosting providers can still impose free-tier limits.
+
+The homepage demo retains its separately pinned runtime and matching Markdown at
+`/reference/demo-region.md`; its source identity is `/reference/provenance.json`.
+This reading copy includes the demo revision, pins source links to that revision,
+and links diagnostic codes to its catalog. The unchanged reference source is at
+`/reference/demo-region-source.md`. The reading copy repairs one obsolete migration
+link to the matching historical guide; executable code remains unchanged.
+Refreshing canonical docs does not replace that runtime. Remove this separate
+reference when the demo is deliberately upgraded and verified against the same
+reviewed documentation snapshot.
+
+The normal build creates a single `dist/` artifact containing marketing pages,
+documentation, search, and the browser workshop. Main-site hosting approval, historical URL mapping, and service-worker retirement
+remain broader launch work. This change adds no deploy command or automatic publication workflow.
+
+Always deploy from this repository and branch with both marketing and documentation present. The old `marionettejs.com` docs worktree is not the deployment source. Preserve the full `dist/` build, including `/thanks/`, documentation, search, agent briefs, and pinned demo assets.

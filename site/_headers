@@ -1,0 +1,6 @@
+# Preserve code examples and documentation bytes through Cloudflare's HTML processing.
+/docs/*
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+
+/errors/*
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
