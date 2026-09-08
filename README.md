@@ -25,6 +25,9 @@ separate authorization.
 
 ## Search and sharing metadata
 
+Stylesheets, the JavaScript entry point, and its directly loaded modules use content
+versions in their URLs so returning visitors receive changed code and styles.
+
 The built HTML contains descriptive page titles, descriptions, canonical URLs,
 Open Graph tags, and large-image social cards without requiring JavaScript.
 The canonical origin is `siteOrigin` in `scripts/build.mjs`.
@@ -60,14 +63,17 @@ Use `MARIONETTE_PREVIEW_PORT` to select a different explicit port if necessary.
   <http://127.0.0.1:4177/>. Start with `MARIONETTE_PREVIEW_PORT=4177 npm run dev`.
 
 Both earlier options remain intact in separate checkouts. Options A and B remain local.
-C explores a dark palette, bold typography, scrolling parallax, and interactive
-lifecycle diagrams. See `planning/design-directions.md` for comparison criteria.
+C explores a dark palette, bold typography, scrolling parallax, and a live
+Marionette lifecycle diagram. Its Region owns the visible card; destruction is
+synchronous, while an inert visual copy finishes the exit animation. Status and
+the event trace come from the pinned runtime. See `planning/design-directions.md` for comparison criteria.
 
 ## Prototype pages
 
 - Homepage: dark interactive composition, draft brand assets, candid positioning, and a real Application with a screen View, CollectionView, and detail Region.
 - `/why/`: adoption criteria, community/hiring concerns, the AI-slop question, and evidence boundaries.
 - `/docs/regions/`: a focused guide with source links and a matching Markdown reference.
+- `/thanks/`: Patreon support, the merch store, credits and review tools, and maintainer acknowledgements. Future supporter names belong here only after confirmation and permission.
 - `/llms.txt`: a compact task-oriented entry point with explicit version/status.
 - `/agent-prompt.md`: optional visible-browser workshop brief with explicit effort limits.
 - `/#playground`: theatrical reveal, editable JS/CSS, agent build notes, and actual app preview.
@@ -204,3 +210,5 @@ executable starter; a source test prevents the two from drifting.
 
 The original website checkout and live site are untouched. Historical source remains
 in Git; this branch replaces the obsolete build rather than retaining two pipelines.
+
+The store artwork in `site/assets/store-header.png` is reused from the Marionette store header. Support links point to Patreon and `store.marionettejs.com`; membership prices and product inventory stay on those services.

@@ -1,3 +1,5 @@
+import { View, Region } from '../vendor/marionette.js';
+
 const hero = document.querySelector('.night-hero');
 const rig = document.querySelector('[data-rig]');
 const scene = document.querySelector('.ownership-scene');
@@ -8,11 +10,6 @@ const play = document.querySelector('.sequence-play');
 const toggle = document.querySelector('.motion-toggle');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
-const phases = [
-  {description:'The Region renders and attaches its current View.', label:'A Region displays NotesView.', command:'region.show(notes);'},
-  {description:'Showing a different View destroys the previous one before displaying its replacement.', label:'NotesView is destroyed and TasksView becomes the current View.', command:'region.show(tasks);'},
-  {description:'Emptying the Region destroys its current View. The Region remains ready to use again.', label:'TasksView is destroyed and the Region is empty.', command:'region.empty();'}
-];
 let paused = false;
 let frame = 0;
 let pointerX = 0;
@@ -20,15 +17,78 @@ let pointerY = 0;
 let invitationPointer = null;
 let playback = 0;
 let phase = 0;
-function selectPhase(next) {
-  phase = next;
-  scene.dataset.phase = String(next);
-  scene.setAttribute('aria-label', `Lifecycle illustration: ${phases[next].label}`);
-  description.textContent = phases[next].description;
-  command.textContent = phases[next].command;
-  scene.querySelector('[data-receipt]').textContent = next === 2 ? 'Current View destroyed' : 'Previous View destroyed';
-  for (const button of controls) button.setAttribute('aria-pressed', String(Number(button.dataset.phase) === next));
+const eventOutput = document.querySelector('#lifecycle-events');
+const region = new Region({ el:scene.querySelector('.lifecycle-slot') });
+const events = [];
+let previous = null;
+let ghostTimer = 0;
+function clearGhost() {
+  clearTimeout(ghostTimer);
+  scene.querySelector('.lifecycle-ghost')?.remove();
 }
+function record(name, event) {
+  events.push(`${name}: ${event}`);
+  eventOutput.textContent = events.join(' → ');
+}
+const Card = View.extend({
+  templateContext() { return this.options; },
+  template:({ name, number }) => `<span>VIEW / ${number}</span><strong>${name}</strong><div class="skeleton"><i></i><i></i><i></i></div><small>rendered → attached</small>`
+});
+const NotesView = Card.extend({ className:'diagram-view old-view' });
+const TasksView = Card.extend({ className:'diagram-view new-view' });
+function createCard(next) {
+  const view = next === 0 ? new NotesView({name:'NotesView',number:'01'}) : new TasksView({name:'TasksView',number:'02'});
+  for (const event of ['render', 'attach', 'destroy']) view.on(event, () => record(view.options.name, event));
+  view.el.dataset.viewId = view.cid;
+  return view;
+}
+function reflectRegion() {
+  const view = region.currentView;
+  phase = view ? (view instanceof NotesView ? 0 : 1) : 2;
+  scene.dataset.phase = String(phase);
+  scene.dataset.regionId = region.cid;
+  scene.dataset.currentView = view?.cid || '';
+  scene.dataset.attached = String(!!view?.isAttached());
+  scene.dataset.destroyed = String(!!previous?.isDestroyed());
+  scene.dataset.previousView = previous?.cid || '';
+  const message = view ? `${view.options.name} rendered and attached.` : 'The Region is empty and ready for another View.';
+  const cleanup = previous?.isDestroyed() ? `${previous.options.name} destroyed. ` : '';
+  description.textContent = cleanup + message;
+  scene.setAttribute('aria-label', `Live Marionette lifecycle: ${cleanup}${message}`);
+  scene.querySelector('[data-receipt]').textContent = cleanup.trim();
+  for (const button of controls) button.setAttribute('aria-pressed', String(Number(button.dataset.phase) === phase));
+}
+region.on('before:empty', (_, view) => {
+  previous = view;
+  if (paused || reduced.matches || document.hidden) return;
+  // This decorative copy has no View instance, event handlers, or Region ownership.
+  const ghost = view.el.cloneNode(true);
+  ghost.removeAttribute('data-view-id');
+  ghost.classList.add('lifecycle-ghost');
+  ghost.setAttribute('aria-hidden', 'true');
+  ghost.inert = true;
+  scene.append(ghost);
+  ghost.addEventListener('animationend', () => ghost.remove(), {once:true});
+  ghostTimer = setTimeout(() => ghost.remove(), 850);
+});
+region.on('show', reflectRegion);
+region.on('empty', () => {
+  if (!region.isSwappingView()) reflectRegion();
+});
+function selectPhase(next) {
+  if (next === phase && region.hasView()) return;
+  if (next === 2 && !region.hasView()) return;
+  clearGhost();
+  events.length = 0;
+  previous = null;
+  command.textContent = next === 2 ? 'region.empty();' : `region.show(${next === 0 ? 'notes' : 'tasks'});`;
+  if (next === 2) region.empty();
+  else region.show(createCard(next));
+}
+// Replace the readable, no-JavaScript illustration with the actual owned View.
+scene.classList.add('lifecycle-live');
+region.show(createCard(0));
+eventOutput.hidden = false;
 function stopPlayback() {
   clearTimeout(playback);
   playback = 0;
@@ -71,7 +131,7 @@ function requestRender() {
 }
 function refreshMotion() {
   const off = paused || reduced.matches;
-  if (off) { stopPlayback(); invitationPointer = null; }
+  if (off) { stopPlayback(); clearGhost(); invitationPointer = null; }
   toggle.disabled = reduced.matches;
   toggle.setAttribute('aria-pressed', String(off));
   toggle.textContent = reduced.matches ? 'Reduced motion enabled' : paused ? 'Restore motion' : 'Reduce motion';
@@ -106,7 +166,10 @@ document.addEventListener('visibilitychange', () => {
   requestRender();
 });
 reduced.addEventListener('change', refreshMotion);
-addEventListener('pagehide', () => { stopPlayback(); cancelAnimationFrame(frame); frame = 0; });
+addEventListener('pagehide', event => {
+  stopPlayback(); clearGhost(); cancelAnimationFrame(frame); frame = 0;
+  if (!event.persisted) { region.off(); region.destroy(); }
+});
 addEventListener('pageshow', requestRender);
 for (const button of controls) button.disabled = false;
 description.setAttribute('aria-live', 'polite');
