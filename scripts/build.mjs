@@ -16,9 +16,17 @@ const stylesheetUrls = Object.fromEntries(await Promise.all(['site', 'night', 'p
   const css = await readFile(resolve(root, `site/assets/${name}.css`));
   return [name, `/assets/${name}.css?v=${createHash('sha256').update(css).digest('hex').slice(0, 12)}`];
 })));
+// Version the workshop's static imports before hashing the module that loads it.
+// Otherwise returning browsers can combine new tools with a cached old runner.
+let workshopModule = await readFile(resolve(root, 'site/assets/playground.js'), 'utf8');
+for (const [expression, path] of workshopModule.matchAll(/from '(\.\/[^']+\.js)'/g)) {
+  const source = await readFile(resolve(root, 'site/assets', path));
+  const version = createHash('sha256').update(source).digest('hex').slice(0, 12);
+  workshopModule = workshopModule.replace(expression, `from '${path}?v=${version}'`);
+}
 let entryModule = await readFile(resolve(root, 'site/assets/site.js'), 'utf8');
 for (const [expression, path] of entryModule.matchAll(/import\('(\.\/[^']+\.js)'\)/g)) {
-  const source = await readFile(resolve(root, 'site/assets', path));
+  const source = path === './playground.js' ? workshopModule : await readFile(resolve(root, 'site/assets', path));
   const version = createHash('sha256').update(source).digest('hex').slice(0, 12);
   entryModule = entryModule.replace(expression, `import('${path}?v=${version}')`);
 }
@@ -51,6 +59,7 @@ await rm(out, {recursive:true, force:true});
 await mkdir(out, {recursive:true});
 await cp(resolve(root, 'site'), out, {recursive:true});
 await writeFile(resolve(out, 'assets/site.js'), entryModule);
+await writeFile(resolve(out, 'assets/playground.js'), workshopModule);
 const agentBrief = await readFile(resolve(root, 'site/agent-prompt.md'), 'utf8');
 if (agentBrief.split('<!-- playground-starter -->').length !== 2) throw new Error('Expected exactly one playground starter marker in the agent brief.');
 const compiledBrief = agentBrief.replace('<!-- playground-starter -->', () => `\`\`\`js\n${starter.code}\n\`\`\``);

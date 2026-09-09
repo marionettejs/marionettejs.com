@@ -66,7 +66,7 @@ test('the demo runtime and documentation match the published beta',async()=>{
 });
 
 
-test('entry and directly loaded modules use content versions to invalidate browser caches', async () => {
+test('entry, workshop and nested runtime imports use content versions to invalidate browser caches', async () => {
   const entry = await readFile(resolve(out, 'assets/site.js'), 'utf8');
   const version = source => createHash('sha256').update(source).digest('hex').slice(0, 12);
   const html = await readFile(resolve(out, 'index.html'), 'utf8');
@@ -76,4 +76,11 @@ test('entry and directly loaded modules use content versions to invalidate brows
   for (const [, path, hash] of imports) {
     assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
   }
+  const workshop = await readFile(resolve(out, 'assets/playground.js'), 'utf8');
+  const dependencies = [...workshop.matchAll(/from '(\.\/[^']+\.js)\?v=([a-f0-9]+)'/g)];
+  assert.deepEqual(dependencies.map(([, path]) => path).sort(), ['./playground-recipes.js', './playground-runtime.js']);
+  for (const [, path, hash] of dependencies) {
+    assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
+  }
+  assert.doesNotMatch(workshop, /from '\.\/[^']+\.js'/);
 });
