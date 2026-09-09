@@ -39,6 +39,7 @@ export async function readSnapshot(directory) {
     assets.push({ ...asset, content }); sources.add(asset.source);
   }
   if (!assets.some(asset => asset.source === 'config/diagnostics/catalog.json')) throw new Error('Expected diagnostic catalog asset.');
+  if (!sources.has('docs/troubleshooting.md')) throw new Error('Expected troubleshooting documentation page.');
   const digest = hash([...pages, ...assets].sort((a, b) => a.source.localeCompare(b.source, 'en')).map(page => `${page.source}\0${page.sha256}\n`).join(''));
   if (digest !== manifest.contentSha256) throw new Error('Documentation snapshot digest mismatch.');
   if (!routes.has('docs')) throw new Error('Documentation snapshot has no landing page.');
@@ -176,7 +177,7 @@ async function buildDiagnostics({ out, shell, manifest, asset, development }) {
       .filter(Boolean).map(page => `[${page.title}](/${page.route}/)`).join(' · ');
     const exampleSource = development.manifest.pages.find(page => page.source === 'docs/troubleshooting.md');
     const supplement = example ? `\n## Failing and corrected example\n\n${example}\n\n[Example source and checks](/docs/troubleshooting/) · [Source identity](/docs/manifest.json)\n\n<!-- Example source: docs/troubleshooting.md; revision ${development.manifest.sourceRevision}; source SHA-256 ${exampleSource.sha256}. Catalog provenance identifies the diagnostic separately. -->\n` : '';
-    const markdown = `# ${title}\n\nStatus: ${diagnostic.status}\nObjects: ${diagnostic.objects.join(', ')}\nCategory: ${diagnostic.category}\nSeverity: ${diagnostic.severity}\n\n## Remediation\n\n${diagnostic.remediation}\n\n${references}\n\n[Troubleshoot by symptom](/docs/troubleshooting/)\n${supplement}\n[Diagnostic catalog](/errors/) · [Source identity](/docs/manifest.json)\n`;
+    const markdown = `# ${title}\n\nStatus: ${diagnostic.status}\nReported by: ${diagnostic.surfaces.join(', ')}\nObjects: ${diagnostic.objects.join(', ')}\nCategory: ${diagnostic.category}\nSeverity: ${diagnostic.severity}\n\n## Remediation\n\n${diagnostic.remediation}\n\n${references}\n\n[Troubleshoot by symptom](/docs/troubleshooting/)\n${supplement}\n[Diagnostic catalog](/errors/) · [Source identity](/docs/manifest.json)\n`;
     index += `- [${title}](${diagnostic.docsAnchor}): ${diagnostic.status}\n`;
     const page = { source: asset.source, route: `errors/${diagnostic.code}`, title, sha256: asset.sha256, markdown };
     const { html } = renderMarkdown(page, [], manifest);

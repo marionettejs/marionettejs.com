@@ -262,7 +262,7 @@ an interrupted process, the next import restores a missing target before reading
 new input. If a build is needed first, rename the backup to `content/library-docs/`.
 
 Development and troubleshooting are part of the same published snapshot. Import
-all guides together with `npm run docs:import`. The browser check executes their
+all guides together with `npm run docs:import -- /absolute/path/to/marionette/.docs-export`. The browser check executes their
 actual failing/corrected snippets against the matching published demo bundle.
 The previously shared `/development/` and `/troubleshooting/` URLs redirect to
 `/docs/development/` and `/docs/troubleshooting/`. Their old manifest and source

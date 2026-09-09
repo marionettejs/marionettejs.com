@@ -130,7 +130,7 @@
     {
       "source": "docs/development.md",
       "before": "# Develop against the current candidate\n\nUse the TypeScript starter when beginning an application trial against unreleased\nMarionette changes.",
-      "after": "# Develop with Marionette\n\nUse the TypeScript starter when beginning an application trial with Marionette."
+      "after": "# Develop with the starter\n\nUse the TypeScript starter when beginning an application trial with Marionette."
     },
     {
       "source": "docs/installation.md",
@@ -146,6 +146,26 @@
       "source": "docs/beta.md",
       "before": "published npm package or this unpublished candidate.",
       "after": "published npm package or a source candidate."
+    },
+    {
+      "source": "docs/development.md",
+      "before": "After installing a release containing the starter, copy it into an empty app\nfolder outside `node_modules`:",
+      "after": "If Marionette is not installed yet, start in a temporary directory:\n\n```sh\nmkdir marionette-bootstrap\ncd marionette-bootstrap\nnpm init -y\nnpm install --save-exact marionette@5.0.0-beta.2\n```\n\nThen copy the installed starter into an empty app folder outside `node_modules`:"
+    },
+    {
+      "source": "docs/development.md",
+      "before": "Do not combine an unreleased starter with registry beta.1 dependencies.",
+      "after": "Do not combine an unreleased starter with registry dependencies from a different release."
+    },
+    {
+      "source": "docs/beta.md",
+      "before": "for this candidate; there is currently no previous published matching five-package\nrelease.",
+      "after": "for beta.2. Beta.1 is a prior published five-package release, but it lacks beta.2's\ndevelopment tools; restore your complete earlier application revision when rolling back."
+    },
+    {
+      "source": "docs/beta.md",
+      "before": "Move the selected npm tag (`latest` before the first stable v5) only to a verified compatible prior release; if beta.1 is the first one,\nthere is no earlier beta to select.",
+      "after": "Move the selected npm tag (`latest` before the first stable v5) only to a verified compatible prior release.\nBeta.1 is the previous published beta; verify the affected application still works\nwith its earlier API and tooling before recommending a rollback."
     }
   ],
   "channel": "latest"

@@ -44,3 +44,18 @@ test('diagnostic pages include the canonical failing and corrected examples', as
       sourceRevision: manifest.sourceRevision, sourceSha256: pages[1].sha256 }]);
   }
 });
+
+test('published development URLs redirect to their canonical release documents', async () => {
+  const redirects = await readFile('dist/_redirects', 'utf8');
+  for (const [from, to] of [
+    ['/development', '/docs/development/'],
+    ['/development/', '/docs/development/'],
+    ['/development.md', '/docs/development.md'],
+    ['/development/manifest.json', '/docs/manifest.json'],
+    ['/development/source/docs/development.md', '/docs/markdown/docs/development.md'],
+    ['/development/source/docs/troubleshooting.md', '/docs/markdown/docs/troubleshooting.md'],
+    ['/troubleshooting', '/docs/troubleshooting/'],
+    ['/troubleshooting/', '/docs/troubleshooting/'],
+    ['/troubleshooting.md', '/docs/troubleshooting.md']
+  ]) assert.ok(redirects.split('\n').includes(`${from} ${to} 301`), from);
+});

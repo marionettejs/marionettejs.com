@@ -222,7 +222,7 @@ try {
   console.log('PASS CodePen recovery: transient preload failure, workshop retry, enabled export and restored help');
   await page.goto(`http://127.0.0.1:${server.address().port}/docs/development/`);
   await page.locator('h1').waitFor();
-  assert.match(await page.locator('h1').innerText(), /Develop with Marionette/);
+  assert.match(await page.locator('h1').innerText(), /Develop with the starter/);
   await page.screenshot({ path: 'output/playwright/development-guide.png', fullPage: true });
   await page.setViewportSize({ width: 375, height: 812 });
   for (const route of ['/docs/development/', '/docs/troubleshooting/', '/errors/MN0020/']) {
