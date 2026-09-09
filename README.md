@@ -172,6 +172,21 @@ empty, show again, and inspect lifecycle events. Confirm destruction counts and 
 the empty control disables when appropriate. Check mobile layout, keyboard access,
 and readable pages without JavaScript. Source checks alone do not prove those flows.
 
+Run the automated workshop browser regressions from a fresh checkout with:
+
+```sh
+npm ci
+npm run build
+npx playwright install chromium
+npm run test:browser
+```
+
+`test:browser` serves the existing `dist/` on an ephemeral loopback port, so rebuild
+it after source changes. On Linux CI use `npx playwright install --with-deps chromium`.
+It runs pinned Chromium with experimental web-platform features for native WebMCP,
+fails on behavioral assertions, and writes a screenshot to `output/playwright/`.
+The browser command is separate from the Node checks; it needs Chromium installed.
+
 For the ownership regression, after building and starting the preview, run:
 
 ```sh

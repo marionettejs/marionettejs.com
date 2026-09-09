@@ -142,3 +142,6 @@
 .workshop-instructions[open] summary::before { content:'−'; }
 .workshop-instructions pre { margin:0; padding:18px; border-top:1px solid #3c373d; max-height:400px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; color:#c8c3cc; font:.8125rem/1.65 var(--mono); }
 .workshop-instructions pre:focus-visible { outline:2px solid #ff7667; outline-offset:2px; }
+
+/* The recipe picker shares the editor's visible, keyboard-operable controls. */
+#workshop-example { max-width:100%; padding:8px; font:inherit; color:inherit; background:transparent; border:1px solid currentColor; border-radius:4px; }
