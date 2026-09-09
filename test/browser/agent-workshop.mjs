@@ -192,6 +192,20 @@ try {
     assert.deepEqual(result, { failure: code, fixed: expected[code] });
   }
   console.log('PASS troubleshooting: four exact failing/fixed examples against pinned published beta.1');
+  let licenseRequests = 0;
+  await page.route('**/vendor/MARIONETTE-LICENSE.txt', route => {
+    licenseRequests++;
+    return licenseRequests === 1 ? route.fulfill({ status: 503, body: 'Temporary failure' }) : route.continue();
+  });
+  await page.goto(`http://127.0.0.1:${server.address().port}/`);
+  await page.waitForFunction(() => document.querySelector('#codepen-help').textContent.includes('could not load') && window.MarionettePlayground);
+  assert.equal(await page.locator('[data-workshop-codepen]').isDisabled(), true);
+  await api('open');
+  assert.equal(licenseRequests, 2);
+  assert.equal(await page.locator('[data-workshop-codepen]').isEnabled(), true);
+  assert.match(await page.locator('#codepen-help').innerText(), /Free Pens are public/);
+  await page.unroute('**/vendor/MARIONETTE-LICENSE.txt');
+  console.log('PASS CodePen recovery: transient preload failure, workshop retry, enabled export and restored help');
   await page.goto(`http://127.0.0.1:${server.address().port}/development/`);
   await page.locator('h1').waitFor();
   assert.match(await page.locator('h1').innerText(), /Develop against the current candidate/);

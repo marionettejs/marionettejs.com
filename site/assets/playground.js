@@ -32,7 +32,11 @@ async function loadAssets() {
     if (!response.ok) throw new Error('The playground assets could not load. Try again after the local preview finishes rebuilding.');
     return response.text();
   })).then(([vendor, license, brief]) => ({ vendor, license, brief })).catch(error => { assets = null; throw error; });
-  return assets;
+  const loaded = await assets;
+  codePenAssets = loaded;
+  codePenButton.disabled = false;
+  codePenHelp.textContent = codePenHelpText;
+  return loaded;
 }
 function currentApp() { return { title: title.value, code: code.value, css: css.value }; }
 function setApp(app) { title.value = app.title; code.value = app.code; css.value = app.css; }
@@ -240,6 +244,8 @@ async function download() {
 }
 const codePenForm = dialog.querySelector('[data-codepen-form]');
 const codePenButton = dialog.querySelector('[data-workshop-codepen]');
+const codePenHelp = dialog.querySelector('#codepen-help');
+const codePenHelpText = codePenHelp.textContent;
 let codePenAssets;
 codePenForm.addEventListener('submit', event => {
   event.preventDefault();
@@ -250,10 +256,7 @@ codePenForm.addEventListener('submit', event => {
     setStatus('Sent this draft to CodePen. Save it there to get a shareable app link.');
   } catch (error) { report(error); }
 });
-loadAssets().then(({ vendor, license }) => {
-  codePenAssets = { vendor, license };
-  codePenButton.disabled = false;
-}).catch(() => { dialog.querySelector('#codepen-help').textContent = 'CodePen export could not load. Reload this page to try again.'; });
+loadAssets().catch(() => { codePenHelp.textContent = 'CodePen export could not load. Reload this page to try again.'; });
 const share = dialog.querySelector('.workshop-share');
 share.querySelector('[data-share-bluesky]').href = `https://bsky.app/intent/compose?${new URLSearchParams({ text: `${backstageText}\n${backstageURL}` })}`;
 share.querySelector('[data-share-x]').href = `https://x.com/intent/tweet?${new URLSearchParams({ text: backstageText, url: backstageURL })}`;
