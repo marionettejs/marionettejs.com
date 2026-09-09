@@ -53,20 +53,6 @@ npm run dev
 Open <http://127.0.0.1:4175/>. The server rebuilds and reloads on source changes.
 Use `MARIONETTE_PREVIEW_PORT` to select a different explicit port if necessary.
 
-## Compare the design options
-
-- **Option C / After Hours:** this checkout, <http://127.0.0.1:4175/>.
-- **Option A / Poster:** saved at `bbc136fa`, checkout `../marionettejs-website-poster`,
-  <http://127.0.0.1:4176/>. Start with `MARIONETTE_PREVIEW_PORT=4176 npm run dev`.
-- **Option B / Theatre:** saved at `18f6dfc8`, checkout `../marionettejs-website-theatre`,
-  <http://127.0.0.1:4177/>. Start with `MARIONETTE_PREVIEW_PORT=4177 npm run dev`.
-
-Both earlier options remain intact in separate checkouts. Options A and B remain local.
-C explores a dark palette, bold typography, scrolling parallax, and a live
-Marionette lifecycle diagram. Its Region owns the visible card; destruction is
-synchronous, while an inert visual copy finishes the exit animation. Status and
-the event trace come from the pinned runtime. See `planning/design-directions.md` for comparison criteria.
-
 ## Prototype pages
 
 - Homepage: dark interactive composition, draft brand assets, candid positioning, and a real Application with a screen View, CollectionView, and detail Region.
