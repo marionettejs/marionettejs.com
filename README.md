@@ -239,7 +239,7 @@ links in reading copies go directly to the matching error page.
 The package omits the JSON schema referenced by its diagnostic catalog.
 `content/diagnostics-schema.json` supplies the exact schema from the same release
 revision, with its source and hash in `content/diagnostics-schema-provenance.json`.
-The build verifies that identity and publishes the schema beside both catalog
+The build verifies that identity and publishes the schema beside all catalog
 copies. Recheck this supplement when importing a newer release.
 
 The published preview URLs `/docs/regions/` and `/reference/region.md` have redirects

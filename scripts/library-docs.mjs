@@ -2,7 +2,7 @@ import { publishedMarkdown } from './published-docs.mjs';
 import { readFile, mkdir, writeFile, realpath } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { resolve, dirname, posix, relative, isAbsolute, sep } from 'node:path';
-import { Marked, Renderer } from 'marked';
+import { Marked, Renderer, Lexer } from 'marked';
 import * as pagefind from 'pagefind';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -67,6 +67,11 @@ function linkResolver(page, pages, manifest, format = 'html') {
   };
 }
 
+function diagnosticHref(href, tokens = []) {
+  const label = tokens.length === 1 && tokens[0].type === 'codespan' ? tokens[0].text : '';
+  return href === 'diagnostic-catalog.md#look-up-a-code' && /^MN[0-9]{4}$/.test(label) ? `/errors/${label}/` : href;
+}
+
 export function renderMarkdown(page, pages, manifest) {
   const headings = [];
   const used = new Map();
@@ -83,7 +88,7 @@ export function renderMarkdown(page, pages, manifest) {
   };
   const rewrite = linkResolver(page, pages, manifest);
   renderer.link = function ({ href, title, tokens }) {
-    return `<a href="${escapeHtml(rewrite(href))}"${title ? ` title="${escapeHtml(title)}"` : ''}>${this.parser.parseInline(tokens)}</a>`;
+    return `<a href="${escapeHtml(rewrite(diagnosticHref(href, tokens)))}"${title ? ` title="${escapeHtml(title)}"` : ''}>${this.parser.parseInline(tokens)}</a>`;
   };
   renderer.image = ({ href, title, text }) => `<img src="${escapeHtml(rewrite(href))}" alt="${escapeHtml(text)}"${title ? ` title="${escapeHtml(title)}"` : ''} loading="lazy">`;
   const parser = new Marked({ renderer });
@@ -130,8 +135,10 @@ export async function buildLibraryDocs({ directory, out, shell }) {
   const schema = await readFile(new URL('../content/diagnostics-schema.json', import.meta.url), 'utf8');
   const schemaSource = JSON.parse(await readFile(new URL('../content/diagnostics-schema-provenance.json', import.meta.url), 'utf8'));
   if (schemaSource.sourceRevision !== manifest.sourceRevision || schemaSource.sourceRepository !== manifest.sourceRepository || hash(schema) !== schemaSource.sha256) throw new Error('Review supplemental diagnostic schema for this snapshot.');
-  for (const path of ['docs/catalog.schema.json', 'docs/source/config/diagnostics/catalog.schema.json']) {
-    await writeFile(resolve(out, path), schema);
+  for (const path of ['docs/catalog.schema.json', 'docs/source/config/diagnostics/catalog.schema.json', 'docs/markdown/config/diagnostics/catalog.schema.json']) {
+    const destination = resolve(out, path);
+    await mkdir(dirname(destination), { recursive: true });
+    await writeFile(destination, schema);
   }
   await writeFile(resolve(out, 'docs/schema-provenance.json'), `${JSON.stringify(schemaSource, null, 2)}\n`);
   const catalog = assets.find(asset => asset.source === 'config/diagnostics/catalog.json');
@@ -172,24 +179,47 @@ async function buildDiagnostics({ out, shell, manifest, asset }) {
   await writeFile(resolve(out, 'errors/index.html'), shell({ title: 'Diagnostic codes', description: 'Stable diagnostic codes and remediation.', active: 'docs', route: '/errors/', markdown: '/errors/index.md', body: wrap(html) }));
 }
 
+// Preserve raw formatting and code spans while changing only parsed link targets.
+function rewriteInlineLinks(tokens, rewrite) {
+  return tokens.map(token => {
+    if (token.type === 'link' || token.type === 'image') {
+      return token.raw.replace(/(\]\(<?)([^\s)>]+)(>?)(?=[\s)])/,
+        (_, start, href, end) => `${start}${rewrite(diagnosticHref(href, token.tokens))}${end}`);
+    }
+    if (token.tokens?.length) {
+      const raw = token.tokens.map(child => child.raw).join('');
+      return token.raw.replace(raw, () => rewriteInlineLinks(token.tokens, rewrite));
+    }
+    if (token.type === 'text') {
+      return token.raw.replace(/^(\s*\[[^\]]+\]:\s*<?)([^\s>]+)(>?)/gm,
+        (_, start, href, end) => `${start}${rewrite(href)}${end}`);
+    }
+    return token.raw;
+  }).join('');
+}
+
 export function deriveMarkdown(page, pages, manifest, { sourceUrl = canonicalSourceUrl(page), manifestUrl = '/docs/manifest.json' } = {}) {
   const rewrite = linkResolver(page, pages, manifest, 'markdown');
   let fence;
-  const lines = publishedMarkdown(page).split('\n').map(line => {
+  let pending = [];
+  const chunks = [];
+  const flush = () => {
+    if (pending.length) chunks.push(rewriteInlineLinks(Lexer.lexInline(pending.join('\n')), rewrite));
+    pending = [];
+  };
+  for (const line of publishedMarkdown(page).split('\n')) {
     const marker = line.match(/^\s*(?:>\s*)?(`{3,}|~{3,})/);
-    if (marker) {
-      if (!fence) fence = marker[1];
-      else if (marker[1][0] === fence[0] && marker[1].length >= fence.length) fence = undefined;
-      return line;
-    }
-    if (fence || /^ {4}|^\t/.test(line)) return line;
-    const chunks = line.split(/(`+[^`]*`+)/g);
-    return chunks.map((chunk, index) => {
-      if (index % 2) return chunk;
-      return chunk.replace(/(\]\(<?)([^\s)>]+)(>?)(?=[\s)])/g, (_, start, href, end) => `${start}${rewrite(href)}${end}`)
-        .replace(/^(\s*\[[^\]]+\]:\s*<?)([^\s>]+)(>?)/, (_, start, href, end) => `${start}${rewrite(href)}${end}`);
-    }).join('');
-  }).join('\n');
+    if (marker || fence || /^ {4}|^\t/.test(line)) {
+      flush();
+      chunks.push(line);
+      if (marker) {
+        if (!fence) fence = marker[1];
+        else if (marker[1][0] === fence[0] && marker[1].length >= fence.length) fence = undefined;
+      }
+    } else pending.push(line);
+  }
+  flush();
+  const lines = chunks.join('\n');
   const title = /^# /m.test(page.markdown) ? '' : `# ${page.title}\n\n`;
   return `<!-- Documentation snapshot: package ${manifest.packageVersion}; channel ${manifest.channel}; base revision ${manifest.sourceRevision}; local changes ${manifest.sourceDirty}; original source SHA-256 ${page.sha256}. -->\n\n${title}${lines}\n\n[Canonical source](${sourceUrl}) · [Source identity](${manifestUrl})\n`;
 }

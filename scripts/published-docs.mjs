@@ -9,5 +9,5 @@ export function publishedMarkdown(page) {
     if (!markdown.includes(before)) throw new Error(`Review publication wording for ${source}`);
     markdown = markdown.replace(before, after);
   }
-  return markdown.replace(/(\[`(MN[0-9]{4})`\])\(diagnostic-catalog\.md#look-up-a-code\)/g, '$1(/errors/$2/)');
+  return markdown;
 }

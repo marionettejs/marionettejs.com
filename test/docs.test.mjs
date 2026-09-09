@@ -153,16 +153,29 @@ test('reading copies link diagnostic codes directly and expose class navigation'
   assert.ok(llms.includes(`Channel: ${manifest.channel}\nPublication: beta (published on npm)`));
 });
 
-test('diagnostic catalog schemas resolve beside both copies with pinned provenance', async () => {
+test('diagnostic catalog schemas resolve beside all catalog copies with pinned provenance', async () => {
   const { createHash } = await import('node:crypto');
   const { manifest } = await readSnapshot(source);
   const provenance = JSON.parse(await readFile(resolve(root, 'dist/docs/schema-provenance.json'), 'utf8'));
   assert.equal(provenance.sourceRevision, manifest.sourceRevision);
-  for (const path of ['docs/diagnostics.json', 'docs/source/config/diagnostics/catalog.json']) {
+  for (const path of ['docs/diagnostics.json', 'docs/source/config/diagnostics/catalog.json', 'docs/markdown/config/diagnostics/catalog.json']) {
     const catalog = JSON.parse(await readFile(resolve(root, 'dist', path), 'utf8'));
     const schemaPath = new URL(catalog.$schema, new URL(`../dist/${path}`, import.meta.url));
     const schema = await readFile(schemaPath, 'utf8');
     assert.equal(createHash('sha256').update(schema).digest('hex'), provenance.sha256);
     assert.ok(JSON.parse(schema).properties.diagnostics);
   }
+});
+
+test('diagnostic link rewrites preserve fenced, indented, and inline code examples', () => {
+  const link = '[`MN0023`](diagnostic-catalog.md#look-up-a-code)';
+  const code = `\`\`\`md\n${link}\n\`\`\`\n\n    ${link}\n\n\`\`${link}\`\`\n\n\`\`multiline\n${link}\n[ref]: marionette.region.md\n\`\``;
+  const page = { source: 'docs/example.md', route: 'docs/example', title: 'Example', sha256: 'a'.repeat(64), markdown: `# Example\n\n**${link}**\n\n${code}\n` };
+  const manifest = { packageVersion: '5.0.0-beta.1', sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) };
+  const derived = deriveMarkdown(page, [], manifest);
+  assert.ok(derived.includes('**[`MN0023`](/errors/MN0023.md)**'));
+  assert.ok(derived.includes(code), 'All code examples remain byte-for-byte unchanged');
+  const html = renderMarkdown(page, [], manifest).html;
+  assert.equal((html.match(/href="\/errors\/MN0023\/"/g) || []).length, 1);
+  assert.equal((html.match(/diagnostic-catalog.md#look-up-a-code/g) || []).length, 4);
 });
