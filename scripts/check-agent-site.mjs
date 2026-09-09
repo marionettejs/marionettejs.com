@@ -18,14 +18,14 @@ export async function checkRepresentation(base, path, expected, type, request = 
   });
   if (response.status !== 200) throw new Error(`${path}: HTTP ${response.status}`);
   const actualType = response.headers.get('content-type') || '';
-  if (!actualType.toLowerCase().startsWith(type)) throw new Error(`${path}: expected ${type}, received ${actualType}`);
+  if (actualType.split(';', 1)[0].trim().toLowerCase() !== type.toLowerCase()) throw new Error(`${path}: expected ${type}, received ${actualType}`);
   const bytes = Buffer.from(await response.arrayBuffer());
   if (sha256(bytes) !== sha256(expected)) throw new Error(`${path}: served bytes differ from this checkout's built artifact`);
   return { path, status: response.status, contentType: actualType, bytes: bytes.length, sha256: sha256(bytes) };
 }
 
 async function startPreview() {
-  const child = spawn(process.execPath, ['scripts/dev.mjs'], {
+  const child = spawn(process.execPath, ['scripts/dev.mjs', '--serve-built'], {
     cwd: root, env: { ...process.env, MARIONETTE_PREVIEW_PORT: '0' }, stdio: ['ignore', 'pipe', 'pipe']
   });
   let output = '';
@@ -44,6 +44,13 @@ async function startPreview() {
     });
     return { child, base };
   } catch (error) { child.kill(); throw error; }
+}
+
+export async function stopPreview(child) {
+  if (child.exitCode !== null || child.signalCode !== null) return;
+  const exited = once(child, 'exit');
+  child.kill();
+  await exited;
 }
 
 export async function auditSite(base) {
@@ -104,7 +111,7 @@ async function main(args) {
     console.log(result.scope);
     if (!result.passed) process.exitCode = 1;
   } finally {
-    if (preview && preview.child.exitCode === null) { const exited = once(preview.child, 'exit'); preview.child.kill(); await exited; }
+    if (preview) await stopPreview(preview.child);
   }
 }
 

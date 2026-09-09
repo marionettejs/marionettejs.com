@@ -14,7 +14,9 @@ npx --no-install playwright install chromium
 npm run test:browser
 ```
 
-The HTTP audit starts the real loopback preview on an available port, reads the
+The HTTP audit starts the real loopback preview on an available port with
+`--serve-built`, serving the existing `dist/` from `npm run check` without rebuilding
+or watching source files. It reads the
 published Markdown and provenance through HTTP, and compares the received bytes to
 this checkout's build. It rejects errors, redirects, HTML challenge pages, wrong
 content types and stale content. The browser checks exercise real pinned runtime
