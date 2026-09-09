@@ -14,7 +14,8 @@
     "check": "npm run build && npm test",
     "docs:import": "node scripts/import-docs.mjs",
     "vendor:build": "node scripts/build-vendor.mjs",
-    "mcp": "node mcp/server.mjs"
+    "mcp": "node mcp/server.mjs",
+    "test:browser": "node test/browser/agent-workshop.mjs"
   },
   "devDependencies": {
     "@modelcontextprotocol/client": "2.0.0",
@@ -23,6 +24,7 @@
     "marionette": "5.0.0-beta.1",
     "marked": "18.0.12",
     "pagefind": "1.5.2",
+    "playwright": "1.63.0",
     "zod": "4.5.4"
   }
 }
