@@ -59,3 +59,17 @@ test('download contains the same pinned library, license and sandboxed standalon
   assert.deepEqual(config.app, starter);
   assert.equal(config.standalone, true);
 });
+
+test('canonical recipe catalog rejects unknown ids and stays pinned to the demo', async () => {
+  const { recipes, listRecipes, getRecipe, recipeRuntime } = await import('../site/assets/playground-recipes.js');
+  const provenance = JSON.parse(await readFile(new URL('../content/provenance.json', import.meta.url), 'utf8'));
+  assert.equal(recipeRuntime.version, provenance.packageVersion);
+  assert.equal(recipeRuntime.revision, provenance.libraryRevision);
+  assert.equal(new Set(recipes.map(recipe => recipe.id)).size, recipes.length);
+  assert.ok(listRecipes().every(recipe => !('code' in recipe) && !('css' in recipe)));
+  for (const recipe of recipes) {
+    assert.deepEqual(validateApp({ title: recipe.title, code: recipe.code, css: recipe.css }).code, getRecipe({ id: recipe.id }).code);
+    for (const path of recipe.docs) await readFile(new URL(`../dist${path}index.html`, import.meta.url), 'utf8');
+  }
+  for (const input of [null, [], {}, { id: '../secret' }, { id: 'list-detail', url: 'https://example.com' }]) assert.throws(() => getRecipe(input));
+});

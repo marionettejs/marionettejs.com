@@ -28,6 +28,29 @@ browser controls, choose “Open the agent workshop” in the invitation or go t
 Stay on that page while you work. There is no need to navigate to the Markdown URL.
 Collapse the instructions when you are ready to use the editor.
 
+## Learning a v5 contract
+
+For documentation work, discover canonical examples with `list_marionette_examples({})`
+or `MarionettePlayground.listExamples()`. These include source links, exact runtime
+metadata, and expected checks. Open the workshop and use
+`load_marionette_example({id})` / `.loadExample({id})`, or the Canonical example
+selector and Load example button. Loading replaces the editor draft without running
+it. Run the loaded `{title, code, css}`, then perform its interactions:
+
+- `list-detail`: type a draft, then press Enter in the input twice. This adds and
+  removes an unrelated child and checks retained View/input identity, draft, focus,
+  and removed-child destruction. A button click alone does not test input focus.
+  It uses self-managed CollectionView children, not an observable data adapter.
+- `owned-widget`: Replace widget, then Destroy owner. The recipe explicitly
+  disposes its application-owned subscription in `onBeforeDestroy`; Marionette
+  owns its Views and Regions, not that external widget.
+- `cancellable-work`: Start and immediately replace a worker, then inspect after
+  “Completed local work” appears. It uses a local delayed task and AbortController;
+  the old task must not commit after its View is destroyed.
+
+Canonical learning examples do not require personalization. The following personal
+app guidance applies when the user asked for the invitation's personal interaction.
+
 ## Make one thoughtful little thing
 
 Make something recognizably for this person. Use relevant details already available
@@ -92,8 +115,9 @@ The homepage exposes optional WebMCP tools:
 4. `inspect_marionette_app({})`: inspect the latest preview. Add `{includeSource: true}` only to reread the editor.
 5. `interact_with_marionette_app({id, action: "click"})` or
    `{id, action: "input", value: "..."}`: test an enabled control. Give controls
-   simple, unique HTML ids so the agent can address them. Input dispatches both
-   input and change events. Inspect again for delayed updates.
+   simple, unique HTML ids so the agent can address them. Input focuses the field and dispatches both
+   input and change events. It does not simulate keyboard events; use browser
+   keyboard controls for the focus-preservation recipe. Inspect again for delayed updates.
 6. `close_marionette_playground({})`: stop execution and return to the site.
 
 For a client that allows page JavaScript, the same operations are available as
@@ -140,6 +164,30 @@ one is destroyed and the new one starts with its intended state. Include a neste
 control click in the interaction check. Keep this small, destroy test instances,
 and leave the useful app visible. A whole-iframe restart is not a View replacement
 check. Do not claim these checks passed unless you ran them.
+
+## Inspection contract
+
+Inspection returns the pinned runtime, root Region state, and optional recipe
+observations. A recipe exports `inspectRecipe()` returning `{checks, lifecycle,
+views, regions}`. `views` entries are `{name, view}` and `regions` entries are
+`{name, region}`; the runner reads only public lifecycle and Region APIs from these
+explicit references. The recipe observes its own lifecycle events before showing
+Views. It does not instrument library globals or expose private fields.
+
+Each executed check is `{id, expected: true, observed: boolean}`. Compare these with
+the catalog's expected check ids; missing checks have not run. Checks are observations
+from editable app code, not independent attestations. Inspection is capped at 40
+entries per list, 80-character ids/names and 120-character lifecycle entries. It is
+not an exhaustive ownership graph or an unlimited event history. `truncated: true`
+reports omitted entries or lifecycle history; `inspectionError` reports a failing
+app inspector without pretending the inspection succeeded. Rerunning starts
+fresh; stopping retains the last snapshot with `previewActive: false`.
+
+WebMCP is progressive enhancement, currently a proposed standard and Chrome origin
+trial. The browser UI and `MarionettePlayground` API work independently of tool
+registration. Native tool cancellation during `run_marionette_app` stops that pending
+preview run; completed apps remain under the visible Stop/close controls.
+[Current imperative API](https://developer.chrome.com/docs/ai/webmcp/imperative-api).
 
 ## Exact runtime contract
 
