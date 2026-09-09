@@ -2,7 +2,7 @@ name: Agent website checks
 on:
   pull_request:
   push:
-    branches: [feat/website]
+    branches: [main]
 permissions:
   contents: read
 concurrency:
