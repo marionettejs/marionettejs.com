@@ -13,12 +13,16 @@
     "test": "node --test test/*.test.mjs",
     "check": "npm run build && npm test",
     "docs:import": "node scripts/import-docs.mjs",
-    "vendor:build": "node scripts/build-vendor.mjs"
+    "vendor:build": "node scripts/build-vendor.mjs",
+    "mcp": "node mcp/server.mjs"
   },
   "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
+    "@modelcontextprotocol/server": "2.0.0",
     "esbuild": "0.28.2",
     "marionette": "5.0.0-beta.1",
     "marked": "18.0.12",
-    "pagefind": "1.5.2"
+    "pagefind": "1.5.2",
+    "zod": "4.5.4"
   }
 }
