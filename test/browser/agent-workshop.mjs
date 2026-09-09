@@ -6,6 +6,7 @@ import { readFile, stat, mkdir } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 import { chromium } from 'playwright';
 import { recipes, recipeRuntime } from '../../site/assets/playground-recipes.js';
+import { starter } from '../../site/assets/playground-runtime.js';
 const root = resolve('dist');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.md': 'text/plain', '.svg': 'image/svg+xml' };
 const server = createServer(async (req, res) => {
@@ -117,6 +118,38 @@ try {
   await page.waitForFunction(() => !document.querySelector('.workshop-preview iframe'));
   assert.equal((await api('inspect')).previewActive, false);
   console.log('PASS native WebMCP: eight registered tools, discovery, execution and cancellation');
+  // A late cancellation belongs to A even after B replaces it. Use native
+  // executeTool for both runs and the subsequent interaction, not mocked hooks.
+  await page.evaluate(async () => {
+    const tool = (await document.modelContext.getTools()).find(tool => tool.name === 'run_marionette_app');
+    const controller = new AbortController();
+    const pending = document.modelContext.executeTool(tool, JSON.stringify({ title: 'Superseded A', code: 'await new Promise(() => {});', css: '' }), { signal: controller.signal }).catch(error => {
+      if (error.name !== 'AbortError') throw error;
+    });
+    window.supersededRunTest = { controller, pending };
+  });
+  await page.locator('iframe[title="App preview: Superseded A"]').waitFor();
+  await page.evaluate(async app => {
+    const tool = (await document.modelContext.getTools()).find(tool => tool.name === 'run_marionette_app');
+    await document.modelContext.executeTool(tool, JSON.stringify(app));
+  }, { ...starter, title: 'Replacement B' });
+  const replacementFrame = await page.locator('iframe[title="App preview: Replacement B"]').elementHandle();
+  await page.evaluate(async () => {
+    window.supersededRunTest.controller.abort();
+    await window.supersededRunTest.pending;
+    delete window.supersededRunTest;
+    const tool = (await document.modelContext.getTools()).find(tool => tool.name === 'interact_with_marionette_app');
+    await document.modelContext.executeTool(tool, JSON.stringify({ id: 'celebrate', action: 'click' }));
+  });
+  const replacementState = await api('inspect');
+  assert.equal(replacementState.title, 'Replacement B');
+  assert.equal(replacementState.previewActive, true);
+  assert.equal(replacementState.preview.region.hasView, true);
+  assert.deepEqual(replacementState.preview.errors, []);
+  assert.match(replacementState.preview.text, /1 small victory/);
+  assert.equal(await replacementFrame.evaluate(el => el === document.querySelector('.workshop-preview iframe') && el.isConnected), true);
+  console.log('PASS superseded native run: late abort leaves replacement iframe and interaction alive');
+
   const brokenInspector = await api('run', { title: 'Inspector failure', code: 'export function inspectRecipe() { throw new Error("Recipe inspection failed"); }', css: '' });
   assert.equal(brokenInspector.preview.ready, true);
   assert.equal(brokenInspector.preview.recipe.inspectionError, 'Recipe inspection failed');
