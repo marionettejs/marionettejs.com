@@ -8,6 +8,6 @@ self.addEventListener('activate', event => {
     await self.clients.claim();
     await self.registration.unregister();
     const windows = await self.clients.matchAll({ type: 'window' });
-    await Promise.all(windows.map(client => client.navigate(client.url)));
+    await Promise.allSettled(windows.map(client => client.navigate(client.url)));
   })());
 });

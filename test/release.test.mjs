@@ -15,7 +15,11 @@ test('public beta pages are canonical and indexable while mirrors stay noindexed
   }
   const headers = await read('dist/_headers');
   assert.match(headers, /https:\/\/v5.marionettejs.com\/\*\n  X-Robots-Tag: noindex, follow/);
-  assert.ok(!headers.startsWith('/*\n  X-Robots-Tag: noindex'));
+  for (const block of headers.split(/\n(?=\S)/)) {
+    if (block.startsWith('/') || block.startsWith('https://marionettejs.com/')) {
+      assert.doesNotMatch(block, /X-Robots-Tag:.*noindex/i, 'The live site must not inherit a noindex header');
+    }
+  }
   assert.match(await read('dist/robots.txt'), /Sitemap: https:\/\/marionettejs.com\/sitemap.xml/);
   assert.match(await read('dist/sitemap.xml'), /https:\/\/marionettejs.com\/docs\/installation\//);
 });
@@ -60,4 +64,23 @@ test('the sitemap includes every diagnostic and published preview links redirect
   assert.match(redirects, /^\/docs\/regions\/ \/docs\/region\/ 301$/m);
   assert.match(redirects, /^\/reference\/region.md \/docs\/region.md 301$/m);
   assert.ok((await read('dist/docs/region.md')).startsWith('<!-- Documentation snapshot:'));
+});
+
+test('worker retirement finishes when one closing window rejects navigation', async () => {
+  let activate, completion;
+  const calls = [];
+  runInNewContext(await read('site/sw.js'), {
+    self: {
+      addEventListener: (name, callback) => { if (name === 'activate') activate = callback; },
+      clients: { claim: async () => {}, matchAll: async () => [
+        { url: 'https://marionettejs.com/closing', navigate: async () => { calls.push('closing'); throw new TypeError('Window closed'); } },
+        { url: 'https://marionettejs.com/ready', navigate: async () => { calls.push('ready'); } }
+      ] },
+      registration: { unregister: async () => calls.push('unregister') }
+    },
+    caches: { keys: async () => [] }
+  });
+  activate({ waitUntil: promise => { completion = promise; } });
+  await completion;
+  assert.deepEqual(calls, ['unregister', 'closing', 'ready']);
 });
