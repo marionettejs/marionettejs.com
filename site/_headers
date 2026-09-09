@@ -1,0 +1,33 @@
+# Preserve code examples and documentation bytes through Cloudflare's HTML processing.
+/docs/*
+  Link: <https://marionettejs.com/docs/llms.txt>; rel="describedby"
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+
+/errors/*
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+
+# Supporting source is downloadable text, never an executable site module.
+/docs/source/*
+  Content-Type: text/plain; charset=utf-8
+  X-Content-Type-Options: nosniff
+
+/sw.js
+  Cache-Control: no-store
+  Service-Worker-Allowed: /
+
+# Discovery is available without executing JavaScript. Keep these patterns bounded
+# rather than spending Cloudflare's 100-rule budget on every diagnostic page.
+/*
+  Link: <https://marionettejs.com/llms.txt>; rel="describedby"
+
+/docs/:page.md
+  Content-Type: text/markdown; charset=utf-8
+  X-Content-Type-Options: nosniff
+
+/errors/:code.md
+  Content-Type: text/markdown; charset=utf-8
+  X-Content-Type-Options: nosniff
+
+/docs/:resource.json
+  Content-Type: application/json; charset=utf-8
+  X-Content-Type-Options: nosniff

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <pattern id="grid" width="54" height="54" patternUnits="userSpaceOnUse">
+      <path d="M54 0H0V54" fill="none" stroke="#fff" stroke-opacity=".045"/>
+    </pattern>
+    <radialGradient id="glow">
+      <stop stop-color="#ff6257" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#ff6257" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#101113"/>
+  <rect x="625" width="575" height="630" fill="url(#grid)"/>
+  <ellipse cx="978" cy="298" rx="380" ry="370" fill="url(#glow)"/>
+  <g transform="translate(57 46) scale(.18)">
+    <path d="M38 250 58 58l47-10 35 55 35-55 47 10 20 192h-47l-15-112-40 55-40-55-15 112Z" fill="#B4232D"/>
+    <path d="m105 48 35 55 35-55 5 90-40 55-40-55Z" fill="#971D28"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="114" y="83" fill="#f1f0ed" font-size="28" font-weight="700" letter-spacing="-1">Marionette</text>
+    <text x="269" y="82" fill="#a4a5aa" font-size="17">5.0 beta.1</text>
+    <text x="62" y="214" fill="#f1f0ed" font-size="83" font-weight="700" letter-spacing="-4">JavaScript.</text>
+    <text x="62" y="301" fill="#f1f0ed" font-size="83" font-weight="700" letter-spacing="-4">With a little</text>
+    <text x="62" y="388" fill="#ff6257" font-size="83" font-weight="700" letter-spacing="-4">structure.</text>
+    <text x="66" y="457" fill="#c5c5cb" font-size="25">Tuned for agent-led development.</text>
+  </g>
+  <g fill="none" stroke="#ff8177" stroke-width="1.6">
+    <path d="M838-20V119Q838 154 878 154H1082Q1120 154 1120 192V244Q1120 278 1085 278H803Q767 278 767 316V364Q767 402 804 402H1035Q1070 402 1070 436V468"/>
+    <path d="M931 201V277M859 337V402M1035 337V402" stroke-opacity=".55"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="18">
+    <rect x="809" y="119" width="243" height="82" rx="5" fill="#282022" stroke="#b4655d"/>
+    <circle cx="835" cy="160" r="4" fill="#ff8177"/>
+    <text x="851" y="167" fill="#f1f0ed">Application</text>
+    <rect x="781" y="295" width="156" height="70" rx="5" fill="#1b1d22" stroke="#63504c"/>
+    <text x="803" y="338" fill="#d8d1d3">Your feature</text>
+    <rect x="958" y="295" width="153" height="70" rx="5" fill="#1b1d22" stroke="#63504c"/>
+    <text x="980" y="338" fill="#d8d1d3">Next feature</text>
+  </g>
+  <g transform="translate(1070 491)" stroke="#ff8177" stroke-width="2" stroke-linecap="round">
+    <path d="M0-24V24M-24 0H24M-17-17L17 17M-17 17L17-17"/>
+  </g>
+  <path d="M64 540H1136" stroke="#303136"/>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="16">
+    <text x="66" y="577" fill="#a4a5aa">A place for the whole application.</text>
+    <text x="1134" y="577" text-anchor="end" fill="#c5a09a">marionettejs.com</text>
+  </g>
+</svg>

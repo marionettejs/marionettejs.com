@@ -1,0 +1,16 @@
+# Existing v0-v4 consumers retain their original documentation URLs.
+/docs/current https://v4.marionettejs.com/docs/current/ 301
+/docs/master https://v4.marionettejs.com/docs/master/ 301
+/docs/current/* https://v4.marionettejs.com/docs/current/:splat 301
+/docs/master/* https://v4.marionettejs.com/docs/master/:splat 301
+/docs/v0* https://v4.marionettejs.com/docs/v0:splat 301
+/docs/v1* https://v4.marionettejs.com/docs/v1:splat 301
+/docs/v2* https://v4.marionettejs.com/docs/v2:splat 301
+/docs/v3* https://v4.marionettejs.com/docs/v3:splat 301
+/docs/v4* https://v4.marionettejs.com/docs/v4:splat 301
+/annotated-src/* https://v4.marionettejs.com/annotated-src/:splat 301
+/downloads/* https://v4.marionettejs.com/downloads/:splat 301
+# Published preview URLs remain supported while external links use them.
+/docs/regions /docs/region/ 301
+/docs/regions/ /docs/region/ 301
+/reference/region.md /docs/region.md 301
