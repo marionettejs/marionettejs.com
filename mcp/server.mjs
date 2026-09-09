@@ -82,7 +82,8 @@ async function main() {
       const titleWords = new Set(tokenize(title));
       const matchedTerms = terms.filter(term => words.has(term));
       if (!matchedTerms.length) return null;
-      const position = Math.max(0, body.indexOf(matchedTerms[0]) - 100);
+      const bodyMatch = matchedTerms.map(term => body.indexOf(term)).find(position => position >= 0) ?? 0;
+      const position = Math.max(0, bodyMatch - 100);
       return { ...metadata(document), matchedTerms, score: matchedTerms.length ** 2 + matchedTerms.reduce((score, term) => score + (titleWords.has(term) ? 10 : 0), 0),
         snippet: document.markdown.slice(position, position + 600) };
     }).filter(Boolean).sort((a, b) => b.score - a.score || a.id.localeCompare(b.id, 'en'));

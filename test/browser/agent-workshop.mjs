@@ -28,7 +28,7 @@ try {
   await page.waitForFunction(() => window.MarionettePlayground && document.querySelector('#playground').open);
   const api = async (method, input) => page.evaluate(({ method, input }) => window.MarionettePlayground[method](input), { method, input });
   const catalog = await api('listExamples');
-  assert.equal(catalog.length, 3);
+  assert.equal(catalog.length, 4);
   assert.deepEqual(catalog[0].runtime, recipeRuntime);
   assert.ok(catalog.every(recipe => !('code' in recipe)));
   const preview = () => page.frames().find(frame => frame.parentFrame());
@@ -82,6 +82,17 @@ try {
   await checked('cancellable-work');
   console.log('PASS cancellation: aborted old task, no stale commit, replacement completed');
 
+  await load('application-startup');
+  await preview().locator('#verify-application').click();
+  await preview().locator('#application-outcomes').filter({ hasText: /"destroyed": true|Check failed:/ }).waitFor();
+  const outcomes = JSON.parse(await preview().locator('#application-outcomes').innerText());
+  assert.deepEqual(outcomes, { cancelledStart: false, stopped: true, freshStart: true, failure: 'Local startup failed', destroyed: true, writes: ['fresh'] });
+  const applicationChecks = await checked('application-startup');
+  assert.equal(applicationChecks.views.find(view => view.name === 'application-root').destroyed, true);
+  assert.equal(applicationChecks.regions.find(region => region.name === 'application.root').hasView, false);
+  assert.equal(await preview().locator('.feature').innerText(), '');
+  console.log('PASS Application startup: false cancellation, guarded writes, true readiness, failure rejection and cleanup');
+
   // Export must execute the same source, including cleanup, inside the same sandbox.
   await load('owned-widget');
   const downloadEvent = page.waitForEvent('download');
@@ -113,7 +124,8 @@ try {
     const controller = new AbortController();
     const pending = document.modelContext.executeTool(tool, JSON.stringify({ title: 'Pending startup', code: 'await new Promise(() => {});', css: '' }), { signal: controller.signal });
     setTimeout(() => controller.abort(), 100);
-    try { await pending; } catch (error) { if (error.name !== 'AbortError') throw error; }
+    let deadline;
+    try { await Promise.race([pending, new Promise((_, reject) => { deadline = setTimeout(() => reject(new Error('Native cancellation did not settle within 2 seconds')), 2000); })]); } catch (error) { if (error.name !== 'AbortError') throw error; } finally { clearTimeout(deadline); }
   });
   await page.waitForFunction(() => !document.querySelector('.workshop-preview iframe'));
   assert.equal((await api('inspect')).previewActive, false);
@@ -136,7 +148,8 @@ try {
   const replacementFrame = await page.locator('iframe[title="App preview: Replacement B"]').elementHandle();
   await page.evaluate(async () => {
     window.supersededRunTest.controller.abort();
-    await window.supersededRunTest.pending;
+    let deadline;
+    try { await Promise.race([window.supersededRunTest.pending, new Promise((_, reject) => { deadline = setTimeout(() => reject(new Error('Superseded execution did not settle within 2 seconds')), 2000); })]); } finally { clearTimeout(deadline); }
     delete window.supersededRunTest;
     const tool = (await document.modelContext.getTools()).find(tool => tool.name === 'interact_with_marionette_app');
     await document.modelContext.executeTool(tool, JSON.stringify({ id: 'celebrate', action: 'click' }));
