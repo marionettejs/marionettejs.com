@@ -12,6 +12,13 @@ test('MCP setup is discoverable as the same website-authored guide without chang
   const page = await read('dist/docs/mcp/index.html');
   assert.match(page, /type="text\/markdown" href="\/docs\/mcp.md"/);
   assert.match(page, /local, read-only stdio server/);
+  assert.match(page, /https:\/\/mcp\.marionettejs\.com\/mcp/);
+  for (const path of ['dist/docs/agents.md', 'dist/docs/agent-tools.md']) {
+    const text = await read(path);
+    assert.match(text, /https:\/\/mcp\.marionettejs\.com\/mcp/);
+    assert.match(text, /Bundled Markdown remains the installed-version reference/);
+  }
+  assert.ok(!(await read('dist/docs/markdown/docs/agent-tools.md')).includes('https://mcp.marionettejs.com/mcp'), 'Original package documentation remains immutable');
   assert.ok((await read('dist/docs/index.html')).includes('href="/docs/mcp/"'));
   assert.ok((await read('dist/sitemap.xml')).includes('https://marionettejs.com/docs/mcp/'));
   const corpus = JSON.parse(await read('dist/docs/corpus.json'));

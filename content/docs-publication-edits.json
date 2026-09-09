@@ -151,6 +151,21 @@
       "source": "docs/beta.md",
       "before": "Move `next` only",
       "after": "Move the selected npm tag (`latest` before the first stable v5) only"
+    },
+    {
+      "source": "docs/agents.md",
+      "before": "A Markdown page or versioned documentation index can be read directly. A service\nsuch as Context7 can help locate the relevant passage, but verify its library and\nversion selection before using the result. When retrieval is unavailable, use the\nsame source documents in the repository or the matching documentation artifact.",
+      "after": "The optional [hosted documentation MCP](https://marionettejs.com/docs/mcp/) at\nhttps://mcp.marionettejs.com/mcp exposes `search_docs`, `get_doc`, and `get_example`\nwithout login or an API key. Read `marionette://catalog` and match its exact package\nversion and source revision before using it. Follow `nextOffset` to retrieve each\ncomplete contract. Bundled Markdown remains the installed-version reference;\nif the hosted snapshot differs or is unavailable, read the installed docs.\n\nA Markdown page or versioned documentation index can also be read directly.\nThird-party retrieval such as Context7 requires the same version and source checks."
+    },
+    {
+      "source": "docs/agent-tools.md",
+      "before": "| Context7 |",
+      "after": "| Hosted documentation MCP | Optional search, complete document pagination, and recipe retrieval at https://mcp.marionettejs.com/mcp | Public and read-only; match catalog version and revision. Bundled Markdown remains the installed-version reference. [Client setup](https://marionettejs.com/docs/mcp/). |\n| Context7 |"
+    },
+    {
+      "source": "docs/agent-tools.md",
+      "before": "Marionette does not require a custom MCP server, a hosted AI chat, or a WebMCP\nconnection to build an application. A future local MCP wrapper would need to solve\na demonstrated client integration gap beyond reading these files. Keep tooling\noutside the production import graph and avoid duplicating the contract in tool\nprompts. The same documentation remains available to human readers.",
+      "after": "Marionette does not require MCP or a hosted AI service to build an application.\nThe [documentation MCP setup guide](https://marionettejs.com/docs/mcp/) describes\nthe optional hosted HTTP and local stdio interfaces to the same verified corpus.\nRead `marionette://catalog`, compare the exact installed version and source\nrevision, and pass that version to every tool. Unsupported versions are errors;\nuse the installed Markdown when the hosted snapshot does not match. Copying the\nconsumer skill does not automatically connect an MCP server.\n\nThe browser's WebMCP workshop operates its own running example. Hosted MCP only\nretrieves documentation and recipe source; neither proves behavior in a consumer\napplication. Keep tooling outside the production import graph and use the\napplication's tests to verify its behavior."
     }
   ],
   "channel": "latest"

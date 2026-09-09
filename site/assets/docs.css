@@ -7,6 +7,7 @@
 .docs-group a:hover { color: var(--red); }
 .canonical-docs .docs-prose { min-width: 0; }
 .canonical-docs .docs-prose h1 { font-size: clamp(2.3rem, 3.7vw, 3.8rem); line-height: 1.08; overflow-wrap: anywhere; }
+.canonical-docs .docs-tools + h1 { margin-top: 24px; }
 .canonical-docs .docs-prose h2 { margin-top: 2.5rem; font-size: 1.8rem; }
 .canonical-docs .docs-prose h3 { font-size: 1.25rem; margin-top: 2rem; }
 .canonical-docs .docs-prose h4 { font-size: 1rem; margin-top: 1.6rem; }

@@ -20,6 +20,10 @@ versioned documentation and download paths. `_redirects` preserves those legacy 
 retained legacy service workers and clears only their named precache. Keep that
 retirement file while returning browsers can retain those registrations.
 
+The public read-only documentation MCP endpoint is `https://mcp.marionettejs.com/mcp`.
+See [client setup](mcp/README.md) and the [manual Worker deployment runbook](mcp/DEPLOYMENT.md).
+The Worker and local stdio process share the same verified corpus and tools.
+
 ## Search and sharing metadata
 
 Stylesheets, the JavaScript entry point, and its directly loaded modules use content
