@@ -3,4 +3,5 @@ node_modules/
 .DS_Store
 *.log
 
-content/.library-docs-import/
+content/library-docs.import/
+content/library-docs.backup/
