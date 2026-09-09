@@ -102,3 +102,13 @@ test('production headers stay within Cloudflare limits and expose safe retrieval
   assert.ok(headers.includes('/llms-full.txt\n  Content-Type: text/plain; charset=utf-8'));
   assert.ok(headers.includes('/docs/:page/\n  Link: <https://marionettejs.com/docs/:page.md>'));
 });
+
+
+test('llms indexes use level-two sections containing Markdown file lists', async () => {
+  for (const path of ['llms.txt', 'docs/llms.txt']) {
+    const markdown = await read(path);
+    assert.doesNotMatch(markdown, /^### /m);
+    for (const section of markdown.split(/^## /m).slice(1)) assert.match(section, /^- \[.+?\]\(https:\/\/marionettejs\.com\//m);
+  }
+  assert.ok((await read('_headers')).includes('/docs/*\n  Link: <https://marionettejs.com/docs/llms.txt>; rel="describedby"'));
+});
