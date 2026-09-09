@@ -1,0 +1,19 @@
+test/browser/agent-workshop.mjs
+  s_dd1c0f2a0340dc::t_2115bf53f84b54 9,121-152
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "40a5a2b3a76f4372e2756d5a06832bd2b9ed232d",
+  "prompts": {},
+  "sessions": {
+    "s_dd1c0f2a0340dc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a084b0-1a02-7380-9397-01a2c9825349",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
