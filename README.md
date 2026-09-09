@@ -108,7 +108,6 @@ Public-facing copy is written for the intended completed Marionette 5.0 launch,
 as requested by Paul. This is an editorial assumption, not a release action.
 Preserve the actual pinned runtime/version in provenance.
 Do not invent benchmark numbers, migration results, or adoption claims.
-The A/B previews remain available at their existing local ports.
 
 ## In-page workshop instructions
 
