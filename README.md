@@ -84,9 +84,10 @@ Only an explicit Download app click writes a standalone HTML file. Drafts stay i
 this tab until reload. The export includes the pinned runtime and MIT license and
 needs no installation or server.
 
-“Open in CodePen” sends the current draft and pinned runtime/license to CodePen’s
-prefill editor on an explicit click. Save there to obtain an app link; free Pens
-are public. “Share backstage” shares the public workshop URL only, with no app
+After the first successful app run, a Next steps section appears below the editor
+and preview and stays available while editing. “View on CodePen” sends the current
+draft and pinned runtime/license to CodePen’s prefill editor on an explicit click. Save there to obtain an app link; free Pens
+are public. “Share this experience” shares the public workshop URL only, with no app
 source, title, or build notes.
 
 This uses an opaque-origin iframe and restrictive CSP, not a hardened hostile-code

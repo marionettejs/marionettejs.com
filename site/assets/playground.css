@@ -146,12 +146,26 @@
 /* The recipe picker shares the editor's visible, keyboard-operable controls. */
 #workshop-example { max-width:100%; padding:8px; font:inherit; color:inherit; background:transparent; border:1px solid currentColor; border-radius:4px; }
 
-.workshop-export-help { margin:0; padding:10px 17px; border:1px solid #424044; border-bottom:0; color:#b8afb0; font-size:11px; line-height:1.6; }
-.workshop-share { margin:6px 0 24px; }
-.workshop-share summary { width:fit-content; cursor:pointer; color:#e6b6a2; font-size:13px; padding:10px 0; }
-.workshop-share>div { padding:8px 0; }
-.workshop-share p { margin:0 0 12px; color:#b8afb0; font-size:12px; line-height:1.7; }
-.workshop-share nav { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
-.workshop-share button,.workshop-share a { display:inline-block; padding:11px 16px; border:1px solid #51484a; background:transparent; color:#e6d6cf; font-size:12px; text-decoration:none; }
-.workshop-share button:hover,.workshop-share a:hover { background:#302725; border-color:#c38e7f; }
-.workshop-share input { width:100%; max-width:420px; padding:12px; border:1px solid #51484a; background:#161719; color:#e6d6cf; font-size:12px; }
+.workshop-next-steps { margin:18px 0 36px; padding:30px; border:1px solid #675048; background:linear-gradient(120deg,#2b211f,#1b1a1e 70%); }
+.workshop-next-steps[hidden] { display:none; }
+.workshop-next-steps .eyebrow { margin:0 0 12px; color:#e6a48e; }
+.workshop-next-steps h2 { margin:0 0 26px; font-size:clamp(25px,3vw,36px); font-weight:500; letter-spacing:-.035em; }
+.workshop-next-options { display:grid; grid-template-columns:1fr 1fr; gap:30px; }
+.workshop-next-options>section { min-width:0; }
+.workshop-share { padding-left:30px; border-left:1px solid #51413e; }
+.workshop-next-steps h3 { margin:0 0 10px; font-size:18px; font-weight:500; }
+.workshop-next-steps p { margin:0 0 18px; color:#c8beba; font-size:13px; line-height:1.7; max-width:460px; }
+.workshop-share nav { display:flex; flex-wrap:wrap; gap:8px; }
+.workshop-next-steps button,.workshop-next-steps a { display:inline-block; padding:12px 17px; min-height:44px; border:1px solid #776057; background:transparent; color:#f2ddd2; font-size:13px; text-decoration:none; }
+.workshop-next-steps button:hover,.workshop-next-steps a:hover { background:#3b2e29; border-color:#c38e7f; }
+.workshop-export button { background:#ef9b7f; border-color:#ef9b7f; color:#211917; font-weight:600; }
+.workshop-export button:hover { background:#ffb398; border-color:#ffb398; }
+.workshop-next-steps .workshop-export-help,.workshop-next-steps .workshop-share-note { margin:14px 0 0; font-size:11px; color:#b8aaa5; }
+.workshop-share [role=status]:empty { display:none; }
+.workshop-share [role=status]:not(:empty) { margin:14px 0 0; }
+.workshop-share input { width:100%; max-width:420px; margin-top:12px; padding:12px; border:1px solid #776057; background:#161719; color:#e6d6cf; font-size:12px; }
+@media (max-width:760px) {
+ .workshop-next-steps { padding:22px; }
+ .workshop-next-options { grid-template-columns:1fr; gap:24px; }
+ .workshop-share { padding:24px 0 0; border-left:0; border-top:1px solid #51413e; }
+}

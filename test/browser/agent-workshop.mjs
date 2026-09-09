@@ -49,7 +49,21 @@ try {
     assert.ok(state.preview.recipe.checks.every(item => item.expected === true && item.observed === true), JSON.stringify(state.preview.recipe));
     return state.preview.recipe;
   }
+  const nextSteps = page.locator('.workshop-next-steps');
+  assert.equal(await nextSteps.isVisible(), false);
+  await api('run', { title: 'Failed first run', code: 'throw new Error("Startup failed");', css: '' });
+  assert.equal(await nextSteps.isVisible(), false, 'A failed startup does not reveal next steps');
   await load('list-detail');
+  assert.equal(await nextSteps.isVisible(), true);
+  assert.equal(await nextSteps.locator('[data-workshop-codepen]').isVisible(), true);
+  await api('update', { note: 'Try another title', title: 'An edited draft' });
+  assert.equal(await nextSteps.isVisible(), true, 'Editing keeps next steps available');
+  await nextSteps.screenshot({ path: 'output/playwright/next-steps-desktop.png' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await nextSteps.screenshot({ path: 'output/playwright/next-steps-mobile.png' });
+  assert.equal(await page.locator('#playground').evaluate(el => el.scrollWidth <= el.clientWidth), true, 'Mobile workshop does not overflow horizontally');
+  await page.setViewportSize({ width: 1280, height: 720 });
+  console.log('PASS next steps: hidden before success, visible after run and editing, mobile layout');
   const frame = preview();
   await frame.locator('#draft').fill('An unsaved idea');
   const input = await frame.locator('#draft').elementHandle();
