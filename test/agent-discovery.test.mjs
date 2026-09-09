@@ -67,7 +67,7 @@ test('root index and task syllabus lead to resolvable version-matched resources'
 test('full context and topic bundles include reading copies once with intact code bytes', async () => {
   const corpus = await parse('docs/corpus.json');
   const full = await read('llms-full.txt');
-  const bundles = await Promise.all(['start', 'integrations', 'reference'].map(name => read(`docs/bundles/${name}.txt`)));
+  const bundles = await Promise.all(['start', 'integrations', 'reference', 'maintainers'].map(name => read(`docs/bundles/${name}.txt`)));
   for (const doc of corpus.documents) {
     assert.ok(full.includes(doc.markdown), doc.id);
     assert.equal(full.split(`Document: ${doc.id}\n`).length - 1, 1);

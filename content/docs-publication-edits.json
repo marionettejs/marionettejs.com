@@ -131,6 +131,21 @@
       "source": "docs/development.md",
       "before": "# Develop against the current candidate\n\nUse the TypeScript starter when beginning an application trial against unreleased\nMarionette changes.",
       "after": "# Develop with Marionette\n\nUse the TypeScript starter when beginning an application trial with Marionette."
+    },
+    {
+      "source": "docs/installation.md",
+      "before": "This guide describes beta.2. Registry commands require that version to be published;\nsee [contributor setup](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository) to build and pack\nan unreleased checkout locally.",
+      "after": "This guide covers the published Marionette 5.0.0-beta.2 package and its matching companion packages."
+    },
+    {
+      "source": "docs/installation.md",
+      "before": "This command becomes available after the beta is published. Use documentation matching that\nartifact. To use the current-source APIs described here, [build and pack the\ncheckout](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository)\nand install the package artifacts from that same source revision. A matching\nprerelease version string alone does not establish that a published package contains\nthe same APIs as this checkout.",
+      "after": "Beta.2 is available on npm. Pin this exact version and use its matching documentation. For unreleased changes, build and pack a known source revision separately."
+    },
+    {
+      "source": "docs/beta.md",
+      "before": "published npm package or this unpublished candidate.",
+      "after": "published npm package or a source candidate."
     }
   ],
   "channel": "latest"
