@@ -145,7 +145,13 @@
     {
       "source": "docs/migration-from-v4.md",
       "before": "## Compatibility ledger",
-      "after": "If your application imports directly from @mnjs/radio, declare version 5.0.0-beta.1 as a direct dependency in your application package.json. Do not rely on Marionette’s transitive dependency.\n\n## Compatibility ledger"
+      "after": "If your application imports directly from @mnjs/radio, declare version 5.0.0-beta.1 as a direct dependency in your application package.json. Do not rely on Marionette\u2019s transitive dependency.\n\n## Compatibility ledger"
+    },
+    {
+      "source": "docs/beta.md",
+      "before": "Move `next` only",
+      "after": "Move the selected npm tag (`latest` before the first stable v5) only"
     }
-  ]
+  ],
+  "channel": "latest"
 }

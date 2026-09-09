@@ -1,3 +1,4 @@
+import { publishedMarkdown } from '../scripts/published-docs.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, writeFile, mkdtemp, rm, cp } from 'node:fs/promises';
@@ -69,7 +70,7 @@ test('agent Markdown keeps code intact and resolves page links within this snaps
     const derived = await readFile(resolve(root, 'dist', markdownUrl(page).slice(1)), 'utf8');
     assert.ok(derived.includes(`original source SHA-256 ${page.sha256}`));
     const code = markdown => { const blocks = []; parser.walkTokens(parser.lexer(markdown), token => { if (token.type === 'code' || token.type === 'codespan') blocks.push(token.text); }); return blocks; };
-    assert.deepEqual(code(derived), code(page.markdown), `${page.source}: code must not change`);
+    assert.deepEqual(code(derived), code(publishedMarkdown(page)), `${page.source}: code must match the reviewed publication copy`);
     const hrefs = [];
     parser.walkTokens(parser.lexer(derived), token => { if (token.type === 'link') hrefs.push(token.href); });
     for (const href of hrefs) {
@@ -150,7 +151,7 @@ test('reading copies link diagnostic codes directly and expose class navigation'
   assert.match(classes, /<a href="#marionetteview">Marionette.View<\/a>/);
   const llms = await readFile(resolve(root, 'dist/docs/llms.txt'), 'utf8');
   const { manifest } = await readSnapshot(source);
-  assert.ok(llms.includes(`Channel: ${manifest.channel}\nPublication: beta (published on npm)`));
+  assert.ok(llms.includes(`Channel: latest\nPublication: beta (published on npm)`));
 });
 
 test('diagnostic catalog schemas resolve beside all catalog copies with pinned provenance', async () => {
