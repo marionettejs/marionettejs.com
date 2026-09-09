@@ -1,3 +1,4 @@
+import { backstageURL, backstageText, codePenData } from './playground-export.js';
 import { listRecipes, getRecipe, recipeRuntime } from './playground-recipes.js';
 import { starter, revision, validateApp, validateAction, runnerDocument, standaloneDocument } from './playground-runtime.js';
 
@@ -237,6 +238,39 @@ async function download() {
     setStatus('Downloaded this draft. Open the HTML file in a browser.');
   } catch (error) { report(error); }
 }
+const codePenForm = dialog.querySelector('[data-codepen-form]');
+const codePenButton = dialog.querySelector('[data-workshop-codepen]');
+let codePenAssets;
+codePenForm.addEventListener('submit', event => {
+  event.preventDefault();
+  try {
+    // Assets are loaded before submission, preserving the click's user activation.
+    codePenForm.elements.data.value = JSON.stringify(codePenData(currentApp(), codePenAssets.vendor, codePenAssets.license));
+    codePenForm.submit();
+    setStatus('Sent this draft to CodePen. Save it there to get a shareable app link.');
+  } catch (error) { report(error); }
+});
+loadAssets().then(({ vendor, license }) => {
+  codePenAssets = { vendor, license };
+  codePenButton.disabled = false;
+}).catch(() => { dialog.querySelector('#codepen-help').textContent = 'CodePen export could not load. Reload this page to try again.'; });
+const share = dialog.querySelector('.workshop-share');
+share.querySelector('[data-share-bluesky]').href = `https://bsky.app/intent/compose?${new URLSearchParams({ text: `${backstageText}\n${backstageURL}` })}`;
+share.querySelector('[data-share-x]').href = `https://x.com/intent/tweet?${new URLSearchParams({ text: backstageText, url: backstageURL })}`;
+share.querySelector('input').value = backstageURL;
+share.querySelector('[data-share-copy]').addEventListener('click', async () => {
+  const status = share.querySelector('[role=status]');
+  try {
+    await navigator.clipboard.writeText(backstageURL);
+    status.textContent = 'Link copied. Invite someone backstage.';
+  } catch {
+    const field = share.querySelector('input');
+    field.hidden = false;
+    field.focus();
+    field.select();
+    status.textContent = 'Select and copy the link below.';
+  }
+});
 setApp(starter);
 runButton.addEventListener('click', () => run(currentApp()).catch(report));
 dialog.querySelector('[data-workshop-stop]').addEventListener('click', () => { stop(); setStatus('Stopped. The code is still yours.', 'stopped'); });
