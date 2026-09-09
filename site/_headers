@@ -13,3 +13,32 @@
 /sw.js
   Cache-Control: no-store
   Service-Worker-Allowed: /
+
+# Discovery is available without executing JavaScript. Keep these patterns bounded
+# rather than spending Cloudflare's 100-rule budget on every diagnostic page.
+/*
+  Link: <https://marionettejs.com/llms.txt>; rel="describedby"
+
+/docs/
+  Link: <https://marionettejs.com/docs/index.md>; rel="alternate"; type="text/markdown"
+
+/docs/:page/
+  Link: <https://marionettejs.com/docs/:page.md>; rel="alternate"; type="text/markdown"
+
+/errors/
+  Link: <https://marionettejs.com/errors/index.md>; rel="alternate"; type="text/markdown"
+
+/errors/:code/
+  Link: <https://marionettejs.com/errors/:code.md>; rel="alternate"; type="text/markdown"
+
+/docs/:page.md
+  Content-Type: text/markdown; charset=utf-8
+  X-Content-Type-Options: nosniff
+
+/errors/:code.md
+  Content-Type: text/markdown; charset=utf-8
+  X-Content-Type-Options: nosniff
+
+/docs/:resource.json
+  Content-Type: application/json; charset=utf-8
+  X-Content-Type-Options: nosniff
