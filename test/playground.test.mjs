@@ -4,6 +4,24 @@ import { readFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { starter, version, revision, validateApp, validateAction, runnerDocument, standaloneDocument } from '../site/assets/playground-runtime.js';
 
+import { codePenData } from '../site/assets/playground-export.js';
+
+test('CodePen export preserves the draft and exact runtime without HTML parser breakouts', async () => {
+  const vendor = await readFile(new URL('../site/vendor/marionette.js', import.meta.url), 'utf8');
+  const license = await readFile(new URL('../site/vendor/MARIONETTE-LICENSE.txt', import.meta.url), 'utf8');
+  const app = { ...starter, title: 'Quotes " & 한국어 </script>', code: `${starter.code}\n// unsaved edit: </script>` };
+  const output = codePenData(app, vendor, license);
+  assert.equal(output.title, app.title);
+  assert.ok(output.js.endsWith(app.code));
+  assert.ok(output.css.endsWith(app.css));
+  const runtime = JSON.parse(output.html.match(/<script[^>]*>([\s\S]*)<\/script>/)[1]);
+  assert.deepEqual(runtime, { vendor, license });
+  const hostile = codePenData(app, '</script><img src=x onerror=alert(1)>', license);
+  assert.equal((hostile.html.match(/<\/script>/g) || []).length, 1);
+  assert.ok(!hostile.html.includes('<img'));
+  assert.throws(() => codePenData({ ...app, code: '' }, vendor, license));
+});
+
 test('the discoverable brief embeds the exact executable starter', async () => {
   const brief = await readFile(new URL('../dist/agent-prompt.md', import.meta.url), 'utf8');
   assert.ok(brief.includes(`\`\`\`js\n${starter.code}\n\`\`\``));

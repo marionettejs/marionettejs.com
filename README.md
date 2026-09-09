@@ -4,7 +4,7 @@ The live site is marionettejs.com; www.marionettejs.com and v5.marionettejs.com
 also work. Cloudflare Pages serves one complete artifact.
 The apex is canonical; v5 remains a noindexed mirror.
 
-Source lives in `marionettejs/website`. Earlier design commits and checkouts remain
+Source lives in `marionettejs/marionettejs.com`. Earlier design commits and checkouts remain
 preserved in the old website repository. The local preview still binds to loopback.
 
 ## Deployment
@@ -83,6 +83,11 @@ browser; otherwise the agent explains the missing capability and stops execution
 Only an explicit Download app click writes a standalone HTML file. Drafts stay in
 this tab until reload. The export includes the pinned runtime and MIT license and
 needs no installation or server.
+
+“Open in CodePen” sends the current draft and pinned runtime/license to CodePen’s
+prefill editor on an explicit click. Save there to obtain an app link; free Pens
+are public. “Share backstage” shares the public workshop URL only, with no app
+source, title, or build notes.
 
 This uses an opaque-origin iframe and restrictive CSP, not a hardened hostile-code
 execution service. Script-initiated self-navigation and CPU exhaustion need stronger

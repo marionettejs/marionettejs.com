@@ -56,7 +56,7 @@
 .workshop-toolbar { display:flex; justify-content:space-between; align-items:center; gap:20px; border:1px solid #424044; border-bottom:0; padding:13px 17px; background:#1c1c1f; }
 .workshop-toolbar label { display:flex; align-items:center; gap:15px; font:10px/1.5 var(--mono); color:#ada5a3; letter-spacing:1px; flex:1; min-width:0; }
 .workshop-toolbar input { min-width:0; width:100%; max-width:360px; background:transparent; border:0; border-bottom:1px solid #555054; border-radius:0; padding:7px 0; color:#f1ece8; font:14px/1.4 system-ui,sans-serif; }
-.workshop-toolbar>div { display:flex; gap:8px; }
+.workshop-toolbar>div { display:flex; flex-wrap:wrap; gap:8px; }
 .workshop-toolbar button { padding:11px 14px; border:1px solid #51484a; color:#d9d1cb; background:transparent; font-size:12px; min-height:42px; white-space:nowrap; }
 .workshop-toolbar .workshop-run { background:#f16c58; border-color:#f16c58; color:#171316; font-weight:650; padding-inline:22px; }
 .workshop-grid { display:grid; grid-template-columns:1fr 1fr; border:1px solid #424044; min-height:470px; }
@@ -145,3 +145,13 @@
 
 /* The recipe picker shares the editor's visible, keyboard-operable controls. */
 #workshop-example { max-width:100%; padding:8px; font:inherit; color:inherit; background:transparent; border:1px solid currentColor; border-radius:4px; }
+
+.workshop-export-help { margin:0; padding:10px 17px; border:1px solid #424044; border-bottom:0; color:#b8afb0; font-size:11px; line-height:1.6; }
+.workshop-share { margin:6px 0 24px; }
+.workshop-share summary { width:fit-content; cursor:pointer; color:#e6b6a2; font-size:13px; padding:10px 0; }
+.workshop-share>div { padding:8px 0; }
+.workshop-share p { margin:0 0 12px; color:#b8afb0; font-size:12px; line-height:1.7; }
+.workshop-share nav { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+.workshop-share button,.workshop-share a { display:inline-block; padding:11px 16px; border:1px solid #51484a; background:transparent; color:#e6d6cf; font-size:12px; text-decoration:none; }
+.workshop-share button:hover,.workshop-share a:hover { background:#302725; border-color:#c38e7f; }
+.workshop-share input { width:100%; max-width:420px; padding:12px; border:1px solid #51484a; background:#161719; color:#e6d6cf; font-size:12px; }
