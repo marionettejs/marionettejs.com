@@ -48,6 +48,14 @@ it. Run the loaded `{title, code, css}`, then perform its interactions:
   “Completed local work” appears. It uses a local delayed task and AbortController;
   the old task must not commit after its View is destroyed.
 
+- `application-startup`: Run Application lifecycle checks, then inspect the printed
+  Promise outcomes. A pending `start()` superseded by `stop()` resolves `false`;
+  a fresh start resolves `true`; a current readiness failure rejects. The local
+  loader deliberately finishes after cancellation, so `onBeforeStart` checks its
+  supplied signal before writing state. Root View and Application cleanup are
+  checked too. This is the Application readiness contract; `cancellable-work`
+  demonstrates the separate View-owned task contract.
+
 Canonical learning examples do not require personalization. The following personal
 app guidance applies when the user asked for the invitation's personal interaction.
 

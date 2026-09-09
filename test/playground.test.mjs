@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
-import { starter, validateApp, validateAction, runnerDocument, standaloneDocument } from '../site/assets/playground-runtime.js';
+import { starter, version, revision, validateApp, validateAction, runnerDocument, standaloneDocument } from '../site/assets/playground-runtime.js';
 
 test('the discoverable brief embeds the exact executable starter', async () => {
   const brief = await readFile(new URL('../dist/agent-prompt.md', import.meta.url), 'utf8');
@@ -63,6 +63,8 @@ test('download contains the same pinned library, license and sandboxed standalon
 test('canonical recipe catalog rejects unknown ids and stays pinned to the demo', async () => {
   const { recipes, listRecipes, getRecipe, recipeRuntime } = await import('../site/assets/playground-recipes.js');
   const provenance = JSON.parse(await readFile(new URL('../content/provenance.json', import.meta.url), 'utf8'));
+  assert.equal(version, recipeRuntime.version);
+  assert.equal(revision, recipeRuntime.revision);
   assert.equal(recipeRuntime.version, provenance.packageVersion);
   assert.equal(recipeRuntime.revision, provenance.libraryRevision);
   assert.equal(new Set(recipes.map(recipe => recipe.id)).size, recipes.length);
