@@ -22,7 +22,12 @@ test('supplement import reads committed files and preserves the published beta s
   git(['-c', 'user.name=Guide test', '-c', 'user.email=guide@example.invalid', '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'guides']);
   const commit = git(['rev-parse', 'HEAD']);
   await writeFile(join(source, 'docs/development.md'), '# Uncommitted changes\n');
-  execFileSync(process.execPath, [join(website, 'scripts/import-development-docs.mjs'), source]);
+  const importGuides = () => execFileSync(process.execPath, [join(website, 'scripts/import-development-docs.mjs'), source], { stdio: 'pipe' });
+  assert.throws(importGuides, /requires a canonical/);
+  git(['remote', 'add', 'origin', 'https://github.com/example/fork.git']);
+  assert.throws(importGuides, /requires a canonical/);
+  git(['remote', 'add', 'upstream', 'git@github.com:marionettejs/marionette.git']);
+  importGuides();
   const manifest = JSON.parse(await readFile(join(website, 'content/development-docs/manifest.json')));
   assert.equal(manifest.sourceRevision, commit);
   assert.equal(manifest.sourceDirty, false);

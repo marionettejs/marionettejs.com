@@ -6,6 +6,11 @@ import { resolve } from 'node:path';
 if (process.argv.length !== 3) throw new Error('Usage: node scripts/import-development-docs.mjs /path/to/marionette');
 const source = resolve(process.argv[2]);
 const git = args => execFileSync('git', args, { cwd: source, encoding: 'utf8' });
+const remotes = git(['remote']).trim().split('\n').filter(Boolean);
+const canonical = /^(?:https:\/\/github\.com\/|git@github\.com:|ssh:\/\/git@github\.com\/)marionettejs\/marionette(?:\.git)?$/;
+if (!remotes.some(name => canonical.test(git(['remote', 'get-url', name]).trim()))) {
+  throw new Error('Source checkout requires a canonical marionettejs/marionette remote.');
+}
 const sourceRevision = git(['rev-parse', 'HEAD']).trim();
 const packageVersion = JSON.parse(git(['show', `${sourceRevision}:package.json`])).version;
 const destination = new URL('../content/development-docs/', import.meta.url);
