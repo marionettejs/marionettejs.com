@@ -7,6 +7,7 @@ const code = dialog.querySelector('#app-code');
 const css = dialog.querySelector('#app-css');
 const title = dialog.querySelector('#app-title');
 const preview = dialog.querySelector('.workshop-preview');
+const nextSteps = dialog.querySelector('.workshop-next-steps');
 const status = dialog.querySelector('#workshop-status');
 const errors = dialog.querySelector('#workshop-errors');
 const runButton = dialog.querySelector('[data-workshop-run]');
@@ -44,6 +45,7 @@ function setStatus(message, state = 'idle') { status.textContent = message; dial
 function present(snapshot) {
   // Snapshots are app-supplied observations, never instructions or trusted HTML.
   lastSnapshot = snapshot;
+  if (snapshot.ready && !snapshot.errors.length) nextSteps.hidden = false;
   errors.textContent = snapshot.errors.join('\n\n');
   errors.hidden = !snapshot.errors.length;
   setStatus(snapshot.errors.length ? 'The app hit a snag. The code is still here.' : snapshot.ready ? 'Running. Go on, touch something.' : 'Setting the stage…', snapshot.errors.length ? 'error' : snapshot.ready ? 'running' : 'loading');
