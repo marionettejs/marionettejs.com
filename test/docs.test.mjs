@@ -41,6 +41,17 @@ test('import refuses altered content and unsafe paths before replacement', async
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
 
+test('import requires the troubleshooting source used by diagnostic examples', async () => {
+  const directory = await mkdtemp(resolve(tmpdir(), 'marionette-docs-'));
+  try {
+    await cp(source, directory, { recursive: true });
+    const manifest = JSON.parse(await readFile(resolve(directory, 'manifest.json'), 'utf8'));
+    manifest.pages = manifest.pages.filter(page => page.source !== 'docs/troubleshooting.md');
+    await writeFile(resolve(directory, 'manifest.json'), JSON.stringify(manifest));
+    await assert.rejects(readSnapshot(directory), /Expected troubleshooting documentation page/);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
 test('renderer keeps headings linkable and maps canonical cross-page references', () => {
   const page = { source: 'docs/example.md', markdown: '# Example\n\n## `show(view)`\n\n[Region](marionette.region.md#showing-a-view)\n\n<script>alert(1)</script>\n\n[unsafe](javascript:alert)\n' };
   const { html } = renderMarkdown(page, [{ source: 'docs/marionette.region.md', route: 'docs/regions' }], { sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) });
@@ -55,6 +66,7 @@ test('diagnostics retain active and retired identities with machine-readable rem
   for (const entry of catalog.diagnostics) {
     const markdown = await readFile(resolve(root, 'dist/errors', `${entry.code}.md`), 'utf8');
     assert.ok(markdown.includes(`Status: ${entry.status}`));
+    assert.ok(markdown.includes(`Reported by: ${entry.surfaces.join(', ')}`));
     assert.ok(markdown.includes(entry.remediation));
     const html = await readFile(resolve(root, 'dist/errors', entry.code, 'index.html'), 'utf8');
     assert.ok(html.includes(`type="text/markdown" href="/errors/${entry.code}.md"`));
@@ -172,7 +184,7 @@ test('diagnostic link rewrites preserve fenced, indented, and inline code exampl
   const link = '[`MN0023`](diagnostic-catalog.md#look-up-a-code)';
   const code = `\`\`\`md\n${link}\n\`\`\`\n\n    ${link}\n\n\`\`${link}\`\`\n\n\`\`multiline\n${link}\n[ref]: marionette.region.md\n\`\``;
   const page = { source: 'docs/example.md', route: 'docs/example', title: 'Example', sha256: 'a'.repeat(64), markdown: `# Example\n\n**${link}**\n\n${code}\n` };
-  const manifest = { packageVersion: '5.0.0-beta.1', sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) };
+  const manifest = { packageVersion: '5.0.0-beta.2', sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) };
   const derived = deriveMarkdown(page, [], manifest);
   assert.ok(derived.includes('**[`MN0023`](/errors/MN0023.md)**'));
   assert.ok(derived.includes(code), 'All code examples remain byte-for-byte unchanged');

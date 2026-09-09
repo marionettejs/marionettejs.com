@@ -17,7 +17,7 @@ test('every built page has valid local links, fragments, and asset references',a
     const html=await readFile(resolve(out,route),'utf8');
     assert.equal((html.match(/<h1[ >]/g)||[]).length,1,route);
     assert.match(html,/<html lang="en">/);
-    for (const link of ['/thanks/', 'https://www.patreon.com/marionettejs', 'https://store.marionettejs.com/', 'https://www.npmjs.com/package/marionette/v/5.0.0-beta.1']) {
+    for (const link of ['/thanks/', 'https://www.patreon.com/marionettejs', 'https://store.marionettejs.com/', 'https://www.npmjs.com/package/marionette/v/5.0.0-beta.2']) {
       assert.ok(html.includes(`href="${link}"`), `${route}: missing shared footer link ${link}`);
     }
     const socialImage = html.match(/property="og:image" content="([^"]+)"/);
@@ -58,7 +58,7 @@ test('the demo runtime and documentation match the published beta',async()=>{
   assert.match(provenance.libraryRevision,/^[a-f0-9]{40}$/);
   const hash=createHash('sha256').update(await readFile(resolve(out,'vendor/marionette.js'))).digest('hex');
   assert.equal(hash,provenance.bundleSha256);
-  assert.equal(provenance.packageVersion, '5.0.0-beta.1');
+  assert.equal(provenance.packageVersion, '5.0.0-beta.2');
   assert.equal(provenance.packageVersion, manifest.packageVersion);
   assert.equal(provenance.libraryRevision, manifest.sourceRevision);
   assert.equal(manifest.sourceDirty, false);

@@ -25,14 +25,25 @@ test('public beta pages are canonical and indexable while mirrors stay noindexed
 });
 
 test('release reading copies announce publication while the package source stays exact', async () => {
-  assert.deepEqual(JSON.parse(await read('content/library-docs/manifest.json')), JSON.parse(await read('node_modules/marionette/dist/docs/manifest.json')));
+  const website = JSON.parse(await read('content/library-docs/manifest.json'));
+  const installed = JSON.parse(await read('node_modules/marionette/dist/docs/manifest.json'));
+  for (const key of ['packageVersion', 'sourceRevision', 'sourceRepository', 'sourceDirty', 'channel']) {
+    assert.equal(website[key], installed[key], key);
+  }
+  // The website export also includes maintainer docs; every npm consumer source
+  // must still be present with exactly the published metadata and bytes.
+  for (const key of ['pages', 'assets']) for (const entry of installed[key]) {
+    assert.deepEqual(website[key].find(item => item.source === entry.source), entry, entry.source);
+    assert.equal(await read(`content/library-docs/${entry.source}`),
+      await read(`node_modules/marionette/dist/docs/${entry.source}`), entry.source);
+  }
   for (const path of ['docs/installation.md', 'docs/beta.md']) {
     const raw = await read(`content/library-docs/${path}`);
     const npmSource = await read(`node_modules/marionette/dist/docs/${path}`);
     assert.equal(raw, npmSource);
     const published = await read(`dist/${path}`);
     assert.doesNotMatch(published, /becomes available after the beta|After publication, install|registry when available/);
-    assert.match(published, /5\.0\.0-beta\.1/);
+    assert.match(published, /5\.0\.0-beta\.2/);
   }
 });
 

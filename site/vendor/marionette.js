@@ -39,7 +39,7 @@ function extendRuntime(protoProps, staticProps) {
   return child;
 }
 var extend = extendRuntime;
-var version = "5.0.0-beta.1";
+var version = "5.0.0-beta.2";
 var packageJson = {
   version
 };
@@ -4074,7 +4074,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     return this.getRegion()?.currentView;
   }
 });
-var version2 = "5.0.0-beta.1";
+var version2 = "5.0.0-beta.2";
 function copyApi(api) {
   return {
     ...api

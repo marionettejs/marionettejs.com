@@ -14,8 +14,8 @@ installed declarations, and existing Marionette configuration. Record:
 - the source revision for a checkout or custom artifact;
 - the selected renderer, data/state sources, DOM integrations, and router.
 
-This documentation describes the current source. An npm alpha with the same
-version string may contain older code. A website example, a copied prompt, or a
+This documentation describes the current source. A local build with the same
+version string may contain different code. A website example, a copied prompt, or a
 third-party search result is not proof that the installed package has that API.
 Match the documentation's source revision to the artifact when available, then
 check the installed exports and declarations. Reproduce uncertain behavior with
@@ -27,6 +27,9 @@ application, use the [migration guide](./migration-from-v4.md) and
 silently upgrade dependencies to make an example fit.
 
 ## Read for the task
+
+Use the [compact framework reference](./compact-reference.md) for an overview of
+contracts, ownership, imports, and diagnostics before opening the specific guide.
 
 | Task | Start here | Verify |
 | --- | --- | --- |
@@ -114,6 +117,15 @@ understand the code.
 Follow [Set up an agent](./agent-tools.md) to install the consumer skill and read
 version-matched packaged docs. Adapt the [application instruction template](./application-agent-template.md)
 to preserve this project's actual decisions across tasks.
+
+For optional structured retrieval, follow the website's
+[documentation MCP setup](https://marionettejs.com/docs/mcp/). A link does not
+configure a client or activate a skill. Read `marionette://catalog` first; use its
+tools only when package version and source match this application, passing the
+exact installed `version` on every call. Follow `nextOffset` until it is `null`
+to read the complete contract, not just a search
+snippet. An unsupported version should send you back to the installed docs, not
+cause a dependency upgrade. WebMCP is separate: it controls website examples.
 
 A Markdown page or versioned documentation index can be read directly. A service
 such as Context7 can help locate the relevant passage, but verify its library and

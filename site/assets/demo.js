@@ -1,4 +1,4 @@
-import { Application, View, CollectionView } from '../vendor/marionette.js?v=5.0.0-beta.1';
+import { Application, View, CollectionView } from '../vendor/marionette.js?v=5.0.0-beta.2';
 
 // Static example content; each screen owns its selection and lifecycle state.
 const work = [
