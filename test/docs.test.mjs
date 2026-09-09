@@ -127,3 +127,42 @@ test('supporting assets reject altered content and traversal', async () => {
     await assert.rejects(readSnapshot(directory), /Unsupported documentation asset/);
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
+
+test('supporting assets reject symlink escapes after safe manifest paths', async () => {
+  const { symlink } = await import('node:fs/promises');
+  const directory = await mkdtemp(resolve(tmpdir(), 'marionette-symlink-'));
+  try {
+    const snapshot = resolve(directory, 'snapshot');
+    await cp(source, snapshot, { recursive: true });
+    const assetDirectory = 'test/fixtures/docs-routing';
+    await cp(resolve(snapshot, assetDirectory), resolve(directory, 'outside'), { recursive: true });
+    await rm(resolve(snapshot, assetDirectory), { recursive: true });
+    await symlink(resolve(directory, 'outside'), resolve(snapshot, assetDirectory), 'junction');
+    await assert.rejects(readSnapshot(snapshot), /Documentation asset escapes snapshot/);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test('reading copies link diagnostic codes directly and expose class navigation', async () => {
+  const collection = await readFile(resolve(root, 'dist/docs/collection-view/index.html'), 'utf8');
+  assert.match(collection, /href="\/errors\/MN0023\/"/);
+  const classes = await readFile(resolve(root, 'dist/docs/classes/index.html'), 'utf8');
+  assert.match(classes, /<h2 id="marionetteview"/);
+  assert.match(classes, /<a href="#marionetteview">Marionette.View<\/a>/);
+  const llms = await readFile(resolve(root, 'dist/docs/llms.txt'), 'utf8');
+  const { manifest } = await readSnapshot(source);
+  assert.ok(llms.includes(`Channel: ${manifest.channel}\nPublication: beta (published on npm)`));
+});
+
+test('diagnostic catalog schemas resolve beside both copies with pinned provenance', async () => {
+  const { createHash } = await import('node:crypto');
+  const { manifest } = await readSnapshot(source);
+  const provenance = JSON.parse(await readFile(resolve(root, 'dist/docs/schema-provenance.json'), 'utf8'));
+  assert.equal(provenance.sourceRevision, manifest.sourceRevision);
+  for (const path of ['docs/diagnostics.json', 'docs/source/config/diagnostics/catalog.json']) {
+    const catalog = JSON.parse(await readFile(resolve(root, 'dist', path), 'utf8'));
+    const schemaPath = new URL(catalog.$schema, new URL(`../dist/${path}`, import.meta.url));
+    const schema = await readFile(schemaPath, 'utf8');
+    assert.equal(createHash('sha256').update(schema).digest('hex'), provenance.sha256);
+    assert.ok(JSON.parse(schema).properties.diagnostics);
+  }
+});

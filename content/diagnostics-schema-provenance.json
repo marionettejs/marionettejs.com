@@ -1,0 +1,7 @@
+{
+  "sourceRepository": "https://github.com/marionettejs/marionette",
+  "sourceRevision": "b06750c507494441f0b2298766b70087e45346a2",
+  "source": "config/diagnostics/catalog.schema.json",
+  "sha256": "0d6b10a7995f5d0d878c855a32321b8e5493596bfe3f40a43137b00acc4c8b52",
+  "reason": "The npm snapshot omits the schema referenced by its diagnostic catalog. Publish the exact schema from the matching release revision as a website supplement."
+}

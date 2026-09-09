@@ -70,6 +70,7 @@ await writeFile(resolve(out,'_headers'), 'https://v5.marionettejs.com/*\n  X-Rob
 await writeFile(resolve(out,'404.html'),shell({title:'Page not found — Marionette',description:'Return to Marionette.',active:'',body:'<section class="article-heading"><p class="eyebrow">404 / A MISSING PIECE</p><h1>This one has no home.</h1><p>That page is not here.</p><a class="button" href="/">Back to Marionette ↗</a></section>'}));
 const docsCount = await buildLibraryDocs({ directory: resolve(root, 'content/library-docs'), out, shell });
 const docsManifest = JSON.parse(await readFile(resolve(out, 'docs/manifest.json'), 'utf8'));
-const sitemapRoutes = ['/', '/why/', '/thanks/', ...docsManifest.pages.map(page => `/${page.route}/`)];
+const diagnostics = JSON.parse(await readFile(resolve(out, 'docs/diagnostics.json'), 'utf8'));
+const sitemapRoutes = ['/', '/why/', '/thanks/', '/errors/', ...diagnostics.diagnostics.map(entry => entry.docsAnchor), ...docsManifest.pages.map(page => `/${page.route}/`)];
 await writeFile(resolve(out, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemapRoutes.map(route => `<url><loc>${siteOrigin}${route}</loc></url>`).join('')}</urlset>`);
 console.log(`Built ${docsCount + 3} pages, static documentation search, and live Marionette examples.`);

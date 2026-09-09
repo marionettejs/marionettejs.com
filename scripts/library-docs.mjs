@@ -1,7 +1,7 @@
 import { publishedMarkdown } from './published-docs.mjs';
 import { readFile, mkdir, writeFile, realpath } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { resolve, posix, relative, isAbsolute, sep } from 'node:path';
+import { resolve, dirname, posix, relative, isAbsolute, sep } from 'node:path';
 import { Marked, Renderer } from 'marked';
 import * as pagefind from 'pagefind';
 
@@ -111,8 +111,8 @@ export async function buildLibraryDocs({ directory, out, shell }) {
   for (const page of pages) {
     const { html, headings } = renderMarkdown(page, pages, manifest);
     const provenance = `${manifest.packageVersion} · Published beta · ${manifest.sourceRevision.slice(0, 8)}${manifest.sourceDirty ? ' + local changes' : ''}`;
-    const body = `<div class="docs-layout canonical-docs">${sidebar(page, pages)}<article class="prose docs-prose" data-pagefind-body><div class="docs-breadcrumb" data-pagefind-ignore>${escapeHtml(page.section)}</div><div class="docs-tools" data-pagefind-ignore><a href="${markdownUrl(page)}">Read Markdown</a><button type="button" data-copy-markdown="${markdownUrl(page)}">Copy Markdown</button><a href="${canonicalSourceUrl(page)}">Canonical source</a><a href="/docs/manifest.json">Source details</a><span class="copy-status" role="status"></span></div><p class="docs-version" data-pagefind-ignore>${escapeHtml(provenance)}. Published on npm. Match your installed version.</p><span hidden data-pagefind-filter="Audience">${page.section === 'Maintaining Marionette' ? 'Maintainers' : 'Consumer'}</span>${html}${adjacentPages(page, pages)}</article><aside class="docs-margin"><nav aria-label="On this page"><p class="eyebrow">ON THIS PAGE</p>${headings.filter(item => item.depth === 2).map(item => `<a href="#${escapeHtml(item.id)}">${item.text}</a>`).join('')}</nav><div class="docs-note"><p>The homepage demo runs this beta. Reading copies include publication wording updates; original packaged sources remain available above.</p><a href="/reference/provenance.json">Demo source notes ↗</a></div></aside></div>`;
-    const rendered = shell({ title: page.title, description: `${page.title}. Marionette 5.0.0-beta.1 documentation.`, active: 'docs', body, route: `/${page.route}/`, markdown: markdownUrl(page) });
+    const body = `<div class="docs-layout canonical-docs">${sidebar(page, pages)}<article class="prose docs-prose" data-pagefind-body><div class="docs-breadcrumb" data-pagefind-ignore>${escapeHtml(page.section)}</div><div class="docs-tools" data-pagefind-ignore><a href="${markdownUrl(page)}">Read Markdown</a><button type="button" data-copy-markdown="${markdownUrl(page)}">Copy Markdown</button><a href="${canonicalSourceUrl(page)}">Canonical source</a><a href="/docs/manifest.json">Source details</a><span class="copy-status" role="status"></span></div><p class="docs-version" data-pagefind-ignore>${escapeHtml(provenance)}. Published on npm. Match your installed version.</p><span hidden data-pagefind-filter="Audience">${page.section === 'Maintaining Marionette' ? 'Maintainers' : 'Consumer'}</span>${html}${adjacentPages(page, pages)}</article><aside class="docs-margin"><nav aria-label="On this page"><p class="eyebrow">ON THIS PAGE</p>${headings.filter(item => item.depth === 2).map(item => `<a href="#${escapeHtml(item.id)}">${item.text.replace(/<[^>]*>/g, '')}</a>`).join('')}</nav><div class="docs-note"><p>The homepage demo runs this beta. Reading copies include publication wording updates; original packaged sources remain available above.</p><a href="/reference/provenance.json">Demo source notes ↗</a></div></aside></div>`;
+    const rendered = shell({ title: page.title, description: `${page.title}. Marionette ${manifest.packageVersion} documentation.`, active: 'docs', body, route: `/${page.route}/`, markdown: markdownUrl(page) });
     await mkdir(resolve(out, page.route), { recursive: true });
     await writeFile(resolve(out, page.route, 'index.html'), rendered);
     await mkdir(resolve(out, 'docs/markdown', posix.dirname(page.source)), { recursive: true });
@@ -121,12 +121,19 @@ export async function buildLibraryDocs({ directory, out, shell }) {
   }
   await writeFile(resolve(out, 'docs/publication.json'), await readFile(new URL('../content/docs-publication-edits.json', import.meta.url)));
   await writeFile(resolve(out, 'docs/manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
-  await writeFile(resolve(out, 'docs/llms.txt'), `# Marionette documentation\n\nVersion: ${manifest.packageVersion}\nChannel: beta (published on npm)\nSource revision: ${manifest.sourceRevision}\nLocal changes: ${manifest.sourceDirty}\nContent SHA-256: ${manifest.contentSha256}\n\nUse the installed package version and source revision to select contracts. These docs ship with the published marionette@5.0.0-beta.1 package. Website reading copies include publication wording updates; original packaged sources retain their original hashes. The reading Markdown rewrites links to this snapshot. Canonical source files remain available byte for byte under /docs/markdown/.\n\n${[...Map.groupBy(pages, page => page.section)].map(([section, entries]) => `## ${section}\n\n${entries.map(page => `- [${page.title}](${markdownUrl(page)})`).join('\n')}`).join('\n\n')}\n\n- [Diagnostic codes](/errors/index.md): active and retired runtime errors.\n- [Snapshot manifest](/docs/manifest.json): page routes, source paths, and original content hashes.\n`);
+  await writeFile(resolve(out, 'docs/llms.txt'), `# Marionette documentation\n\nVersion: ${manifest.packageVersion}\nChannel: ${manifest.channel}\nPublication: beta (published on npm)\nSource revision: ${manifest.sourceRevision}\nLocal changes: ${manifest.sourceDirty}\nContent SHA-256: ${manifest.contentSha256}\n\nUse the installed package version and source revision to select contracts. These docs ship with the published marionette@${manifest.packageVersion} package. Website reading copies include publication wording updates; original packaged sources retain their original hashes. The reading Markdown rewrites links to this snapshot. Canonical source files remain available byte for byte under /docs/markdown/.\n\n${[...Map.groupBy(pages, page => page.section)].map(([section, entries]) => `## ${section}\n\n${entries.map(page => `- [${page.title}](${markdownUrl(page)})`).join('\n')}`).join('\n\n')}\n\n- [Diagnostic codes](/errors/index.md): active and retired runtime errors.\n- [Snapshot manifest](/docs/manifest.json): page routes, source paths, and original content hashes.\n`);
   for (const asset of assets) {
     const destination = resolve(out, 'docs/source', asset.source);
-    await mkdir(posix.dirname(destination), { recursive: true });
+    await mkdir(dirname(destination), { recursive: true });
     await writeFile(destination, asset.content);
   }
+  const schema = await readFile(new URL('../content/diagnostics-schema.json', import.meta.url), 'utf8');
+  const schemaSource = JSON.parse(await readFile(new URL('../content/diagnostics-schema-provenance.json', import.meta.url), 'utf8'));
+  if (schemaSource.sourceRevision !== manifest.sourceRevision || schemaSource.sourceRepository !== manifest.sourceRepository || hash(schema) !== schemaSource.sha256) throw new Error('Review supplemental diagnostic schema for this snapshot.');
+  for (const path of ['docs/catalog.schema.json', 'docs/source/config/diagnostics/catalog.schema.json']) {
+    await writeFile(resolve(out, path), schema);
+  }
+  await writeFile(resolve(out, 'docs/schema-provenance.json'), `${JSON.stringify(schemaSource, null, 2)}\n`);
   const catalog = assets.find(asset => asset.source === 'config/diagnostics/catalog.json');
   await buildDiagnostics({ out, shell, manifest, asset: catalog });
   const { index } = await pagefind.createIndex();

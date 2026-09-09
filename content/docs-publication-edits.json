@@ -1,6 +1,6 @@
 {
   "packageVersion": "5.0.0-beta.1",
-  "reason": "Publication wording updates for the website reading copy. Original npm documentation remains byte-for-byte available under /docs/markdown/.",
+  "reason": "Publication wording and editorial corrections for website reading copies. Original npm documentation remains byte-for-byte available under /docs/markdown/.",
   "edits": [
     {
       "source": "docs/installation.md",
@@ -46,6 +46,106 @@
       "source": "docs/beta.md",
       "before": "After publication, install core and the optional native data package explicitly:",
       "after": "Install core and the optional native data package explicitly:"
+    },
+    {
+      "source": "docs/view.rendering.md",
+      "before": "it is recommend to",
+      "after": "it is recommended to"
+    },
+    {
+      "source": "docs/view.rendering.md",
+      "before": "a number of templating using",
+      "after": "a number of templating engines using"
+    },
+    {
+      "source": "docs/view.rendering.md",
+      "before": "if you are using a `template`",
+      "after": "If you are using a `template`"
+    },
+    {
+      "source": "docs/marionette.view.md",
+      "before": "  * [Showing a Child View](#showing-a-child-view)",
+      "after": "  * [Showing a Child View](#showing-a-child-view)\n  * [Accessing a Child View](#accessing-a-child-view)"
+    },
+    {
+      "source": "docs/dom.prerendered.md",
+      "before": "### Managing a Pre-existing View Tree.",
+      "after": "### Managing a Preexisting View Tree"
+    },
+    {
+      "source": "docs/dom.prerendered.md",
+      "before": "## Re-rendering children of a view with preexisting DOM.",
+      "after": "## Re-rendering children of a view with preexisting DOM"
+    },
+    {
+      "source": "docs/classes.md",
+      "before": "### [Marionette.View](./marionette.view.md)",
+      "after": "## [Marionette.View](./marionette.view.md)"
+    },
+    {
+      "source": "docs/classes.md",
+      "before": "### [Marionette.CollectionView](./marionette.collectionview.md)",
+      "after": "## [Marionette.CollectionView](./marionette.collectionview.md)"
+    },
+    {
+      "source": "docs/classes.md",
+      "before": "### [Marionette.Region](./marionette.region.md)",
+      "after": "## [Marionette.Region](./marionette.region.md)"
+    },
+    {
+      "source": "docs/classes.md",
+      "before": "### [Marionette.Behavior](marionette.behavior.md)",
+      "after": "## [Marionette.Behavior](marionette.behavior.md)"
+    },
+    {
+      "source": "docs/classes.md",
+      "before": "### [Marionette.Application](marionette.application.md)",
+      "after": "## [Marionette.Application](marionette.application.md)"
+    },
+    {
+      "source": "docs/classes.md",
+      "before": "### [Marionette.MnObject](marionette.mnobject.md)",
+      "after": "## [Marionette.MnObject](marionette.mnobject.md)"
+    },
+    {
+      "source": "docs/classes.md",
+      "before": "### [State sources and StateApi](marionette.state.md)",
+      "after": "## [State sources and StateApi](marionette.state.md)"
+    },
+    {
+      "source": "docs/marionette.collectionview.md",
+      "before": "#### CollectionView `children`'s: `findByCid`",
+      "after": "### CollectionView `children`'s: `findByCid`"
+    },
+    {
+      "source": "docs/marionette.collectionview.md",
+      "before": "#### CollectionView `children`'s: `findByModel`",
+      "after": "### CollectionView `children`'s: `findByModel`"
+    },
+    {
+      "source": "docs/marionette.collectionview.md",
+      "before": "#### CollectionView `children`'s: `findByKey`",
+      "after": "### CollectionView `children`'s: `findByKey`"
+    },
+    {
+      "source": "docs/marionette.collectionview.md",
+      "before": "#### CollectionView `children`'s: `findByIndex`",
+      "after": "### CollectionView `children`'s: `findByIndex`"
+    },
+    {
+      "source": "docs/marionette.collectionview.md",
+      "before": "#### CollectionView `children`'s: `findIndexByView`",
+      "after": "### CollectionView `children`'s: `findIndexByView`"
+    },
+    {
+      "source": "docs/choosing-integrations.md",
+      "before": "Borrowed versus owned sources, callable subscription cleanup,",
+      "after": "Borrowed versus owned sources, idempotent subscription cleanup,"
+    },
+    {
+      "source": "docs/migration-from-v4.md",
+      "before": "## Compatibility ledger",
+      "after": "If your application imports directly from @mnjs/radio, declare version 5.0.0-beta.1 as a direct dependency in your application package.json. Do not rely on Marionette’s transitive dependency.\n\n## Compatibility ledger"
     }
   ]
 }

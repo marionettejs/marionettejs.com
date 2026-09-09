@@ -25,7 +25,7 @@
 .heading-anchor { opacity: 0; margin-left: .3em; font-size: .65em; text-decoration: none; }
 :is(h1,h2,h3,h4):hover .heading-anchor,.heading-anchor:focus { opacity: 1; }
 .docs-js-note { font-size: .8rem; color: var(--muted); }
-#docs-search { position: relative; z-index: 20; --pagefind-ui-scale: .72; --pagefind-ui-primary: var(--red); --pagefind-ui-text: var(--ink); --pagefind-ui-background: var(--paper); --pagefind-ui-border: var(--line); --pagefind-ui-border-radius: 0; --pagefind-ui-font: var(--sans); }
+#docs-search { position: relative; z-index: 20; --pagefind-ui-scale: .72; --pagefind-ui-primary: var(--red); --pagefind-ui-text: var(--ink); --pagefind-ui-background: var(--paper); --pagefind-ui-border: var(--line); --pagefind-ui-border-radius: 0; --pagefind-ui-font: Arial,Helvetica,sans-serif; }
 @media(max-width: 1150px) { .canonical-docs { grid-template-columns: 210px minmax(0, 1fr); } .canonical-docs .docs-margin { display: none; } }
 @media(max-width: 760px) { .canonical-docs { display: block; padding: 24px 6%; } .canonical-docs .docs-nav { position: static; max-height: none; padding: 0 0 24px; display: block; } .canonical-docs .docs-home { display: flex; margin-bottom: 18px; } .canonical-docs .docs-group { margin: 6px 0; } .canonical-docs .docs-group a { font-size: .85rem; } .canonical-docs .docs-prose { padding-top: 30px; } }
 @media print { .docs-tools,.docs-version,.heading-anchor { display: none; } .canonical-docs { display: block; } }

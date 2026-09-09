@@ -49,3 +49,15 @@ test('legacy worker retirement clears only its precache and unregisters before r
   await completion;
   assert.deepEqual(calls, ['skip', 'sw-precache-v3-marionettejs.com-https://marionettejs.com/', 'claim', 'unregister', 'https://marionettejs.com/']);
 });
+
+test('the sitemap includes every diagnostic and published preview links redirect', async () => {
+  const sitemap = await read('dist/sitemap.xml');
+  const catalog = JSON.parse(await read('dist/docs/diagnostics.json'));
+  for (const route of ['/errors/', ...catalog.diagnostics.map(entry => entry.docsAnchor)]) {
+    assert.ok(sitemap.includes(`<loc>https://marionettejs.com${route}</loc>`), route);
+  }
+  const redirects = await read('dist/_redirects');
+  assert.match(redirects, /^\/docs\/regions\/ \/docs\/region\/ 301$/m);
+  assert.match(redirects, /^\/reference\/region.md \/docs\/region.md 301$/m);
+  assert.ok((await read('dist/docs/region.md')).startsWith('<!-- Documentation snapshot:'));
+});

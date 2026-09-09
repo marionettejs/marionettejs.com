@@ -20,7 +20,11 @@ test('every built page has valid local links, fragments, and asset references',a
     for (const link of ['/thanks/', 'https://www.patreon.com/marionettejs', 'https://store.marionettejs.com/', 'https://www.npmjs.com/package/marionette/v/5.0.0-beta.1']) {
       assert.ok(html.includes(`href="${link}"`), `${route}: missing shared footer link ${link}`);
     }
-    assert.ok(html.includes('property="og:image"'), `${route}: missing social preview`);
+    const socialImage = html.match(/property="og:image" content="([^"]+)"/);
+    assert.ok(socialImage, `${route}: missing social preview`);
+    const socialUrl = new URL(socialImage[1]);
+    assert.equal(socialUrl.origin, 'https://marionettejs.com');
+    assert.ok((await stat(resolve(out, `.${socialUrl.pathname}`))).isFile(), `${route}: missing social image`);
     assert.match(html,/<meta name="robots" content="index, follow">/);
     const base=new URL(route.replace(/index.html$/,''),'http://preview.local/');
     for(const [,ref]of html.matchAll(/(?:href|src)="([^"]+)"/g)){

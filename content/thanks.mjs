@@ -1,6 +1,6 @@
 const tools = [
   ['OpenAI', 'https://openai.com/', 'For ChatGPT credits supporting Marionette’s open-source development.'],
-  ['GitHub & Copilot', 'https://github.com/features/copilot', 'For Copilot access and credits, plus GitHub’s repository hosting and CI.'],
+  ['GitHub &amp; Copilot', 'https://github.com/features/copilot', 'For Copilot access and credits, plus GitHub’s repository hosting and CI.'],
   ['CodeRabbit', 'https://www.coderabbit.ai/', 'For automated reviews that help find what a convincing diff can hide.'],
   ['cubic', 'https://www.cubic.dev/', 'For another careful pass over changes and their consequences.'],
   ['Greptile', 'https://www.greptile.com/', 'For code review and an extra set of questions before a change lands.'],

@@ -1,8 +1,9 @@
 # Website prototype
 
-Paul authorized the beta.1 launch on marionettejs.com, www.marionettejs.com,
-and v5.marionettejs.com on 2026-09-09. Use manual Cloudflare Pages deployments
-when requested. The apex is canonical and indexable; v5 is a noindexed mirror.
+The beta.1 site is live on marionettejs.com (canonical and indexable).
+www.marionettejs.com and v5.marionettejs.com also work; v5 is a noindexed mirror.
+The launch was authorized and completed on September 9, 2026 (Asia/Seoul).
+Use manual Cloudflare Pages deployments only when requested.
 Do not add automatic publishing. Preserve old documentation links via the
 v4.marionettejs.com GitHub Pages archive while those releases have consumers.
 

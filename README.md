@@ -1,7 +1,7 @@
 # Marionette website — 5.0.0-beta.1
 
-The beta launch is authorized on marionettejs.com, www.marionettejs.com, and
-v5.marionettejs.com. Cloudflare Pages serves one complete artifact.
+The live site is marionettejs.com; www.marionettejs.com and v5.marionettejs.com
+also work. Cloudflare Pages serves one complete artifact.
 The apex is canonical; v5 remains a noindexed mirror.
 
 Source lives in `marionettejs/website`. Earlier design commits and checkouts remain
@@ -15,8 +15,8 @@ Use Cloudflare Pages Direct Upload for an explicitly requested deployment:
 3. Verify the homepage, Why page, docs, agent briefs, and real playground interaction.
 
 Keep deployments manual. The v4 GitHub Pages archive preserves the existing
-versioned documentation and download paths. `_redirects` maps only those legacy
-paths; current `/docs/` serves beta documentation. The old root `sw.js` unregisters
+versioned documentation and download paths. `_redirects` preserves those legacy paths and the published preview URLs
+(`/docs/regions/` and `/reference/region.md`); current `/docs/` serves beta documentation. The old root `sw.js` unregisters
 retained legacy service workers and clears only their named precache. Keep that
 retirement file while returning browsers can retain those registrations.
 
@@ -134,7 +134,7 @@ The adoption page offers a copyable prompt for the visitor’s own agent. Detail
 objections and evidence limits live in `/adoption-review.md`, linked from page
 metadata, `/llms.txt`, and the copied prompt. They are generated from
 `content/adoption.mjs` and kept out of the human page’s reading flow. The review
-compares adoption with the existing stack; it does not launch the playground or
+covers both new projects and existing applications; it does not launch the playground or
 authorize installation or migration.
 
 ## Motion behavior
@@ -228,3 +228,25 @@ The normal build creates one `dist/` artifact containing marketing, documentatio
 search, and the workshop. Deploy the complete output to all three active hosts.
 
 Always deploy from this repository and branch with both marketing and documentation present. The old `marionettejs.com` docs worktree is not the deployment source. Preserve the full `dist/` build, including `/thanks/`, documentation, search, agent briefs, and pinned demo assets.
+
+## Packaged sources and website corrections
+
+`content/library-docs/` is the archived npm documentation snapshot. Keep its
+manifest and listed files byte-for-byte intact. `content/docs-publication-edits.json`
+records corrections applied only to HTML and reading Markdown; diagnostic-code
+links in reading copies go directly to the matching error page.
+
+The package omits the JSON schema referenced by its diagnostic catalog.
+`content/diagnostics-schema.json` supplies the exact schema from the same release
+revision, with its source and hash in `content/diagnostics-schema-provenance.json`.
+The build verifies that identity and publishes the schema beside both catalog
+copies. Recheck this supplement when importing a newer release.
+
+The published preview URLs `/docs/regions/` and `/reference/region.md` have redirects
+because they were shared externally. Retain them while those links remain in use;
+remove them only after external references are migrated and access logs show no use.
+
+Documentation imports retain the previous snapshot in `content/library-docs.backup/`
+until installation succeeds. A failed install restores it automatically; after
+an interrupted process, the next import restores a missing target before reading
+new input. If a build is needed first, rename the backup to `content/library-docs/`.

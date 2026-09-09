@@ -10,3 +10,7 @@
 /docs/v4* https://v4.marionettejs.com/docs/v4:splat 301
 /annotated-src/* https://v4.marionettejs.com/annotated-src/:splat 301
 /downloads/* https://v4.marionettejs.com/downloads/:splat 301
+# Published preview URLs remain supported while external links use them.
+/docs/regions /docs/region/ 301
+/docs/regions/ /docs/region/ 301
+/reference/region.md /docs/region.md 301
