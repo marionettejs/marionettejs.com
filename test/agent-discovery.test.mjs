@@ -100,7 +100,15 @@ test('production headers stay within Cloudflare limits and expose safe retrieval
   assert.ok(headers.includes('/errors/:code.md\n  Content-Type: text/markdown; charset=utf-8'));
   assert.ok(headers.includes('/docs/:resource.json\n  Content-Type: application/json; charset=utf-8'));
   assert.ok(headers.includes('/llms-full.txt\n  Content-Type: text/plain; charset=utf-8'));
-  assert.ok(headers.includes('/docs/:page/\n  Link: <https://marionettejs.com/docs/:page.md>'));
+  assert.doesNotMatch(headers, /rel="alternate"/);
+  assert.match(headers, /Link: <https:\/\/marionettejs\.com\/llms\.txt>; rel="describedby"/);
+  // Actual documents expose verified HTML alternates without advertising
+  // nonexistent Markdown for /docs/source/, /docs/markdown/, or /docs/bundles/.
+  for (const path of ['docs/region', 'errors/MN0001', 'docs/agent-start', 'docs/coverage']) {
+    const html = await read(`${path}/index.html`);
+    assert.ok(html.includes(`rel="alternate" type="text/markdown" href="/${path}.md"`));
+    await read(`${path}.md`);
+  }
 });
 
 
@@ -108,7 +116,9 @@ test('llms indexes use level-two sections containing Markdown file lists', async
   for (const path of ['llms.txt', 'docs/llms.txt']) {
     const markdown = await read(path);
     assert.doesNotMatch(markdown, /^### /m);
-    for (const section of markdown.split(/^## /m).slice(1)) assert.match(section, /^- \[.+?\]\(https:\/\/marionettejs\.com\//m);
+    const sections = markdown.split(/^## /m).slice(1);
+    assert.ok(sections.length > 0, `${path} must contain level-two sections`);
+    for (const section of sections) assert.match(section, /^- \[.+?\]\(https:\/\/marionettejs\.com\//m);
   }
   assert.ok((await read('_headers')).includes('/docs/*\n  Link: <https://marionettejs.com/docs/llms.txt>; rel="describedby"'));
 });

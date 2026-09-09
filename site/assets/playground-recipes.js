@@ -157,15 +157,91 @@ const Shell = View.extend({
 export const region = new Region({ el: '#app' });
 regions.push({ name: 'root', region });
 region.show(track('shell', new Shell()));`
+  },
+  {
+    id: 'application-startup', title: 'Application readiness can be superseded',
+    summary: 'Application onBeforeStart readiness receives an AbortSignal. Stop supersedes a pending start with false; guard stale writes, await a fresh start returning true, handle a current failure rejection, and destroy the Application. Local delays only; no network or router.',
+    docs: ['/docs/application/', '/docs/routing/'],
+    checks: ['cancelled-start-false', 'stop-true', 'readiness-aborted', 'no-stale-write', 'fresh-start-true', 'root-shown', 'stopped-root-destroyed', 'current-failure-rejects', 'application-destroyed'].map(id => ({ id, expected: true })),
+    css,
+    code: instrumentation + `const Root = View.extend({ template: () => '<p>Application is ready</p>' });
+const Feature = Application.extend({
+  createState() { return { writes: [], starts: 0, signal: null }; },
+  async onBeforeStart(app, options, { signal }) {
+    const state = this.getState();
+    state.signal = signal;
+    options.entered?.();
+    try {
+      // This local loader deliberately finishes even after abort. The guard
+      // prevents its stale result from writing application state.
+      await new Promise(resolve => setTimeout(resolve, 120));
+      if (signal.aborted) return;
+      if (options.mode === 'fail') throw new Error('Local startup failed');
+      state.writes.push(options.mode);
+    } finally { options.finished?.(); }
+  },
+  onStart() {
+    this.getState().starts++;
+    this.showView(track('application-root', new Root()));
+  }
+});
+const Shell = View.extend({
+  template: () => '<h1>Ready, stopped, ready again</h1><button id="verify-application">Run Application lifecycle checks</button><div class="feature"></div><pre id="application-outcomes">Checks have not run.</pre>',
+  events: { 'click #verify-application': 'verify' },
+  async verify({ delegateTarget }) {
+    delegateTarget.disabled = true;
+    const app = this.application = new Feature({ region: { el: this.el.querySelector('.feature') } });
+    const rootRegion = app.getRegion(), state = app.getState();
+    regions.push({ name: 'application.root', region: rootRegion });
+    const output = this.el.querySelector('#application-outcomes');
+    try {
+      let entered, finished;
+      const hookEntered = new Promise(resolve => { entered = resolve; });
+      const hookFinished = new Promise(resolve => { finished = resolve; });
+      const pendingStart = app.start({ mode: 'stale', entered, finished });
+      await hookEntered;
+      const oldSignal = app.getState().signal;
+      const stopped = await app.stop();
+      const cancelledStart = await pendingStart;
+      await hookFinished; // Check after the stale loader actually finishes.
+      check('cancelled-start-false', cancelledStart === false);
+      check('stop-true', stopped === true && !app.isRunning());
+      check('readiness-aborted', oldSignal.aborted);
+      check('no-stale-write', app.getState().writes.length === 0 && app.getState().starts === 0);
+      const freshStart = await app.start({ mode: 'fresh' });
+      const root = app.getView();
+      check('fresh-start-true', freshStart === true && app.isRunning());
+      check('root-shown', root?.isAttached() && !root.isDestroyed());
+      await app.stop();
+      check('stopped-root-destroyed', root?.isDestroyed() && !app.getRegion().hasView());
+      let failure = null;
+      try { await app.start({ mode: 'fail' }); } catch (error) { failure = error.message; }
+      check('current-failure-rejects', failure === 'Local startup failed' && !app.isRunning());
+      const destroyed = await app.destroy();
+      check('application-destroyed', destroyed === true && app.isDestroyed() && !rootRegion.hasView());
+      if (!this.isDestroyed()) output.textContent = JSON.stringify({ cancelledStart, stopped, freshStart, failure, destroyed, writes: state.writes }, null, 2);
+    } catch (error) {
+      await app.destroy();
+      if (!this.isDestroyed()) output.textContent = 'Check failed: ' + error.message;
+    }
+  },
+  onBeforeDestroy() {
+    // A View hook is synchronous; Application teardown returns its own Promise.
+    this.application?.destroy().catch(error => console.error(error));
+  }
+});
+export const region = new Region({ el: '#app' });
+regions.push({ name: 'root', region });
+region.show(track('shell', new Shell()));`
   }
 ];
 
 export function listRecipes() {
-  return recipes.map(({ code, css, ...metadata }) => ({ ...metadata, runtime: recipeRuntime }));
+  return recipes.map(({ code, css, ...metadata }) => structuredClone({ ...metadata, runtime: recipeRuntime }));
 }
 export function getRecipe(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).some(key => key !== 'id') || typeof input.id !== 'string') throw new Error('Expected {id} from listExamples().');
   const recipe = recipes.find(recipe => recipe.id === input.id);
   if (!recipe) throw new Error('Unknown example. Use listExamples() to discover exact ids.');
-  return { ...recipe, runtime: recipeRuntime };
+  return structuredClone({ ...recipe, runtime: recipeRuntime });
 }
