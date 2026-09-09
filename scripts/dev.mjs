@@ -9,8 +9,9 @@ const root = fileURLToPath(new URL('../',import.meta.url));
 const out = resolve(root,'dist');
 const port = Number(process.env.MARIONETTE_PREVIEW_PORT || 4175);
 const clients = new Set();
+const serveBuilt = process.argv.includes('--serve-built');
 const build = () => spawnSync(process.execPath,['scripts/build.mjs'],{cwd:root,stdio:'inherit'}).status === 0;
-if (!build()) process.exit(1);
+if (!serveBuilt && !build()) process.exit(1);
 const types={'.png':'image/png','.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.md':'text/markdown; charset=utf-8','.txt':'text/plain; charset=utf-8','.json':'application/json; charset=utf-8','.wasm':'application/wasm'};
 const server=createServer(async(req,res)=>{
   res.setHeader('Cache-Control','no-store');
@@ -36,6 +37,6 @@ const server=createServer(async(req,res)=>{
   }
 });
 server.on('error',err=>{console.error(err.message);process.exit(1);});
-server.listen(port,'127.0.0.1',()=>console.log(`Local preview: http://127.0.0.1:${port}/`));
+server.listen(port,'127.0.0.1',()=>console.log(`Local preview: http://127.0.0.1:${server.address().port}/`));
 let timer;
-for(const dir of ['site','content','scripts'])watch(resolve(root,dir),{recursive:true},()=>{clearTimeout(timer);timer=setTimeout(()=>{if(build())for(const client of clients)client.write('data: reload\n\n');},160);});
+if (!serveBuilt) for(const dir of ['site','content','scripts'])watch(resolve(root,dir),{recursive:true},()=>{clearTimeout(timer);timer=setTimeout(()=>{if(build())for(const client of clients)client.write('data: reload\n\n');},160);});

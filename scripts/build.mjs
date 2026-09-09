@@ -70,6 +70,6 @@ await writeFile(resolve(out,'404.html'),shell({title:'Page not found — Marione
 const docsCount = await buildLibraryDocs({ directory: resolve(root, 'content/library-docs'), out, shell });
 const docsManifest = JSON.parse(await readFile(resolve(out, 'docs/manifest.json'), 'utf8'));
 const diagnostics = JSON.parse(await readFile(resolve(out, 'docs/diagnostics.json'), 'utf8'));
-const sitemapRoutes = ['/', '/why/', '/thanks/', '/errors/', '/docs/agent-start/', '/docs/coverage/', ...diagnostics.diagnostics.map(entry => entry.docsAnchor), ...docsManifest.pages.map(page => `/${page.route}/`)];
+const sitemapRoutes = ['/', '/why/', '/thanks/', '/errors/', '/docs/agent-start/', '/docs/coverage/', '/docs/mcp/', ...diagnostics.diagnostics.map(entry => entry.docsAnchor), ...docsManifest.pages.map(page => `/${page.route}/`)];
 await writeFile(resolve(out, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemapRoutes.map(route => `<url><loc>${siteOrigin}${route}</loc></url>`).join('')}</urlset>`);
 console.log(`Built ${docsCount + 3} pages, static documentation search, and live Marionette examples.`);
