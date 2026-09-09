@@ -75,3 +75,20 @@ test('canonical recipe catalog rejects unknown ids and stays pinned to the demo'
   }
   for (const input of [null, [], {}, { id: '../secret' }, { id: 'list-detail', url: 'https://example.com' }]) assert.throws(() => getRecipe(input));
 });
+
+
+test('recipe discovery and load results cannot mutate subsequent canonical metadata', async () => {
+  const { listRecipes, getRecipe } = await import('../site/assets/playground-recipes.js');
+  const original = getRecipe({ id: 'list-detail' });
+  const listed = listRecipes().find(recipe => recipe.id === original.id);
+  listed.docs[0] = '/changed/';
+  listed.checks[0].expected = false;
+  listed.runtime.version = 'changed';
+  const loaded = getRecipe({ id: original.id });
+  loaded.docs.push('/extra/');
+  loaded.checks[0].id = 'changed';
+  loaded.runtime.revision = 'changed';
+  assert.deepEqual(getRecipe({ id: original.id }), original);
+  const { code, css, ...metadata } = original;
+  assert.deepEqual(listRecipes().find(recipe => recipe.id === original.id), metadata);
+});

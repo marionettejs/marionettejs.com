@@ -237,11 +237,11 @@ region.show(track('shell', new Shell()));`
 ];
 
 export function listRecipes() {
-  return recipes.map(({ code, css, ...metadata }) => ({ ...metadata, runtime: recipeRuntime }));
+  return recipes.map(({ code, css, ...metadata }) => structuredClone({ ...metadata, runtime: recipeRuntime }));
 }
 export function getRecipe(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).some(key => key !== 'id') || typeof input.id !== 'string') throw new Error('Expected {id} from listExamples().');
   const recipe = recipes.find(recipe => recipe.id === input.id);
   if (!recipe) throw new Error('Unknown example. Use listExamples() to discover exact ids.');
-  return { ...recipe, runtime: recipeRuntime };
+  return structuredClone({ ...recipe, runtime: recipeRuntime });
 }
