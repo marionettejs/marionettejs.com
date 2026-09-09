@@ -5,6 +5,11 @@ const versionInput = z.string().min(1).max(64).describe('Exact installed package
 const offsetInput = z.number().int().min(0).max(10_000_000).default(0).describe('UTF-16 character offset returned as nextOffset by the previous call.');
 const limitInput = z.number().int().min(1).max(12_000).default(8_000).describe('Maximum characters to return; follow nextOffset until null.');
 const annotations = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false };
+// Construct immutable validation schemas once, while keeping each server independent.
+const searchInput = z.object({ query: z.string().trim().min(1).max(200), version: versionInput,
+  offset: z.number().int().min(0).max(100_000).default(0), limit: z.number().int().min(1).max(10).default(5) }).strict();
+const docInput = z.object({ path: z.string().min(1).max(300), version: versionInput, offset: offsetInput, limit: limitInput }).strict();
+const exampleInput = z.object({ name: z.string().min(1).max(100), version: versionInput, offset: offsetInput, limit: limitInput }).strict();
 
 export function createDocsServer(snapshot) {
   const { provenance } = snapshot;
@@ -41,8 +46,7 @@ export function createDocsServer(snapshot) {
   }));
   server.registerTool('search_docs', {
     description: 'Search the same versioned Markdown served by the website. Case-insensitive lexical search ranks word matches, favors titles and multiple matching terms, and ignores common function words. Returns matchedTerms, bounded snippets, and canonical links; a match need not contain every query term.',
-    inputSchema: z.object({ query: z.string().trim().min(1).max(200), version: versionInput,
-      offset: z.number().int().min(0).max(100_000).default(0), limit: z.number().int().min(1).max(10).default(5) }).strict(), annotations,
+    inputSchema: searchInput, annotations,
   }, tool(({ query, offset, limit }) => {
     const terms = tokenize(query);
     if (!terms.length) throw new Error('Query must include an API name, diagnostic code, or substantive search word.');
@@ -58,7 +62,7 @@ export function createDocsServer(snapshot) {
     })).sort((a, b) => b.score - a.score || a.id.localeCompare(b.id, 'en'));
     const matches = ranked.slice(offset, offset + limit).map(({ id, matchedTerms, score }) => {
       const document = documents.get(id);
-      const body = document.markdown.toLocaleLowerCase('en');
+      const body = document.searchText;
       const bodyMatch = matchedTerms.map(term => body.indexOf(term)).find(position => position >= 0) ?? 0;
       const position = Math.max(0, bodyMatch - 100);
       return { ...metadata(document), matchedTerms, score, snippet: document.markdown.slice(position, position + 600) };
@@ -68,7 +72,7 @@ export function createDocsServer(snapshot) {
   }));
   server.registerTool('get_doc', {
     description: 'Read a document by exact id from search_docs. Returns complete Markdown through bounded chunks with nextOffset. Paths are identifiers, never filesystem paths or URLs.',
-    inputSchema: z.object({ path: z.string().min(1).max(300), version: versionInput, offset: offsetInput, limit: limitInput }).strict(), annotations,
+    inputSchema: docInput, annotations,
   }, tool(({ path, offset, limit }) => {
     const document = documents.get(path);
     if (!document) throw new Error('Unknown document id. Use an exact id returned by search_docs.');
@@ -76,7 +80,7 @@ export function createDocsServer(snapshot) {
   }));
   server.registerTool('get_example', {
     description: 'Read an executable workshop recipe and its expected checks by name from marionette://catalog. Content is a JSON string containing the shared recipe, chunked with nextOffset. This tool does not execute code or certify checks.',
-    inputSchema: z.object({ name: z.string().min(1).max(100), version: versionInput, offset: offsetInput, limit: limitInput }).strict(), annotations,
+    inputSchema: exampleInput, annotations,
   }, tool(({ name, offset, limit }) => {
     const example = examples.get(name);
     if (!example) throw new Error('Unknown example name. Read marionette://catalog for available examples.');
