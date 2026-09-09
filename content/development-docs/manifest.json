@@ -1,0 +1,20 @@
+{
+  "packageVersion": "5.0.0-beta.1",
+  "sourceRepository": "https://github.com/marionettejs/marionette",
+  "sourceRevision": "9404b1935b855e05c982f697d8471764a140e8f6",
+  "sourceDirty": false,
+  "pages": [
+    {
+      "source": "docs/development.md",
+      "route": "development",
+      "title": "Develop with the current candidate",
+      "sha256": "2a2d069ac30e815a1b52ac8ebf0e4521e85141d3b9853554688d5e52c39a3164"
+    },
+    {
+      "source": "docs/troubleshooting.md",
+      "route": "troubleshooting",
+      "title": "Troubleshoot an application",
+      "sha256": "8d71b26a80ddb1ebcf0fe8fe424f94aaa3093cc743829911c677d7dc2b024c01"
+    }
+  ]
+}

@@ -265,3 +265,18 @@ Documentation imports retain the previous snapshot in `content/library-docs.back
 until installation succeeds. A failed install restores it automatically; after
 an interrupted process, the next import restores a missing target before reading
 new input. If a build is needed first, rename the backup to `content/library-docs/`.
+
+The published beta reference stays in `content/library-docs`. To refresh the
+separate development and troubleshooting guides from an immutable library commit:
+
+```sh
+node scripts/import-development-docs.mjs /path/to/marionette
+npm run check
+npm run test:browser
+```
+
+The importer reads that checkout's HEAD with `git show`, records source hashes,
+and excludes working-tree edits. Review any API changes against the pinned beta
+before keeping their examples on beta diagnostic pages. The browser check executes
+the actual failing/corrected snippets against the published demo bundle. These
+checks do not authorize deploying the site.

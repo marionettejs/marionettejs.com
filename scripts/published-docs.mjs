@@ -11,3 +11,12 @@ export function publishedMarkdown(page) {
   }
   return markdown;
 }
+
+// Before the first stable v5 release, beta.1 is deliberately on latest.
+// The archived npm manifest retains its historical next label unchanged.
+export function publishedChannel(manifest) {
+  if (manifest.packageVersion !== publication.packageVersion || publication.channel !== 'latest') {
+    throw new Error('Review published documentation channel.');
+  }
+  return publication.channel;
+}
