@@ -20,7 +20,7 @@ export async function loadSnapshot() {
   for (const document of corpus.documents) {
     if (typeof document.id !== 'string' || documents.has(document.id) || typeof document.markdown !== 'string' ||
         hash(document.markdown) !== document.sha256) throw new Error('Invalid documentation corpus. Run npm run build.');
-    documents.set(document.id, document);
+    documents.set(document.id, { ...document, searchText: document.markdown.toLocaleLowerCase('en') });
   }
   const provenance = {
     packageVersion: corpus.packageVersion, channel: corpus.channel, publication: corpus.publication,
