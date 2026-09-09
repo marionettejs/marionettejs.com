@@ -19,7 +19,7 @@ const unpack = response => {
   assert.deepEqual(data, response.structuredContent);
   assert.equal(data.provenance.packageVersion, version);
   assert.equal(data.provenance.sourceRevision, corpus.sourceRevision);
-  assert.equal(data.provenance.sourceDirty, false);
+  assert.equal(data.provenance.sourceDirty, corpus.sourceDirty);
   return data;
 };
 
@@ -42,6 +42,10 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
   assert.equal(catalog.provenance.packageVersion, version);
   assert.ok(catalog.examples.length >= 2);
   assert.equal(catalog.documentCount, corpus.documents.length);
+  const snippetSearch = unpack(await client.callTool({ name: 'search_docs', arguments: { query: 'safely textContent', version } }));
+  const security = snippetSearch.results.find(result => result.id === 'docs/security.md');
+  assert.ok(security, 'Find the safety guide using its title and a later body match');
+  assert.match(security.snippet, /textContent/i, 'A title-only match must not hide the matching body passage');
   for (const [query, expectedId] of [
     ['preserve draft while another list row changes', 'docs/task-recipes.md'],
     ['cancellation async startup', 'docs/marionette.application.md'],
