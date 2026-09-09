@@ -100,7 +100,7 @@ export function renderMarkdown(page, pages, manifest) {
 
 function sidebar(page, pages) {
   const groups = Map.groupBy(pages, item => item.section);
-  return `<aside class="docs-nav" aria-label="Documentation navigation"><a class="docs-home" href="/docs/">DOCUMENTATION <span>↗</span></a><div id="docs-search"></div><noscript><p class="docs-js-note">Browse the contents below. Search requires JavaScript.</p></noscript><details class="docs-menu" open><summary>Browse documentation</summary>${[...groups].map(([section, entries]) => `<details class="docs-group" ${/maintain|release|histor|archive/i.test(section) && section !== page.section ? '' : 'open'}><summary>${escapeHtml(section)}</summary>${entries.map(item => `<a href="${pageUrl(item)}" ${item.source === page.source ? 'aria-current="page"' : ''}>${escapeHtml(item.title)}</a>`).join('')}</details>`).join('')}</details></aside>`;
+  return `<aside class="docs-nav" aria-label="Documentation navigation"><a class="docs-home" href="/docs/">DOCUMENTATION <span>↗</span></a><a href="/docs/agent-start/">Develop with an agent</a><a href="/docs/mcp/">Documentation MCP</a><div id="docs-search"></div><noscript><p class="docs-js-note">Browse the contents below. Search requires JavaScript.</p></noscript><details class="docs-menu" open><summary>Browse documentation</summary>${[...groups].map(([section, entries]) => `<details class="docs-group" ${/maintain|release|histor|archive/i.test(section) && section !== page.section ? '' : 'open'}><summary>${escapeHtml(section)}</summary>${entries.map(item => `<a href="${pageUrl(item)}" ${item.source === page.source ? 'aria-current="page"' : ''}>${escapeHtml(item.title)}</a>`).join('')}</details>`).join('')}</details></aside>`;
 }
 
 function adjacentPages(page, pages) {
@@ -151,7 +151,7 @@ export async function buildLibraryDocs({ directory, out, shell }) {
     const written = await index.writeFiles({ outputPath: resolve(out, 'pagefind') });
     if (written.errors?.length) throw new Error(written.errors.join('\n'));
   } finally { await pagefind.close(); }
-  return pages.length + JSON.parse(catalog.content).diagnostics.length + 3;
+  return pages.length + JSON.parse(catalog.content).diagnostics.length + 4;
 }
 
 async function buildDiagnostics({ out, shell, manifest, asset }) {
