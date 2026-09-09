@@ -1,0 +1,36 @@
+name: Agent website checks
+on:
+  pull_request:
+  push:
+    branches: [feat/website]
+permissions:
+  contents: read
+concurrency:
+  group: agent-site-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - name: Read documentation through HTTP
+        run: node scripts/check-agent-site.mjs --local --report output/agent-retrieval.json
+      - name: Install browser
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Verify real workshop behavior
+        run: npm run test:browser
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: agent-site-evidence
+          path: output/
+          if-no-files-found: ignore
