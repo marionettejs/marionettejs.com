@@ -54,6 +54,7 @@ test('root index and task syllabus lead to resolvable version-matched resources'
     const urls = [];
     parser.walkTokens(parser.lexer(markdown), token => { if (token.type === 'link') urls.push(new URL(token.href)); });
     for (const url of urls) {
+      if (url.href === 'https://mcp.marionettejs.com/mcp') continue; // Protocol endpoint, verified with an MCP client.
       assert.equal(url.origin, 'https://marionettejs.com');
       await read(url.pathname + (url.pathname.endsWith('/') ? 'index.html' : ''));
     }

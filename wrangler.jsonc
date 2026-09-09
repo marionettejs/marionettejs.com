@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "account_id": "888da9a5042432636a916916313bf3f0",
+  "minify": true,
+  "name": "marionette-docs-mcp",
+  "main": "mcp/worker.mjs",
+  "compatibility_date": "2026-09-09",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "mcp.marionettejs.com", "custom_domain": true }],
+  "build": { "command": "npm run build" },
+  "observability": { "enabled": false }
+}

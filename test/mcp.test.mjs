@@ -130,7 +130,7 @@ test('server refuses stale provenance and tampered Markdown before serving tools
   const fixture = await mkdtemp(join(tmpdir(), 'marionette-mcp-'));
   t.after(() => rm(fixture, { recursive: true, force: true }));
   for (const directory of ['mcp', 'content/library-docs', 'site/assets', 'dist/docs']) await mkdir(join(fixture, directory), { recursive: true });
-  for (const path of ['mcp/server.mjs', 'content/library-docs/manifest.json', 'content/docs-publication-edits.json', 'site/assets/playground-recipes.js']) {
+  for (const path of ['mcp/server.mjs', 'mcp/load.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'content/library-docs/manifest.json', 'content/docs-publication-edits.json', 'site/assets/playground-recipes.js']) {
     await cp(new URL(path, root), join(fixture, path));
   }
   await writeFile(join(fixture, 'package.json'), '{"type":"module"}');

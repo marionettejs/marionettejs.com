@@ -8,23 +8,34 @@
     "node": ">=24"
   },
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "node scripts/build.mjs && node scripts/build-mcp.mjs",
     "dev": "node scripts/dev.mjs",
     "test": "node --test test/*.test.mjs",
     "check": "npm run build && npm test",
     "docs:import": "node scripts/import-docs.mjs",
     "vendor:build": "node scripts/build-vendor.mjs",
     "mcp": "node mcp/server.mjs",
-    "test:browser": "node test/browser/agent-workshop.mjs"
+    "test:browser": "node test/browser/agent-workshop.mjs",
+    "mcp:build": "npm run build",
+    "mcp:dev": "wrangler dev --ip 127.0.0.1",
+    "mcp:deploy": "wrangler deploy",
+    "test:mcp:http": "node --test test/mcp-http.test.mjs"
   },
   "devDependencies": {
     "@modelcontextprotocol/client": "2.0.0",
     "@modelcontextprotocol/server": "2.0.0",
+    "agents": "0.22.0",
     "esbuild": "0.28.2",
     "marionette": "5.0.0-beta.1",
     "marked": "18.0.12",
     "pagefind": "1.5.2",
     "playwright": "1.63.0",
+    "wrangler": "4.130.0",
     "zod": "4.5.4"
+  },
+  "overrides": {
+    "miniflare": {
+      "sharp": "0.35.4"
+    }
   }
 }

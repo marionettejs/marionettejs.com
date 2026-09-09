@@ -1,10 +1,85 @@
 # Marionette documentation MCP
 
-A local, read-only stdio server for the website's generated documentation corpus
-and executable workshop recipes. It uses the official MCP TypeScript SDK's
-maintained v2 server and client packages, pinned in the website lockfile.
+Connect to **https://mcp.marionettejs.com/mcp** for public, read-only documentation
+retrieval. No server login, API key, subscription, or model inference is required.
+Your agent client's own access and model costs are separate.
 
-## Install from this repository
+The hosted Cloudflare Worker and the optional local, read-only stdio server share
+`search_docs`, `get_doc`, `get_example`, and `marionette://catalog`. Both serve the
+same verified website corpus and workshop recipes. The current supported package
+is exactly **marionette@5.0.0-beta.1**.
+
+**Bundled Markdown remains the installed-version reference.** First inspect your
+application's installed package and its `dist/docs/` manifest, using the
+[consumer skill helper](https://marionettejs.com/docs/agent-tools/) if available.
+Compare its version and source revision with the MCP catalog. A custom build with
+the same version label may contain different code. If they do not match, use the
+installed docs; never substitute the hosted snapshot for another version.
+
+## Connect a supported client
+
+Use a client with Streamable HTTP support. The URL is an MCP protocol endpoint;
+opening it as an ordinary browser page returns `405 Method Not Allowed`.
+There is no separate `/sse` endpoint and no authentication step.
+
+### Codex
+
+Add the server with the CLI:
+
+```sh
+codex mcp add marionette-docs --url https://mcp.marionettejs.com/mcp
+```
+
+Or add this to your Codex `config.toml`:
+
+```toml
+[mcp_servers.marionette-docs]
+url = "https://mcp.marionettejs.com/mcp"
+```
+
+See [Codex MCP configuration](https://developers.openai.com/codex/mcp).
+
+### Claude Code
+
+From the application directory, add it to project configuration:
+
+```sh
+claude mcp add --transport http --scope project marionette-docs https://mcp.marionettejs.com/mcp
+```
+
+Use `/mcp` to inspect the connection. See
+[Claude Code MCP setup](https://code.claude.com/docs/en/mcp).
+
+### VS Code
+
+Add this to `.vscode/mcp.json`, merging with existing servers:
+
+```json
+{
+  "servers": {
+    "marionette-docs": {
+      "type": "http",
+      "url": "https://mcp.marionettejs.com/mcp"
+    }
+  }
+}
+```
+
+Use **MCP: List Servers** to start and inspect it. See
+[VS Code MCP configuration](https://code.visualstudio.com/docs/agents/reference/mcp-configuration).
+Other clients may use a different configuration shape; use their documented
+Streamable HTTP settings rather than assuming these files are interchangeable.
+
+After connecting, ask the agent:
+
+```text
+Read marionette://catalog and compare its version and source revision with this
+application's installed Marionette documentation. If they match, search for
+Region ownership, then read the relevant document through every nextOffset.
+Report the provenance and explain the contract. Do not modify the application.
+```
+
+## Optional local stdio server
 
 Use Node.js 24 or newer. Clone and review the website source, then install its
 locked dependencies and build the same corpus the website serves:
@@ -18,8 +93,7 @@ node mcp/server.mjs
 ```
 
 The final command waits for an MCP client on stdin; silence is expected. It is
-not an interactive shell. This repository does not publish an npm MCP package
-or operate a hosted MCP endpoint.
+not an interactive shell. This repository does not publish an npm MCP package.
 
 Configure a client that supports local stdio servers with the following command
 and argument. Replace both absolute paths with your installed Node 24+ binary
@@ -88,15 +162,63 @@ repository files during startup, makes no network requests, writes no files,
 and never executes recipe code. The MCP server does not run or certify the
 example's expected checks. The website workshop and browser tests do that work.
 
-The trust boundary is the local checkout and its installed dependencies: review
-them as you would any executable developer tool. This server does not accept
-untrusted external corpora or read an application's source code or credentials.
+The hosted endpoint runs on Workers Free: no database, Durable Objects, persistent
+sessions, AI calls, or paid bindings. It accepts at most 16 KiB per HTTP request,
+including streamed bodies, and rejects JSON batches. Search queries are at most
+200 characters; tool schemas reject extra fields. Retrieval results are bounded
+as described above. Host and browser Origin checks reject untrusted origins;
+origin-less native MCP clients work. Browser-origin requests are allowed from
+Marionette's website hosts and localhost; other browser integrations need review.
 
-`test/mcp.test.mjs` uses the official SDK client against a subprocess to verify
-initialization, discovery, search pagination, full chunk reconstruction, recipe
-identity, explicit version rejection, invalid input and path rejection, unknown
-resources, and clean client/EOF shutdown. It is included in `npm run check`.
-The tests also reject stale provenance and modified Markdown before startup.
+The published service uses stateless MCP HTTP. It also accepts the initialization
+sequence used by 2025 Streamable HTTP clients through the SDK's stateless adapter.
+Neither mode creates a session ID, replay buffer, subscription, or background task.
+The compatibility adapter is needed by current clients, including the SDK client's
+default mode; remove it when supported clients no longer need initialization.
 
-SDK reference: [official TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)
-and [v2 documentation](https://ts.sdk.modelcontextprotocol.io/v2/).
+Workers Free currently allows **100,000 requests per day across the account** and
+**10 ms CPU per request**, with 128 MB memory. Every protocol request and page
+counts; one agent task may make several calls. Traffic or abuse can exhaust the
+free allowance. There is no availability guarantee or automatic paid upgrade.
+Use the installed Markdown or local stdio server when the hosted service is
+unavailable. See [Cloudflare limits](https://developers.cloudflare.com/workers/platform/limits/).
+
+Search uses an index prepared from the verified corpus at build time rather than
+retokenizing every document on each request. Local CPU measurements are estimates;
+Cloudflare's deployed CPU metrics are the evidence for the edge runtime. Maintainers
+must remeasure after corpus or SDK changes and keep deployment manual.
+
+## MCP retrieval and the browser workshop
+
+This endpoint retrieves documentation and recipe source. The website's **WebMCP
+workshop** exposes tools inside a compatible browser to build, operate, and inspect
+a running example. It does not use this remote endpoint. A successful MCP retrieval
+proves that the source was read; it does not prove that a recipe or consumer
+application works. Verify actual behavior in the application's own tests.
+
+The local checkout and installed dependencies are executable developer tools.
+Neither transport reads application source or credentials. Hosted queries go to
+Cloudflare; do not include private application data in a documentation query.
+The Worker does not log request bodies or persist queries.
+
+## Verification and maintenance
+
+`npm run check` uses the official SDK client against both a stdio subprocess and
+local workerd HTTP. It checks discovery, search pagination, every complete document
+and recipe, content/provenance parity, version rejection, invalid inputs, request
+bounds, Origin checks, and shutdown. Startup/build checks reject stale provenance
+and modified Markdown. The HTTP test also checks the current MCP protocol.
+
+For an explicitly selected endpoint, run:
+
+```sh
+node scripts/verify-mcp.mjs https://mcp.marionettejs.com/mcp
+```
+
+This performs bounded read-only requests and compares results against the locally
+built snapshot. The maintenance runbook lives in `mcp/DEPLOYMENT.md` in the website
+repository. Builds and CI do not publish anything.
+
+Implementation references: [Cloudflare stateless handler](https://developers.cloudflare.com/agents/model-context-protocol/apis/handler-api/),
+[official SDK web-standard HTTP](https://ts.sdk.modelcontextprotocol.io/v2/serving/web-standard.html),
+and [SDK client compatibility](https://ts.sdk.modelcontextprotocol.io/v2/serving/legacy-clients.html).
