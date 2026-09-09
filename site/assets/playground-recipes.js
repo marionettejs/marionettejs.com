@@ -1,5 +1,5 @@
 // The workshop, documentation export, and MCP all consume these exact sources.
-export const recipeRuntime = Object.freeze({ package: 'marionette', version: '5.0.0-beta.1', revision: 'b06750c507494441f0b2298766b70087e45346a2' });
+export const recipeRuntime = Object.freeze({ package: 'marionette', version: '5.0.0-beta.2', revision: '13f4954c352e646c413091ffdd83f6da59404573' });
 const css = `body { background:#f4f0e8; color:#222; } #app { padding:24px; max-width:720px; margin:auto; } button,input { margin:6px; padding:8px; } label { display:block; } pre { white-space:pre-wrap; }`;
 const instrumentation = `// This recipe observes only its own objects through public APIs.
 const lifecycle = [], checks = new Map(), views = [], regions = [];

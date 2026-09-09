@@ -11,7 +11,7 @@ export const home = {title:'Marionette 5 Beta — JavaScript library for agent-l
 <div class="opening-act"><svg class="opening-thread" aria-hidden="true"><path/></svg>
 <section class="night-hero">
   <div class="hero-grid" aria-hidden="true"></div>
-  <div class="night-copy"><p class="eyebrow"><span class="signal-dot"></span> MARIONETTE 5.0 · BETA 1</p><h1>Pull a few<br><em>strings.</em></h1><p class="night-intro">A JavaScript library for interfaces,<br>tuned for agent-led development.</p><div class="night-actions"><a class="button" href="/why/">Explore Marionette <span aria-hidden="true">↗</span></a><a class="text-link" href="/docs/">Read the docs →</a></div></div>
+  <div class="night-copy"><p class="eyebrow"><span class="signal-dot"></span> MARIONETTE 5.0 · BETA 2</p><h1>Pull a few<br><em>strings.</em></h1><p class="night-intro">A JavaScript library for interfaces,<br>tuned for agent-led development.</p><div class="night-actions"><a class="button" href="/why/">Explore Marionette <span aria-hidden="true">↗</span></a><a class="text-link" href="/docs/">Read the docs →</a></div></div>
   <div class="rig" data-rig>
     <div class="rig-decoration" aria-hidden="true"><div class="rig-control"><span class="yoke-pin pin-left"></span><img src="/assets/mark.svg" width="68" height="70" alt=""><span class="yoke-pin pin-right"></span></div><svg class="rig-strings" viewBox="0 0 560 96" preserveAspectRatio="none"><path d="M84 0 V96 M476 0 V96"/><circle cx="84" cy="94" r="3"/><circle cx="476" cy="94" r="3"/></svg><span class="rig-annotation">A PLACE FOR EVERYTHING.</span></div>
     ${demo}

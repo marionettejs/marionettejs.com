@@ -1,4 +1,4 @@
-import { buildDevelopmentDocs } from './development-docs.mjs';
+import { diagnosticExamples } from './development-docs.mjs';
 import { buildAgentDiscovery } from './agent-discovery.mjs';
 import { publishedMarkdown, publishedChannel } from './published-docs.mjs';
 import { readFile, mkdir, writeFile, realpath } from 'node:fs/promises';
@@ -13,7 +13,7 @@ const safePath = value => typeof value === 'string' && /^[a-zA-Z0-9._/-]+$/.test
 
 export async function readSnapshot(directory) {
   const manifest = JSON.parse(await readFile(resolve(directory, 'manifest.json'), 'utf8'));
-  if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.pages) || !manifest.pages.length || !/^[a-f0-9]{40}$/.test(manifest.sourceRevision) || typeof manifest.sourceDirty !== 'boolean' || manifest.channel !== 'next' || typeof manifest.packageVersion !== 'string' || manifest.sourceRepository !== 'https://github.com/marionettejs/marionette') throw new Error('Unsupported documentation manifest.');
+  if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.pages) || !manifest.pages.length || !/^[a-f0-9]{40}$/.test(manifest.sourceRevision) || typeof manifest.sourceDirty !== 'boolean' || manifest.channel !== 'latest' || typeof manifest.packageVersion !== 'string' || manifest.sourceRepository !== 'https://github.com/marionettejs/marionette') throw new Error('Unsupported documentation manifest.');
   const routes = new Set();
   const sources = new Set();
   const pages = [];
@@ -26,9 +26,10 @@ export async function readSnapshot(directory) {
   }
   const assets = [];
   if (!Array.isArray(manifest.assets)) throw new Error('Documentation snapshot assets are required.');
+  // beta.2 publishes contract inventory/semantics and their tooling README as linked resources.
   for (const asset of manifest.assets) {
     if (!safePath(asset.source) || !/\.(?:md|json|mjs)$/.test(asset.source) ||
-        !/^(?:config\/diagnostics\/|test\/fixtures\/docs-[a-z-]+\/|skills\/marionette\/|benchmarks\/docs\/)/.test(asset.source) || sources.has(asset.source)) throw new Error('Unsupported documentation asset.');
+        !/^(?:config\/(?:diagnostics|api-contracts)\/|scripts\/api-contracts\/|test\/fixtures\/docs-[a-z-]+\/|skills\/marionette\/|benchmarks\/docs\/)/.test(asset.source) || sources.has(asset.source)) throw new Error('Unsupported documentation asset.');
     const base = await realpath(directory);
     const path = await realpath(resolve(base, asset.source));
     const local = relative(base, path);
@@ -101,7 +102,7 @@ export function renderMarkdown(page, pages, manifest) {
 
 function sidebar(page, pages) {
   const groups = Map.groupBy(pages, item => item.section);
-  return `<aside class="docs-nav" aria-label="Documentation navigation"><a class="docs-home" href="/docs/">DOCUMENTATION <span>↗</span></a><a href="/development/">Current development starter</a><a href="/troubleshooting/">Troubleshooting</a><a href="/docs/agent-start/">Develop with an agent</a><a href="/docs/mcp/">Documentation MCP</a><div id="docs-search"></div><noscript><p class="docs-js-note">Browse the contents below. Search requires JavaScript.</p></noscript><details class="docs-menu" open><summary>Browse documentation</summary>${[...groups].map(([section, entries]) => `<details class="docs-group" ${/maintain|release|histor|archive/i.test(section) && section !== page.section ? '' : 'open'}><summary>${escapeHtml(section)}</summary>${entries.map(item => `<a href="${pageUrl(item)}" ${item.source === page.source ? 'aria-current="page"' : ''}>${escapeHtml(item.title)}</a>`).join('')}</details>`).join('')}</details></aside>`;
+  return `<aside class="docs-nav" aria-label="Documentation navigation"><a class="docs-home" href="/docs/">DOCUMENTATION <span>↗</span></a><a href="/docs/development/">Current development starter</a><a href="/docs/troubleshooting/">Troubleshooting</a><a href="/docs/agent-start/">Develop with an agent</a><a href="/docs/mcp/">Documentation MCP</a><div id="docs-search"></div><noscript><p class="docs-js-note">Browse the contents below. Search requires JavaScript.</p></noscript><details class="docs-menu" open><summary>Browse documentation</summary>${[...groups].map(([section, entries]) => `<details class="docs-group" ${/maintain|release|histor|archive/i.test(section) && section !== page.section ? '' : 'open'}><summary>${escapeHtml(section)}</summary>${entries.map(item => `<a href="${pageUrl(item)}" ${item.source === page.source ? 'aria-current="page"' : ''}>${escapeHtml(item.title)}</a>`).join('')}</details>`).join('')}</details></aside>`;
 }
 
 function adjacentPages(page, pages) {
@@ -118,7 +119,7 @@ export async function buildLibraryDocs({ directory, out, shell }) {
   for (const page of pages) {
     const { html, headings } = renderMarkdown(page, pages, manifest);
     const provenance = `${manifest.packageVersion} · Published beta · ${manifest.sourceRevision.slice(0, 8)}${manifest.sourceDirty ? ' + local changes' : ''}`;
-    const body = `<div class="docs-layout canonical-docs">${sidebar(page, pages)}<article class="prose docs-prose" data-pagefind-body><div class="docs-breadcrumb" data-pagefind-ignore>${escapeHtml(page.section)}</div><div class="docs-tools" data-pagefind-ignore><a href="${markdownUrl(page)}">Read Markdown</a><button type="button" data-copy-markdown="${markdownUrl(page)}">Copy Markdown</button><a href="${canonicalSourceUrl(page)}">Canonical source</a><a href="/docs/manifest.json">Source details</a><a href="/development/">Current development starter</a><a href="/troubleshooting/">Troubleshooting</a><a href="/docs/agent-start/">Agent entrypoint</a><span class="copy-status" role="status"></span></div><p class="docs-version" data-pagefind-ignore>${escapeHtml(provenance)}. Published on npm. Match your installed version.</p><span hidden data-pagefind-filter="Audience">${page.section === 'Maintaining Marionette' ? 'Maintainers' : 'Consumer'}</span>${html}${adjacentPages(page, pages)}</article><aside class="docs-margin"><nav aria-label="On this page"><p class="eyebrow">ON THIS PAGE</p>${headings.filter(item => item.depth === 2).map(item => `<a href="#${escapeHtml(item.id)}">${item.text.replace(/<[^>]*>/g, '')}</a>`).join('')}</nav><div class="docs-note"><p>The homepage demo runs this beta. Reading copies include publication wording updates; original packaged sources remain available above.</p><a href="/reference/provenance.json">Demo source notes ↗</a></div></aside></div>`;
+    const body = `<div class="docs-layout canonical-docs">${sidebar(page, pages)}<article class="prose docs-prose" data-pagefind-body><div class="docs-breadcrumb" data-pagefind-ignore>${escapeHtml(page.section)}</div><div class="docs-tools" data-pagefind-ignore><a href="${markdownUrl(page)}">Read Markdown</a><button type="button" data-copy-markdown="${markdownUrl(page)}">Copy Markdown</button><a href="${canonicalSourceUrl(page)}">Canonical source</a><a href="/docs/manifest.json">Source details</a><a href="/docs/development/">Current development starter</a><a href="/docs/troubleshooting/">Troubleshooting</a><a href="/docs/agent-start/">Agent entrypoint</a><span class="copy-status" role="status"></span></div><p class="docs-version" data-pagefind-ignore>${escapeHtml(provenance)}. Published on npm. Match your installed version.</p><span hidden data-pagefind-filter="Audience">${page.section === 'Maintaining Marionette' ? 'Maintainers' : 'Consumer'}</span>${html}${adjacentPages(page, pages)}</article><aside class="docs-margin"><nav aria-label="On this page"><p class="eyebrow">ON THIS PAGE</p>${headings.filter(item => item.depth === 2).map(item => `<a href="#${escapeHtml(item.id)}">${item.text.replace(/<[^>]*>/g, '')}</a>`).join('')}</nav><div class="docs-note"><p>The homepage demo runs this beta. Reading copies include publication wording updates; original packaged sources remain available above.</p><a href="/reference/provenance.json">Demo source notes ↗</a></div></aside></div>`;
     const rendered = shell({ title: page.title, description: `${page.title}. Marionette ${manifest.packageVersion} documentation.`, active: 'docs', body, route: `/${page.route}/`, markdown: markdownUrl(page) });
     await mkdir(resolve(out, page.route), { recursive: true });
     await writeFile(resolve(out, page.route, 'index.html'), rendered);
@@ -143,12 +144,12 @@ export async function buildLibraryDocs({ directory, out, shell }) {
   }
   await writeFile(resolve(out, 'docs/schema-provenance.json'), `${JSON.stringify(schemaSource, null, 2)}\n`);
   const catalog = assets.find(asset => asset.source === 'config/diagnostics/catalog.json');
-  const development = await buildDevelopmentDocs({ out, shell, renderMarkdown, deriveMarkdown });
+  const development = { manifest, examples: diagnosticExamples(pages.find(page => page.source === 'docs/troubleshooting.md').markdown) };
   await buildDiagnostics({ out, shell, manifest, asset: catalog, development });
   await buildAgentDiscovery({ out, manifest, pages, assets, shell, renderMarkdown, development });
   const { index } = await pagefind.createIndex();
   try {
-    const added = await index.addDirectory({ path: out, glob: '{docs,errors,development,troubleshooting}/**/*.html' });
+    const added = await index.addDirectory({ path: out, glob: '{docs,errors}/**/*.html' });
     if (added.errors?.length) throw new Error(added.errors.join('\n'));
     const written = await index.writeFiles({ outputPath: resolve(out, 'pagefind') });
     if (written.errors?.length) throw new Error(written.errors.join('\n'));
@@ -174,8 +175,8 @@ async function buildDiagnostics({ out, shell, manifest, asset, development }) {
     const references = diagnostic.objects.map(name => manifest.pages.find(page => page.title === name))
       .filter(Boolean).map(page => `[${page.title}](/${page.route}/)`).join(' · ');
     const exampleSource = development.manifest.pages.find(page => page.source === 'docs/troubleshooting.md');
-    const supplement = example ? `\n## Failing and corrected example\n\n${example}\n\n[Example source and checks](/troubleshooting/) · [Supplement source identity](/development/manifest.json)\n\n<!-- Supplemental example source: docs/troubleshooting.md; revision ${development.manifest.sourceRevision}; source SHA-256 ${exampleSource.sha256}. Catalog provenance identifies the diagnostic separately. -->\n` : '';
-    const markdown = `# ${title}\n\nStatus: ${diagnostic.status}\nObjects: ${diagnostic.objects.join(', ')}\nCategory: ${diagnostic.category}\nSeverity: ${diagnostic.severity}\n\n## Remediation\n\n${diagnostic.remediation}\n\n${references}\n\n[Troubleshoot by symptom](/troubleshooting/)\n${supplement}\n[Diagnostic catalog](/errors/) · [Source identity](/docs/manifest.json)\n`;
+    const supplement = example ? `\n## Failing and corrected example\n\n${example}\n\n[Example source and checks](/docs/troubleshooting/) · [Source identity](/docs/manifest.json)\n\n<!-- Example source: docs/troubleshooting.md; revision ${development.manifest.sourceRevision}; source SHA-256 ${exampleSource.sha256}. Catalog provenance identifies the diagnostic separately. -->\n` : '';
+    const markdown = `# ${title}\n\nStatus: ${diagnostic.status}\nObjects: ${diagnostic.objects.join(', ')}\nCategory: ${diagnostic.category}\nSeverity: ${diagnostic.severity}\n\n## Remediation\n\n${diagnostic.remediation}\n\n${references}\n\n[Troubleshoot by symptom](/docs/troubleshooting/)\n${supplement}\n[Diagnostic catalog](/errors/) · [Source identity](/docs/manifest.json)\n`;
     index += `- [${title}](${diagnostic.docsAnchor}): ${diagnostic.status}\n`;
     const page = { source: asset.source, route: `errors/${diagnostic.code}`, title, sha256: asset.sha256, markdown };
     const { html } = renderMarkdown(page, [], manifest);

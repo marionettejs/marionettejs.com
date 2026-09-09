@@ -1,6 +1,6 @@
 # Manual documentation MCP deployment
 
-Source: `marionettejs/website`. Worker: `marionette-docs-mcp`.
+Source: `marionettejs/marionettejs.com`. Worker: `marionette-docs-mcp`.
 Endpoint: `https://mcp.marionettejs.com/mcp`.
 Pages project: `marionette-v5`, production branch `main`.
 

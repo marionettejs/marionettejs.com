@@ -186,7 +186,7 @@ try {
   assert.equal(bounded.preview.recipe.lifecycle[0].length, 120);
   assert.equal(bounded.preview.recipe.checks[0].id.length, 80);
   console.log('PASS inspection boundaries: thrown inspectors and oversized app observations');
-  const troubleshooting = await readFile(resolve('content/development-docs/docs/troubleshooting.md'), 'utf8');
+  const troubleshooting = await readFile(resolve('content/library-docs/docs/troubleshooting.md'), 'utf8');
   const examples = [...troubleshooting.matchAll(/<!-- troubleshooting-example: (MN\d{4}) -->\s*```javascript\n([\s\S]*?)\n```/g)];
   assert.equal(examples.length, 4);
   const expected = { MN0020: 'Ready', MN0003: true, MN0023: 'Save', MN0007: 'New' };
@@ -205,7 +205,7 @@ try {
     }, source);
     assert.deepEqual(result, { failure: code, fixed: expected[code] });
   }
-  console.log('PASS troubleshooting: four exact failing/fixed examples against pinned published beta.1');
+  console.log('PASS troubleshooting: four exact failing/fixed examples against pinned published beta.2');
   let licenseRequests = 0;
   await page.route('**/vendor/MARIONETTE-LICENSE.txt', route => {
     licenseRequests++;
@@ -220,12 +220,12 @@ try {
   assert.match(await page.locator('#codepen-help').innerText(), /Free Pens are public/);
   await page.unroute('**/vendor/MARIONETTE-LICENSE.txt');
   console.log('PASS CodePen recovery: transient preload failure, workshop retry, enabled export and restored help');
-  await page.goto(`http://127.0.0.1:${server.address().port}/development/`);
+  await page.goto(`http://127.0.0.1:${server.address().port}/docs/development/`);
   await page.locator('h1').waitFor();
-  assert.match(await page.locator('h1').innerText(), /Develop against the current candidate/);
+  assert.match(await page.locator('h1').innerText(), /Develop with Marionette/);
   await page.screenshot({ path: 'output/playwright/development-guide.png', fullPage: true });
   await page.setViewportSize({ width: 375, height: 812 });
-  for (const route of ['/development/', '/troubleshooting/', '/errors/MN0020/']) {
+  for (const route of ['/docs/development/', '/docs/troubleshooting/', '/errors/MN0020/']) {
     await page.goto(`http://127.0.0.1:${server.address().port}${route}`);
     assert.equal(await page.locator('h1').count(), 1);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, `${route} fits a phone viewport`);

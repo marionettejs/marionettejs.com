@@ -1,6 +1,6 @@
 # Website prototype
 
-The beta.1 site is live on marionettejs.com (canonical and indexable).
+The beta.2 site is live on marionettejs.com (canonical and indexable).
 www.marionettejs.com and v5.marionettejs.com also work; v5 is a mirror with a `noindex` directive.
 The launch was authorized and completed on September 9, 2026 (Asia/Seoul).
 Use manual Cloudflare Pages deployments only when requested.

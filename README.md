@@ -1,4 +1,4 @@
-# Marionette website — 5.0.0-beta.1
+# Marionette website — 5.0.0-beta.2
 
 The live site is marionettejs.com; www.marionettejs.com and v5.marionettejs.com
 also work. Cloudflare Pages serves one complete artifact.
@@ -101,7 +101,7 @@ reassessment and remaining gates.
 CSS, the live example, and copied draft brand SVGs. `scripts/build.mjs` produces
 static files in ignored `dist/`. `scripts/dev.mjs` serves only that output.
 
-`site/vendor/marionette.js` bundles the published `marionette@5.0.0-beta.1`
+`site/vendor/marionette.js` bundles the published `marionette@5.0.0-beta.2`
 with matching `@mnjs/radio` and `@mnjs/utils` from package-lock.json. Run
 `npm run vendor:build` after an intentional package upgrade. It verifies the
 package/docs versions, bundles ESM with esbuild, includes all MIT licenses, and
@@ -261,17 +261,11 @@ until installation succeeds. A failed install restores it automatically; after
 an interrupted process, the next import restores a missing target before reading
 new input. If a build is needed first, rename the backup to `content/library-docs/`.
 
-The published beta reference stays in `content/library-docs`. To refresh the
-separate development and troubleshooting guides from an immutable library commit:
-
-```sh
-node scripts/import-development-docs.mjs /path/to/marionette
-npm run check
-npm run test:browser
-```
-
-The importer reads that checkout's HEAD with `git show`, records source hashes,
-and excludes working-tree edits. Review any API changes against the pinned beta
-before keeping their examples on beta diagnostic pages. The browser check executes
-the actual failing/corrected snippets against the published demo bundle. These
-checks do not authorize deploying the site.
+Development and troubleshooting are part of the same published snapshot. Import
+all guides together with `npm run docs:import`. The browser check executes their
+actual failing/corrected snippets against the matching published demo bundle.
+The previously shared `/development/` and `/troubleshooting/` URLs redirect to
+`/docs/development/` and `/docs/troubleshooting/`. Their old manifest and source
+URLs also redirect to the matching canonical snapshot; retain those redirects while
+external references use them, and remove only after references migrate and access
+logs show no use. These checks do not authorize deploying the site.
