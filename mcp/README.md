@@ -7,7 +7,7 @@ Your agent client's own access and model costs are separate.
 The hosted Cloudflare Worker and the optional local, read-only stdio server share
 `search_docs`, `get_doc`, `get_example`, and `marionette://catalog`. Both serve the
 same verified website corpus and workshop recipes. The current supported package
-is exactly **marionette@5.0.0-beta.1**.
+is exactly **`marionette@5.0.0-beta.1`**.
 
 **Bundled Markdown remains the installed-version reference.** First inspect your
 application's installed package and its `dist/docs/` manifest, using the
