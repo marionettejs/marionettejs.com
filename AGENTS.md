@@ -1,21 +1,26 @@
 # Website prototype
 
-Paul authorized a source backup on the remote feature branch
-`feat/website` in `marionettejs/website`. This does not authorize website publication. Do not deploy,
-enable hosting, push to `master` or `gh-pages`, or add an automatic deployment
-workflow. Paul requires substantial beta testing before considering a public
-launch, followed by explicit publication authorization. Passing tests or reaching
-beta does not authorize publication.
+The beta.1 site is live on marionettejs.com (canonical and indexable).
+www.marionettejs.com and v5.marionettejs.com also work; v5 is a mirror with a `noindex` directive.
+The launch was authorized and completed on September 9, 2026 (Asia/Seoul).
+Use manual Cloudflare Pages deployments only when requested.
+Do not add automatic publishing. Preserve old documentation links via the
+v4.marionettejs.com GitHub Pages archive while those releases have consumers.
 
 This is the independent website repository. The earlier prototype and design
 options remain in their existing checkouts; preserve them. Keep the website independent of the library's working directory.
-Use the pinned vendor snapshot for the demo; never silently substitute npm's older
-alpha package or a moving local library build.
+Use the exact published beta pinned in package-lock.json for the demos.
+Rebuild the vendor bundle with npm run vendor:build; never substitute a moving local build.
 
 Use `npm run dev` for the loopback-only preview and `npm run check` for build and tests.
-No dependency installation is needed. Static pages remain readable without JavaScript.
+Run `npm ci` with Node 24 before the first build. Static pages remain readable without JavaScript.
 The demo must use real Marionette Views/Regions and public lifecycle APIs.
 
 Plans and original assets live in ../marionettejs-branding. No fabricated benchmarks,
 endorsements, release readiness, or testimonials. Keep public-facing copy candid,
 lightly humorous, and precise about what has actually been demonstrated.
+
+Marketing, support links, and imported library docs share this repository and one build.
+Deploy the complete artifact; do not deploy from the historical marionettejs.com
+checkouts. Update the docs snapshot with `npm run docs:import` rather than replacing
+marketing files with copies from those checkouts.

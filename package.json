@@ -3,12 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Local-only Marionette v5 website prototype",
-  "engines": { "node": ">=24" },
+  "description": "Marionette website and published beta documentation",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "build": "node scripts/build.mjs",
     "dev": "node scripts/dev.mjs",
     "test": "node --test test/*.test.mjs",
-    "check": "npm run build && npm test"
+    "check": "npm run build && npm test",
+    "docs:import": "node scripts/import-docs.mjs",
+    "vendor:build": "node scripts/build-vendor.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "marionette": "5.0.0-beta.1",
+    "marked": "18.0.12",
+    "pagefind": "1.5.2"
   }
 }

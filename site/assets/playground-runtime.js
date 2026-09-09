@@ -1,4 +1,4 @@
-export const revision = '8c8720317cfd59631335b9bc2d75269172b3db7f';
+export const revision = 'b06750c507494441f0b2298766b70087e45346a2';
 export const starter = {
   title: 'The small victories department',
   code: `// View and Region are supplied by the pinned Marionette runtime.
@@ -160,5 +160,5 @@ export function runnerDocument({ app, vendor, token, standalone = false }) {
 
 export function standaloneDocument(app, vendor, license, token) {
   const runner = runnerDocument({ app, vendor, token, standalone: true });
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>${html(app.title)}</title><style>body{margin:0;background:#101113}iframe{width:100%;height:100dvh;border:0;display:block}</style></head><body><iframe title="${html(app.title)}" sandbox="allow-scripts" referrerpolicy="no-referrer" srcdoc="${html(runner)}"></iframe><!-- Marionette development snapshot ${revision}. License below. --><template id="marionette-license">${html(license)}</template></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>${html(app.title)}</title><style>body{margin:0;background:#101113}iframe{width:100%;height:100dvh;border:0;display:block}</style></head><body><iframe title="${html(app.title)}" sandbox="allow-scripts" referrerpolicy="no-referrer" srcdoc="${html(runner)}"></iframe><!-- Marionette 5.0.0-beta.1 source ${revision}. License below. --><template id="marionette-license">${html(license)}</template></body></html>`;
 }

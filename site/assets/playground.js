@@ -25,7 +25,7 @@ const requests = new Map();
 let requestId = 0;
 
 async function loadAssets() {
-  if (!assets) assets = Promise.all(['/vendor/marionette.js', '/vendor/MARIONETTE-LICENSE.txt', '/agent-prompt.md'].map(async url => {
+  if (!assets) assets = Promise.all(['/vendor/marionette.js?v=5.0.0-beta.1', '/vendor/MARIONETTE-LICENSE.txt', '/agent-prompt.md'].map(async url => {
     const response = await fetch(url);
     if (!response.ok) throw new Error('The playground assets could not load. Try again after the local preview finishes rebuilding.');
     return response.text();
@@ -259,7 +259,7 @@ const promptText = document.querySelector('#agent-invitation-prompt');
 promptText.value = copyPrompt;
 copyButton.disabled = false;
 copyButton.addEventListener('click', async () => {
-  try { await navigator.clipboard.writeText(copyPrompt); invitationStatus.textContent = 'Copied. Give it to your agent. See what happens.'; }
+  try { await navigator.clipboard.writeText(copyPrompt); invitationStatus.textContent = 'Copied. Paste it into your agent’s chat.'; }
   catch { document.querySelector('#prompt-details').open = true; promptText.focus(); promptText.select(); invitationStatus.textContent = 'Select and copy the prompt below.'; }
 });
 const instructions = dialog.querySelector('#workshop-instructions');

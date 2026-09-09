@@ -1,0 +1,15 @@
+# Preserve code examples and documentation bytes through Cloudflare's HTML processing.
+/docs/*
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+
+/errors/*
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+
+# Supporting source is downloadable text, never an executable site module.
+/docs/source/*
+  Content-Type: text/plain; charset=utf-8
+  X-Content-Type-Options: nosniff
+
+/sw.js
+  Cache-Control: no-store
+  Service-Worker-Allowed: /
