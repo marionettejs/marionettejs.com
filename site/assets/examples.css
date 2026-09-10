@@ -1,0 +1,68 @@
+.examples-page { max-width:1120px; margin:auto; padding:60px 32px 90px; }
+.examples-intro { margin-bottom:50px; }
+.examples-intro h1 { font-size:clamp(46px,6vw,80px); line-height:1.02; font-weight:500; letter-spacing:-.05em; margin:20px 0; }
+.examples-intro h1 em { color:#d97d64; font-family:Georgia,serif; font-weight:400; }
+.examples-intro>p:not(.eyebrow) { line-height:1.8; color:#b9b2ae; }
+.examples-intro>a { display:inline-block; margin-top:18px; color:#efb19b; }
+.example-workbench { border:1px solid #4f4243; background:#191a1c; scroll-margin-top:20px; }
+.example-heading { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:24px; }
+.example-heading h2 { margin:7px 0 0; font-size:24px; font-weight:500; }
+.example-heading .eyebrow { margin:0; color:#c99884; }
+.example-heading>div:last-child { display:flex; flex-wrap:wrap; gap:8px; }
+.examples-page button { background:#302829; border:1px solid #876254; padding:11px 15px; color:#f4d9ca; cursor:pointer; font:inherit; }
+.examples-page button:hover { background:#49332e; }
+.examples-page button:disabled { opacity:.5; cursor:default; }
+#example-status { font-size:13px; padding:0 24px 18px; margin:0; color:#c9bcb5; }
+#example-errors { white-space:pre-wrap; padding:18px 24px; color:#ffc7bd; }
+.example-preview { overflow-anchor:none; background:#f6f0e3; min-height:500px; }
+.example-preview iframe { display:block; border:0; width:100%; min-height:500px; }
+.example-source { border-top:1px solid #4f4243; padding:20px 24px; }
+.example-source h3 { margin:0; color:#f0c6ad; font-size:17px; font-weight:500; }
+.example-source p { font-size:13px; line-height:1.7; color:#b9b2ae; }
+.example-source-tabs { display:flex; flex-wrap:wrap; gap:8px; margin:24px 0 16px; }
+.example-source-tabs [aria-selected=true] { color:#1a1715; background:#e8a787; }
+.example-source textarea { display:block; width:100%; height:450px; padding:22px; border:1px solid #594c48; background:#101216; color:#d7e6dc; white-space:pre; font:13px/1.8 monospace; resize:vertical; tab-size:2; }
+.examples-page .sr-only { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.example-source [hidden] { display:none; }
+[data-example-run] { margin-top:12px; }
+.example-export-note { margin:4px 24px 18px; color:#b9b2ae; font-size:12px; line-height:1.7; }
+#example-docs { display:flex; flex-wrap:wrap; gap:20px; padding:0 24px 24px; }
+#example-docs a { color:#dfab92; font-size:13px; }
+.example-chooser { margin:0 0 36px; scroll-margin-top:25px; }
+.example-cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+@media(max-width:760px) { .examples-page { padding:32px 16px 60px; } .example-heading { align-items:flex-start; flex-direction:column; padding:20px; } .example-cards { grid-template-columns:1fr; } .example-source { padding:18px 14px; } }
+@media(max-width:440px) { .example-cards { grid-template-columns:1fr; } .example-heading button { padding:10px; font-size:12px; } }
+
+#example-reading-guide { display:flex; flex-wrap:wrap; gap:10px; margin:20px 0 12px; }
+#example-reading-guide button { padding:10px 14px; border-radius:8px; }
+#example-reading-location { min-height:3.5em; line-height:1.6; color:var(--muted); }
+.source-editor { border:1px solid #594c48; border-radius:10px; overflow:hidden; background:#101216; }
+.source-editor-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:12px; background:#202329; border-bottom:1px solid #41434b; }
+.source-editor-toolbar select { flex:1; min-width:0; max-width:100%; width:220px; }
+.source-editor-toolbar select,.source-editor-toolbar input { background:#11151b; border:1px solid #626875; border-radius:5px; color:#e3e8ef; padding:7px; font:12px/1.5 monospace; }
+.source-editor-toolbar form { display:flex; align-items:center; gap:6px; margin:0; }
+.source-editor-toolbar label { font:12px monospace; color:#bec7d4; }
+.source-editor-toolbar input { width:64px; }
+.source-editor-toolbar button { padding:6px 10px; border-radius:5px; font-size:12px; }
+.source-editor-position { font:12px monospace; color:#b5c0d0; white-space:nowrap; }
+.source-editor-viewport { position:relative; height:500px; min-height:220px; resize:vertical; overflow:hidden; }
+.source-editor-viewport:focus-within { outline:2px solid #e8a787; outline-offset:-2px; }
+.source-editor-gutter { position:absolute; inset:0 auto 0 0; width:52px; overflow:hidden; background:#171c24; border-right:1px solid #323947; color:#8797ad; text-align:right; }
+.source-editor-gutter>div { padding:20px 10px; }
+.source-editor-gutter span { display:block; }
+.source-editor-gutter [data-current] { color:#fff1db; background:#494139; }
+.source-editor-text { position:relative; height:100%; margin-left:52px; }
+.example-source .source-editor textarea,.source-editor-highlight,.source-editor-gutter { font:13px/24px ui-monospace,SFMono-Regular,Consolas,monospace; font-variant-ligatures:none; letter-spacing:normal; tab-size:2; }
+.example-source .source-editor textarea,.source-editor-highlight { position:absolute; inset:0; width:100%; height:100%; margin:0; padding:20px 16px; border:0; border-radius:0; white-space:pre; overflow:auto; box-sizing:border-box; }
+.example-source .source-editor textarea { color:transparent; caret-color:#fff1db; background:transparent; resize:none; outline:none; }
+.example-source .source-editor textarea::selection { color:transparent; background:#9abafa55; }
+.source-editor-highlight { pointer-events:none; overflow:hidden; color:#d7e6dc; padding-right:40px; padding-bottom:40px; }
+.source-editor-highlight code { padding:0; margin:0; background:none; font:inherit; white-space:inherit; color:inherit; }
+.source-editor .syntax-keyword { color:#cfabff; }
+.source-editor .syntax-string { color:#badb9a; }
+.source-editor .syntax-number { color:#f4c17e; }
+.source-editor .syntax-comment { color:#91a1b5; }
+.source-editor .syntax-name { color:#9fd9ed; }
+.source-editor .syntax-punctuation { color:#d5dce5; }
+@media(max-width:600px) { .source-editor-toolbar select { flex-basis:100%; } .source-editor-position { margin-left:auto; } .source-editor-viewport { height:420px; } }
+@media(forced-colors:active) { .source-editor-highlight { display:none; } .example-source .source-editor textarea { color:CanvasText; caret-color:CanvasText; background:Canvas; } .example-source .source-editor textarea::selection { color:HighlightText; background:Highlight; } }

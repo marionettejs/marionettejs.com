@@ -143,9 +143,6 @@
 .workshop-instructions pre { margin:0; padding:18px; border-top:1px solid #3c373d; max-height:400px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; color:#c8c3cc; font:.8125rem/1.65 var(--mono); }
 .workshop-instructions pre:focus-visible { outline:2px solid #ff7667; outline-offset:2px; }
 
-/* The recipe picker shares the editor's visible, keyboard-operable controls. */
-#workshop-example { max-width:100%; padding:8px; font:inherit; color:inherit; background:transparent; border:1px solid currentColor; border-radius:4px; }
-
 .workshop-next-steps { margin:18px 0 36px; padding:30px; border:1px solid #675048; background:linear-gradient(120deg,#2b211f,#1b1a1e 70%); }
 .workshop-next-steps[hidden] { display:none; }
 .workshop-next-steps .eyebrow { margin:0 0 12px; color:#e6a48e; }
@@ -169,3 +166,5 @@
  .workshop-next-options { grid-template-columns:1fr; gap:24px; }
  .workshop-share { padding:24px 0 0; border-left:0; border-top:1px solid #51413e; }
 }
+
+.workshop-examples-link { margin-left:auto; margin-right:18px; color:#d9c5bf; font-size:13px; text-decoration:none; }

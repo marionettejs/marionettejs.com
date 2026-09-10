@@ -8,7 +8,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "build": "node scripts/build.mjs && node scripts/build-mcp.mjs",
+    "build": "node scripts/build-demo-projects.mjs && node scripts/build.mjs && node scripts/build-mcp.mjs",
     "dev": "node scripts/dev.mjs",
     "test": "node --test test/*.test.mjs",
     "check": "npm run build && npm test",
@@ -19,9 +19,12 @@
     "mcp:build": "npm run build",
     "mcp:dev": "wrangler dev --ip 127.0.0.1",
     "mcp:deploy": "wrangler deploy",
-    "test:mcp:http": "node --test test/mcp-http.test.mjs"
+    "test:mcp:http": "node --test test/mcp-http.test.mjs",
+    "vendor:demos": "node scripts/build-demo-vendor.mjs"
   },
   "devDependencies": {
+    "@babel/parser": "8.0.4",
+    "@mnjs/data": "5.0.0-beta.2",
     "@modelcontextprotocol/client": "2.0.0",
     "@modelcontextprotocol/server": "2.0.0",
     "agents": "0.22.0",

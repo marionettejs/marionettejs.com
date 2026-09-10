@@ -81,7 +81,7 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
   const example = JSON.parse(exampleJson);
   const { recipes } = await import('../site/assets/playground-recipes.js');
   assert.deepEqual(example, recipes.find(recipe => recipe.id === catalog.examples[0].id));
-  assert.ok(example.code.length && example.checks.length);
+  assert.ok(example.sourceFiles['main.js'].length && example.checks.length);
   for (const unsupported of ['latest', 'next', '5', '4.1.3', `${version} `]) {
     for (const [name, args] of [['get_doc', { path: expected.id }], ['search_docs', { query: 'Region' }], ['get_example', { name: example.id }]]) {
       const response = await client.callTool({ name, arguments: { ...args, version: unsupported } });

@@ -9,7 +9,7 @@ const root=fileURLToPath(new URL('../',import.meta.url));
 const out=resolve(root,'dist');
 const manifest=JSON.parse(await readFile(resolve(out,'docs/manifest.json'),'utf8'));
 const catalog=JSON.parse(await readFile(resolve(out,'docs/diagnostics.json'),'utf8'));
-const routes=['errors/index.html',...catalog.diagnostics.map(entry=>`errors/${entry.code}/index.html`),'thanks/index.html','index.html','why/index.html','404.html',...manifest.pages.map(page=>`${page.route}/index.html`)];
+const routes=['demos/index.html','errors/index.html',...catalog.diagnostics.map(entry=>`errors/${entry.code}/index.html`),'thanks/index.html','index.html','why/index.html','404.html',...manifest.pages.map(page=>`${page.route}/index.html`)];
 
 test('every built page has valid local links, fragments, and asset references',async()=>{
   let checked=0;
@@ -44,7 +44,7 @@ test('every built page has valid local links, fragments, and asset references',a
 });
 
 test('all local JavaScript imports and CSS imports resolve in the built output',async()=>{
-  for(const file of ['assets/site.js','assets/demo.js','assets/motion.js','assets/playground.js','assets/playground-runtime.js','assets/playground.css','assets/site.css','assets/night.css','assets/docs.js','assets/docs.css']){
+  for(const file of ['assets/site.js','assets/demo.js','assets/motion.js','assets/playground.js','assets/examples.js','assets/playground-runtime.js','assets/playground.css','assets/site.css','assets/night.css','assets/docs.js','assets/docs.css']){
     const body=await readFile(resolve(out,file),'utf8');
     for(const match of body.matchAll(/(?:from\s*|import\(|@import url\()['"]([^'"]+)['"]/g)){
       const target=resolve(dirname(resolve(out,file)),match[1].split('?')[0]);
@@ -72,13 +72,13 @@ test('entry, workshop and nested runtime imports use content versions to invalid
   const html = await readFile(resolve(out, 'index.html'), 'utf8');
   assert.ok(html.includes(`src="/assets/site.js?v=${version(entry)}"`));
   const imports = [...entry.matchAll(/import\('(.+?)\?v=([a-f0-9]+)'\)/g)];
-  assert.equal(imports.length, 3);
+  assert.equal(imports.length, 4);
   for (const [, path, hash] of imports) {
     assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
   }
   const workshop = await readFile(resolve(out, 'assets/playground.js'), 'utf8');
   const dependencies = [...workshop.matchAll(/from '(\.\/[^']+\.js)\?v=([a-f0-9]+)'/g)];
-  assert.deepEqual(dependencies.map(([, path]) => path).sort(), ['./playground-export.js', './playground-recipes.js', './playground-runtime.js']);
+  assert.deepEqual(dependencies.map(([, path]) => path).sort(), ['./playground-export.js', './playground-runtime.js']);
   for (const [, path, hash] of dependencies) {
     assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
   }
@@ -87,4 +87,14 @@ test('entry, workshop and nested runtime imports use content versions to invalid
   const runtime = await readFile(resolve(out, 'assets/playground-runtime.js'), 'utf8');
   assert.ok(exporter.includes(`from './playground-runtime.js?v=${version(runtime)}'`));
   assert.doesNotMatch(exporter, /from '\.\/[^']+\.js'/);
+  const gallery = await readFile(resolve(out, 'assets/examples.js'), 'utf8');
+  for (const [, path, hash] of gallery.matchAll(/from '(\.\/[^']+\.js)\?v=([a-f0-9]+)'/g)) assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
+  for (const name of ['examples', 'playground-recipes', 'source-editor', 'playground-runtime']) {
+    assert.doesNotMatch(await readFile(resolve(out, `assets/${name}.js`), 'utf8'), /from '\.\/[^']+\.js'/, name);
+  }
+  const recipes = await readFile(resolve(out, 'assets/playground-recipes.js'), 'utf8');
+  const examples = [...recipes.matchAll(/from '(\.\/[^']+\.js)\?v=([a-f0-9]+)'/g)];
+  assert.equal(examples.length, 2);
+  for (const [, path, hash] of examples) assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
+
 });

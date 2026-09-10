@@ -1,6 +1,5 @@
 import { backstageURL, backstageText, codePenData } from './playground-export.js';
-import { listRecipes, getRecipe, recipeRuntime } from './playground-recipes.js';
-import { starter, revision, validateApp, validateAction, runnerDocument, standaloneDocument } from './playground-runtime.js';
+import { starter, version, revision, validateApp, validateAction, runnerDocument, standaloneDocument } from './playground-runtime.js';
 
 const dialog = document.querySelector('#playground');
 const code = dialog.querySelector('#app-code');
@@ -53,7 +52,7 @@ function present(snapshot) {
 function normalizeSnapshot(value) {
   if (!value || typeof value !== 'object' || typeof value.ready !== 'boolean' || typeof value.text !== 'string' || !Array.isArray(value.errors) || !Array.isArray(value.controls)) return null;
   return {
-    runtime: recipeRuntime,
+    runtime: { package: 'marionette', version, revision },
     recipe: value.recipe && typeof value.recipe === 'object' ? {
       truncated: Boolean(value.recipe.truncated),
       ...(value.recipe.inspectionError ? { inspectionError: String(value.recipe.inspectionError).slice(0, 1500) } : {}),
@@ -334,13 +333,6 @@ humanLink.addEventListener('click', event => {
 });
 const api = Object.freeze({
   open:() => open(), update, run,
-  listExamples() { return listRecipes(); },
-  loadExample(input) {
-    const recipe = getRecipe(input);
-    update({ note: `Loaded example: ${recipe.title}. Run it, then perform the documented checks.`, title: recipe.title, code: recipe.code, css: recipe.css });
-    recipeSelect.value = recipe.id;
-    return { ...recipe, executed: false };
-  },
   async inspect(input = {}) {
     if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).some(key => key !== 'includeSource') || ('includeSource' in input && typeof input.includeSource !== 'boolean')) throw new Error('Expected {} or {includeSource: boolean}.');
     const result = await query('inspect');
@@ -350,17 +342,10 @@ const api = Object.freeze({
   close
 });
 Object.defineProperty(window, 'MarionettePlayground', { value: api, configurable: true });
-const recipeSelect = dialog.querySelector('#workshop-example');
-for (const recipe of listRecipes()) {
-  const option = document.createElement('option'); option.value = recipe.id; option.textContent = recipe.title; recipeSelect.append(option);
-}
-dialog.querySelector('[data-workshop-example]').addEventListener('click', () => { try { api.loadExample({ id: recipeSelect.value }); } catch (error) { report(error); } });
 const emptySchema = { type: 'object', properties: {}, additionalProperties: false };
 function noArgs(input) { if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).length) throw new Error('Expected {}.'); }
 if (document.modelContext?.registerTool) {
   const tools = [
-    { name: 'list_marionette_examples', description: 'Discover canonical runnable beta recipes, their runtime, documentation, and expected checks. Does not open the workshop, change the draft, run code, or claim the checks passed.', inputSchema: emptySchema, annotations: { readOnlyHint: true }, execute(input) { noArgs(input); return api.listExamples(); } },
-    { name: 'load_marionette_example', description: 'Load a canonical example into the open visible workshop, replacing the current draft without running it. Returns source, pinned runtime, and expected checks; use run then interact and inspect to observe results.', inputSchema: { type: 'object', properties: { id: { type: 'string', enum: listRecipes().map(recipe => recipe.id) } }, required: ['id'], additionalProperties: false }, execute: api.loadExample },
     { name: 'open_marionette_playground', description: 'Optional agent interaction, only when the user wants to try it. Reveal the visible code-and-app workshop and read its personalization brief, pinned API, and capability routes. Connect specific, already-known interests, activities, and preferences in the app itself; go beyond this website conversation. Do not invent memories or expose sensitive details. Opening does not run code. Explain the small app you intend to make, then submit it while the user can see this browser. Not needed for ordinary documentation questions.', inputSchema: emptySchema, execute(input) { noArgs(input); return api.open(); } },
     { name: 'update_marionette_workshop', description: 'Show a concise public build note: the chosen idea, a design decision, a change, or a test result. Optionally update title/code/css in the visible editor WITHOUT executing it. Use at natural milestones while actually working, not fake typing or simulated reasoning. No private internal reasoning, sensitive context, or hidden activity. Run the draft separately when ready.', inputSchema: { type: 'object', properties: { note: { type: 'string', maxLength: 500 }, title: { type: 'string', maxLength: 100 }, code: { type: 'string', maxLength: 60000 }, css: { type: 'string', maxLength: 20000 } }, required: ['note'], additionalProperties: false }, execute: api.update },
     { name: 'run_marionette_app', description: 'Replace the visible editor contents and run a small self-contained Marionette app in the preview. Read the open tool brief and its pinned conventions first: createState/getState, templateContext, delegateTarget, and View replacement checks. Input is JavaScript module code (View/Region supplied), CSS, title. Returns actual startup errors and app observations. No external dependencies, network APIs, secrets, or raw conversation/memory dumps.', inputSchema: { type: 'object', properties: { title: { type: 'string', maxLength: 100 }, code: { type: 'string', maxLength: 60000 }, css: { type: 'string', maxLength: 20000 } }, required: ['title', 'code', 'css'], additionalProperties: false }, execute: api.run },

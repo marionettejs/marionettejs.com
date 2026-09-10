@@ -44,7 +44,7 @@ Social services may cache old previews after deployment.
 
 ## View locally
 
-Requires Node.js 24 or newer. Run `npm ci` before the first build to install the pinned documentation renderer and search tools.
+Requires Node.js 24 or newer. Browser tests also require Chromium (`npx playwright install chromium`) and the `unzip` command to verify downloaded projects. Run `npm ci` before the first build to install the pinned documentation renderer and search tools.
 
 ```sh
 npm run dev
