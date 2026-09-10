@@ -1,40 +1,9 @@
 import { importProject } from './project-runtime.js';
+import { starter } from './workshop-starter.js';
 
 export const version = '5.0.0-beta.2';
 export const revision = '13f4954c352e646c413091ffdd83f6da59404573';
-export const starter = {
-  title: 'The small victories department',
-  code: `// View and Region are supplied by the pinned Marionette runtime.
-// Your agent can replace this with something that feels like you.
-const Victories = View.extend({
-  createState() { return { victories: 0 }; },
-  templateContext() { return this.getState(); },
-  template: ({ victories }) => \`<p class="eyebrow">THE SMALL VICTORIES DEPARTMENT</p>
-    <h1>That counts.</h1>
-    <p>You have acknowledged <strong>\${victories}</strong> small \${victories === 1 ? 'victory' : 'victories'}.</p>
-    <button id="celebrate" data-amount="1"><span>I did a thing ↗</span></button>
-    <p class="aside">Opened the editor? Counts. Closed a tab? Heroic.</p>\`,
-  events: { 'click #celebrate': 'celebrate' },
-  celebrate({ delegateTarget }) {
-    this.getState().victories += Number(delegateTarget.dataset.amount);
-    this.render();
-  }
-});
-export const region = new Region({ el: '#app' });
-region.show(new Victories());`,
-  css: `/* Make it yours. No external fonts or assets needed. */
-body { background: #eee9df; color: #222521; }
-#app { max-width: 600px; margin: auto; padding: 48px 28px; }
-h1 { font: italic 76px/1 Georgia, serif; letter-spacing: -4px; }
-.eyebrow { font: 11px/1.6 monospace; letter-spacing: 2px; }
-p { line-height: 1.7; }
-strong { font-size: 28px; }
-button { background: #d84635; color: white; border: 0; padding: 16px 22px;
-  border-radius: 5px; cursor: pointer; font: inherit; }
-button:hover { background: #b73528; }
-.aside { font-size: 13px; opacity: .7; margin-top: 40px; }
-@media (max-width: 420px) { h1 { font-size: 58px; } }`
-};
+export { starter };
 
 export function validateApp(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input) ||
@@ -132,7 +101,7 @@ function boot(config, loadProject) {
     } else {
       const vendorURL = URL.createObjectURL(new Blob([vendor], { type: 'text/javascript' }));
       const appURL = URL.createObjectURL(new Blob([
-        `import { View, Region, CollectionView, Behavior, Application, MnObject, Events } from ${JSON.stringify(vendorURL)};\n`, app.code
+        `import { View, Region, CollectionView, Behavior, Application, MnObject, Events, Model, Collection, DataApi, StateApi } from ${JSON.stringify(vendorURL)};\n`, app.code
       ], { type: 'text/javascript' }));
       try {
         library = await import(vendorURL);
@@ -194,5 +163,5 @@ export function runnerDocument({ app, vendor, token, standalone = false, project
 
 export function standaloneDocument(app, vendor, license, token) {
   const runner = runnerDocument({ app, vendor, token, standalone: true });
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>${html(app.title)}</title><style>body{margin:0;background:#101113}iframe{width:100%;height:100dvh;border:0;display:block}</style></head><body><iframe title="${html(app.title)}" sandbox="allow-scripts" referrerpolicy="no-referrer" srcdoc="${html(runner)}"></iframe><!-- Marionette 5.0.0-beta.2 source ${revision}. License below. --><template id="marionette-license">${html(license)}</template></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>${html(app.title)}</title><style>body{margin:0;background:#101113}iframe{width:100%;height:100dvh;border:0;display:block}</style></head><body><iframe title="${html(app.title)}" sandbox="allow-scripts allow-forms" referrerpolicy="no-referrer" srcdoc="${html(runner)}"></iframe><!-- Marionette 5.0.0-beta.2 source ${revision}. License below. --><template id="marionette-license">${html(license)}</template></body></html>`;
 }

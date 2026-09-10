@@ -30,20 +30,92 @@ try {
   await page.goto(`http://127.0.0.1:${server.address().port}/#playground`);
   await page.waitForFunction(() => window.MarionettePlayground && document.querySelector('#playground').open);
   const api = async (method, input) => page.evaluate(({ method, input }) => window.MarionettePlayground[method](input), { method, input });
+  const opening = await api('open');
+  assert.equal('draft' in opening, false, 'Opening must not duplicate source ahead of the brief');
+  assert.ok(JSON.stringify(opening).length < 6000, 'Opening stays below a small client response budget');
+  assert.match(opening.nextStep, /update_marionette_workshop/);
+  let briefPage = opening.brief;
+  let deliveredBrief = briefPage.content;
+  while (briefPage.nextOffset !== null) {
+    briefPage = await api('read', { section: 'brief', offset: briefPage.nextOffset });
+    assert.ok(JSON.stringify(briefPage).length < 6000);
+    deliveredBrief += briefPage.content;
+  }
+  assert.equal(deliveredBrief, await readFile(resolve(root, 'agent-prompt.md'), 'utf8'));
+  assert.match(deliveredBrief, /Build beautiful Marionette/);
+  await assert.rejects(api('read', { section: '../private', offset: 0 }), /Expected/);
+  await assert.rejects(api('read', { offset: -1 }), /Expected/);
+  let editorPage = await api('read', { section: 'code' });
+  let deliveredCode = editorPage.content;
+  while (editorPage.nextOffset !== null) {
+    editorPage = await api('read', { section: 'code', offset: editorPage.nextOffset });
+    deliveredCode += editorPage.content;
+  }
+  assert.equal(deliveredCode, starter.code);
+  console.log('PASS bounded invitation and editor delivery: full source reconstructed, invalid reads rejected');
   assert.equal(await page.locator('[data-example-id]').count(), 0, 'Backstage has no example chooser');
   assert.equal(await page.evaluate(() => 'loadExample' in window.MarionettePlayground), false);
   const nextSteps = page.locator('.workshop-next-steps');
   assert.equal(await nextSteps.isVisible(), false);
   await api('run', { title: 'Failed first run', code: 'throw new Error("Startup failed");', css: '' });
   assert.equal(await nextSteps.isVisible(), false);
+  const personalChecks = await readFile('test/browser/workshop-checks.js', 'utf8');
+  await api('run', { ...starter, code: `${starter.code}\n${personalChecks}` });
+  await page.frameLocator('.workshop-preview iframe').locator('body').evaluate(() => {
+    window.dispatchEvent(new Event('run-workshop-checks'));
+  });
+  const personalProof = await api('inspect');
+  assert.deepEqual(personalProof.preview.errors, []);
+  assert.equal(personalProof.preview.recipe.checks.length, 17);
+  assert.ok(personalProof.preview.recipe.checks.every(check => check.observed === true));
+  console.log('PASS personal starter: 17 data, draft, focus, identity, replacement and cleanup checks');
+  const errorsBeforeControls = pageErrors.length;
+  // A handler-only update can look correct when clicked while missing external changes.
+  const handlerOnly = starter.code.replace(/  modelEvents: \{[\s\S]*?\n  \},\n/, '')
+    .replace("    this.getUI('toggle')[0].focus();", "    this.render();\n    this.getUI('toggle')[0].focus();");
+  assert.notEqual(handlerOnly, starter.code);
+  await api('run', { ...starter, code: `${handlerOnly}\n${personalChecks}` });
+  await page.frameLocator('.workshop-preview iframe').locator('body').evaluate(() => {
+    window.dispatchEvent(new Event('run-workshop-checks'));
+  });
+  const missingObserver = await api('inspect');
+  assert.ok(missingObserver.preview.errors.some(error => error.includes('Direct model changes reach both observers')));
+  // Raw listeners on retained controls outlive Marionette delegation cleanup.
+  const leakedHandler = starter.code.replace('Victory.setDataApi(DataApi);', `
+Victory.setDataApi(DataApi);
+Victory.prototype.onRender = function () {
+  this.getUI('toggle')[0].addEventListener('click', function () {
+    if (!this.isConnected) throw new Error('Unowned listener survives');
+  });
+};`);
+  await api('run', { ...starter, code: `${leakedHandler}\n${personalChecks}` });
+  await page.frameLocator('.workshop-preview iframe').locator('body').evaluate(() => {
+    window.dispatchEvent(new Event('run-workshop-checks'));
+  });
+  assert.ok((await api('inspect')).preview.errors.some(error => error.includes('Unowned listener survives')));
+  assert.deepEqual(pageErrors.splice(errorsBeforeControls), [
+    'FAILED: Direct model changes reach both observers and escape text',
+    'Unowned listener survives'
+  ]);
+  console.log('PASS personal negative controls: handler-only rendering and unowned DOM listener rejected');
+
   await api('run', { ...starter, title: 'My personal app' });
-  await api('interact', { id: 'celebrate', action: 'click' });
+  await api('interact', { id: 'victory-first', action: 'click' });
+  await api('interact', { id: 'new-victory', action: 'input', value: 'A real submitted victory' });
+  await api('interact', { id: 'add-victory', action: 'click' });
+  assert.equal(await page.frameLocator('.workshop-preview iframe').locator('.victory').count(), 3);
+  assert.deepEqual((await api('inspect')).preview.errors, []);
   assert.equal(await nextSteps.isVisible(), true);
   const personalFrame = await page.locator('.workshop-preview iframe').elementHandle();
+  await mkdir('output/playwright', { recursive: true });
+  await page.setViewportSize({ width: 1440, height: 1080 });
+  await page.locator('.workshop-preview').screenshot({ path: 'output/playwright/personal-starter-desktop.png' });
   await page.locator('#app-code').fill(starter.code + '\n// Keep this unrun edit.');
   const personalDraft = (await api('inspect', { includeSource: true })).draft;
   await page.setViewportSize({ width: 390, height: 844 });
   assert.equal(await page.locator('#playground').evaluate(el => el.scrollWidth <= el.clientWidth), true);
+  assert.equal(await page.frameLocator('.workshop-preview iframe').locator('body').evaluate(el => el.scrollWidth <= el.clientWidth), true);
+  await page.locator('.workshop-preview').screenshot({ path: 'output/playwright/personal-starter-mobile.png' });
   await page.setViewportSize({ width: 1280, height: 720 });
   console.log('PASS Backstage: personal app only, successful-run exports, mobile layout');
 
@@ -570,7 +642,7 @@ try {
   }
   const personal = await api('inspect', { includeSource: true });
   assert.deepEqual(personal.draft, personalDraft);
-  assert.match(personal.preview.text, /1 small victory/);
+  assert.match(personal.preview.text, /1\s+small victory/);
   assert.equal(personal.hasUnrunChanges, true);
   assert.equal(await personalFrame.evaluate(el => el.isConnected && el === document.querySelector('.workshop-preview iframe')), true);
   console.log('PASS separate examples: top chooser, one-click runs, three Pen payloads execute, phone layouts, Backstage iframe/state/unrun edits untouched');
@@ -671,7 +743,7 @@ export function increment() { count += amount; }`,
   const native = await page.evaluate(() => Boolean(document.modelContext?.getTools && document.modelContext?.executeTool));
   assert.equal(native, true, 'Pinned Chromium must expose native WebMCP with experimental features enabled');
   const toolNames = await page.evaluate(async () => (await document.modelContext.getTools()).map(tool => tool.name));
-  for (const name of ['open_marionette_playground', 'update_marionette_workshop', 'run_marionette_app', 'inspect_marionette_app', 'interact_with_marionette_app', 'close_marionette_playground']) assert.ok(toolNames.includes(name), name);
+  for (const name of ['open_marionette_playground', 'read_marionette_workshop', 'update_marionette_workshop', 'run_marionette_app', 'inspect_marionette_app', 'interact_with_marionette_app', 'close_marionette_playground']) assert.ok(toolNames.includes(name), name);
   // Cancel a pending native tool execution; it must remove that run's iframe.
   await page.evaluate(async () => {
     const tool = (await document.modelContext.getTools()).find(tool => tool.name === 'run_marionette_app');
@@ -683,7 +755,7 @@ export function increment() { count += amount; }`,
   });
   await page.waitForFunction(() => !document.querySelector('.workshop-preview iframe'));
   assert.equal((await api('inspect')).previewActive, false);
-  console.log('PASS native WebMCP: six personal-app tools, execution and cancellation');
+  console.log('PASS native WebMCP: seven personal-app tools, execution and cancellation');
   // A late cancellation belongs to A even after B replaces it. Use native
   // executeTool for both runs and the subsequent interaction, not mocked hooks.
   await page.evaluate(async () => {
@@ -706,14 +778,14 @@ export function increment() { count += amount; }`,
     try { await Promise.race([window.supersededRunTest.pending, new Promise((_, reject) => { deadline = setTimeout(() => reject(new Error('Superseded execution did not settle within 2 seconds')), 2000); })]); } finally { clearTimeout(deadline); }
     delete window.supersededRunTest;
     const tool = (await document.modelContext.getTools()).find(tool => tool.name === 'interact_with_marionette_app');
-    await document.modelContext.executeTool(tool, JSON.stringify({ id: 'celebrate', action: 'click' }));
+    await document.modelContext.executeTool(tool, JSON.stringify({ id: 'victory-first', action: 'click' }));
   });
   const replacementState = await api('inspect');
   assert.equal(replacementState.title, 'Replacement B');
   assert.equal(replacementState.previewActive, true);
   assert.equal(replacementState.preview.region.hasView, true);
   assert.deepEqual(replacementState.preview.errors, []);
-  assert.match(replacementState.preview.text, /1 small victory/);
+  assert.match(replacementState.preview.text, /1\s+small victory/);
   assert.equal(await replacementFrame.evaluate(el => el === document.querySelector('.workshop-preview iframe') && el.isConnected), true);
   console.log('PASS superseded native run: late abort leaves replacement iframe and interaction alive');
 
@@ -747,7 +819,7 @@ export function increment() { count += amount; }`,
   }
   console.log('PASS troubleshooting: four exact failing/fixed examples against pinned published beta.2');
   let licenseRequests = 0;
-  await page.route('**/vendor/MARIONETTE-LICENSE.txt', route => {
+  await page.route('**/vendor/DEMOS-LICENSE.txt', route => {
     licenseRequests++;
     return licenseRequests === 1 ? route.fulfill({ status: 503, body: 'Temporary failure' }) : route.continue();
   });
@@ -758,7 +830,7 @@ export function increment() { count += amount; }`,
   assert.equal(licenseRequests, 2);
   assert.equal(await page.locator('[data-workshop-codepen]').isEnabled(), true);
   assert.match(await page.locator('#codepen-help').innerText(), /Free Pens are public/);
-  await page.unroute('**/vendor/MARIONETTE-LICENSE.txt');
+  await page.unroute('**/vendor/DEMOS-LICENSE.txt');
   console.log('PASS CodePen recovery: transient preload failure, workshop retry, enabled export and restored help');
   await page.goto(`http://127.0.0.1:${server.address().port}/docs/development/`);
   await page.locator('h1').waitFor();

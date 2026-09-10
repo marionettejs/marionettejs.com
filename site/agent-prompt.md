@@ -36,8 +36,6 @@ Use the Demos link in the Backstage header to open that experience in another
 tab while preserving this app. The examples page includes its own code, runtime
 observations, and exports. Its asynchronous lessons advance only when requested.
 
-The app guidance below applies when the user asks for the invitation’s personal interaction.
-
 ## Make one thoughtful little thing
 
 Make something recognizably for this person. Use relevant details already available
@@ -68,48 +66,57 @@ Tell the user in one sentence what you intend to make and why it might suit them
 Keep them oriented as you work. Keep the transition surprising and the work visible.
 No extra confirmation is needed for this browser demo if they already asked for it.
 
-## Keep this modest
+## Choose the experience before the code
 
-Make one app, not a product. Aim for roughly 100 lines of JavaScript and a small
-stylesheet. Use this brief and starter first; consult the linked reference only
-for a specific uncertainty. Do not tour the repository, compare frameworks, install
-dependencies, or add unrelated polish. Use two or three short public build notes,
-one interaction plus a small ownership/replacement check, and at most two repair attempts. If still stuck,
-explain the limit and stop. This is a scope guide, not a metered token cap; respect
-any stricter budget from the user. Avoid sending source back through inspect unless
-you need to reread it.
+In one short build note, connect the personal idea to a visual direction and the
+main interaction. Choose a specific mood: a field notebook, a tiny stage, a playful
+control panel, or another idea that fits this person. Make the metaphor affect the
+layout and controls, not just the heading. Use a deliberate type hierarchy, a small
+palette, generous spacing, and one memorable visual detail. System fonts, CSS, and
+inline SVG are enough; external assets are unavailable.
 
-Include a brief, candid impression of Marionette after actually using it: one thing
-that helped or got in the way, with a concrete example. Criticism is welcome. Say
-what you have not tested. Do not manufacture praise, claim a broad verdict from a
-toy app, or provide a transcript of private internal reasoning. The user should see
-useful design explanations and observed results.
+Keep one coherent app and a small stylesheet. Split by ownership and update needs,
+not a line-count target: a shell with named Regions, a focused interactive View,
+and a summary or detail View is often enough. A changing list adds a CollectionView
+and a row View. A single-purpose app may need less. Preserve the user's budget;
+read a linked contract only to resolve a specific uncertainty.
+
+The starter below is a complete composition example, including its CSS. Borrow
+its ownership and update patterns; create fresh content, interactions, and visual
+design. Do not deliver a renamed starter or a generic dashboard with personal labels.
+For a richer list/detail example, inspect the ordinary app modules in
+[TodoMVC](/demos/#list-detail); the lesson controls are separate from its app.
 
 ## Open, build, inspect, improve
 
 The homepage exposes optional WebMCP tools:
 
 1. `open_marionette_playground({})`: reveal the code editor and preview. Does not
-   execute app code. Returns this brief and the editable starter.
-2. `update_marionette_workshop({note, title?, code?, css?})`: show a short public
-   build note and optionally change the visible editor without running it. Explain
+   execute app code. Returns the first page of this brief and the next action.
+2. `read_marionette_workshop({section: "brief", offset})`: read the remaining
+   brief pages, following `nextOffset` until it is `null`, before building. The
+   complete starter is in the brief. Use `section: "code"` or `"css"` to read the
+   current editor in bounded pages without duplicating it in every tool response.
+3. `update_marionette_workshop({note, title?, code?, css?})`: show a short public
+   build note and optionally change the visible editor without running it. Post the
+   chosen idea before building and the actual test results before finishing. Explain
    the idea, a design choice, a change, or a test result at natural milestones.
    Show actual work in progress; do not simulate typing, manufacture a thinking
    transcript, or disclose private internal reasoning. Two or three useful notes
    are better than a narration of every line.
-3. `run_marionette_app({title, code, css})`: replace the draft and run it. Returns
+4. `run_marionette_app({title, code, css})`: replace the draft and run it. Returns
    startup errors, rendered text, controls, and Region observations.
-4. `inspect_marionette_app({})`: inspect the latest preview. Add `{includeSource: true}` only to reread the editor.
-5. `interact_with_marionette_app({id, action: "click"})` or
+5. `inspect_marionette_app({})`: inspect the latest preview. Add `{includeSource: true}` only to reread the editor.
+6. `interact_with_marionette_app({id, action: "click"})` or
    `{id, action: "input", value: "..."}`: test an enabled control. Give controls
    simple, unique HTML ids so the agent can address them. Input focuses the field and dispatches both
    input and change events. It does not simulate keyboard events; use browser
    keyboard controls for the focus-preservation recipe. Inspect again for delayed updates.
-6. `close_marionette_playground({})`: stop execution and return to the site.
+7. `close_marionette_playground({})`: stop execution and return to the site.
 
 For a client that allows page JavaScript, the same operations are available as
 `await window.MarionettePlayground.open()`, `.run({title, code, css})`, `.inspect()`,
-`.update({note, title?, code?, css?})`, `.interact({id, action, value?})`, and `.close()`.
+`.read({section, offset})`, `.update({note, title?, code?, css?})`, `.interact({id, action, value?})`, and `.close()`.
 
 For a client that can only operate the browser UI, navigate to `/#playground`,
 fill the App title and JavaScript source, select the style.css tab to fill CSS,
@@ -122,35 +129,77 @@ working result visible. Offer one meaningful next change. Do not silently try a
 series of unrelated ideas. Report what you tested and any remaining limitation.
 The user can edit, stop, leave, and explicitly download the app themselves.
 
-## Use the library's actual conventions
+## Build beautiful Marionette, too
 
-These rules are part of this pinned v5 contract; do not substitute remembered v4,
-Backbone, jQuery, React, or generic DOM patterns:
+Make ownership readable from the code. Use these beta.2 patterns before adding
+interaction details; do not substitute remembered v4 or generic DOM wrappers.
 
-- Put mutable View-local state in `createState()`, read it with `this.getState()`,
-  and create fresh nested objects/Sets there too. Do not keep selection, counters,
-  or checked items in module variables or a shared prototype `state` object.
-  Read-only configuration can live outside the View. Deliberate shared state needs
-  an explicit owner and a supplied `state` source; this little demo rarely needs it.
-- Use `templateContext()` to expose state or derived display values to the template.
-  The default renderer calls `template(data)`, without binding the View as `this`.
-- In a delegated selector handler, `event.delegateTarget` is the matched control,
-  including when the click lands on its nested icon/text. Do not redo delegation
-  with `event.target.closest(...)`. Native `event.currentTarget` is the root.
-- Plain-object state is intentionally non-observable. Mutate it and explicitly
-  render when needed; do not invent a `setState()` API or assume `stateEvents`
-  observes plain objects. Whole-View rendering is fine for a small demo; consider
-  focus preservation if rerendering an input while someone is typing.
-- Keep lifetime-bound work with its owner. Use View events and owned composition;
-  release any manually created timers or subscriptions when the View is destroyed.
+- **Compose the screen.** A root View owns named `regions` and calls
+  `showChildView`. A changing record list uses `CollectionView` with `childView`.
+  Keep records in data, never in `children.toArray()` or a second array of Views.
+  `children` is for View identity and ownership, not the application's store.
+  Let CollectionView handle collection membership changes; do not add an
+  `update: "render"` subscription to rebuild its rows.
+- **Choose the source deliberately.** For observable records, use the supplied
+  `Model`, `Collection`, and `DataApi` from `@mnjs/data`. Configure the relevant
+  View/CollectionView classes with `setDataApi(DataApi)` before instantiation;
+  declare `modelEvents` or `collectionEvents` for display updates.
+  Native Collection `toArray()` returns plain attribute objects; use iteration
+  (`[...collection]`) for Models. Do not assume Backbone/Underscore methods. Mutating a
+  Model directly must reach every interested View, including a summary. Cover
+  every field read by each template or calculation, not just the field changed by
+  its main button. For a display-only row, `modelEvents: { change: "render" }` is
+  a simple default; use narrower events only when all displayed dependencies are covered.
+  Static snapshots need no adapter. View-local state belongs in `createState()`:
+  fresh plain objects work with explicit rendering; an observable `Model` needs
+  `setStateApi(StateApi)` and `stateEvents` where updates should render.
+- **Render content in templates.** Use `templateContext()` for derived values.
+  `template(data)` has no View `this`. Escape interpolated user text. Use `ui`
+  names, `triggers` for semantic events such as `click:toggle`, and the matching
+  `onClickToggle` method. Use `events` when a handler needs the DOM event or input
+  value; `event.delegateTarget` is the matched control, even for nested clicks.
+  Do not assemble the interface with `innerHTML`, `querySelector`, or patches to
+  ordinary text content inside lifecycle hooks. Native DOM access still belongs
+  at actual boundaries such as focus, measurement, or a canvas.
+- **Update the owner that changed.** Render a row, summary, or status independently.
+  Do not rerender the whole shell on every input or record update. Unrelated child
+  identity, in-progress text, selection, and focus should survive. Capture drafts
+  through input events; templates must be able to reproduce them when needed.
+  Do not replace a focused input in response to its own edit. Verify real keyboard
+  editing, including number-input changes, separately from button clicks.
+- **Give work a lifetime.** Regions own children. Use `listenTo` for manual
+  subscriptions; destroy sources you create and own, not sources you borrow.
+  Keep lifecycle hooks synchronous. If the idea requires async work, launch it
+  through an explicit method that handles rejection and checks cancellation or
+  destruction before applying its result. Do not use `async onAttach` as a
+  readiness contract or start duplicate timers/listeners on reattachment.
 
-Before calling it done, check more than the buttons: instantiate another copy of
-your View with any required options, check that mutable state (including nested
-containers) is independent, then replace the displayed View and confirm the old
-one is destroyed and the new one starts with its intended state. Include a nested
-control click in the interaction check. Keep this small, destroy test instances,
-and leave the useful app visible. A whole-iframe restart is not a View replacement
-check. Do not claim these checks passed unless you ran them.
+## Finish by observing the app
+
+Run the meaningful workflow, including a nested-icon click and any empty/invalid
+input case. Inspect the rendered preview at desktop and narrow widths: readable
+contrast and hierarchy, no clipped controls or horizontal overflow, useful labels,
+and visible keyboard focus. A returned text snapshot cannot establish visual quality.
+If screenshots are unavailable, say that visual quality remains unverified.
+
+Check the boundary that fits your app. For shared records, change a Model directly
+and confirm both the item and summary update. Change a displayed label separately
+from a numeric value used by a summary, so a broad update cannot hide a missing
+subscription. Keep an unrelated input focused with
+a draft during that change. For timers or async work, detach/reattach or replace
+the owner and check that work does not duplicate or update a destroyed View.
+
+Also create a second root with its required options, verify independent owned
+mutable data/state, and replace the displayed root in the same Region. Confirm the
+old root and children are destroyed; retained old controls must do nothing. Destroy
+test instances and leave the useful app visible. Restarting the iframe does not
+prove Region replacement. Keep any test probes separate from the app's controls.
+
+Repair observed failures and repeat the relevant check within the user's budget.
+If a check cannot run, state the gap rather than marking it passed. Briefly report
+what worked, what you tested, and one candid impression of using Marionette with
+a concrete example. Do not infer agent productivity or broad framework quality
+from this one app. Offer one meaningful next change, then leave the result visible.
 
 ## Inspection contract
 
@@ -179,26 +228,28 @@ preview run; completed apps remain under the visible Stop/close controls.
 ## Exact runtime contract
 
 - Published runtime: `marionette@5.0.0-beta.2`. Source: `13f4954c352e646c413091ffdd83f6da59404573`.
-  Use the bundled API contracts below. [Runtime provenance](/reference/provenance.json).
+  Use the bundled API contracts below. [Core and data runtime provenance](/vendor/demos.provenance.json).
 - JavaScript is an ES module. `View`, `Region`, `CollectionView`, `Behavior`,
-  `Application`, `MnObject`, and `Events` are supplied as imported bindings. Do not
-  redeclare/import those names. No npm, React, Vue, Backbone, jQuery, external
+  `Application`, `MnObject`, and `Events` from `marionette`, plus `Model`,
+  `Collection`, `DataApi`, and `StateApi` from matching `@mnjs/data`, are supplied
+  as imported bindings. Do not redeclare/import those names. No npm, React, Vue, Backbone, jQuery, external
   modules, backend, network APIs, accounts, or persistence in this experiment.
 - The preview provides `<main id="app"></main>`. Use `View.extend`, a template
   returning HTML, delegated `events`, and `new Region({el: '#app'})`.
 - Export your root Region as `export const region = ...` so inspection can report
   its real public state. Showing a View renders and attaches it; showing another
   destroys the previous one. `region.empty()` destroys its current View.
-- Escape user-entered text before interpolating it into a template, or write it
-  with `textContent`. Prefer simple native
+- Escape user-entered text before interpolating it into a template. Prefer native
   controls, readable contrast, and a layout that works in a narrow preview.
+- Native forms work when their submit handler calls `event.preventDefault()`.
+  External submissions and form navigation are blocked by `form-action 'none'`.
 - Provide separate CSS as text. System fonts and inline graphics are sufficient.
   The editor limit is 60,000 JS characters, 20,000 CSS characters, and a 100-character
   title. All three fields are required, although CSS may be empty.
 - [Beta Region reference](/docs/region.md), [guide](/docs/region/).
 
 The example below is generated from the same executable starter used by the
-workshop. Adapt its structure to the person; do not simply rename the counter.
+workshop. Adapt its structure to the person; make a new app rather than relabeling its victories.
 
 <!-- playground-starter -->
 
