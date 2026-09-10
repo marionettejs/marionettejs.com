@@ -8,7 +8,7 @@ import { thanks } from '../content/thanks.mjs';
 import { workshop } from '../content/playground.mjs';
 import { adoptionQuestions, adoptionPrompt } from '../content/adoption.mjs';
 import { buildLibraryDocs } from './library-docs.mjs';
-import { starter } from '../site/assets/playground-runtime.js';
+import { starter } from './build-workshop-starter.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const out = resolve(root, 'dist');

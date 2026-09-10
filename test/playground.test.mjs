@@ -26,8 +26,8 @@ test('the discoverable brief embeds the exact executable starter', async () => {
   const brief = await readFile(new URL('../dist/agent-prompt.md', import.meta.url), 'utf8');
   assert.ok(brief.includes(`\`\`\`js\n${starter.code}\n\`\`\``));
   assert.ok(brief.includes(`\`\`\`css\n${starter.css}\`\`\``));
-  assert.equal(starter.code, (await readFile('site/workshop/app.js', 'utf8')).trimEnd());
-  assert.equal(starter.css, await readFile('site/workshop/style.css', 'utf8'));
+  assert.equal(starter.code, (await readFile(new URL('../site/workshop/app.js', import.meta.url), 'utf8')).trimEnd());
+  assert.equal(starter.css, await readFile(new URL('../site/workshop/style.css', import.meta.url), 'utf8'));
   assert.ok(!brief.includes('<!-- playground-starter -->'));
 });
 

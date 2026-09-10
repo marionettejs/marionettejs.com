@@ -30,6 +30,8 @@ try {
   await page.goto(`http://127.0.0.1:${server.address().port}/#playground`);
   await page.waitForFunction(() => window.MarionettePlayground && document.querySelector('#playground').open);
   const api = async (method, input) => page.evaluate(({ method, input }) => window.MarionettePlayground[method](input), { method, input });
+  await api('close');
+  await assert.rejects(api('read'), /Open the playground/);
   const opening = await api('open');
   assert.equal('draft' in opening, false, 'Opening must not duplicate source ahead of the brief');
   assert.ok(JSON.stringify(opening).length < 6000, 'Opening stays below a small client response budget');
@@ -66,9 +68,9 @@ try {
   });
   const personalProof = await api('inspect');
   assert.deepEqual(personalProof.preview.errors, []);
-  assert.equal(personalProof.preview.recipe.checks.length, 17);
+  assert.equal(personalProof.preview.recipe.checks.length, 18);
   assert.ok(personalProof.preview.recipe.checks.every(check => check.observed === true));
-  console.log('PASS personal starter: 17 data, draft, focus, identity, replacement and cleanup checks');
+  console.log('PASS personal starter: 18 data, draft, focus, identity, replacement and cleanup checks');
   const errorsBeforeControls = pageErrors.length;
   // A handler-only update can look correct when clicked while missing external changes.
   const handlerOnly = starter.code.replace(/  modelEvents: \{[\s\S]*?\n  \},\n/, '')
@@ -80,6 +82,8 @@ try {
   });
   const missingObserver = await api('inspect');
   assert.ok(missingObserver.preview.errors.some(error => error.includes('Direct model changes reach both observers')));
+  assert.equal(missingObserver.preview.recipe.checks.at(-1).observed, false);
+  assert.match(missingObserver.preview.recipe.checks.at(-1).id, /Direct model changes/);
   // Raw listeners on retained controls outlive Marionette delegation cleanup.
   const leakedHandler = starter.code.replace('Victory.setDataApi(DataApi);', `
 Victory.setDataApi(DataApi);
@@ -98,6 +102,17 @@ Victory.prototype.onRender = function () {
     'Unowned listener survives'
   ]);
   console.log('PASS personal negative controls: handler-only rendering and unowned DOM listener rejected');
+
+  execFileSync(process.execPath, ['test/browser/playground-ownership.mjs']);
+  const ownershipPage = await browser.newPage();
+  await ownershipPage.goto(`http://127.0.0.1:${server.address().port}/_ownership-check.html`);
+  await ownershipPage.frameLocator('iframe').locator('#run-ownership-checks').click();
+  await ownershipPage.frameLocator('iframe').locator('#ownership-result').filter({ hasText: '18 BROWSER CHECKS PASSED' }).waitFor({ timeout: 10000 }).catch(async error => {
+    throw new Error(await ownershipPage.frameLocator('iframe').locator('body').innerText(), { cause: error });
+  });
+  assert.equal(await ownershipPage.frameLocator('iframe').locator('#runner-errors').isVisible(), false);
+  await ownershipPage.close();
+  console.log('PASS documented standalone ownership regression: 18 public checks');
 
   await api('run', { ...starter, title: 'My personal app' });
   await api('interact', { id: 'victory-first', action: 'click' });

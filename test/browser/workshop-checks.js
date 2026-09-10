@@ -1,9 +1,9 @@
 // Appended to the submitted starter only in the browser regression fixture.
 // Observe public ownership, data, DOM, and lifecycle; never framework internals.
-const passed = [];
+const checks = [];
 function check(condition, label) {
+  checks.push({ id: label, expected: true, observed: Boolean(condition) });
   if (!condition) throw new Error('FAILED: ' + label);
-  passed.push(label);
 }
 window.addEventListener('run-workshop-checks', () => {
 const first = region.currentView;
@@ -28,6 +28,8 @@ notes.setSelectionRange(3, 7);
 model.set({ completed: false, title: '<Literal & safe>' });
 check(row.el.querySelector('.victory-title').textContent === '<Literal & safe>' && /0\s+small victories/.test(summary.el.textContent), 'Direct model changes reach both observers and escape text');
 check(first.getChildView('notes') === scratchpad && document.activeElement === notes && notes.value === 'Keep this <unfinished> thought' && notes.selectionStart === 3 && notes.selectionEnd === 7, 'Unrelated draft, selection, focus and identity survive');
+model.set('id', 'renamed');
+check(row.el.querySelector('button').id === 'victory-renamed', 'Record ID changes update the addressed control');
 first.collection.move(model, 1);
 check(list.children.findByModel(model) === row && list.el.lastElementChild === row.el, 'Reordering preserves the row');
 const input = first.el.querySelector('#new-victory');
@@ -64,5 +66,5 @@ check(second.isDestroyed() && !region.hasView(), 'Empty destroys the replacement
 region.show(new Root());
 }, { once: true });
 export function inspectRecipe() {
-  return { checks: passed.map(id => ({ id, expected: true, observed: true })) };
+  return { checks };
 }

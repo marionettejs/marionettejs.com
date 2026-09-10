@@ -102,7 +102,7 @@ that an app is beautiful, or a visual score with correct lifecycle behavior.
 
 ## Deterministic controls available now
 
-`npm run test:browser` exercises the composed starter with 17 public data/DOM/
+`npm run test:browser` exercises the composed starter with 18 public data/DOM/
 ownership checks. It rejects handler-only rendering that misses direct Model
 changes and an unowned DOM listener that survives destruction.
 `node test/browser/personal-preview.mjs` verifies real mouse and keyboard form

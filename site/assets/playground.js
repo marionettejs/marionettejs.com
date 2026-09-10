@@ -205,6 +205,7 @@ function query(type, action) {
   });
 }
 async function read(input = {}) {
+  if (!dialog.open) throw new Error('Open the playground before reading it.');
   if (!input || typeof input !== 'object' || Array.isArray(input) ||
       Object.keys(input).some(key => !['section', 'offset'].includes(key)) ||
       !['brief', 'code', 'css'].includes(input.section ?? 'brief') ||

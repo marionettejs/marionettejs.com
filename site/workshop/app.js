@@ -21,6 +21,7 @@ const Victory = View.extend({
   modelEvents: {
     'change:completed': 'render',
     'change:title': 'render',
+    'change:id': 'render',
   },
   onClickToggle() {
     this.model.set('completed', !this.model.get('completed'));
