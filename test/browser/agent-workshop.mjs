@@ -483,6 +483,22 @@ try {
         await oldApplication.destroy();
         return { aborted: signal.aborted, destroyed: oldApplication.isDestroyed(), phase: view.phase, fresh: view.application !== oldApplication };
       }), { aborted: true, destroyed: true, phase: 'closed', fresh: true }, 'Rerender retires pending Application readiness');
+      assert.equal(await penPage.evaluate(async () => {
+        const controller = window.demoModule.controller;
+        const view = controller.view;
+        const retiredRoots = [];
+        for (let cycle = 0; cycle < 3; cycle++) {
+          const opening = view.onClickOpen();
+          for (let step = 0; step < 3; step++) await view.onClickOpen();
+          await opening;
+          const listeners = Object.values(controller._rdListeningTo || {});
+          if (listeners.some(listener => retiredRoots.includes(listener.obj))) return false;
+          retiredRoots.push(view.application.getView());
+          await view.onClickClose();
+        }
+        return true;
+      }), true, 'Reopening the same Application releases subscriptions to its retired roots');
+
       for (let step = 0; step < 4; step++) await penPage.locator('#open-station').click();
       await penPage.locator('.flight-chapter').click();
       await penPage.locator('#guided-flight').click();

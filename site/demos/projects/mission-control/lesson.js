@@ -67,6 +67,7 @@ export const MissionLesson = LessonController.extend({
       );
     }
     if (phase === 'open') {
+      if (this.root) this.stopListening(this.root);
       this.root = app.getView();
       demoInspector.observeView('flight-screen', this.root);
       demoInspector.observeRegion('mission.slot', this.root.getRegion('worker'));
