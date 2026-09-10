@@ -5,7 +5,7 @@ export const recipeRuntime = Object.freeze({
   "package": "marionette",
   "version": "5.0.0-beta.2",
   "revision": "13f4954c352e646c413091ffdd83f6da59404573",
-  "data": { "package": "@mnjs/data", "version": "5.0.0-beta.2" }
+  "data": Object.freeze({ "package": "@mnjs/data", "version": "5.0.0-beta.2" })
 });
 
 const css = `

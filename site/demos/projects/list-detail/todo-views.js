@@ -74,7 +74,7 @@ const TodoItem = View.extend({
     }
   },
   onKeydownTitle(event) {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       this.edit();
     }
@@ -96,10 +96,12 @@ const TodoItem = View.extend({
     if (event.key === 'Enter') {
       event.preventDefault();
       this.save();
+      if (!this.isDestroyed()) this.getUI('title')[0].focus();
     }
     if (event.key === 'Escape') {
       event.preventDefault();
       this.endEdit();
+      this.getUI('title')[0].focus();
     }
   },
   save() {

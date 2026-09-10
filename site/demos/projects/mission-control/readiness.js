@@ -136,7 +136,8 @@ const StationControls = View.extend({
     'click @ui.exploration': 'onClickExploration',
   },
   onClickExploration() {
-    this.triggerMethod('toggle:exploration', !this.model.exploring);
+    this.model.exploring = !this.model.exploring;
+    this.triggerMethod('toggle:exploration', this.model.exploring);
   },
   template: ({ phase, exploring, preparationStep }) => `
     <button id="open-station" ${['open', 'destroyed'].includes(phase) ? 'disabled' : ''}>${phase === 'open' ? 'Hangar open' : 'Open hangar · ' + preparationStep + '/4'}</button>

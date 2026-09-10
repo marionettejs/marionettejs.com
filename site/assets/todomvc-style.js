@@ -10,11 +10,10 @@ body { background:#f5f5f5; color:#4d4d4d; font:14px 'Helvetica Neue',Helvetica,A
 .todos-heading { position:absolute; top:-105px; width:100%; margin:0; color:#b83f45; text-align:center; font:200 80px/1 'Helvetica Neue',Helvetica,Arial,sans-serif; letter-spacing:0; }
 #new-todo { width:100%; margin:0; padding:16px 16px 16px 60px; border:0; border-radius:0; color:#4d4d4d; font:italic 24px/1.4 'Helvetica Neue',Helvetica,Arial,sans-serif; background:#00000001; box-shadow:inset 0 -2px 1px #00000008; }
 #new-todo::placeholder { color:#949494; opacity:1; }
-#new-todo:focus { outline:0; }
+#new-todo:focus-visible { outline:2px solid #b83f45; outline-offset:-2px; }
 .todo-main { border-top:1px solid #e6e6e6; }
-#toggle-all { position:absolute; top:-52px; left:7px; width:46px; height:46px; opacity:0; margin:0; z-index:2; cursor:pointer; }
+#toggle-all { position:absolute; top:9px; left:7px; width:46px; height:46px; opacity:0; margin:0; z-index:2; cursor:pointer; }
 .toggle-all-label { position:absolute; top:18px; left:18px; color:#949494; font-size:23px; transform:rotate(90deg); line-height:1; }
-#toggle-all { top:9px; }
 #toggle-all:checked+.toggle-all-label { color:#4d4d4d; }
 #toggle-all:focus-visible+.toggle-all-label { outline:2px solid #b83f45; outline-offset:8px; }
 .list ul { list-style:none; margin:0; padding:0; }

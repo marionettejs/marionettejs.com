@@ -240,10 +240,12 @@ function stage({ icon, title, question, introduction, instruction, evidence }) {
       evidence,
     },
   });
-  new Region({
+  const rootRegion = new Region({
     el: '#app',
-  }).show(lesson);
+  });
+  rootRegion.show(lesson);
   if (instruction) story(instruction);
+  return rootRegion;
 }
 function inspectRecipe() {
   return demoInspector.inspect();
@@ -251,14 +253,15 @@ function inspectRecipe() {
 // The controller owns subscriptions and teaching UI. App Views never import it.
 const LessonController = MnObject.extend({
   initialize({ configuration, ViewClass, viewOptions = {} }) {
-    stage(configuration);
+    this.rootRegion = stage(configuration);
     this.region = lesson.getRegion('experiment');
     this.ViewClass = ViewClass;
     this.viewOptions = viewOptions;
     this.showApp();
   },
   showApp() {
-    this.view = new this.ViewClass(this.viewOptions);
+    const options = typeof this.viewOptions === 'function' ? this.viewOptions() : this.viewOptions;
+    this.view = new this.ViewClass(options);
     demoInspector.observeRegion('root', this.region);
     demoInspector.observeView('shell', this.view);
     this.observe(this.view);
@@ -272,7 +275,7 @@ const LessonController = MnObject.extend({
     this.showApp();
   },
   onBeforeDestroy() {
-    this.region.empty();
+    this.rootRegion.destroy();
   },
 });
 export { LessonController, demoInspector, story, explain, inspectRecipe };

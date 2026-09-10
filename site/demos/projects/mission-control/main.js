@@ -2,7 +2,7 @@ import { StationConsole } from './app.js';
 import { MissionLesson } from './lesson.js';
 export { inspectRecipe } from './lesson-ui.js';
 
-const controller = new MissionLesson({
+export const controller = new MissionLesson({
   ViewClass: StationConsole,
   configuration: {
     icon: '🚀',

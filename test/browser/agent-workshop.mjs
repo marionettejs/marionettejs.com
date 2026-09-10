@@ -133,6 +133,17 @@ try {
   await frame.locator('.edit').fill('Saved on blur');
   await frame.locator('#new-todo').click();
   assert.equal(await frame.locator('.todo-title').innerText(), 'Saved on blur');
+  assert.equal(await frame.locator('#new-todo').evaluate(el => document.activeElement === el), true, 'Blur save preserves the next control focus');
+  await frame.locator('.todo-title').press('Space');
+  await frame.locator('.edit').fill('Keyboard saved');
+  await frame.locator('.edit').press('Enter');
+  assert.equal(await frame.locator('.todo-title').evaluate(el => document.activeElement === el), true);
+  await frame.locator('.todo-title').press('Enter');
+  await frame.locator('.edit').fill('Discard me');
+  await frame.locator('.edit').press('Escape');
+  assert.equal(await frame.locator('.todo-title').innerText(), 'Keyboard saved');
+  assert.equal(await frame.locator('.todo-title').evaluate(el => document.activeElement === el), true);
+
   await frame.locator('.todo-title').dblclick();
   await frame.locator('.edit').fill('   ');
   await frame.locator('.edit').press('Enter');
@@ -181,6 +192,12 @@ try {
   assert.equal(await flight.locator('.proof').getAttribute('open'), null);
   assert.equal(await flight.locator('#destroy-station').isVisible(), false);
   await flight.locator('.station-more > summary').click();
+  await flight.locator('.station-more > summary').click();
+  await flight.locator('#open-station').click();
+  assert.equal(await flight.locator('.station-more').getAttribute('open'), null, 'Closed exploration stays closed across state changes');
+  await flight.locator('.station-more > summary').click();
+  await flight.locator('#close-station').click();
+  await flight.locator('.station-status').filter({ hasText: 'CLOSED.' }).waitFor();
   await galleryPage.locator('.example-preview').screenshot({ path: 'output/playwright/mission-preparation.png' });
   await flight.locator('#open-station').click();
   await flight.locator('.station-status').filter({ hasText: '25% · step 1/4' }).waitFor();
@@ -234,8 +251,8 @@ try {
   await flight.locator('#fire-beam').click();
   assert.match(await flight.locator('.beam-feedback').innerText(), /Miss at/);
   await flight.locator('.slot .result').filter({ hasText: 'Delivered!' }).waitFor();
-  await flight.locator('#launch-worker').click();
-  await flight.waitForFunction(() => document.querySelector('.slot .rocket').getAnimations()[0]?.currentTime > 1250);
+  await flight.locator('#guided-flight').click();
+  await flight.locator('.beam-feedback').filter({ hasText: 'Paused at 50%' }).waitFor();
   await flight.locator('#fire-beam').click();
   await flight.locator('.beam-feedback').filter({ hasText: 'Hit at' }).waitFor();
   assert.equal(await flight.locator('.cause-chain li').count(), 5);
@@ -278,7 +295,7 @@ try {
   assert.equal(editorSpacing.labelClip, 'inset(50%)');
   assert.equal(await galleryPage.getByLabel('Example JavaScript', { exact: true }).count(), 1);
   await galleryPage.locator('.example-source').screenshot({ path: 'output/playwright/demo-code-spacing.png' });
-  console.log('PASS mission: four manual readiness steps, no automatic progress, cancellation/failure/retry, three-second flight, early/late misses and timed beam hit, delivery/replacement/failure, child cancellation preserves station, parent shutdown aborts flight, destroy and reset');
+  console.log('PASS mission: four manual readiness steps, no automatic progress, cancellation/failure/retry, three-second flight, early/late misses and guided beam hit, delivery/replacement/failure, child cancellation preserves station, parent shutdown aborts flight, destroy and reset');
 
   // Export must execute the same source, including cleanup, inside the same sandbox.
   await load('owned-widget');
@@ -441,9 +458,49 @@ try {
       assert.equal(await penPage.evaluate(() => window.demoInspection().views.find(item => item.name === 'first-widget').view.widget.getState().frames), stoppedFrames);
     }
 
+    if (recipe.id === 'list-detail') {
+      assert.equal(await penPage.evaluate(() => {
+        const controller = window.demoModule.controller;
+        const oldCollection = controller.view.collection;
+        controller.reset();
+        const fresh = controller.view.collection !== oldCollection;
+        controller.view.collection.remove(controller.view.collection.at(0));
+        controller.view.changeNeighbor();
+        return fresh && !window.demoInspection().checks.some(check => check.id === 'child-identity' && !check.observed);
+      }), true, 'Reset owns fresh data and deleting the original row does not fail identity evidence');
+      await penPage.locator('#new-todo').fill('Works after controller reset');
+      await penPage.locator('#new-todo').press('Enter');
+      assert.equal(await penPage.locator('.todo-item').count(), 2);
+    }
+    if (recipe.id === 'mission-control') {
+      assert.deepEqual(await penPage.evaluate(async () => {
+        const view = window.demoModule.controller.view;
+        const oldApplication = view.application;
+        const opening = view.onClickOpen();
+        const signal = oldApplication.getState().signal;
+        view.render();
+        await opening;
+        await oldApplication.destroy();
+        return { aborted: signal.aborted, destroyed: oldApplication.isDestroyed(), phase: view.phase, fresh: view.application !== oldApplication };
+      }), { aborted: true, destroyed: true, phase: 'closed', fresh: true }, 'Rerender retires pending Application readiness');
+      for (let step = 0; step < 4; step++) await penPage.locator('#open-station').click();
+      await penPage.locator('.flight-chapter').click();
+      await penPage.locator('#guided-flight').click();
+      assert.equal(await penPage.evaluate(async () => {
+        const view = window.demoModule.controller.view;
+        const app = view.application;
+        const deck = app.getView();
+        view.render();
+        await app.destroy();
+        return deck.isDestroyed() && view.phase === 'closed';
+      }), true, 'Rerender destroys the prior flight screen');
+    }
     // The app's module is reusable with no teaching controller mounted.
     await penPage.evaluate(async id => {
-      window.demoModule.region.empty();
+      const root = window.demoModule.controller.rootRegion;
+      const lesson = root.currentView;
+      window.demoModule.controller.destroy();
+      if (!root.isDestroyed() || !lesson.isDestroyed()) throw new Error('Lesson root survived controller teardown');
       if (id === 'list-detail') {
         window.routeRefreshes = 0;
         window.dispatchEvent(new HashChangeEvent('hashchange'));
@@ -568,17 +625,24 @@ if (delayed.ready) increment();
 let isolated = false;
 try { parent.document.body; } catch { isolated = true; }
 export const region = new Region({ el: '#app' });
-region.show(new View({ template: () => '<p id="module-result">' + count + ':' + isolated + '</p>' }));`,
+region.show(new View({ template: () => '<p id="module-result">' + count + ':' + isolated + '</p>' }));
+window.resumeImport = () => import('./resumed.js');`,
     'counter.js': `import { amount } from './main.js';
 export let count = 0;
 export function increment() { count += amount; }`,
     'delayed.js': 'export const ready = true;',
+    'resumed.js': 'export const resumed = true;',
   }});
   const linkingPage = await browser.newPage();
   await linkingPage.setContent('<iframe sandbox="allow-scripts"></iframe>');
   const vendorForLinking = await readFile(resolve(root, 'vendor/demos.js'), 'utf8');
   await linkingPage.locator('iframe').evaluate((iframe, doc) => { iframe.srcdoc = doc; }, runnerDocument({ ...nativeProject, vendor: vendorForLinking, token: 'abcd-1234', standalone: true }));
   await linkingPage.frameLocator('iframe').locator('#module-result').filter({ hasText: '4:true' }).waitFor();
+  const linkingFrame = linkingPage.frames().find(frame => frame.parentFrame());
+  assert.equal(await linkingFrame.evaluate(async () => {
+    dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
+    return (await window.resumeImport()).resumed;
+  }), true, 'BFCache pagehide preserves URLs for deferred modules');
   await linkingPage.close();
   console.log('PASS native module cycles, live bindings, dynamic imports, and opaque iframe isolation');
 

@@ -2,7 +2,7 @@ import { RadioStation } from './app.js';
 import { RadioLesson } from './lesson.js';
 export { inspectRecipe } from './lesson-ui.js';
 
-const controller = new RadioLesson({
+export const controller = new RadioLesson({
   ViewClass: RadioStation,
   configuration: {
     icon: '📻',

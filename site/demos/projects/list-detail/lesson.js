@@ -24,6 +24,10 @@ export const TodoLesson = LessonController.extend({
     });
     this.listenTo(view.collection, 'remove', model => {
       this.children.delete(model);
+      if (this.retained?.model === model) {
+        this.retained = null;
+        this.element = null;
+      }
       explain(
         'Removing data removes its owned row.',
         row('TodoList.onClickRemove'),

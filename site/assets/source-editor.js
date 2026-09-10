@@ -47,7 +47,7 @@ export function createSourceEditor(editor, file) {
   editor.setAttribute('autocapitalize', 'off');
   editor.setAttribute('autocorrect', 'off');
 
-  let renderedValue, sections = [], selectedLine;
+  let renderedValue, sections = [], selectedLine, refreshTimer;
   function syncScroll() {
     highlight.scrollTop = editor.scrollTop;
     highlight.scrollLeft = editor.scrollLeft;
@@ -65,6 +65,7 @@ export function createSourceEditor(editor, file) {
     }
   }
   function refresh() {
+    clearTimeout(refreshTimer);
     if (renderedValue === editor.value) {
       showPosition();
       syncScroll();
@@ -76,11 +77,15 @@ export function createSourceEditor(editor, file) {
     // inspectSource escapes every source fragment before adding fixed token markup.
     paintedCode.innerHTML = result.highlighted + '\n';
     const count = renderedValue.split('\n').length;
-    numbers.replaceChildren(...Array.from({ length: count }, (_, index) => {
+    // Preserve existing gutter nodes; typing usually changes no line numbers.
+    while (numbers.children.length > count) numbers.lastElementChild.remove();
+    const added = document.createDocumentFragment();
+    for (let index = numbers.children.length; index < count; index++) {
       const number = document.createElement('span');
       number.textContent = index + 1;
-      return number;
-    }));
+      added.append(number);
+    }
+    numbers.append(added);
     lineInput.max = count;
     const previous = symbols.value;
     const prompt = new Option(sections.length ? 'Jump to a method or definition…' : 'Use line navigation while editing', '');
@@ -122,7 +127,15 @@ export function createSourceEditor(editor, file) {
     symbols.value = '';
     goToLine(Number(lineInput.value));
   });
-  editor.addEventListener('input', refresh);
+  editor.addEventListener('input', () => {
+    // Show every keystroke immediately; parse and recolor after typing pauses.
+    paintedCode.textContent = editor.value + '\n';
+    renderedValue = undefined;
+    clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(refresh, 120);
+    showPosition();
+    syncScroll();
+  });
   editor.addEventListener('scroll', syncScroll);
   for (const event of ['click', 'keyup', 'select', 'focus']) editor.addEventListener(event, showPosition);
   refresh();

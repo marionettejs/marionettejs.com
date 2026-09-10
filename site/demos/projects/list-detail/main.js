@@ -3,9 +3,11 @@ import { TodoLesson } from './lesson.js';
 import { TodoCollection } from './todo-views.js';
 export { inspectRecipe } from './lesson-ui.js';
 
-const controller = new TodoLesson({
+export const controller = new TodoLesson({
   ViewClass: Todos,
-  viewOptions: { collection: new TodoCollection([{ title: 'Finish one small thing' }]) },
+  viewOptions: () => ({
+    collection: new TodoCollection([{ title: 'Finish one small thing' }]),
+  }),
   configuration: {
     icon: '☑',
     title: 'TodoMVC, one View at a time',

@@ -54,13 +54,18 @@ const StationConsole = View.extend({
   onToggleExploration(exploring) {
     this.exploring = exploring;
   },
+  initialize() {
+    this.attempt = 0;
+  },
+  onBeforeRender() {
+    this.releaseApplication();
+  },
   onRender() {
     this.application = new MissionControl({
       region: {
         el: this.getUI('screen')[0],
       },
     });
-    this.attempt = 0;
     this.present('closed', 'CLOSED. No flight screen exists yet.');
   },
   async onClickOpen() {
@@ -70,14 +75,16 @@ const StationConsole = View.extend({
       return;
     }
     const attempt = ++this.attempt;
+    const application = this.application;
     this.present(
       'opening',
       'PREPARING. The flight screen is still absent. Each click opens another 25%.',
     );
     try {
-      const started = await this.application.start({
+      const started = await application.start({
         loader: this.getChildView('loader'),
       });
+      if (application !== this.application || this.isDestroyed()) return;
       this.triggerMethod('settle:start', started);
       if (!started) {
         return;
@@ -156,8 +163,12 @@ const StationConsole = View.extend({
     this.showChapter(1);
     this.triggerMethod('change:phase', phase);
   },
+  releaseApplication() {
+    this.attempt++;
+    this.application?.destroy().catch(error => console.error(error));
+  },
   onBeforeDestroy() {
-    this.application.destroy().catch(error => console.error(error));
+    this.releaseApplication();
   },
 });
 

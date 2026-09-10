@@ -1,9 +1,12 @@
 import { build } from 'esbuild';
+import { execFileSync } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
+// npm verifies every installed tarball against the lockfile before bundling.
+execFileSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['ci', '--ignore-scripts'], { cwd: root, stdio: 'inherit' });
 const read = path => readFile(new URL('../' + path, import.meta.url), 'utf8');
 const lock = JSON.parse(await read('package-lock.json'));
 const provenance = JSON.parse(await read('content/provenance.json'));

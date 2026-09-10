@@ -48,7 +48,12 @@ export const MissionLesson = LessonController.extend({
   onChangePhase(phase) {
     const view = this.view;
     const app = view.application;
-    const region = (this.applicationRegion ||= app.getRegion());
+    if (this.application !== app) {
+      this.phase = this.root = this.current = null;
+      this.application = app;
+      this.applicationRegion = app.getRegion();
+    }
+    const region = this.applicationRegion;
     const previous = this.phase;
     this.phase = phase;
     demoInspector.observeRegion('application.root', region);

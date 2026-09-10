@@ -89,6 +89,9 @@ test('entry, workshop and nested runtime imports use content versions to invalid
   assert.doesNotMatch(exporter, /from '\.\/[^']+\.js'/);
   const gallery = await readFile(resolve(out, 'assets/examples.js'), 'utf8');
   for (const [, path, hash] of gallery.matchAll(/from '(\.\/[^']+\.js)\?v=([a-f0-9]+)'/g)) assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
+  for (const name of ['examples', 'playground-recipes', 'source-editor', 'playground-runtime']) {
+    assert.doesNotMatch(await readFile(resolve(out, `assets/${name}.js`), 'utf8'), /from '\.\/[^']+\.js'/, name);
+  }
   const recipes = await readFile(resolve(out, 'assets/playground-recipes.js'), 'utf8');
   const examples = [...recipes.matchAll(/from '(\.\/[^']+\.js)\?v=([a-f0-9]+)'/g)];
   assert.equal(examples.length, 2);

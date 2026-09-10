@@ -13,7 +13,12 @@ export async function importProject(project, vendor, nonce) {
     const library = await import(vendorURL);
     const appModule = await import(imports['demo:' + project.entry]);
     // URLs stay valid for dynamic imports for the lifetime of this iframe or Pen.
-    addEventListener('pagehide', () => urls.forEach(url => URL.revokeObjectURL(url)), {once:true});
+    const release = event => {
+      if (event.persisted) return;
+      urls.forEach(url => URL.revokeObjectURL(url));
+      removeEventListener('pagehide', release);
+    };
+    addEventListener('pagehide', release);
     return {library,appModule};
   } catch (error) { urls.forEach(url => URL.revokeObjectURL(url)); throw error; }
 }
