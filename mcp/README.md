@@ -132,8 +132,10 @@ publication provenance.
 3. Pass a returned `id` to `get_doc` as `path`. Follow `nextOffset` until it is
    `null` to retrieve the complete contract. Search snippets are incomplete.
 4. Call `get_example` with a catalog example `name`. Concatenate its chunks,
-   then parse the resulting JSON for code, CSS, related docs, and expected
-   checks. Load that recipe in the workshop to run and inspect its behavior.
+   then parse the resulting JSON for sourceFiles (ES modules), CSS, related docs,
+   and expected checks. Open that project on the demos page to run and inspect
+   its behavior. main.js is the module entry point; Download project includes
+   every source file and the pinned runtime.
 
 For this snapshot, a search call is:
 

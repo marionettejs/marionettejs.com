@@ -1,3 +1,5 @@
+import { importProject } from './project-runtime.js';
+
 export const version = '5.0.0-beta.2';
 export const revision = '13f4954c352e646c413091ffdd83f6da59404573';
 export const starter = {
@@ -63,8 +65,8 @@ export function validateAction(input) {
 const scriptJSON = value => JSON.stringify(value).replaceAll('<', '\\u003c').replaceAll('>', '\\u003e').replaceAll('&', '\\u0026');
 const html = value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 
-function boot(config) {
-  const { app, vendor, token, standalone, version, revision } = config;
+function boot(config, loadProject) {
+  const { app, vendor, token, standalone, version, revision, project } = config;
   const postToParent = parent.postMessage.bind(parent);
   const errors = [];
   let port, appModule, library, ready = false, snapshotTimer;
@@ -75,6 +77,7 @@ function boot(config) {
     const value = appModule.inspectRecipe();
     const list = key => Array.isArray(value?.[key]) ? value[key].slice(0, 40) : [];
     return {
+      sourceSelection: value?.sourceSelection && Number.isSafeInteger(value.sourceSelection.requestId) ? { file: clip(value.sourceSelection.file, 80), symbol: clip(value.sourceSelection.symbol, 120), requestId: value.sourceSelection.requestId } : null,
       truncated: ['checks', 'lifecycle', 'views', 'regions'].some(key => Array.isArray(value?.[key]) && value[key].length > 40) || value?.lifecycleDropped > 0,
       checks: list('checks').map(item => ({ id: clip(item?.id, 80), expected: item?.expected === true, observed: typeof item?.observed === 'boolean' ? item.observed : null })),
       lifecycle: list('lifecycle').map(item => clip(item, 120)),
@@ -86,7 +89,7 @@ function boot(config) {
   function snapshot() {
     const region = appModule?.region;
     return {
-      ready, errors: [...errors], runtime: { package: 'marionette', version, revision }, recipe: inspectRecipe(),
+      ready, contentHeight: Math.ceil(document.querySelector('#app')?.getBoundingClientRect().height || 0), errors: [...errors], runtime: { package: 'marionette', version, revision }, recipe: inspectRecipe(),
       text: document.querySelector('#app')?.innerText.slice(0, 6000) || '',
       controls: [...document.querySelectorAll('#app button, #app input, #app select, #app textarea')].slice(0, 40).map(el => ({
         id: el.id, tag: el.tagName.toLowerCase(), label: clip(el.getAttribute('aria-label') || el.labels?.[0]?.textContent || el.textContent || el.placeholder || '', 120),
@@ -120,21 +123,36 @@ function boot(config) {
     const css = document.createElement('style');
     css.textContent = app.css;
     document.head.append(css);
-    const vendorURL = URL.createObjectURL(new Blob([vendor], { type: 'text/javascript' }));
-    const appURL = URL.createObjectURL(new Blob([
-      `import { View, Region, CollectionView, Behavior, Application, MnObject, Events } from ${JSON.stringify(vendorURL)};\n`, app.code
-    ], { type: 'text/javascript' }));
-    try {
-      library = await import(vendorURL);
-      appModule = await import(appURL);
-      ready = true;
-    } catch (error) { record(error); }
-    finally { URL.revokeObjectURL(vendorURL); URL.revokeObjectURL(appURL); send(); }
-    new MutationObserver(() => {
-      clearTimeout(snapshotTimer);
-      snapshotTimer = setTimeout(() => send(), 100);
-    }).observe(document.querySelector('#app'), { subtree: true, childList: true, characterData: true, attributes: true });
-    document.addEventListener('input', () => { clearTimeout(snapshotTimer); snapshotTimer = setTimeout(() => send(), 100); });
+    if (project) {
+      try {
+        ({ library, appModule } = await loadProject(project, vendor, token));
+        ready = true;
+      } catch (error) { record(error); }
+      send();
+    } else {
+      const vendorURL = URL.createObjectURL(new Blob([vendor], { type: 'text/javascript' }));
+      const appURL = URL.createObjectURL(new Blob([
+        `import { View, Region, CollectionView, Behavior, Application, MnObject, Events } from ${JSON.stringify(vendorURL)};\n`, app.code
+      ], { type: 'text/javascript' }));
+      try {
+        library = await import(vendorURL);
+        appModule = await import(appURL);
+        ready = true;
+      } catch (error) { record(error); }
+      finally { URL.revokeObjectURL(vendorURL); URL.revokeObjectURL(appURL); send(); }
+    }
+    function scheduleSnapshot() {
+      // Continuous animation must not postpone observations indefinitely.
+      if (snapshotTimer) return;
+      snapshotTimer = setTimeout(() => {
+        snapshotTimer = undefined;
+        send();
+      }, 100);
+    }
+    new MutationObserver(scheduleSnapshot).observe(document.querySelector('#app'), { subtree: true, childList: true, characterData: true, attributes: true });
+    document.addEventListener('input', scheduleSnapshot);
+    document.addEventListener('click', scheduleSnapshot);
+    addEventListener('resize', scheduleSnapshot);
   }
   if (standalone) { start(); return; }
   function connect(event) {
@@ -167,11 +185,11 @@ function boot(config) {
   postToParent({ type: 'pg-ready', token }, '*');
 }
 
-export function runnerDocument({ app, vendor, token, standalone = false }) {
+export function runnerDocument({ app, vendor, token, standalone = false, project }) {
   validateApp(app);
   if (!/^[a-f0-9-]+$/.test(token)) throw new Error('Invalid runner token.');
   const csp = `default-src 'none'; script-src 'nonce-${token}' blob:; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; font-src 'none'; media-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'`;
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${html(app.title)}</title><style>*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,sans-serif}button,input,select,textarea{font:inherit;max-width:100%}:focus-visible{outline:3px solid #2869e8;outline-offset:3px}#runner-errors{white-space:pre-wrap;overflow-wrap:anywhere;background:#2e1518;color:#ffd1cb;padding:20px;font:12px/1.6 monospace}</style></head><body><main id="app"></main><pre id="runner-errors" hidden role="alert"></pre><script nonce="${token}" type="module">(${boot.toString()})(${scriptJSON({ app, vendor, token, standalone, version, revision })});</script></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${html(app.title)}</title><style>*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,sans-serif}button,input,select,textarea{font:inherit;max-width:100%}:focus-visible{outline:3px solid #2869e8;outline-offset:3px}#runner-errors{white-space:pre-wrap;overflow-wrap:anywhere;background:#2e1518;color:#ffd1cb;padding:20px;font:12px/1.6 monospace}</style></head><body><main id="app"></main><pre id="runner-errors" hidden role="alert"></pre><script nonce="${token}" type="module">(${boot.toString()})(${scriptJSON({ app, vendor, token, standalone, version, revision, project })}, ${importProject.toString()});</script></body></html>`;
 }
 
 export function standaloneDocument(app, vendor, license, token) {

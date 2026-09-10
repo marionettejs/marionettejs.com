@@ -34,3 +34,9 @@ if (adoptionPrompt) {
     }
   });
 }
+
+if (document.querySelector('#examples')) {
+  import('./examples.js').catch(() => {
+    document.querySelector('#example-status').textContent = 'Examples could not load. The documentation links are still available.';
+  });
+}

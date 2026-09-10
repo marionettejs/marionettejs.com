@@ -30,34 +30,13 @@ Collapse the instructions when you are ready to use the editor.
 
 ## Learning a v5 contract
 
-For documentation work, discover canonical examples with `list_marionette_examples({})`
-or `MarionettePlayground.listExamples()`. These include source links, exact runtime
-metadata, and expected checks. Open the workshop and use
-`load_marionette_example({id})` / `.loadExample({id})`, or the Canonical example
-selector and Load example button. Loading replaces the editor draft without running
-it. Run the loaded `{title, code, css}`, then perform its interactions:
+The interactive teaching examples live separately at `/demos/`. Backstage is
+for the user's personal app; it does not load or replace it with examples.
+Use the Demos link in the Backstage header to open that experience in another
+tab while preserving this app. The examples page includes its own code, runtime
+observations, and exports. Its asynchronous lessons advance only when requested.
 
-- `list-detail`: type a draft, then press Enter in the input twice. This adds and
-  removes an unrelated child and checks retained View/input identity, draft, focus,
-  and removed-child destruction. A button click alone does not test input focus.
-  It uses self-managed CollectionView children, not an observable data adapter.
-- `owned-widget`: Replace widget, then Destroy owner. The recipe explicitly
-  disposes its application-owned subscription in `onBeforeDestroy`; Marionette
-  owns its Views and Regions, not that external widget.
-- `cancellable-work`: Start and immediately replace a worker, then inspect after
-  “Completed local work” appears. It uses a local delayed task and AbortController;
-  the old task must not commit after its View is destroyed.
-
-- `application-startup`: Run Application lifecycle checks, then inspect the printed
-  Promise outcomes. A pending `start()` superseded by `stop()` resolves `false`;
-  a fresh start resolves `true`; a current readiness failure rejects. The local
-  loader deliberately finishes after cancellation, so `onBeforeStart` checks its
-  supplied signal before writing state. Root View and Application cleanup are
-  checked too. This is the Application readiness contract; `cancellable-work`
-  demonstrates the separate View-owned task contract.
-
-Canonical learning examples do not require personalization. The following personal
-app guidance applies when the user asked for the invitation's personal interaction.
+The app guidance below applies when the user asks for the invitation’s personal interaction.
 
 ## Make one thoughtful little thing
 

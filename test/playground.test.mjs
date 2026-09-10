@@ -72,7 +72,7 @@ test('download contains the same pinned library, license and sandboxed standalon
   assert.match(output, /13f4954c352e646c413091ffdd83f6da59404573/);
   assert.match(output, /MIT/);
   const runner = output.match(/srcdoc="([^"]*)"/)[1].replaceAll('&quot;', '"').replaceAll('&gt;', '>').replaceAll('&lt;', '<').replaceAll('&amp;', '&');
-  const config = JSON.parse(runner.slice(runner.indexOf('})({"app":') + 3, runner.lastIndexOf(');</script>')));
+  const config = JSON.parse(runner.slice(runner.indexOf('})({"app":') + 3, runner.indexOf('}, async function importProject') + 1));
   assert.equal(config.vendor, vendor);
   assert.deepEqual(config.app, starter);
   assert.equal(config.standalone, true);
@@ -88,7 +88,8 @@ test('canonical recipe catalog rejects unknown ids and stays pinned to the demo'
   assert.equal(new Set(recipes.map(recipe => recipe.id)).size, recipes.length);
   assert.ok(listRecipes().every(recipe => !('code' in recipe) && !('css' in recipe)));
   for (const recipe of recipes) {
-    assert.deepEqual(validateApp({ title: recipe.title, code: recipe.code, css: recipe.css }).code, getRecipe({ id: recipe.id }).code);
+    assert.deepEqual(recipe.sourceFiles, getRecipe({ id: recipe.id }).sourceFiles);
+    assert.match(recipe.sourceFiles['main.js'], /import .* from/);
     for (const path of recipe.docs) await readFile(new URL(`../dist${path}index.html`, import.meta.url), 'utf8');
   }
   for (const input of [null, [], {}, { id: '../secret' }, { id: 'list-detail', url: 'https://example.com' }]) assert.throws(() => getRecipe(input));
@@ -106,7 +107,8 @@ test('recipe discovery and load results cannot mutate subsequent canonical metad
   loaded.docs.push('/extra/');
   loaded.checks[0].id = 'changed';
   loaded.runtime.revision = 'changed';
+  loaded.sourceFiles['app.js'] = 'changed';
   assert.deepEqual(getRecipe({ id: original.id }), original);
-  const { code, css, ...metadata } = original;
+  const { css, sourceFiles, ...metadata } = original;
   assert.deepEqual(listRecipes().find(recipe => recipe.id === original.id), metadata);
 });
