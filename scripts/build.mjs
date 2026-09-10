@@ -8,7 +8,7 @@ import { thanks } from '../content/thanks.mjs';
 import { workshop } from '../content/playground.mjs';
 import { adoptionQuestions, adoptionPrompt } from '../content/adoption.mjs';
 import { buildLibraryDocs } from './library-docs.mjs';
-import { starter } from '../site/assets/playground-runtime.js';
+import { starter } from './build-workshop-starter.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const out = resolve(root, 'dist');
@@ -77,7 +77,7 @@ await writeFile(resolve(out, 'assets/playground-export.js'), exportModule);
 await writeFile(resolve(out, 'assets/playground-recipes.js'), recipeModule);
 const agentBrief = await readFile(resolve(root, 'site/agent-prompt.md'), 'utf8');
 if (agentBrief.split('<!-- playground-starter -->').length !== 2) throw new Error('Expected exactly one playground starter marker in the agent brief.');
-const compiledBrief = agentBrief.replace('<!-- playground-starter -->', () => `\`\`\`js\n${starter.code}\n\`\`\``);
+const compiledBrief = agentBrief.replace('<!-- playground-starter -->', () => `\`\`\`js\n${starter.code}\n\`\`\`\n\n\`\`\`css\n${starter.css}\`\`\``);
 if (workshop.split('<!-- workshop-brief -->').length !== 2) throw new Error('Expected exactly one inline workshop brief marker.');
 const renderedWorkshop = workshop.replace('<!-- workshop-brief -->', () => escape(compiledBrief));
 await writeFile(resolve(out, 'agent-prompt.md'), compiledBrief);

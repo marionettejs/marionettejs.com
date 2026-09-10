@@ -188,7 +188,8 @@ For the ownership regression, after building and starting the preview, run:
 node test/browser/playground-ownership.mjs
 ```
 
-Open the printed local URL and verify `8 BROWSER CHECKS PASSED`. This uses the real
+Open the printed local URL, click **Run ownership checks**, and verify
+`18 BROWSER CHECKS PASSED`. This uses the real
 pinned library in the sandbox to exercise independent state, a nested control click,
 template data, replacement, and destruction. It is a browser check, not part of the
 Node-only test command. The build generates the agent brief's code example from the

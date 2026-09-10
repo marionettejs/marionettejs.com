@@ -7,8 +7,8 @@ import { starter, version, revision, validateApp, validateAction, runnerDocument
 import { codePenData } from '../site/assets/playground-export.js';
 
 test('CodePen export preserves the draft and exact runtime without HTML parser breakouts', async () => {
-  const vendor = await readFile(new URL('../site/vendor/marionette.js', import.meta.url), 'utf8');
-  const license = await readFile(new URL('../site/vendor/MARIONETTE-LICENSE.txt', import.meta.url), 'utf8');
+  const vendor = await readFile(new URL('../site/vendor/demos.js', import.meta.url), 'utf8');
+  const license = await readFile(new URL('../site/vendor/DEMOS-LICENSE.txt', import.meta.url), 'utf8');
   const app = { ...starter, title: 'Quotes " & 한국어 </script>', code: `${starter.code}\n// unsaved edit: </script>` };
   const output = codePenData(app, vendor, license);
   assert.equal(output.title, app.title);
@@ -25,6 +25,9 @@ test('CodePen export preserves the draft and exact runtime without HTML parser b
 test('the discoverable brief embeds the exact executable starter', async () => {
   const brief = await readFile(new URL('../dist/agent-prompt.md', import.meta.url), 'utf8');
   assert.ok(brief.includes(`\`\`\`js\n${starter.code}\n\`\`\``));
+  assert.ok(brief.includes(`\`\`\`css\n${starter.css}\`\`\``));
+  assert.equal(starter.code, (await readFile(new URL('../site/workshop/app.js', import.meta.url), 'utf8')).trimEnd());
+  assert.equal(starter.css, await readFile(new URL('../site/workshop/style.css', import.meta.url), 'utf8'));
   assert.ok(!brief.includes('<!-- playground-starter -->'));
 });
 
@@ -63,10 +66,10 @@ test('HTML parser breakouts stay inside serialized app data and policy precedes 
 });
 
 test('download contains the same pinned library, license and sandboxed standalone app', async () => {
-  const vendor = await readFile(new URL('../site/vendor/marionette.js', import.meta.url), 'utf8');
-  const license = await readFile(new URL('../site/vendor/MARIONETTE-LICENSE.txt', import.meta.url), 'utf8');
+  const vendor = await readFile(new URL('../site/vendor/demos.js', import.meta.url), 'utf8');
+  const license = await readFile(new URL('../site/vendor/DEMOS-LICENSE.txt', import.meta.url), 'utf8');
   const output = standaloneDocument(starter, vendor, license, randomUUID());
-  assert.match(output, /sandbox="allow-scripts"/);
+  assert.match(output, /sandbox="allow-scripts allow-forms"/);
   assert.ok(!output.includes('allow-same-origin'));
   assert.ok(!output.includes('<script src='));
   assert.match(output, /13f4954c352e646c413091ffdd83f6da59404573/);
