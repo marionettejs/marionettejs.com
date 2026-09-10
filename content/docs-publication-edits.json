@@ -1,6 +1,6 @@
 {
   "packageVersion": "5.0.0-beta.2",
-  "reason": "Publication wording and editorial corrections for website reading copies. Original npm documentation remains byte-for-byte available under /docs/markdown/.",
+  "reason": "Website reading copies include publication wording, editorial corrections, and supplemental consumer guidance checked against published beta.2. Original npm documentation remains byte-for-byte available under /docs/markdown/.",
   "edits": [
     {
       "source": "docs/installation.md",
@@ -166,6 +166,26 @@
       "source": "docs/beta.md",
       "before": "Move the selected npm tag (`latest` before the first stable v5) only to a verified compatible prior release; if beta.1 is the first one,\nthere is no earlier beta to select.",
       "after": "Move the selected npm tag (`latest` before the first stable v5) only to a verified compatible prior release.\nBeta.1 is the previous published beta; verify the affected application still works\nwith its earlier API and tooling before recommending a rollback."
+    },
+    {
+      "source": "docs/agent-tools.md",
+      "before": "| Context7 |",
+      "after": "| Hosted documentation MCP | Optional search, complete document pagination, and recipe retrieval at https://mcp.marionettejs.com/mcp | Public and read-only; match catalog version and revision. Bundled Markdown remains the installed-version reference. [Client setup](https://marionettejs.com/docs/mcp/). |\n| Context7 |"
+    },
+    {
+      "source": "docs/agents.md",
+      "before": "lifecycle. A plain function or class is enough when it needs none of these\ncontracts. The [class guide](./classes.md) explains the boundaries.\n\nConfigure the selected runtime before creating its consumers. The default named\nexports share a runtime. Use [runtime isolation](./runtime-isolation.md) when\nindependent configurations must coexist; do not create a runtime per View.\n",
+      "after": "lifecycle. A plain function or class is enough when it needs none of these\ncontracts. The [class guide](./classes.md) explains the boundaries.\n\nBefore expanding a small example into an application, revisit its data and ownership\nchoices. A recipe demonstrating manually managed children is not a default data\narchitecture for a todo application. Domain records belong in a data source;\nCollectionView children are their presentation. Do not use child View traversal as\nthe application's record store. Plain arrays can remain appropriate for explicit\nsnapshot updates. When records need shared observation, filtering, and coordinated\nupdates, select an observable provider; for a new application without one, start\nwith `@mnjs/data` and its [DataApi setup](./data.api.md).\n\nNative DOM defaults describe the integration, not a replacement for View composition.\nRender ordinary content through `template` and `templateContext`, place child Views\nthrough named Regions, and declare controls with `ui`, `events`, and `triggers`.\nUse `events` when the handler needs input or keyboard details; use `triggers` when\nan interaction should become a View event. Direct DOM work still belongs at real\nintegration boundaries, such as focus, measurements, and an external animation or\nwidget. Keep its lifetime with the owning View.\n\nObserve each field used by a template or derived display, including changes that\ndo not come from its main button. Let CollectionView handle membership changes\nwithout a second whole-list render subscription. Keep focused editors stable\nwhen processing their own input.\n\nWhen building teaching examples, make the application runnable independently of\nnarration and inspection. Prefer ordinary modules with explicit imports and exports.\nCheck that the preview supports the selected packages and module structure; a tiny\nsandbox's restrictions should not silently become the recommended app architecture.\n\nConfigure the selected runtime before creating its consumers. The default named\nexports share a runtime. Use [runtime isolation](./runtime-isolation.md) when\nindependent configurations must coexist; do not create a runtime per View.\n"
+    },
+    {
+      "source": "docs/agents.md",
+      "before": "interactions. Use documented public APIs for assertions rather than private\nframework fields.\n\nWhen reporting a change, name the behavior, the tested package/source, the exact\ncommands or interactions performed, and any untested boundary. Keep changes\nfocused and avoid introducing runtime instrumentation merely to help an agent\n",
+      "after": "interactions. Use documented public APIs for assertions rather than private\nframework fields.\n\nReview the architecture separately from interaction results: identify the data\nsource, the Views and Regions that own the screen, and the external work each owner\nreleases. Working buttons do not establish that the example teaches those contracts.\nFor observable data, change the source directly and verify all intended consumers\nupdate. For attachment-bound resources, also detach and reattach the same View;\nreplacement alone does not prove that repeated attachment releases resources.\n\nWhen reporting a change, name the behavior, the tested package/source, the exact\ncommands or interactions performed, and any untested boundary. Keep changes\nfocused and avoid introducing runtime instrumentation merely to help an agent\n"
+    },
+    {
+      "source": "docs/choosing-integrations.md",
+      "before": "import BackboneApi from '@mnjs/adapters/backbone';\n\nconst AccountView = View.extend({\n  template: () => '<span class=\"name\"></span>',\n  modelEvents: { change: 'render' },\n  onRender() {\n    this.el.querySelector('.name').textContent = this.model.get('name');\n  }\n});\nAccountView.setDataApi(BackboneApi);\n```\n",
+      "after": "import BackboneApi from '@mnjs/adapters/backbone';\n\nconst AccountView = View.extend({\n  template: ({ active }) => `<span>${active ? 'Active' : 'Inactive'}</span>`,\n  modelEvents: { change: 'render' }\n});\nAccountView.setDataApi(BackboneApi);\n```\n"
     }
   ],
   "channel": "latest"
