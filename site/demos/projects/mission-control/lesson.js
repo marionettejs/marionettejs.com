@@ -49,7 +49,8 @@ export const MissionLesson = LessonController.extend({
     const view = this.view;
     const app = view.application;
     if (this.application !== app) {
-      this.phase = this.root = this.current = null;
+      if (this.root) this.stopListening(this.root);
+      this.phase = this.root = this.current = this.retired = null;
       this.application = app;
       this.applicationRegion = app.getRegion();
     }

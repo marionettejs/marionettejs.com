@@ -486,13 +486,19 @@ try {
       for (let step = 0; step < 4; step++) await penPage.locator('#open-station').click();
       await penPage.locator('.flight-chapter').click();
       await penPage.locator('#guided-flight').click();
+      await penPage.locator('#cancel-flight').click();
+      await penPage.locator('#guided-flight').click();
       assert.equal(await penPage.evaluate(async () => {
-        const view = window.demoModule.controller.view;
+        const controller = window.demoModule.controller;
+        if (!controller.retired) throw new Error('Expected a retired flight before rerender');
+        const view = controller.view;
         const app = view.application;
         const deck = app.getView();
+        if (!Object.values(controller._rdListeningTo || {}).some(listener => listener.obj === deck)) throw new Error('Expected controller subscriptions to the flight screen');
         view.render();
         await app.destroy();
-        return deck.isDestroyed() && view.phase === 'closed';
+        const detached = !Object.values(controller._rdListeningTo || {}).some(listener => listener.obj === deck);
+        return deck.isDestroyed() && view.phase === 'closed' && controller.retired === null && detached;
       }), true, 'Rerender destroys the prior flight screen');
     }
     // The app's module is reusable with no teaching controller mounted.
