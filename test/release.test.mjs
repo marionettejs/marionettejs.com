@@ -47,6 +47,22 @@ test('release reading copies announce publication while the package source stays
   }
 });
 
+test('routing reading copies publish reviewed guidance without replacing the beta archive', async () => {
+  const revision = 'b777333934af5414256edab85c34c37ab20953f1';
+  const reading = await read('dist/docs/routing.md');
+  const html = await read('dist/docs/routing/index.html');
+  for (const output of [reading, html]) {
+    assert.match(output, /Use the Navigation API/);
+    assert.match(output, /Connect Backbone.Router/);
+    assert.ok(output.includes(`${revision}/docs/routing.md`));
+    assert.ok(output.includes(`${revision}/test/browser/docs-routing.test.mjs`));
+    assert.ok(output.includes(`${revision}/test/fixtures/docs-routing/validate.mjs`));
+  }
+  assert.doesNotMatch(reading, /status\.textContent|querySelector\('h1'\)/);
+  assert.equal(await read('dist/docs/markdown/docs/routing.md'),
+    await read('node_modules/marionette/dist/docs/docs/routing.md'));
+});
+
 test('legacy worker retirement clears only its precache and unregisters before reloading', async () => {
   const events = {}, calls = [];
   runInNewContext(await read('site/sw.js'), {
