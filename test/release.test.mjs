@@ -57,8 +57,8 @@ test('routing reading copies publish reviewed guidance without replacing the bet
     assert.ok(output.includes(`${revision}/docs/routing.md`));
     assert.ok(output.includes(`${revision}/test/browser/docs-routing.test.mjs`));
     assert.ok(output.includes(`${revision}/test/fixtures/docs-routing/validate.mjs`));
-    assert.doesNotMatch(output, /status\.textContent|querySelector\('h1'\)/);
   }
+  assert.doesNotMatch(reading, /status\.textContent|querySelector\('h1'\)/);
   assert.equal(await read('dist/docs/markdown/docs/routing.md'),
     await read('node_modules/marionette/dist/docs/docs/routing.md'));
 });
