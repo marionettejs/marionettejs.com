@@ -54,11 +54,12 @@ test('routing reading copies publish reviewed guidance without replacing the bet
   for (const output of [reading, html]) {
     assert.match(output, /Use the Navigation API/);
     assert.match(output, /Connect Backbone.Router/);
-    assert.ok(output.includes(`${revision}/docs/routing.md`));
     assert.ok(output.includes(`${revision}/test/browser/docs-routing.test.mjs`));
     assert.ok(output.includes(`${revision}/test/fixtures/docs-routing/validate.mjs`));
   }
   assert.doesNotMatch(reading, /status\.textContent|querySelector\('h1'\)/);
+  const publication = JSON.parse(await read('dist/docs/publication.json'));
+  assert.equal(publication.edits.find(edit => edit.source === 'docs/routing.md').sourceRevision, revision);
   assert.equal(await read('dist/docs/markdown/docs/routing.md'),
     await read('node_modules/marionette/dist/docs/docs/routing.md'));
 });

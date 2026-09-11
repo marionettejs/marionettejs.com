@@ -14,7 +14,7 @@
 .canonical-docs .docs-prose :is(h1,h2,h3,h4) { scroll-margin-top: 25px; }
 .canonical-docs .docs-prose code { overflow-wrap: anywhere; }
 .canonical-docs .docs-prose pre code { overflow-wrap: normal; }
-.canonical-docs .docs-prose table { display: block; overflow-x: auto; width: 100%; border-collapse: collapse; font-size: .85rem; line-height: 1.55; }
+.canonical-docs .docs-prose table { display: block; overflow-x: auto; width: 100%; margin-bottom: 20px; border-collapse: collapse; font-size: .85rem; line-height: 1.55; }
 .canonical-docs .docs-prose :is(td,th) { padding: 10px 12px; border: 1px solid var(--line); min-width: 100px; vertical-align: top; }
 .canonical-docs .docs-prose th { color: var(--red); text-align: left; }
 .canonical-docs .docs-prose img { max-width: 100%; }
