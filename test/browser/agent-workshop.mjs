@@ -859,6 +859,27 @@ export function increment() { count += amount; }`,
   }
   await page.screenshot({ path: 'output/playwright/diagnostic-mobile.png', fullPage: true });
   console.log('PASS development reading path: desktop guide and three phone-width pages');
+  for (const width of [1280, 375]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`http://127.0.0.1:${server.address().port}/docs/routing/`);
+    const table = page.locator('.docs-prose table');
+    await table.scrollIntoViewIfNeeded();
+    const spacing = await table.evaluate(element => {
+      const paragraph = element.nextElementSibling;
+      return {
+        nextTag: paragraph.tagName,
+        gap: paragraph.getBoundingClientRect().top - element.getBoundingClientRect().bottom,
+        paragraphSpacing: parseFloat(getComputedStyle(paragraph).marginBottom),
+        fitsViewport: document.documentElement.scrollWidth <= window.innerWidth
+      };
+    });
+    assert.equal(spacing.nextTag, 'P');
+    assert.ok(spacing.gap >= spacing.paragraphSpacing && spacing.gap > 0,
+      `Table-to-paragraph spacing at ${width}px matches paragraph spacing`);
+    assert.equal(spacing.fitsViewport, true, `Routing guide fits ${width}px viewport`);
+    await page.screenshot({ path: `output/playwright/routing-spacing-${width}.png` });
+  }
+  console.log('PASS routing layout: table-to-paragraph spacing at desktop and phone widths');
   assert.deepEqual(pageErrors, []);
 } finally {
   await browser.close();
