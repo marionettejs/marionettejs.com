@@ -32,6 +32,24 @@ Plans and original assets live in ../marionettejs-branding. No fabricated benchm
 endorsements, release readiness, or testimonials. Keep public-facing copy candid,
 lightly humorous, and precise about what has actually been demonstrated.
 
+## Consumer documentation
+
+Teach readers how to build with Marionette. Keep PR numbers, review history,
+deployment bookkeeping, and archive-preservation notes out of instructional prose.
+Put provenance in structured publication metadata and release details in PRs or
+deployment reports. Mention versions in a guide when they affect installation,
+API behavior, or compatibility.
+
+Before adding prose, ask whether it helps the reader choose, implement, or verify
+something, and whether it belongs without knowledge of our development process.
+Tests should protect useful reader-facing behavior, not require internal process
+narration to appear in a guide.
+
+Inspect rendered documentation at desktop and narrow widths after presentation
+changes. Check spacing between tables, paragraphs, headings, lists, and code blocks,
+as well as wrapping and horizontal overflow. Fix shared presentation in docs CSS,
+not with blank lines or HTML spacers in Markdown. Record what was actually checked.
+
 Marketing, support links, and imported library docs share this repository and one build.
 Deploy the complete artifact; do not deploy from the historical marionettejs.com
 checkouts. Update the docs snapshot with `npm run docs:import` rather than replacing
