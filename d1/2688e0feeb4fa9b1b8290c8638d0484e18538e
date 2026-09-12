@@ -1,0 +1,21 @@
+content/docs-publication-edits.json
+  s_fd459bdf096d6f::t_1d0c8be3356c49 185-208
+test/agent-setup.test.mjs
+  s_fd459bdf096d6f::t_4bed9f264c7fe3 18-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d12688e0feeb4fa9b1b8290c8638d0484e18538e",
+  "prompts": {},
+  "sessions": {
+    "s_fd459bdf096d6f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09389-7143-7320-8968-211a01580156",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
