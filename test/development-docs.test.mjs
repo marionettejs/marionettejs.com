@@ -15,7 +15,7 @@ test('development guides preserve the matching published library source', async 
   for (const page of pages) {
     assert.equal(await readFile(`dist/docs/markdown/${page.source}`, 'utf8'), page.markdown);
     const html = await readFile(`dist/${page.route}/index.html`, 'utf8');
-    assert.ok(html.includes('Published on npm.'));
+    assert.ok(html.includes('npm archive. Reading source:'));
     assert.ok(html.includes(manifest.sourceRevision.slice(0, 8)));
     assert.ok(html.includes(`/${page.route}.md`));
   }

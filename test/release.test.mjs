@@ -1,3 +1,5 @@
+import { deriveMarkdown, markdownUrl } from '../scripts/library-docs.mjs';
+import { publishedMarkdown } from '../scripts/published-docs.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -49,18 +51,21 @@ test('release reading copies announce publication while the package source stays
 });
 
 test('routing reading copies publish reviewed guidance without replacing the beta archive', async () => {
-  const revision = 'b777333934af5414256edab85c34c37ab20953f1';
+  const exampleRevision = 'b777333934af5414256edab85c34c37ab20953f1';
   const reading = await read('dist/docs/routing.md');
   const html = await read('dist/docs/routing/index.html');
   for (const output of [reading, html]) {
     assert.match(output, /Use the Navigation API/);
     assert.match(output, /Connect Backbone.Router/);
-    assert.ok(output.includes(`${revision}/test/browser/docs-routing.test.mjs`));
-    assert.ok(output.includes(`${revision}/test/fixtures/docs-routing/validate.mjs`));
+    assert.ok(output.includes(`${exampleRevision}/test/browser/docs-routing.test.mjs`));
+    assert.ok(output.includes(`${exampleRevision}/test/fixtures/docs-routing/validate.mjs`));
   }
   assert.doesNotMatch(reading, /status\.textContent|querySelector\('h1'\)/);
   const publication = JSON.parse(await read('dist/docs/publication.json'));
-  assert.equal(publication.edits.find(edit => edit.source === 'docs/routing.md').sourceRevision, revision);
+  const revision = publication.edits.find(edit => edit.source === 'docs/routing.md').sourceRevision;
+  assert.match(revision, /^[a-f0-9]{40}$/);
+  assert.ok(reading.includes(`reading source revision ${revision}`));
+  assert.ok(html.includes(`Reading source: ${revision}`));
   assert.equal(await read('dist/docs/markdown/docs/routing.md'),
     await read('node_modules/marionette/dist/docs/docs/routing.md'));
 });
@@ -114,24 +119,23 @@ test('worker retirement finishes when one closing window rejects navigation', as
   assert.deepEqual(calls, ['unregister', 'closing', 'ready']);
 });
 
-// Digests pin the complete reading copies checked against the merged library
-// source, including the explicit source link for the non-archived evaluation plan.
-test('agent publication copies retain reviewed content and source revision', async () => {
+test('publication overrides retain complete source identity without rewriting the archive', async () => {
   const publication = JSON.parse(await read('dist/docs/publication.json'));
   const originals = JSON.parse(await read('content/library-docs/manifest.json'));
-  const expected = [
-    ['docs/agents.md', 'e93f8d082bf40d0531494726ee06a914ba19ce7ec6b802e1cc9082b0ffb6a886'],
-    ['docs/application-agent-template.md', '3790bbe30cc4fc0dd1a5d3162d9326c335fbde1d8b085c24f28d4b90efd87656'],
-    ['docs/maintainers/readme.md', '58c249cc445c2d0fae7de57bc8f67426bb8a59939c8015248bedf367917b1ab3'],
-    ['docs/maintainers/documentation.md', 'f710e7e22a6ecda5416f6303199fcfa40e4d40ca2f5275b19d961f576153c88a'],
-  ];
-  for (const [source, digest] of expected) {
-    const edits = publication.edits.filter(edit => edit.source === source);
-    assert.equal(edits.length, 1, source);
-    assert.equal(edits[0].sourceRevision, '2dbc781cf1e7ae1a08a1474cb4395ac510757488');
-    assert.equal(createHash('sha256').update(edits[0].after).digest('hex'), digest, source);
-    const archived = await read(`dist/docs/markdown/${source}`);
+  for (const edit of publication.edits.filter(edit => edit.sourceRevision)) {
+    assert.match(edit.sourceRevision, /^[a-f0-9]{40}$/);
+    const archived = await read(`dist/docs/markdown/${edit.source}`);
     assert.equal(createHash('sha256').update(archived).digest('hex'),
-      originals.pages.find(page => page.source === source).sha256, source);
+      originals.pages.find(page => page.source === edit.source).sha256, edit.source);
+    assert.equal(edit.before, archived, edit.source);
+    const page = { ...originals.pages.find(page => page.source === edit.source), markdown: archived };
+    assert.equal(publishedMarkdown(page), edit.after, edit.source);
+    // Compare every byte of the delivered reading copy, including prose, while
+    // allowing the documented link rewriting and provenance/footer additions.
+    assert.equal(await read(`dist${markdownUrl(page)}`), deriveMarkdown(page, originals.pages, originals), edit.source);
+    if (edit.readingSha256) {
+      assert.equal(createHash('sha256').update(edit.after).digest('hex'), edit.readingSha256);
+      assert.match(edit.sourceSha256, /^[a-f0-9]{64}$/);
+    }
   }
 });

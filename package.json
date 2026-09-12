@@ -20,7 +20,8 @@
     "mcp:dev": "wrangler dev --ip 127.0.0.1",
     "mcp:deploy": "wrangler deploy",
     "test:mcp:http": "node --test test/mcp-http.test.mjs",
-    "vendor:demos": "node scripts/build-demo-vendor.mjs"
+    "vendor:demos": "node scripts/build-demo-vendor.mjs",
+    "docs:sync": "node scripts/docs-sync/prepare.mjs"
   },
   "devDependencies": {
     "@babel/parser": "8.0.4",

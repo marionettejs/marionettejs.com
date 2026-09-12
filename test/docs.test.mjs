@@ -192,3 +192,26 @@ test('diagnostic link rewrites preserve fenced, indented, and inline code exampl
   assert.equal((html.match(/href="\/errors\/MN0023\/"/g) || []).length, 1);
   assert.equal((html.match(/diagnostic-catalog.md#look-up-a-code/g) || []).length, 4);
 });
+
+test('explicit source revisions remain pinned while relative and branch links use the reading revision', async () => {
+  const { manifest, pages } = await readSnapshot(source);
+  const page = pages.find(page => page.source === 'docs/routing.md');
+  const publication = JSON.parse(await readFile(resolve(root, 'content/docs-publication-edits.json'), 'utf8'));
+  const revision = publication.edits.find(edit => edit.source === page.source).sourceRevision;
+  assert.notEqual(revision, manifest.sourceRevision);
+  const base = manifest.sourceRepository + '/blob/';
+  const links = [
+    [`${base}${manifest.sourceRevision}/test/routing-check.mjs#example`, `${base}${manifest.sourceRevision}/test/routing-check.mjs#example`],
+    [`${base}${manifest.sourceRevision}/docs/readme.md`, `${base}${manifest.sourceRevision}/docs/readme.md`],
+    [`${base}${'a'.repeat(40)}/test/routing-check.mjs`, `${base}${'a'.repeat(40)}/test/routing-check.mjs`],
+    [`${base}master/test/routing-check.mjs`, `${base}${revision}/test/routing-check.mjs`],
+    ['../test/routing-check.mjs', `${base}${revision}/test/routing-check.mjs`],
+  ];
+  const sample = { ...page, markdown: page.markdown + links.map(([href], index) => `\n[Example ${index}](${href})\n`).join('') };
+  const html = renderMarkdown(sample, pages, manifest).html;
+  const markdown = deriveMarkdown(sample, pages, manifest);
+  for (const [, expected] of links) {
+    assert.ok(html.includes(`href="${expected}"`), expected);
+    assert.ok(markdown.includes(`](${expected})`), expected);
+  }
+});
