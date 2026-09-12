@@ -43,6 +43,9 @@ export async function verifyMcp(endpoint) {
     for (const query of ['Region', 'safely textContent', 'preserve draft while another list row changes', 'cancellation async startup', 'how do I diagnose MN0023?', 'zzzznosuchcontract', '__proto__', 'constructor', 'a'.repeat(200), 'View Region state data collection events render template lifecycle model application destroy '.repeat(2)]) {
       await call('search_docs', { query, limit: 10 });
     }
+    // Concurrent requests must retain independent results despite shared corpus data.
+    await Promise.all(Array.from({ length: 12 }, (_, i) =>
+      call('search_docs', { query: i % 2 ? 'zzzznosuchcontract' : 'Region', offset: i % 3, limit: 2 })));
     let offset = 0, ids = [];
     do {
       const page = await call('search_docs', { query: 'Region', offset, limit: 2 });

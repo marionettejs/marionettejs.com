@@ -1,9 +1,9 @@
 import { createMcpHandler } from 'agents/mcp/server';
-import { createDocsServer } from './tools.mjs';
+import { createDocsServerFactory } from './tools.mjs';
 import snapshot from '../output/mcp/snapshot.json';
 
 const MAX_BODY_BYTES = 16_384;
-const handler = createMcpHandler(() => createDocsServer(snapshot), {
+const handler = createMcpHandler(createDocsServerFactory(snapshot), {
   route: '/mcp', responseMode: 'json', maxSubscriptions: 0,
   // Current Streamable HTTP clients still initialize using the legacy wire
   // protocol. This SDK-supported lane is also stateless (no sessions or SSE).

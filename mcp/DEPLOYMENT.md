@@ -42,12 +42,21 @@ node scripts/benchmark-mcp.mjs
 npx --no-install wrangler deploy --dry-run --outdir output/worker
 ```
 
-The CPU benchmark measures Node thread CPU for the SDK request handler, including
-server creation, search, and serialization. It excludes imports and snapshot
-preparation. It is a preflight estimate, not Workers billing/limit telemetry.
-Record local hardware/runtime and results. `node scripts/sample-mcp.mjs <endpoint>`
-generates a bounded 240-request search-only window for those metrics. Check deployed CPU percentiles and
-errors in Cloudflare Workers Metrics after a bounded search-only sample.
+The benchmark runs the actual Worker entrypoint in local workerd, including the
+Cloudflare adapter and bounded request-body wrapper. It covers initialization,
+catalog, tool listing, document/example retrieval, and bounded search cases across
+both supported wire protocols. Run `node scripts/benchmark-mcp.mjs <label>` before
+and after a change. It saves per-operation DevTools `.cpuprofile` files and a JSON
+report under `output/`. Profiles include warmup; loopback elapsed percentiles
+exclude the first 20 of 120 requests per case. These times include local I/O and
+are not CPU billing metrics. Inspector sampling identifies candidate hot frames;
+small differences are not proof of improvement. Module startup is not profiled.
+
+Record hardware/runtime and results. `node scripts/sample-mcp.mjs <endpoint>`
+generates a bounded 240-request search-only window. Check deployed CPU percentiles
+and errors in Cloudflare Workers Metrics for that exact window and version; keep
+full verification traffic outside the sample window. Do not attribute a mixed
+traffic tail percentile to search or claim local timings establish Free compliance.
 
 Confirm the active account with `wrangler whoami`, Workers Free in the dashboard,
 and the previous Pages deployment ID. Wrangler may warn that the authorization
