@@ -262,11 +262,18 @@ until installation succeeds. A failed install restores it automatically; after
 an interrupted process, the next import restores a missing target before reading
 new input. If a build is needed first, rename the backup to `content/library-docs/`.
 
-Development and troubleshooting are part of the same published snapshot. Import
-all guides together with `npm run docs:import -- /absolute/path/to/marionette/.docs-export`. The browser check executes their
+Development and troubleshooting are part of the same published snapshot. For an npm release, import
+all guides together with `npm run docs:import -- /absolute/path/to/package/dist/docs`. The browser check executes their
 actual failing/corrected snippets against the matching published demo bundle.
 The previously shared `/development/` and `/troubleshooting/` URLs redirect to
 `/docs/development/` and `/docs/troubleshooting/`. Their old manifest and source
 URLs also redirect to the matching canonical snapshot; retain those redirects while
 external references use them, and remove only after references migrate and access
 logs show no use. These checks do not authorize deploying the site.
+
+## Library documentation sync
+
+[`scripts/docs-sync/README.md`](scripts/docs-sync/README.md) describes the single
+automated reading-copy sync, credentials, failure recovery, and manual deployment
+boundary. Ordinary library documentation merges update publication edits through
+one reviewed PR. Only explicit npm-release imports replace `content/library-docs/`.

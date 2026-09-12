@@ -1,6 +1,6 @@
 import { diagnosticExamples } from './development-docs.mjs';
 import { buildAgentDiscovery } from './agent-discovery.mjs';
-import { publishedMarkdown, publishedChannel } from './published-docs.mjs';
+import { publishedMarkdown, publishedChannel, readingRevision } from './published-docs.mjs';
 import { readFile, mkdir, writeFile, realpath } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { resolve, dirname, posix, relative, isAbsolute, sep } from 'node:path';
@@ -67,7 +67,7 @@ function linkResolver(page, pages, manifest, format = 'html') {
     const [pathname, fragment] = (github ? github[2] : href).split('#');
     const source = github ? pathname : posix.normalize(posix.join(posix.dirname(page.source), pathname));
     const target = bySource.get(source);
-    return `${target ? (format === 'markdown' ? markdownUrl(target) : pageUrl(target)) : resources.has(source) ? `/docs/source/${source}` : githubUrl(manifest, source)}${fragment ? `#${fragment}` : ''}`;
+    return `${target ? (format === 'markdown' ? markdownUrl(target) : pageUrl(target)) : resources.has(source) ? `/docs/source/${source}` : githubUrl({ ...manifest, sourceRevision: readingRevision(page, manifest) }, source)}${fragment ? `#${fragment}` : ''}`;
   };
 }
 
@@ -120,7 +120,7 @@ export async function buildLibraryDocs({ directory, out, shell }) {
   for (const page of pages) {
     const { html, headings } = renderMarkdown(page, pages, manifest);
     const provenance = `${manifest.packageVersion} · Published beta · ${manifest.sourceRevision.slice(0, 8)}${manifest.sourceDirty ? ' + local changes' : ''}`;
-    const body = `<div class="docs-layout canonical-docs">${sidebar(page, pages)}<article class="prose docs-prose" data-pagefind-body><div class="docs-breadcrumb" data-pagefind-ignore>${escapeHtml(page.section)}</div><div class="docs-tools" data-pagefind-ignore><a href="${markdownUrl(page)}">Read Markdown</a><button type="button" data-copy-markdown="${markdownUrl(page)}">Copy Markdown</button><a href="${canonicalSourceUrl(page)}">Canonical source</a><a href="/docs/manifest.json">Source details</a><a href="/docs/development/">Current development starter</a><a href="/docs/troubleshooting/">Troubleshooting</a><a href="/docs/agent-start/">Agent entrypoint</a><span class="copy-status" role="status"></span></div><p class="docs-version" data-pagefind-ignore>${escapeHtml(provenance)}. Published on npm. Match your installed version.</p><span hidden data-pagefind-filter="Audience">${page.section === 'Maintaining Marionette' ? 'Maintainers' : 'Consumer'}</span>${html}${adjacentPages(page, pages)}</article><aside class="docs-margin"><nav aria-label="On this page"><p class="eyebrow">ON THIS PAGE</p>${headings.filter(item => item.depth === 2).map(item => `<a href="#${escapeHtml(item.id)}">${item.text.replace(/<[^>]*>/g, '')}</a>`).join('')}</nav><div class="docs-note"><p>The homepage demo runs this beta. Reading copies include publication wording updates; original packaged sources remain available above.</p><a href="/reference/provenance.json">Demo source notes ↗</a></div></aside></div>`;
+    const body = `<div class="docs-layout canonical-docs">${sidebar(page, pages)}<article class="prose docs-prose" data-pagefind-body><div class="docs-breadcrumb" data-pagefind-ignore>${escapeHtml(page.section)}</div><div class="docs-tools" data-pagefind-ignore><a href="${markdownUrl(page)}">Read Markdown</a><button type="button" data-copy-markdown="${markdownUrl(page)}">Copy Markdown</button><a href="${canonicalSourceUrl(page)}">Canonical source</a><a href="/docs/manifest.json">Source details</a><a href="/docs/development/">Current development starter</a><a href="/docs/troubleshooting/">Troubleshooting</a><a href="/docs/agent-start/">Agent entrypoint</a><span class="copy-status" role="status"></span></div><p class="docs-version" data-pagefind-ignore>${escapeHtml(provenance)} npm archive. Reading source: ${readingRevision(page, manifest)}. Match APIs to your installed version.</p><span hidden data-pagefind-filter="Audience">${page.section === 'Maintaining Marionette' ? 'Maintainers' : 'Consumer'}</span>${html}${adjacentPages(page, pages)}</article><aside class="docs-margin"><nav aria-label="On this page"><p class="eyebrow">ON THIS PAGE</p>${headings.filter(item => item.depth === 2).map(item => `<a href="#${escapeHtml(item.id)}">${item.text.replace(/<[^>]*>/g, '')}</a>`).join('')}</nav><div class="docs-note"><p>The homepage demo runs this beta. Reading copies include later documentation changes and publication wording; original packaged sources remain available above.</p><a href="/reference/provenance.json">Demo source notes ↗</a></div></aside></div>`;
     const rendered = shell({ title: page.title, description: `${page.title}. Marionette ${manifest.packageVersion} documentation.`, active: 'docs', body, route: `/${page.route}/`, markdown: markdownUrl(page) });
     await mkdir(resolve(out, page.route), { recursive: true });
     await writeFile(resolve(out, page.route, 'index.html'), rendered);
@@ -232,5 +232,5 @@ export function deriveMarkdown(page, pages, manifest, { sourceUrl = canonicalSou
   flush();
   const lines = chunks.join('\n');
   const title = /^# /m.test(page.markdown) ? '' : `# ${page.title}\n\n`;
-  return `<!-- Documentation snapshot: package ${manifest.packageVersion}; channel ${publishedChannel(manifest)}; archived channel ${manifest.channel}; base revision ${manifest.sourceRevision}; local changes ${manifest.sourceDirty}; original source SHA-256 ${page.sha256}. -->\n\n${title}${lines}\n\n[Canonical source](${sourceUrl}) · [Source identity](${manifestUrl})\n`;
+  return `<!-- Documentation snapshot: package ${manifest.packageVersion}; channel ${publishedChannel(manifest)}; archived channel ${manifest.channel}; base revision ${manifest.sourceRevision}; local changes ${manifest.sourceDirty}; original source SHA-256 ${page.sha256}; reading source revision ${readingRevision(page, manifest)}; publication edits /docs/publication.json. -->\n\n${title}${lines}\n\n[Canonical source](${sourceUrl}) · [Source identity](${manifestUrl})\n`;
 }

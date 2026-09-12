@@ -114,24 +114,18 @@ test('worker retirement finishes when one closing window rejects navigation', as
   assert.deepEqual(calls, ['unregister', 'closing', 'ready']);
 });
 
-// Digests pin the complete reading copies checked against the merged library
-// source, including the explicit source link for the non-archived evaluation plan.
-test('agent publication copies retain reviewed content and source revision', async () => {
+test('publication overrides retain complete source identity without rewriting the archive', async () => {
   const publication = JSON.parse(await read('dist/docs/publication.json'));
   const originals = JSON.parse(await read('content/library-docs/manifest.json'));
-  const expected = [
-    ['docs/agents.md', 'e93f8d082bf40d0531494726ee06a914ba19ce7ec6b802e1cc9082b0ffb6a886'],
-    ['docs/application-agent-template.md', '3790bbe30cc4fc0dd1a5d3162d9326c335fbde1d8b085c24f28d4b90efd87656'],
-    ['docs/maintainers/readme.md', '58c249cc445c2d0fae7de57bc8f67426bb8a59939c8015248bedf367917b1ab3'],
-    ['docs/maintainers/documentation.md', 'f710e7e22a6ecda5416f6303199fcfa40e4d40ca2f5275b19d961f576153c88a'],
-  ];
-  for (const [source, digest] of expected) {
-    const edits = publication.edits.filter(edit => edit.source === source);
-    assert.equal(edits.length, 1, source);
-    assert.equal(edits[0].sourceRevision, '2dbc781cf1e7ae1a08a1474cb4395ac510757488');
-    assert.equal(createHash('sha256').update(edits[0].after).digest('hex'), digest, source);
-    const archived = await read(`dist/docs/markdown/${source}`);
+  for (const edit of publication.edits.filter(edit => edit.sourceRevision)) {
+    assert.match(edit.sourceRevision, /^[a-f0-9]{40}$/);
+    const archived = await read(`dist/docs/markdown/${edit.source}`);
     assert.equal(createHash('sha256').update(archived).digest('hex'),
-      originals.pages.find(page => page.source === source).sha256, source);
+      originals.pages.find(page => page.source === edit.source).sha256, edit.source);
+    assert.equal(edit.before, archived, edit.source);
+    if (edit.readingSha256) {
+      assert.equal(createHash('sha256').update(edit.after).digest('hex'), edit.readingSha256);
+      assert.match(edit.sourceSha256, /^[a-f0-9]{64}$/);
+    }
   }
 });
