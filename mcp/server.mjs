@@ -1,9 +1,9 @@
 import { StdioServerTransport } from '@modelcontextprotocol/server/stdio';
 import { loadSnapshot } from './load.mjs';
-import { createDocsServer } from './tools.mjs';
+import { createDocsServerFactory } from './tools.mjs';
 
 async function main() {
-  const server = createDocsServer(await loadSnapshot());
+  const server = createDocsServerFactory(await loadSnapshot())();
   const transport = new StdioServerTransport();
   await server.connect(transport);
   process.stdin.once('end', () => { void server.close(); });
