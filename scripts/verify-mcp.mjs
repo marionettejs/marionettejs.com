@@ -43,6 +43,17 @@ export async function verifyMcp(endpoint) {
     for (const query of ['Region', 'safely textContent', 'preserve draft while another list row changes', 'cancellation async startup', 'how do I diagnose MN0023?', 'zzzznosuchcontract', '__proto__', 'constructor', 'a'.repeat(200), 'View Region state data collection events render template lifecycle model application destroy '.repeat(2)]) {
       await call('search_docs', { query, limit: 10 });
     }
+    // Concurrent requests must retain query-specific content and pagination.
+    const regionMatches = await call('search_docs', { query: 'Region', limit: 5 });
+    assert.ok(regionMatches.total > 5);
+    await Promise.all(Array.from({ length: 12 }, async (_, i) => {
+      const offset = i % 3;
+      const page = await call('search_docs', { query: i % 2 ? 'zzzznosuchcontract' : 'Region', offset, limit: 2 });
+      assert.equal(page.offset, offset);
+      assert.equal(page.total, i % 2 ? 0 : regionMatches.total);
+      assert.equal(page.nextOffset, i % 2 ? null : offset + 2);
+      assert.deepEqual(page.results, i % 2 ? [] : regionMatches.results.slice(offset, offset + 2));
+    }));
     let offset = 0, ids = [];
     do {
       const page = await call('search_docs', { query: 'Region', offset, limit: 2 });
