@@ -34,9 +34,10 @@ export async function syncPublication({ repository, revision, manifest, pages, p
     const revisions = [...new Set(edits.map(edit => edit.sourceRevision).filter(Boolean))];
     if (revisions.length > 1) throw new Error(`DOCS_SYNC_PROVENANCE: Multiple revisions for ${page.source}.`);
     const previousRevision = revisions[0] || manifest.sourceRevision;
-    git(repository, 'merge-base', '--is-ancestor', previousRevision, revision);
+    if (!/^[a-f0-9]{40}$/.test(previousRevision) || spawnSync('git', ['merge-base', '--is-ancestor', previousRevision, revision], { cwd: repository }).status !== 0) throw new Error(`DOCS_SYNC_HISTORY: ${page.source} is not based on an ancestor of the requested source.`);
     const base = sourceAt(repository, previousRevision, page.source);
     const incoming = sourceAt(repository, revision, page.source);
+    if (edits.some(edit => edit.sourceSha256 && edit.sourceSha256 !== hash(base))) throw new Error(`DOCS_SYNC_PROVENANCE: Source hash differs for ${page.source}.`);
     if (base === incoming) continue;
     let current = page.markdown;
     for (const edit of edits) {
