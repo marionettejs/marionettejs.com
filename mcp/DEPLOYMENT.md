@@ -43,7 +43,8 @@ npx --no-install wrangler deploy --dry-run --outdir output/worker
 ```
 
 The benchmark runs the actual Worker entrypoint in local workerd, including the
-Cloudflare adapter and bounded request-body wrapper. It covers initialization,
+Cloudflare adapter and bounded request-body wrapper. It covers legacy initialization,
+modern discovery,
 catalog, tool listing, document/example retrieval, and bounded search cases across
 both supported wire protocols. Run `node scripts/benchmark-mcp.mjs <label>` before
 and after a change. It saves per-operation DevTools `.cpuprofile` files and a JSON

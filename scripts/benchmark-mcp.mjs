@@ -64,16 +64,18 @@ try {
       return fetch(url, options);
     },
   }));
+  const modernDiscovery = modernRequest;
   await send('Profiler.enable');
   const summaries = [];
   await mkdir('output', { recursive: true });
   for (const [name, request, protocol] of cases.flatMap(([name, request]) => [
     [`legacy-${name}`, request, '2025-03-26'],
-    ...(name === 'initialize' ? [] : [[`modern-${name}`, request, '2026-07-28']]),
+    [name === 'initialize' ? 'modern-discovery' : `modern-${name}`, request, '2026-07-28'],
   ])) {
     let wire = { body: request, headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': protocol } };
     if (protocol === '2026-07-28') {
-      if (request.method === 'resources/read') await modernClient.readResource(request.params);
+      if (name === 'modern-discovery') modernRequest = modernDiscovery;
+      else if (request.method === 'resources/read') await modernClient.readResource(request.params);
       else if (request.method === 'tools/list') await modernClient.listTools();
       else await modernClient.callTool(request.params);
       wire = modernRequest;
@@ -101,7 +103,8 @@ try {
     summaries.push({ name, firstElapsedMs: elapsed[0], warmupRequests: 20, measuredRequests: 100,
       loopbackElapsedMs: { median: sorted[49], p95: sorted[94], p99: sorted[98] }, maxResponseBytes, topFrames });
   }
-  const sourceHashes = Object.fromEntries(await Promise.all(['mcp/worker.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'package-lock.json'].map(async path => [path, createHash('sha256').update(await readFile(path)).digest('hex')])));
+  const sourceHashes = Object.fromEntries(await Promise.all(['mcp/worker.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'package-lock.json', 'output/mcp/snapshot.json'].map(async path => [path, createHash('sha256').update(await readFile(path)).digest('hex')])));
+  sourceHashes.effectiveWranglerConfig = createHash('sha256').update(JSON.stringify(config)).digest('hex');
   const report = { sourceHashes, label, measuredAt: new Date().toISOString(), runtime: process.version, hardware: cpus()[0].model,
     measurement: 'Actual Worker in local workerd. Inspector samples identify hot frames; loopback elapsed times include I/O and are not edge CPU. Profiles include warmup; percentiles exclude first 20 requests. No module startup profile.',
     provenance: snapshot.provenance, summaries };
