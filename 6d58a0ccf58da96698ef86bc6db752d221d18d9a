@@ -1,0 +1,23 @@
+README.md
+  s_dd1c0f2a0340dc::t_7373a95b09102b 175-189
+site/assets/playground-recipes.js
+  s_dd1c0f2a0340dc::t_a875a062df21e4 240,246
+test/playground.test.mjs
+  s_dd1c0f2a0340dc::t_06ce92b93b0c47 78-94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "6d58a0ccf58da96698ef86bc6db752d221d18d9a",
+  "prompts": {},
+  "sessions": {
+    "s_dd1c0f2a0340dc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a084b0-1a02-7380-9397-01a2c9825349",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

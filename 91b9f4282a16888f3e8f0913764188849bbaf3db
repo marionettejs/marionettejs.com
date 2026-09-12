@@ -1,0 +1,25 @@
+scripts/build-demo-vendor.mjs
+  s_6967b709298859::t_cf3d0fc9caf724 3-5,18-38,41
+site/assets/demo-projects.js
+  s_6967b709298859::t_d5e5b27f157204 26
+site/demos/projects/mission-control/lesson.js
+  s_6967b709298859::t_a137b26ea5156c 52-53
+test/browser/agent-workshop.mjs
+  s_6967b709298859::t_3035b33cb44878 489-490,492-494,497,500-501
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "91b9f4282a16888f3e8f0913764188849bbaf3db",
+  "prompts": {},
+  "sessions": {
+    "s_6967b709298859": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a086ed-5486-7a51-87c8-ca99b154049d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

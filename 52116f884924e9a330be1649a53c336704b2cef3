@@ -1,0 +1,37 @@
+content/playground.mjs
+  s_dd1c0f2a0340dc::t_906950b448f8f0 15
+package-lock.json
+  s_dd1c0f2a0340dc::t_e56c38f83d6436 14-15,675-703
+package.json
+  s_dd1c0f2a0340dc::t_748bbbe52b38d8 16-17,23-24
+site/agent-prompt.md
+  s_dd1c0f2a0340dc::t_31996ab07eae86 31-53,118-120,168-191
+site/assets/playground-recipes.js
+  s_dd1c0f2a0340dc::t_27c2fe264f0c8c 1-171
+site/assets/playground-runtime.js
+  s_dd1c0f2a0340dc::t_53e904bea3b2e5 1,67,72-85,89,155,174
+site/assets/playground.css
+  s_dd1c0f2a0340dc::t_a09bc5450b021e 145-147
+site/assets/playground.js
+  s_dd1c0f2a0340dc::t_709624b9d9a959 1,49-57,121-122,128-129,162,298-304,314-318,323-324,328
+test/browser/agent-workshop.mjs
+  s_dd1c0f2a0340dc::t_4f45b30839ba68 1-133
+test/playground.test.mjs
+  s_dd1c0f2a0340dc::t_309d123caa747c 62-75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "52116f884924e9a330be1649a53c336704b2cef3",
+  "prompts": {},
+  "sessions": {
+    "s_dd1c0f2a0340dc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a084b0-1a02-7380-9397-01a2c9825349",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

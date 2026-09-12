@@ -1,0 +1,47 @@
+.gitignore
+  s_dd1c0f2a0340dc::t_94a3906aece011 8-9
+content/playground.mjs
+  s_dd1c0f2a0340dc::t_6af9113f2a1c47 15
+package-lock.json
+  s_dd1c0f2a0340dc::t_5f5ef30835d28a 14-15,675-703
+package.json
+  s_dd1c0f2a0340dc::t_966f2bf601a00f 16-17,23-24
+site/agent-prompt.md
+  s_dd1c0f2a0340dc::t_f6e7bd05bb5b93 31-53,118-120,168-191
+site/assets/playground-recipes.js
+  s_dd1c0f2a0340dc::t_c424b8c1cacd4c 1-171
+site/assets/playground-runtime.js
+  s_dd1c0f2a0340dc::t_61c88b17f2e953 1,67,72-85,89,155,174
+site/assets/playground.css
+  s_a9364033cda2fa::t_22d70ba58acd19 145-147
+site/assets/playground.js
+  s_dd1c0f2a0340dc::t_6bc4804bcec220 1,49-57,121-122,128-129,162,298-304,314-318,323-324,328
+test/browser/agent-workshop.mjs
+  s_a9364033cda2fa::t_61bb2017b11835 1-133
+test/playground.test.mjs
+  s_dd1c0f2a0340dc::t_76e3b708c2638c 62-75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "0e6eac0b5e237654308bca0e06db994a1a1b55df",
+  "prompts": {},
+  "sessions": {
+    "s_a9364033cda2fa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a081e2-41fe-75a2-b8c5-23d9246d92b8",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_dd1c0f2a0340dc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a084b0-1a02-7380-9397-01a2c9825349",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

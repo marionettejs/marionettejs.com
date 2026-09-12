@@ -1,0 +1,27 @@
+content/provenance.json
+  s_9b715d9e600fb6::t_7b7a23c37eb52a 3-4,7,9-10
+package-lock.json
+  s_9b715d9e600fb6::t_8cdaa7ca8f288b 15,1628-1630,1634,1641-1643,3330-3332,3340-3341,3345-3352
+package.json
+  s_9b715d9e600fb6::t_a27d68cbe674ba 29
+site/vendor/MARIONETTE-LICENSE.txt
+  s_9b715d9e600fb6::t_1a787c097b6b55 1,25,49
+site/vendor/marionette.js
+  s_9b715d9e600fb6::t_44c5f318651cc1 42,4077
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "18065efb8e7f8ccc8f66123a1966dcf9312f225a",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
