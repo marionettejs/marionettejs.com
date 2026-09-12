@@ -15,9 +15,13 @@ test('MCP setup is discoverable as the same website-authored guide without chang
   assert.match(page, /https:\/\/mcp\.marionettejs\.com\/mcp/);
   for (const path of ['dist/docs/agents.md', 'dist/docs/agent-tools.md']) {
     const text = await read(path);
-    assert.match(text, /https:\/\/marionettejs\.com\/docs\/mcp\//);
-    assert.match(text, /marionette:\/\/catalog/);
-    assert.match(text, /nextOffset/);
+    if (path.endsWith('/agents.md')) {
+      assert.match(text, /\]\(\/docs\/agent-tools\.md\)/);
+    } else {
+      assert.match(text, /https:\/\/marionettejs\.com\/docs\/mcp\//);
+      assert.match(text, /marionette:\/\/catalog/);
+      assert.match(text, /nextOffset/);
+    }
     assert.equal(await read(path.replace('dist/docs/', 'dist/docs/markdown/docs/')),
       await read(path.replace('dist/docs/', 'content/library-docs/docs/')), 'Original package documentation remains immutable');
   }
