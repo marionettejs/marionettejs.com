@@ -197,15 +197,24 @@ executable starter; a source test prevents the two from drifting.
 
 ## Documentation source
 
-Import documentation from the exact published npm package used by the demos:
+For an npm release, export the full website corpus from a clean checkout of the
+exact `sourceRevision` recorded in that published package's `dist/docs/manifest.json`.
+Run `npm run docs:export` there, then import its `.docs-export` directory here.
+Do not use moving `master` or import the narrower npm `dist/docs` directory alone:
+that directory omits the maintainer guides and would remove their website routes.
 
 ```sh
-npm run docs:import -- /absolute/path/to/package/dist/docs
+npm run docs:import -- /absolute/path/to/released-source/.docs-export
 npm run check
 ```
 
 The importer validates source paths, routes, every content hash, and the aggregate
-digest before replacing `content/library-docs/`. Commit that generated snapshot
+digest before replacing `content/library-docs/`. Confirm that the export is clean,
+its version/revision/repository match the published npm manifest, every npm consumer
+page and asset matches the npm metadata and bytes, and all reviewed maintainer routes
+remain present. `npm run check` verifies the npm consumer subset against the installed
+package; review the full manifest diff for the maintainer corpus. Never replace the
+archive until those checks pass. Commit that generated snapshot
 with its manifest after reviewing the source diff. Do not edit imported Markdown.
 The manifest records the package version, base source revision, content digest, and
 whether the source checkout includes local changes. A local-change snapshot is suitable
@@ -263,7 +272,7 @@ an interrupted process, the next import restores a missing target before reading
 new input. If a build is needed first, rename the backup to `content/library-docs/`.
 
 Development and troubleshooting are part of the same published snapshot. For an npm release, import
-all guides together with `npm run docs:import -- /absolute/path/to/package/dist/docs`. The browser check executes their
+all guides from the same exact released-source export using the procedure above. The browser check executes their
 actual failing/corrected snippets against the matching published demo bundle.
 The previously shared `/development/` and `/troubleshooting/` URLs redirect to
 `/docs/development/` and `/docs/troubleshooting/`. Their old manifest and source

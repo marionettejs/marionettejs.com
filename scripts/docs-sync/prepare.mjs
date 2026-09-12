@@ -9,7 +9,11 @@ export const publicationPath = 'content/docs-publication-edits.json';
 export const branch = 'automation/library-docs-sync';
 export const hash = value => createHash('sha256').update(value).digest('hex');
 export const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }).trimEnd();
-const sourceAt = (repository, revision, source) => execFileSync('git', ['show', `${revision}:${source}`], { cwd: repository, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+function sourceAt(repository, revision, source) {
+  const result = spawnSync('git', ['show', `${revision}:${source}`], { cwd: repository, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+  if (result.status !== 0) throw new Error(`DOCS_SYNC_SOURCE: Cannot read ${source} at ${revision}.`, { cause: result.error });
+  return result.stdout;
+}
 
 export async function mergeText(current, base, incoming, label) {
   if (current === base || current === incoming) return incoming;
@@ -27,6 +31,10 @@ export async function mergeText(current, base, incoming, label) {
 export async function syncPublication({ repository, revision, manifest, pages, publication }) {
   if (!/^[a-f0-9]{40}$/.test(revision)) throw new Error('DOCS_SYNC_REVISION: Expected an exact commit.');
   if (manifest.sourceDirty || publication.packageVersion !== manifest.packageVersion) throw new Error('DOCS_SYNC_ARCHIVE: Review the npm import first.');
+  const sources = new Set(pages.map(page => page.source));
+  for (const edit of publication.edits) {
+    if (!sources.has(edit.source)) throw new Error(`DOCS_SYNC_EDIT: Unknown publication source ${edit.source}.`);
+  }
   const result = structuredClone(publication);
   const changed = [];
   for (const page of pages) {

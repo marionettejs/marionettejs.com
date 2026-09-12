@@ -1,3 +1,5 @@
+import { deriveMarkdown, markdownUrl } from '../scripts/library-docs.mjs';
+import { publishedMarkdown } from '../scripts/published-docs.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -49,18 +51,21 @@ test('release reading copies announce publication while the package source stays
 });
 
 test('routing reading copies publish reviewed guidance without replacing the beta archive', async () => {
-  const revision = 'b777333934af5414256edab85c34c37ab20953f1';
+  const exampleRevision = 'b777333934af5414256edab85c34c37ab20953f1';
   const reading = await read('dist/docs/routing.md');
   const html = await read('dist/docs/routing/index.html');
   for (const output of [reading, html]) {
     assert.match(output, /Use the Navigation API/);
     assert.match(output, /Connect Backbone.Router/);
-    assert.ok(output.includes(`${revision}/test/browser/docs-routing.test.mjs`));
-    assert.ok(output.includes(`${revision}/test/fixtures/docs-routing/validate.mjs`));
+    assert.ok(output.includes(`${exampleRevision}/test/browser/docs-routing.test.mjs`));
+    assert.ok(output.includes(`${exampleRevision}/test/fixtures/docs-routing/validate.mjs`));
   }
   assert.doesNotMatch(reading, /status\.textContent|querySelector\('h1'\)/);
   const publication = JSON.parse(await read('dist/docs/publication.json'));
-  assert.equal(publication.edits.find(edit => edit.source === 'docs/routing.md').sourceRevision, revision);
+  const revision = publication.edits.find(edit => edit.source === 'docs/routing.md').sourceRevision;
+  assert.match(revision, /^[a-f0-9]{40}$/);
+  assert.ok(reading.includes(`reading source revision ${revision}`));
+  assert.ok(html.includes(`Reading source: ${revision}`));
   assert.equal(await read('dist/docs/markdown/docs/routing.md'),
     await read('node_modules/marionette/dist/docs/docs/routing.md'));
 });
@@ -123,6 +128,11 @@ test('publication overrides retain complete source identity without rewriting th
     assert.equal(createHash('sha256').update(archived).digest('hex'),
       originals.pages.find(page => page.source === edit.source).sha256, edit.source);
     assert.equal(edit.before, archived, edit.source);
+    const page = { ...originals.pages.find(page => page.source === edit.source), markdown: archived };
+    assert.equal(publishedMarkdown(page), edit.after, edit.source);
+    // Compare every byte of the delivered reading copy, including prose, while
+    // allowing the documented link rewriting and provenance/footer additions.
+    assert.equal(await read(`dist${markdownUrl(page)}`), deriveMarkdown(page, originals.pages, originals), edit.source);
     if (edit.readingSha256) {
       assert.equal(createHash('sha256').update(edit.after).digest('hex'), edit.readingSha256);
       assert.match(edit.sourceSha256, /^[a-f0-9]{64}$/);

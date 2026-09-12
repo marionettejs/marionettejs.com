@@ -1,6 +1,8 @@
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile, rm, mkdir } from 'node:fs/promises';
+import { mkdtemp, writeFile, rm, mkdir, cp, readFile, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { syncPublication, git, hash, checkNavigation } from '../scripts/docs-sync/prepare.mjs';
@@ -67,7 +69,7 @@ test('missing sources, ambiguous edits, dirty archives and invalid revisions sto
   await assert.rejects(syncPublication({ ...f, revision: 'master' }), /DOCS_SYNC_REVISION/);
   await assert.rejects(syncPublication({ ...f, revision, manifest: { ...f.manifest, sourceDirty: true } }), /DOCS_SYNC_ARCHIVE/);
   await assert.rejects(syncPublication({ ...f, revision, publication: { ...f.publication, edits: [{ source: 'docs/guide.md', before: 'absent', after: 'x' }] } }), /DOCS_SYNC_EDIT/);
-  await assert.rejects(syncPublication({ ...f, revision, pages: [{ source: 'docs/missing.md', markdown: '' }] }));
+  await assert.rejects(syncPublication({ ...f, revision, pages: [...f.pages, { source: 'docs/missing.md', markdown: '' }] }), /DOCS_SYNC_SOURCE/);
 });
 
 function remote({ existing = false, race = false } = {}) {
@@ -119,26 +121,50 @@ test('navigation changes require route review without advancing the archive', ()
   assert.throws(() => checkNavigation(pages, [...pages, { source: 'docs/new.md' }]), /DOCS_SYNC_NAVIGATION/);
 });
 
-test('final validation rejects damaged archive, publication, and website/MCP corpus artifacts', async t => {
-  const { cp, readFile } = await import('node:fs/promises');
+test('routing sync builds and validates independently, rejecting corrupted delivery artifacts', async t => {
   const { validateSync } = await import('../scripts/docs-sync/validate.mjs');
   const root = await mkdtemp(join(tmpdir(), 'docs-validation-test-'));
   t.after(() => rm(root, { recursive: true, force: true }));
-  for (const path of ['content/library-docs', 'dist/docs', 'dist/errors', 'output/mcp']) {
+  // Use authored sources only: this test must also work before the first build.
+  for (const path of ['content', 'scripts', 'site', 'mcp', 'tools', 'test', 'package.json']) {
     await cp(new URL(`../${path}`, import.meta.url), join(root, path), { recursive: true });
   }
-  const content = await readFile(new URL('../content/docs-publication-edits.json', import.meta.url));
-  await writeFile(join(root, 'content/docs-publication-edits.json'), content);
+  await symlink(new URL('../node_modules', import.meta.url).pathname, join(root, 'node_modules'), 'dir');
+  const publicationPath = join(root, 'content/docs-publication-edits.json');
+  const publication = JSON.parse(await readFile(publicationPath, 'utf8'));
+  const archive = JSON.parse(await readFile(join(root, 'content/library-docs/manifest.json'), 'utf8'));
+  const edit = publication.edits.find(edit => edit.source === 'docs/routing.md');
+  const f = await fixture(t);
+  await writeFile(join(f.repository, 'docs/routing.md'), edit.after);
+  git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'docs: routing baseline');
+  const previousRevision = git(f.repository, 'rev-parse', 'HEAD');
+  const incoming = edit.after + '\nReview direct navigation alongside browser back and forward behavior.\n';
+  await writeFile(join(f.repository, 'docs/routing.md'), incoming);
+  git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'docs: clarify routing verification');
+  const revision = git(f.repository, 'rev-parse', 'HEAD');
+  const routing = archive.pages.find(page => page.source === edit.source);
+  const update = await syncPublication({ repository: f.repository, revision, manifest: archive,
+    pages: [{ ...routing, markdown: edit.before }],
+    publication: { ...publication, edits: [{ ...edit, sourceRevision: previousRevision, sourceSha256: hash(edit.after) }] } });
+  publication.edits = publication.edits.map(item => item === edit ? update.publication.edits[0] : item);
+  const content = JSON.stringify(publication, null, 2) + '\n';
+  await writeFile(publicationPath, content);
   git(root, 'init', '-q'); git(root, 'config', 'user.name', 'Documentation test');
   git(root, 'config', 'user.email', 'test@example.invalid');
   git(root, 'add', 'content'); git(root, 'commit', '-qm', 'docs: archive fixture');
+  const run = promisify(execFile);
+  for (const script of ['scripts/build-demo-projects.mjs', 'scripts/build.mjs', 'scripts/build-mcp.mjs']) {
+    await run(process.execPath, [script], { cwd: root });
+  }
+  await run(process.execPath, ['--test', 'test/release.test.mjs', 'test/docs.test.mjs', 'test/site.test.mjs', 'test/agent-discovery.test.mjs'], { cwd: root });
+  assert.ok((await readFile(join(root, 'dist/docs/routing.md'), 'utf8')).includes(`reading source revision ${revision}`));
   await mkdir(join(root, 'output/docs-sync'));
   await writeFile(join(root, 'output/docs-sync/state.json'), JSON.stringify({ main: git(root, 'rev-parse', 'HEAD'), sha256: hash(content) }));
   await validateSync(root);
   for (const path of ['dist/docs/markdown/docs/agents.md', 'dist/docs/publication.json', 'dist/docs/agents.md', 'output/mcp/snapshot.json']) {
     const original = await readFile(join(root, path));
     await writeFile(join(root, path), '{}');
-    await assert.rejects(validateSync(root), undefined, path);
+    await assert.rejects(validateSync(root), { code: 'ERR_ASSERTION' }, path);
     await assert.rejects(readFile(join(root, 'output/docs-sync/validated.json')), /ENOENT/);
     await writeFile(join(root, path), original);
   }
@@ -154,4 +180,27 @@ test('retrying identical PR content updates no branch and creates no second PR',
   assert.equal(writes.length, 1);
   assert.match(writes[0].path, /\/pulls\/7$/);
   assert.equal(writes[0].method, 'PATCH');
+});
+
+test('unknown publication sources fail even with no upstream changes', async t => {
+  const f = await fixture(t);
+  for (const source of ['docs/typo.md', 'skills/marionette/SKILL.md']) {
+    await assert.rejects(syncPublication({ ...f, revision: f.manifest.sourceRevision,
+      publication: { ...f.publication, edits: [...f.publication.edits, { source, before: 'x', after: 'y' }] } }), /DOCS_SYNC_EDIT: Unknown publication source/);
+  }
+});
+
+test('main moving during object creation prevents both new and existing branch publication', async () => {
+  for (const existing of [false, true]) {
+    const f = remote({ existing });
+    let mainReads = 0;
+    const api = async (path, ...args) => {
+      if (path.endsWith('/git/ref/heads/main') && ++mainReads > 1) return { object: { sha: 'moved' } };
+      return f.api(path, ...args);
+    };
+    await assert.rejects(publish({ ...f, api }), /DOCS_SYNC_RACE/);
+    assert.equal(mainReads, 2);
+    assert.ok(f.requests.some(request => request.path.endsWith('/git/commits') && request.method === 'POST'));
+    assert.ok(f.requests.every(request => !request.path.includes('/git/refs') && !(request.path.includes('/pulls') && request.method !== 'GET')));
+  }
 });

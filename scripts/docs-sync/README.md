@@ -64,7 +64,9 @@ its code is never checked out or executed. Other file changes on that branch sto
 the run. Website and library checkouts remain read-only to the preparation job's
 GitHub credential. The write credential exists only in a separate publish job
 which consumes the same run's validated artifact. Ref checks plus non-force updates
-reject competing writers. A moved website base causes a retry. Concurrency is
+reject competing writers. A moved website base detected at preflight or immediately before the branch write
+causes a retry. GitHub does not atomically compare `main` and update another ref;
+the existing required up-to-date PR checks cover the remaining race window. Concurrency is
 serialized; canceled pending dispatches are harmless because every run reads the
 current library head. There is no arbitrary revision/URL input and no library code
 execution with credentials.
@@ -107,8 +109,19 @@ content or test-contract fix, not a bypass or an automatic merge.
 
 ## Explicit npm releases and manual deployment
 
-For a published release, use the existing `npm run docs:import -- /path/to/package/dist/docs`
-workflow with the exact npm package. Review the package/runtime pins, publication
+For a published release, read the exact source revision from the npm package's
+`dist/docs/manifest.json`, check out that revision cleanly in the library, and run
+`npm run docs:export`. Use the existing
+`npm run docs:import -- /path/to/released-source/.docs-export` workflow to import
+that complete corpus, including maintainer guides. The npm `dist/docs` directory
+alone is narrower and must not replace the full website snapshot.
+
+Before accepting the import, require `sourceDirty: false`, matching package version,
+repository and revision, identical metadata/bytes for every npm consumer page and
+asset, and the reviewed maintainer page/route inventory. `npm run check` compares
+the consumer subset against the installed pinned npm package; review the complete
+manifest diff for maintainer scope. See the root README's documentation-source
+procedure. Review the package/runtime pins, publication
 wording, full archive hashes and diagnostic schema provenance together. Reset/rebase
 the pending reading-copy edits deliberately against that new archive and revalidate.
 Ordinary sync never replaces archive files or imports unreleased skill/starter,

@@ -22,6 +22,10 @@ export async function publish({ api, state, content }) {
       message: `docs(sync): update reading copies from ${state.revision}`,
       tree: tree.sha, parents: [...new Set([state.head, state.main].filter(Boolean))],
     });
+    // GitHub cannot atomically compare main and write another ref. Check main as
+    // late as possible; required up-to-date PR checks cover the remaining window.
+    const latestMain = await api(`${prefix}/git/ref/heads/main`);
+    if (latestMain.object.sha !== state.main) throw new Error('DOCS_SYNC_RACE: Website base changed before publication; rerun the sync.');
     // A non-force update rejects a concurrent writer even after the preflight.
     if (head) await api(`${prefix}/git/refs/heads/${branch}`, 'PATCH', { sha: commit.sha, force: false });
     else await api(`${prefix}/git/refs`, 'POST', { ref: `refs/heads/${branch}`, sha: commit.sha });

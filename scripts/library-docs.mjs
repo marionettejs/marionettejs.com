@@ -58,7 +58,7 @@ function linkResolver(page, pages, manifest, format = 'html') {
     if (/[\u0000-\u0020]/.test(href) || (/^[a-z][a-z0-9+.-]*:/i.test(href) && !/^(?:https?:|mailto:|tel:)/i.test(href))) return '#';
     if (href.startsWith('#')) return href;
     const github = href.match(/^https:\/\/github\.com\/marionettejs\/marionette\/blob\/(master|main|v5|[a-f0-9]{40})\/(.*)$/);
-    if (github && /^[a-f0-9]{40}$/.test(github[1]) && github[1] !== manifest.sourceRevision) return href;
+    if (github && /^[a-f0-9]{40}$/.test(github[1])) return href;
     if (/^[a-z]+:|^\/\//i.test(href) && !github) return href;
     if (href.startsWith('/')) {
       if (format === 'markdown' && /^\/errors\/(?:MN[0-9]{4}\/)?$/.test(href)) return href === '/errors/' ? '/errors/index.md' : href.slice(0, -1) + '.md';

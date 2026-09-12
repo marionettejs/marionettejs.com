@@ -27,6 +27,7 @@ export async function validateSync(root) {
     assert.equal(hash(await read(`dist${path}`)), document.sha256, document.id);
   }
   const mcp = JSON.parse(await read('output/mcp/snapshot.json'));
+  assert.ok(mcp.provenance, 'MCP snapshot is missing provenance');
   assert.equal(mcp.provenance.corpusSha256, hash(await read('dist/docs/corpus.json')));
   await writeFile(resolve(root, 'output/docs-sync/validated.json'), JSON.stringify({ ...state, corpusSha256: mcp.provenance.corpusSha256 }));
   console.log('Validated archive bytes, publication hash, and website/MCP parity.');
