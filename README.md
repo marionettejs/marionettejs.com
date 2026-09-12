@@ -60,7 +60,7 @@ Use `MARIONETTE_PREVIEW_PORT` to select a different explicit port if necessary.
 - `/docs/`: the canonical documentation snapshot, with local search, task navigation, diagnostics, and copyable Markdown.
 - `/thanks/`: Patreon support, the merch store, credits and review tools, and maintainer acknowledgements. Future supporter names belong here only after confirmation and permission.
 - `/llms.txt`: a compact task-oriented entry point with explicit version/status.
-- `/agent-prompt.md`: optional visible-browser workshop brief with explicit effort limits.
+- `/agent-prompt.md`: optional visible-browser workshop brief with completion criteria.
 - `/#playground`: theatrical reveal, editable JS/CSS, agent build notes, and actual app preview.
 - Optional WebMCP tools operate the same demo where `document.modelContext` is supported.
 
@@ -121,7 +121,7 @@ The invitation opens the workshop directly. Its Agent instructions disclosure
 contains the same compiled brief served at `/agent-prompt.md`, including the exact
 executable starter. Browser-only agents can read it without navigating away. The
 copied invitation asks agents to open the workshop and read the instructions there;
-the brief asks them to reveal the workspace before planning or looking up context.
+the brief defines the personal app outcome, runtime contracts, and relevant checks.
 
 ## Project-fit review
 
