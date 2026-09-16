@@ -1,6 +1,6 @@
 # Website prototype
 
-This branch targets beta.2 on marionettejs.com (canonical and indexable).
+This branch targets beta.4 on marionettejs.com (canonical and indexable).
 Verify the live provenance after manual deployment before reporting the release as live.
 www.marionettejs.com and v5.marionettejs.com also work; v5 is a mirror with a `noindex` directive.
 The launch was authorized and completed on September 9, 2026 (Asia/Seoul).
@@ -11,7 +11,7 @@ v4.marionettejs.com GitHub Pages archive while those releases have consumers.
 This is the independent website repository. The earlier prototype and design
 options remain in their existing checkouts; preserve them. Keep the website independent of the library's working directory.
 Use the exact published beta pinned in package-lock.json for the demos and
-personal workshop. The local consumer path now targets beta.2; this does not
+personal workshop. The local consumer path now targets beta.4; this does not
 establish that it has been deployed. Rebuild core with `npm run vendor:build`,
 then the core/data consumer bundle with `npm run vendor:demos`; never substitute
 a moving local build.

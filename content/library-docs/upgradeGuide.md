@@ -501,3 +501,77 @@ export the same Events, Error, and default Radio within each module format.
 `@mnjs/data` now depends only on utils; core is no longer a peer dependency.
 Standalone data and messaging consumers do not need to install Marionette core.
 These packages keep the same version and release together with core and adapters.
+
+## Removed View Region registration events
+
+Views no longer emit `before:add:region`, `add:region`,
+`before:remove:region`, or `remove:region`. Their corresponding
+`onBeforeAddRegion`, `onAddRegion`, `onBeforeRemoveRegion`, and `onRemoveRegion`
+hooks are no longer invoked by Region registration or removal.
+
+Move application setup to the code that calls `addRegion()` or `addRegions()`.
+To observe a particular Region's teardown, listen to its `before:destroy` or
+`destroy` event. Those events cover both `view.removeRegion(name)` and direct
+`region.destroy()`. Region ownership, registration methods, and child cleanup
+are unchanged.
+
+## Define lifecycle hooks as methods
+
+`triggerMethod` resolves `onEventName` directly on the instance or its prototype.
+It no longer reads hooks from `options`, and option values cannot replace or
+suppress a class hook. Define hooks in `.extend({ onRender() {} })`, as native
+class methods, or directly on the instance before the relevant lifecycle runs.
+For construction-time hooks, define the method on the class before construction.
+
+For example, replace `new View({ onRender() { /* setup */ } })` with:
+
+```javascript
+import { View } from 'marionette';
+
+const ContentView = View.extend({
+  onRender() { /* setup */ }
+});
+const view = new ContentView();
+```
+
+The matching method still runs before event listeners and supplies the return
+value. A synchronous method exception still prevents event notification.
+`getOption()` remains available for application configuration.
+
+## Explicit child Application activation
+
+`addChildApp` registers ownership only. A parent's `start` and the startup phase
+of `restart` no longer start registered children or forward startup options. Call
+selected children's `start(childOptions)` explicitly and await prerequisites in
+`prepareStart`; check a `false` result and handle rejected readiness. Optional
+children can stay stopped or start later. Successful parent stop/destroy cleans
+owned descendants, including beneath stopped intermediate owners; failed or
+canceled teardown can retain partial progress. Child start/restart
+returns `false` while an ancestor is stopping or terminal. See
+[Application ownership](docs/marionette.application.md#application-ownership).
+
+## Application preparation methods
+
+V5 through beta.3 awaited `onBeforeStart`, `onBeforeStop`, and `onBeforeDestroy`.
+Move asynchronous readiness to `prepareStart`, `prepareStop`, and `prepareDestroy`.
+They receive `(options, { signal })`, with the Application available as `this`.
+The `onBefore*` methods and `before:*` listeners now receive `(application, options)`
+and run only as synchronous notifications. Marionette neither awaits their returned
+Promises nor attaches rejection handlers. Move any work that must succeed for the
+operation to complete into `prepare*`; otherwise the operation can succeed while
+an unmigrated async notification produces an unhandled rejection. Background work
+started by a notification must handle its own errors.
+
+Return startup data from `prepareStart` and receive it as the third argument of
+`onStart(application, options, result)` or a `start` listener. The result is not
+spread or stored by Marionette. `start()` still resolves `Promise<boolean>`.
+Stop and destroy preparation return values are awaited but otherwise ignored.
+An already-stopped owner skips its own `prepareStop` and stop notifications, even
+when stop, restart, or destroy must still stop its active descendants.
+Update cancellation work to use the preparation method's context, not a
+notification argument. Existing synchronous cleanup in `onBeforeDestroy` stays there.
+
+Toolkit's app-frontend-style `beforeStart(options)` maps to `prepareStart(options,
+{ signal })`; `onBeforeStart` remains the notification. Replace arrays of Promises
+with an explicit `Promise.all` and consume its array as one startup result.
+See [Application preparation](docs/marionette.application.md#preparation-methods-and-notifications).

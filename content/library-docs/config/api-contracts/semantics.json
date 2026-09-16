@@ -234,20 +234,6 @@
             "view"
           ],
           "timing": "Synchronous transition notifications; DOM events depend on tracked attachment, rendering and monitoring."
-        },
-        {
-          "names": [
-            "before:add:region",
-            "add:region",
-            "before:remove:region",
-            "remove:region"
-          ],
-          "arguments": [
-            "view",
-            "name",
-            "region"
-          ],
-          "timing": "Around named Region registration/removal; removal destroys the Region."
         }
       ]
     },
@@ -621,7 +607,7 @@
       "result": "on/off/once/listenTo/listenToOnce/stopListening/trigger return their receiver; triggerMethod has its own result contract.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "listenTo subscriptions belong to the listener; off removes source registrations.",
-      "mutation": "Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch.",
+      "mutation": "Registration/removal strings and event-map keys are literal names, including whitespace and empty strings; omitted/null removal names select all names. Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
       "repetition": "once is removed before callback/reentrant trigger; ordinary listeners repeat.",
       "destruction": "Owner cleanup stops listening; Events itself has no destroy method.",
       "diagnostics": [],
@@ -634,7 +620,7 @@
       "tests": [
         {
           "file": "test/unit/events-parity.spec.js",
-          "title": "preserves arguments and order for space-separated event names"
+          "title": "preserves separate registration and dispatch calls"
         },
         {
           "file": "test/unit/events-parity.spec.js",
@@ -643,6 +629,14 @@
         {
           "file": "test/unit/events-parity.spec.js",
           "title": "cleans up listener bookkeeping as subscriptions are removed"
+        },
+        {
+          "file": "test/unit/events-single-dispatch.spec.js",
+          "title": "keeps payload identity, all-listener arguments, and per-call return values"
+        },
+        {
+          "file": "test/unit/events-literal-names.spec.js",
+          "title": "binds and selectively unbinds literal entity-event map keys"
         }
       ]
     },
@@ -700,8 +694,8 @@
       "result": "request returns the handler result, undefined when no applicable reply exists, or mapped results for request maps.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "Replies use configured context; stopReplying supports selective removal.",
-      "mutation": "One reply per name; replacement overwrites it; default handlers receive the request name.",
-      "repetition": "replyOnce unregisters before invoking once; split/map requests preserve order and abort on error.",
+      "mutation": "One reply per name; replacement overwrites it; default handlers receive the request name. String names and map keys are literal, including whitespace and empty strings. Request maps preserve results under original keys without flattening. Omitted/null removal names select all names.",
+      "repetition": "replyOnce unregisters before invoking once; map requests preserve order and abort on error.",
       "destruction": "Standalone Requests has no destroy; remove replies explicitly or through an owning channel.",
       "diagnostics": [],
       "docs": [
@@ -722,6 +716,10 @@
         {
           "file": "test/unit/requests.spec.js",
           "title": "stops reading a request map when a recursive request throws"
+        },
+        {
+          "file": "test/unit/requests.spec.js",
+          "title": "keeps literal map keys, result identity, payloads, and invocation order"
         }
       ]
     },
@@ -839,7 +837,7 @@
       "exports": [
         "getOption"
       ],
-      "result": "Returns a defined option before the receiver property; undefined options fall back.",
+      "result": "Returns a defined option before the receiver property for string, number, and symbol keys, including 0 and the empty string; undefined options fall back. Omitted, null, and undefined keys return undefined.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
       "mutation": "Reads options and receiver; does not call an option function.",
@@ -848,14 +846,18 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/common.md",
+          "heading": "`getOption`"
         }
       ],
       "tests": [
         {
           "file": "test/unit/common/get-option.spec.js",
           "title": "should return that definitions option"
+        },
+        {
+          "file": "test/unit/common/get-option.spec.js",
+          "title": "reads numeric and empty keys on a Marionette owner"
         }
       ]
     },
@@ -1067,10 +1069,9 @@
         "@mnjs/utils"
       ],
       "exports": [
-        "buildEventArgs",
-        "eventSplitter"
+        "buildEventArgs"
       ],
-      "result": "Builds descriptors in own-key/split-name order; eventSplitter is the whitespace expression.",
+      "result": "Builds one descriptor per literal string name or own event-map key in own-key order.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
       "mutation": "Expands names/maps without subscribing; preserves callback/context metadata.",
@@ -1086,7 +1087,7 @@
       "tests": [
         {
           "file": "test/unit/utils/build-event-args.spec.js",
-          "title": "expands space-separated event names in source order"
+          "title": "preserves whitespace in literal event names"
         }
       ]
     },
@@ -1158,7 +1159,7 @@
       "result": "Returns the matching onEventName method result; undefined when absent.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "No ownership transfer.",
-      "mutation": "Calls the method before triggering the event with original arguments.",
+      "mutation": "Resolves the method directly on the instance or prototype without reading options, then calls it before triggering the event with original arguments. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
       "repetition": "Every call dispatches; throwing method prevents event dispatch.",
       "destruction": "No cleanup or resurrection semantics are added.",
       "diagnostics": [],
@@ -1175,7 +1176,19 @@
         },
         {
           "file": "test/unit/common/trigger-method.spec.js",
+          "title": "resolves inherited hooks without reading options"
+        },
+        {
+          "file": "test/unit/common/trigger-method.spec.js",
+          "title": "does not let options replace or suppress instance hooks"
+        },
+        {
+          "file": "test/unit/common/trigger-method.spec.js",
           "title": "does not trigger the event when the matching method throws"
+        },
+        {
+          "file": "test/unit/events-single-dispatch.spec.js",
+          "title": "keeps payload identity, all-listener arguments, and per-call return values"
         }
       ]
     },
@@ -1496,10 +1509,10 @@
         "Application"
       ],
       "result": "Operations resolve true at the requested target, false when superseded, and compatible calls share in-flight promises. Current readiness failure rejects the operation promise.",
-      "timing": "Readiness is awaited; superseded signals abort before replacement readiness; adopted stop retains its original context/options without abort.",
-      "ownership": "Owned children participate in lifecycle order; direct opposing child operations cancel owner transitions and retain prior owner stable state.",
+      "timing": "Before and completion notifications are synchronous and ignore returns. Only prepareStart/prepareStop/prepareDestroy are awaited with options and an abort context; start completion receives one resolved preparation result. Supersession aborts before replacement preparation; adopted stop retains its original context/options without abort.",
+      "ownership": "Registration never starts children. Callers explicitly await prerequisites. Stop/destroy traverse all owned descendants, including stopped intermediate owners; descendants cannot start/restart during an ancestor stop or terminal phase.",
       "mutation": "Canceled readiness cannot append stale framework completion events or alter stable state.",
-      "repetition": "Compatible repeated calls share promises; completed target requests are no-ops; canceled readiness resolves false.",
+      "repetition": "Compatible calls share promises. A stopped owner still drains owned descendants without repeating its own stop preparation or notifications. Restart deactivates children; reactivation is explicit.",
       "destruction": "Destruction blocks owner and descendant start/restart; successful destruction destroys owned children. Readiness rejection preserves the documented retry and partial-child boundaries.",
       "diagnostics": [],
       "docs": [
@@ -1544,6 +1557,22 @@
         {
           "file": "test/unit/model-based/application.spec.js",
           "title": "preserves winning readiness, stable state, and child ownership across bounded interleavings"
+        },
+        {
+          "file": "test/unit/application-child-lifecycle.spec.js",
+          "title": "registration never starts optional children, including after parent restart"
+        },
+        {
+          "file": "test/unit/application-child-lifecycle.spec.js",
+          "title": "allows explicit children again in restart readiness, but not the stop completion hook"
+        },
+        {
+          "file": "test/unit/application-child-lifecycle.spec.js",
+          "title": "clears prepared roots beneath already-stopped children without inventing stop hooks"
+        },
+        {
+          "file": "test/unit/application-preparation.spec.js",
+          "title": "notifies before startup, awaits preparation, and forwards one result to completion"
         }
       ],
       "events": [
@@ -1555,14 +1584,23 @@
           ],
           "arguments": [
             "application",
-            "options",
-            "context"
+            "options"
           ],
-          "timing": "Only matching onBefore* readiness hook result is awaited; listener return values are ignored."
+          "timing": "Synchronous notifications; method and listener return values are not consumed, and returned Promises are neither awaited nor rejection-handled. Preparation follows; start/stop preparation is skipped if the notification supersedes its pending operation. Destruction is terminal and cannot be superseded."
         },
         {
           "names": [
-            "start",
+            "start"
+          ],
+          "arguments": [
+            "application",
+            "options",
+            "result"
+          ],
+          "timing": "Synchronous completion after prepareStart resolves. The prepared result is one unchanged value; return values are ignored."
+        },
+        {
+          "names": [
             "stop",
             "destroy"
           ],
@@ -1570,7 +1608,7 @@
             "application",
             "options"
           ],
-          "timing": "Completion notifications; return values are not awaited."
+          "timing": "Synchronous completion after preparation and teardown; return values are ignored."
         }
       ],
       "members": [
@@ -1578,6 +1616,9 @@
         "stop",
         "restart",
         "destroy",
+        "prepareStart",
+        "prepareStop",
+        "prepareDestroy",
         "onBeforeStart",
         "onBeforeStop",
         "onBeforeDestroy",
@@ -1736,7 +1777,7 @@
       "result": "on/off/once/listenTo/listenToOnce/stopListening/trigger return their receiver; triggerMethod has its own result contract.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "listenTo subscriptions belong to the listener; off removes source registrations.",
-      "mutation": "Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch.",
+      "mutation": "Registration/removal strings and event-map keys are literal names, including whitespace and empty strings; omitted/null removal names select all names. Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
       "repetition": "once is removed before callback/reentrant trigger; ordinary listeners repeat.",
       "destruction": "Owner cleanup stops listening; Events itself has no destroy method.",
       "diagnostics": [],
@@ -1749,7 +1790,7 @@
       "tests": [
         {
           "file": "test/unit/events-parity.spec.js",
-          "title": "preserves arguments and order for space-separated event names"
+          "title": "preserves separate registration and dispatch calls"
         },
         {
           "file": "test/unit/events-parity.spec.js",
@@ -1758,6 +1799,14 @@
         {
           "file": "test/unit/events-parity.spec.js",
           "title": "cleans up listener bookkeeping as subscriptions are removed"
+        },
+        {
+          "file": "test/unit/events-single-dispatch.spec.js",
+          "title": "keeps payload identity, all-listener arguments, and per-call return values"
+        },
+        {
+          "file": "test/unit/events-literal-names.spec.js",
+          "title": "binds and selectively unbinds literal entity-event map keys"
         }
       ],
       "members": [
@@ -1786,7 +1835,7 @@
       "result": "Returns the matching onEventName method result; undefined when absent.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "No ownership transfer.",
-      "mutation": "Calls the method before triggering the event with original arguments.",
+      "mutation": "Resolves the method directly on the instance or prototype without reading options, then calls it before triggering the event with original arguments. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
       "repetition": "Every call dispatches; throwing method prevents event dispatch.",
       "destruction": "No cleanup or resurrection semantics are added.",
       "diagnostics": [],
@@ -1803,7 +1852,19 @@
         },
         {
           "file": "test/unit/common/trigger-method.spec.js",
+          "title": "resolves inherited hooks without reading options"
+        },
+        {
+          "file": "test/unit/common/trigger-method.spec.js",
+          "title": "does not let options replace or suppress instance hooks"
+        },
+        {
+          "file": "test/unit/common/trigger-method.spec.js",
           "title": "does not trigger the event when the matching method throws"
+        },
+        {
+          "file": "test/unit/events-single-dispatch.spec.js",
+          "title": "keeps payload identity, all-listener arguments, and per-call return values"
         }
       ],
       "members": [
@@ -1823,7 +1884,7 @@
         "CollectionView",
         "Application"
       ],
-      "result": "Returns a defined option before the receiver property; undefined options fall back.",
+      "result": "Returns a defined option before the receiver property for string, number, and symbol keys, including 0 and the empty string; undefined options fall back. Omitted, null, and undefined keys return undefined.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
       "mutation": "Reads options and receiver; does not call an option function.",
@@ -1832,14 +1893,18 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/common.md",
+          "heading": "`getOption`"
         }
       ],
       "tests": [
         {
           "file": "test/unit/common/get-option.spec.js",
           "title": "should return that definitions option"
+        },
+        {
+          "file": "test/unit/common/get-option.spec.js",
+          "title": "reads numeric and empty keys on a Marionette owner"
         }
       ],
       "members": [
@@ -2066,6 +2131,10 @@
       ],
       "tests": [
         {
+          "file": "test/unit/view-region-placeholder.spec.js",
+          "title": "resolves a selector-backed Region against the replacement placeholder after parent rendering"
+        },
+        {
           "file": "test/unit/view-get-regions.spec.js",
           "title": "returns safe own-key snapshots without rendering an unrendered View"
         },
@@ -2271,13 +2340,16 @@
       "exports": [
         "Application"
       ],
-      "result": "Construction and addChildApp/showView return their public instance; removeChildApp returns a Promise of the removed child or undefined; queries return the declared state or optional owner member.",
-      "timing": "Construction, registration, root-view display and queries are synchronous; removeChildApp awaits child destruction before releasing ownership.",
-      "ownership": "Named children belong to the Application until removal; the configured Region owns its current View.",
-      "mutation": "Queries do not render; showView displays the supplied child synchronously; child registration/removal coordinates with the owner lifecycle.",
-      "repetition": "Duplicate identical registrations and missing lookups/removals follow documented ownership guards.",
-      "destruction": "Destroy tears down owned children and a constructed root Region; it empties but preserves a supplied borrowed Region.",
-      "diagnostics": [],
+      "result": "Construction, addChildApp, setView and showView(view) return their public instance; showView() returns the prepared or current View, or undefined; removeChildApp returns a Promise of the removed child or undefined; queries return the declared state or optional owner member.",
+      "timing": "Construction, registration, root preparation/display and queries are synchronous; removeChildApp awaits child destruction before releasing ownership.",
+      "ownership": "Named children belong to the Application until removal. setView temporarily owns a prepared View; showView hands it to the Region and releases Application ownership. Without preparation, getView reads the Region currentView, including direct Region display.",
+      "mutation": "setView destroys only a previous prepared View, leaving the displayed View until Region show replaces it. getView reads preparation or current display without rendering. Child registration/removal coordinates with the owner lifecycle.",
+      "repetition": "Preparing the same pending View is a no-op; selecting the host currentView cancels preparation. Showing the current View does not render or attach it again. Child registrations and lookups follow documented ownership guards.",
+      "destruction": "Stop destroys a prepared View and empties the host. Destroy also tears down owned children and a constructed root Region; it preserves a borrowed Region. Direct destruction releases preparation; displayed Views follow Region cleanup and detachment.",
+      "diagnostics": [
+        "MN0003",
+        "MN0007"
+      ],
       "docs": [
         {
           "file": "docs/marionette.application.md",
@@ -2290,6 +2362,10 @@
         {
           "file": "docs/events.class.md",
           "heading": "Application Events"
+        },
+        {
+          "file": "docs/marionette.application.md",
+          "heading": "`setView(view)`"
         }
       ],
       "tests": [
@@ -2316,6 +2392,10 @@
         {
           "file": "test/unit/application-root-view.spec.js",
           "title": "destroys an externally shown View but preserves its borrowed Region"
+        },
+        {
+          "file": "test/unit/application-prepared-view.spec.js",
+          "title": "composes detached children through getView and updates one region after display"
         }
       ],
       "members": [
@@ -2329,6 +2409,7 @@
         "getName",
         "getRegion",
         "getView",
+        "setView",
         "showView",
         "isRunning",
         "isDestroyed"

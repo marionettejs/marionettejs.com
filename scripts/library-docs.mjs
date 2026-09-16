@@ -26,10 +26,10 @@ export async function readSnapshot(directory) {
   }
   const assets = [];
   if (!Array.isArray(manifest.assets)) throw new Error('Documentation snapshot assets are required.');
-  // beta.2 publishes contract inventory/semantics and their tooling README as linked resources.
+  // Release exports include runnable fixtures plus linked project, benchmark, and test references.
   for (const asset of manifest.assets) {
     if (!safePath(asset.source) || !/\.(?:md|json|mjs)$/.test(asset.source) ||
-        !/^(?:config\/(?:diagnostics|api-contracts)\/|scripts\/api-contracts\/|test\/fixtures\/docs-[a-z-]+\/|skills\/marionette\/|benchmarks\/docs\/)/.test(asset.source) || sources.has(asset.source)) throw new Error('Unsupported documentation asset.');
+        !/^(?:ROADMAP\.md$|config\/(?:diagnostics|api-contracts)\/|scripts\/api-contracts\/|test\/(?:README\.md$|unit\/model-based\/README\.md$|fixtures\/docs-[a-z-]+\/)|skills\/marionette\/|benchmarks\/(?:agent|docs)\/)/.test(asset.source) || sources.has(asset.source)) throw new Error('Unsupported documentation asset.');
     const base = await realpath(directory);
     const path = await realpath(resolve(base, asset.source));
     const local = relative(base, path);

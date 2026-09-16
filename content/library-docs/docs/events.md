@@ -52,35 +52,50 @@ listener.stopListening(emitter);
 | --- | --- |
 | `on(name, callback, context?)` | Register a callback on this object. |
 | `off(name?, callback?, context?)` | Remove matching callbacks registered with `on`. |
-| `trigger(name, ...args)` | Trigger one or more named events. |
+| `trigger(name, ...args)` | Trigger one named event. |
 | `once(name, callback, context?)` | Register a callback that is removed after its first call. |
 | `listenTo(object, name, callback)` | Listen to another emitter while tracking the relationship on this object. |
 | `stopListening(object?, name?, callback?)` | Remove relationships created with `listenTo` or `listenToOnce`. |
 | `listenToOnce(object, name, callback)` | Listen to another emitter once. |
 | `triggerMethod(name, ...args)` | Trigger an event and call its matching `onEventName` method. |
 
-`trigger`, `on`, `off`, `once`, `listenTo`, `listenToOnce`, and
-`stopListening` accept space-separated event names. `triggerMethod` delegates
-to `trigger` for listener notification, but call it once per event when you
-need matching `onEventName` methods. Object-form `trigger` maps each key to the
-single value passed to that event's handlers:
+`trigger` and `triggerMethod` each dispatch one literal string event name.
+Whitespace is part of that name: `trigger('foo bar')` does not dispatch `foo`
+or `bar`. The types require a string; object maps and other non-string names
+are unsupported, with no runtime shape validation or guaranteed diagnostic.
+Call once per event and pass payload values as subsequent arguments.
+
+Registration and removal methods (`on`, `off`, `once`, `listenTo`,
+`listenToOnce`, and `stopListening`) also treat each string as one literal name,
+including whitespace and the empty string. Event maps remain supported, with
+one literal event name per key. Use separate calls or map entries for multiple
+subscriptions. This rule applies to Events APIs, including those on Radio
+channels. The [Requests APIs](./radio.md#requests-and-replies) use the same literal-name
+rule and also support object-form request batching. Omit the name or pass `null`
+to remove across all event names;
+`off('')` and `stopListening(emitter, '')` select only the empty name.
 
 ```javascript
-emitter.on('start stop', value => console.log(value));
-emitter.trigger('start stop', 'manual');
+listener.listenTo(emitter, 'foo bar', value => console.log(value));
+emitter.trigger('foo bar', 'ready'); // Calls the handler once.
+listener.stopListening(emitter, 'foo bar');
 
-emitter.trigger({
-  start: 'automatic',
-  stop: 'complete'
-});
+const log = value => console.log(value);
+emitter.on({ start: log, stop: log });
+emitter.trigger('start', 'manual');
+emitter.trigger('stop', 'manual');
 ```
 
-During a multi-name or mapped `trigger` call, calling `off()` from a handler
-removes subscriptions for subsequent calls but does not cancel the remaining
-event names in the current call. For example, `off()` inside a `start` handler
-still allows the existing `stop` handlers in `trigger('start stop')` to run.
-Calling `off('stop', handler)` inside `start` instead removes that handler before
-`stop` is dispatched. A nested `trigger` call uses the current subscriptions.
+Declarative entity-event maps such as `modelEvents`, `collectionEvents`, and
+`radioEvents` use the same literal keys, except that an own enumerable
+`__proto__` key is rejected with `MN0026` before binding or selective unbinding.
+Direct `listenTo` and `stopListening` calls pass each name unchanged to the
+emitter's `on` and `off`; a third-party emitter controls how it interprets that
+name.
+
+Separate and nested dispatch calls use the current subscriptions. Removing
+`stop` handlers during `trigger('start')` means they will not run in a later
+`trigger('stop')` call.
 
 `once` registers its generated callback through the object's overridable
 `on` method, and `listenToOnce` registers through overridable `listenTo`.
@@ -90,8 +105,10 @@ This preserves the extension points used by event-lifecycle mixins. Likewise,
 
 ### `triggerMethod`
 
-`triggerMethod` invokes the matching `onEventName` method when it exists, then
-fires the named event on the instance. If there are no listeners or
+`triggerMethod` invokes the matching instance or prototype `onEventName` method
+when it exists, then
+fires the named event on the instance. Constructor options do not supply or
+override these methods. If there are no listeners or
 matching method, the call still succeeds. All arguments after the event name
 are passed to both the method and event handlers.
 

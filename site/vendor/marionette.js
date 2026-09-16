@@ -39,7 +39,7 @@ function extendRuntime(protoProps, staticProps) {
   return child;
 }
 var extend = extendRuntime;
-var version = "5.0.0-beta.2";
+var version = "5.0.0-beta.4";
 var packageJson = {
   version
 };
@@ -87,7 +87,7 @@ function getValue(object, property, fallback) {
   return typeof resolvedValue === "function" ? resolvedValue.call(object) : resolvedValue;
 }
 function getOption(optionName) {
-  if (!optionName) {
+  if (optionName == null) {
     return;
   }
   const context = this;
@@ -153,7 +153,7 @@ var getOnMethodName = function(event) {
 };
 function triggerMethod(event, ...args) {
   const methodName = getOnMethodName(event);
-  const method = getOption.call(this, methodName);
+  const method = this[methodName];
   let result;
   if (typeof method === "function") {
     result = method.apply(this, args);
@@ -208,7 +208,6 @@ function unbindRequests(channel, bindings) {
   channel.stopReplying(normalizeMethods.call(this, bindings), this);
   return this;
 }
-var eventSplitter = /\s+/;
 function buildEventArgs(name, callback, context, listener) {
   if (name && typeof name === "object") {
     const eventContext = context === void 0 ? callback : context;
@@ -216,21 +215,10 @@ function buildEventArgs(name, callback, context, listener) {
     const names = Object.keys(name);
     for (let i = 0; i < names.length; i++) {
       const key = names[i];
-      const args = buildEventArgs(key, name[key], eventContext, listener);
-      for (let j = 0; j < args.length; j++) {
-        eventArgs.push(args[j]);
-      }
-    }
-    return eventArgs;
-  }
-  if (name && eventSplitter.test(name)) {
-    const names = name.split(eventSplitter);
-    const eventArgs = [];
-    for (let i = 0; i < names.length; i++) {
       eventArgs.push({
-        name: names[i],
-        callback,
-        context,
+        name: key,
+        callback: name[key],
+        context: eventContext,
         listener
       });
     }
@@ -344,7 +332,7 @@ var offReducer = function(events, {
   callback,
   context
 }) {
-  const names = name ? [name] : getKeys(events);
+  const names = name == null ? getKeys(events) : [name];
   for (let nameIndex = 0, namesLength = names.length; nameIndex < namesLength; nameIndex++) {
     const key = names[nameIndex];
     const handlers = Object.hasOwn(events, key) ? events[key] : void 0;
@@ -475,7 +463,7 @@ var Events = {
     if (!this._rdEvents) {
       return this;
     }
-    if (!name && !context && !callback) {
+    if (name == null && !context && !callback) {
       this._rdEvents = void 0;
       const listeners = this._rdListeners;
       const listenerIds = getKeys(listeners);
@@ -541,30 +529,6 @@ var Events = {
   trigger(name, ...args) {
     const events = this._rdEvents;
     if (!events) {
-      return this;
-    }
-    if (name && typeof name === "object") {
-      const names = getKeys(name);
-      for (let index = 0, length = names.length; index < length; index++) {
-        const key = names[index];
-        triggerApi({
-          events,
-          name: key,
-          args: [name[key]]
-        });
-      }
-      return this;
-    }
-    if (name && eventSplitter.test(name)) {
-      const names = name.split(eventSplitter);
-      for (let index = 0, length = names.length; index < length; index++) {
-        const n = names[index];
-        triggerApi({
-          events,
-          name: n,
-          args
-        });
-      }
       return this;
     }
     triggerApi({
@@ -646,7 +610,7 @@ var stopReducer = function(requests, {
   callback,
   context
 }) {
-  const names = name ? [name] : getKeys2(requests);
+  const names = name == null ? getKeys2(requests) : [name];
   for (let index = 0, length = names.length; index < length; index++) {
     const key = names[index];
     const handler = Object.hasOwn(requests, key) ? requests[key] : void 0;
@@ -664,13 +628,6 @@ function dispatchOverload(receiver, method, name, callback, context) {
     for (let index = 0, length = names.length; index < length; index++) {
       const key = names[index];
       receiver[method](key, name[key], mapContext);
-    }
-    return true;
-  }
-  if (name && eventSplitter.test(name)) {
-    const names = name.split(eventSplitter);
-    for (let index = 0, length = names.length; index < length; index++) {
-      receiver[method](names[index], callback, context);
     }
     return true;
   }
@@ -700,7 +657,7 @@ var Requests = {
     if (!this._rdRequests) {
       return this;
     }
-    if (!name && !callback && !context) {
+    if (name == null && !callback && !context) {
       delete this._rdRequests;
       return this;
     }
@@ -713,27 +670,12 @@ var Requests = {
   },
   request(name, ...args) {
     if (name && typeof name === "object") {
-      const replies = /* @__PURE__ */ Object.create(null);
+      const replies = {};
       const names = getKeys2(name);
       for (let index = 0, length = names.length; index < length; index++) {
         const key = names[index];
         const result = this.request(key, name[key], ...args);
-        if (eventSplitter.test(key)) {
-          Object.assign(replies, result);
-        } else {
-          setProperty(replies, key, result);
-        }
-      }
-      return {
-        ...replies
-      };
-    }
-    if (name && eventSplitter.test(name)) {
-      const replies = {};
-      const names = name.split(eventSplitter);
-      for (let index = 0, length = names.length; index < length; index++) {
-        const n = names[index];
-        setProperty(replies, n, this.request(n, ...args));
+        setProperty(replies, key, result);
       }
       return replies;
     }
@@ -1268,7 +1210,7 @@ Object.assign(Region$1.prototype, CommonMixin, {
       throw new MarionetteError({
         code: "MN0003",
         name: classErrorName$4,
-        message: "View is already managed by a Region or CollectionView",
+        message: "View is already managed by an Application, Region, or CollectionView",
         url: "marionette.region.html#showing-a-view"
       });
     }
@@ -2247,28 +2189,21 @@ var RegionsMixin = {
       return;
     }
     assertRegionCanRegister(this, region, name);
-    this.triggerMethod("before:add:region", this, name, region);
     region._parentView = this;
     region._name = name;
     this._regions[name] = region;
-    this.triggerMethod("add:region", this, name, region);
   },
   removeRegion(name) {
     const region = getRequiredRegion(getOwnRegion(this._regions, name), name);
-    this._removeRegion(region, name);
+    region.destroy();
     return region;
   },
   removeRegions() {
     const regions = this._getRegions();
     for (const name of Object.keys(regions)) {
-      this._removeRegion(regions[name], name);
+      regions[name].destroy();
     }
     return regions;
-  },
-  _removeRegion(region, name) {
-    this.triggerMethod("before:remove:region", this, name, region);
-    region.destroy();
-    this.triggerMethod("remove:region", this, name, region);
   },
   _removeReferences(name) {
     delete this.regions[name];
@@ -3402,7 +3337,7 @@ Object.assign(CollectionView$1.prototype, ViewMixin, {
       throw new MarionetteError({
         code: "MN0003",
         name: classErrorName$1,
-        message: "View is already managed by a Region or CollectionView",
+        message: "View is already managed by an Application, Region, or CollectionView",
         url: "marionette.region.html#showing-a-view"
       });
     }
@@ -3583,10 +3518,10 @@ function throwApplicationOwnershipConflict(message) {
 function isTerminal(application) {
   return application._lifecycleState === DESTROYING || application._lifecycleState === DESTROYED;
 }
-function hasTerminalOwner(application) {
+function hasStoppingOwner(application) {
   let owner = application._parentApp;
   while (owner) {
-    if (isTerminal(owner)) {
+    if (isTerminal(owner) || owner._lifecycleOperation?.kind === "stop" || owner._lifecycleState === RESTARTING || owner._lifecycleOperation?.stopReadiness) {
       return true;
     }
     owner = owner._parentApp;
@@ -3639,21 +3574,6 @@ async function destroyChildApps(application, options) {
 function hasStableLifecycleState(application, state) {
   return application._lifecycleState === state && !application._lifecycleOperation;
 }
-async function startChildApps(application, operation, options) {
-  if (!application._childApps) {
-    return true;
-  }
-  for (const child of application._childApps.values()) {
-    if (!isCurrentOperation(application, operation)) {
-      return false;
-    }
-    const started = await child.start(options);
-    if (!isCurrentOperation(application, operation) || !started || !hasStableLifecycleState(child, RUNNING)) {
-      return false;
-    }
-  }
-  return true;
-}
 function canStopChildren(application, operation) {
   if (isCurrentOperation(application, operation)) {
     return true;
@@ -3687,15 +3607,23 @@ async function stopChildApps(application, operation, options) {
   }
   return true;
 }
-function hasActiveChildApps(application) {
-  for (const child of application._childApps.values()) {
-    if (child._lifecycleState !== STOPPED && child._lifecycleState !== DESTROYED) {
-      return true;
-    }
+function releasePreparedView(application) {
+  const view = application._preparedView;
+  if (!view) {
+    return;
   }
-  return false;
+  delete application._preparedView;
+  view.off("destroy", onPreparedViewDestroyed, application);
+  if (view._parent === application) {
+    delete view._parent;
+  }
+  return view;
+}
+function onPreparedViewDestroyed() {
+  releasePreparedView(this);
 }
 function emptyView(application, options) {
+  releasePreparedView(application)?.destroy();
   const region = application.getRegion();
   if (region?.currentView) {
     region.empty(options);
@@ -3816,32 +3744,40 @@ async function startApplication(application, operation, options) {
     }
     delete operation.stopReadiness;
   }
-  const readiness = beginReadiness(operation, options, async (context) => {
-    await application.triggerMethod("before:start", application, options, context);
-    return startChildApps(application, operation, options);
+  application._lifecycleState = STARTING;
+  const readiness = beginReadiness(operation, options, (context) => {
+    application.triggerMethod("before:start", application, options);
+    if (!isCurrentOperation(application, operation)) {
+      return;
+    }
+    return application.prepareStart?.(options, context);
   });
-  const childrenStarted = await readiness.promise;
+  const result = await readiness.promise;
   if (!isCurrentOperation(application, operation)) {
     return;
   }
   completeReadiness(operation);
-  if (!childrenStarted) {
-    cancelOperation(application, operation);
-    return;
-  }
   application._lifecycleState = RUNNING;
   operation.failureState = RUNNING;
   operation.isCompleting = true;
-  application.triggerMethod("start", application, options);
+  application.triggerMethod("start", application, options, result);
 }
-async function stopApplication(application, operation, options) {
+async function stopApplication(application, operation, options, notify = true) {
   try {
     if (!operation.stopReadiness) {
       const readiness2 = beginReadiness(operation, options, async (context) => {
-        await application.triggerMethod("before:stop", application, options, context);
+        if (notify) {
+          application.triggerMethod("before:stop", application, options);
+          if (!isCurrentOperation(application, operation)) {
+            return false;
+          }
+          await application.prepareStop?.(options, context);
+        }
         return stopChildApps(application, operation, options);
       });
-      operation.stopReadiness = readiness2;
+      operation.stopReadiness = Object.assign(readiness2, {
+        notify
+      });
     }
     const readiness = operation.stopReadiness;
     const childrenStopped = await readiness.promise;
@@ -3864,7 +3800,9 @@ async function stopApplication(application, operation, options) {
       application._lifecycleState = STOPPED;
       operation.isCompleting = true;
     }
-    application.triggerMethod("stop", application, readiness.options);
+    if (readiness.notify) {
+      application.triggerMethod("stop", application, readiness.options);
+    }
     operation.stopDeferred?.resolve(true);
   } catch (error) {
     operation.stopDeferred?.reject(error);
@@ -3890,7 +3828,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     return this._lifecycleState === RUNNING;
   },
   start(options) {
-    if (isTerminal(this) || hasTerminalOwner(this)) {
+    if (isTerminal(this) || hasStoppingOwner(this)) {
       return Promise.resolve(false);
     }
     const operation = this._lifecycleOperation;
@@ -3928,7 +3866,8 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
       superseded.readiness?.controller.abort();
       return Promise.resolve(true);
     }
-    if (this._lifecycleState === STOPPED && !operation) {
+    const wasStopped = this._lifecycleState === STOPPED && !operation;
+    if (wasStopped && !this._childApps) {
       try {
         emptyView(this, options);
         return Promise.resolve(true);
@@ -3938,22 +3877,23 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     }
     const failureState = getFailureState(this, operation);
     return beginOperation(this, "stop", STOPPING, failureState, (nextOperation) => {
-      return stopApplication(this, nextOperation, options);
+      return stopApplication(this, nextOperation, options, !wasStopped);
     });
   },
   restart(options) {
-    if (isTerminal(this) || hasTerminalOwner(this)) {
+    if (isTerminal(this) || hasStoppingOwner(this)) {
       return Promise.resolve(false);
     }
     const operation = this._lifecycleOperation;
     if (operation?.kind === "restart") {
       return operation.promise;
     }
-    const shouldStop = !operation?.isStopped && this._lifecycleState !== STOPPED;
+    const wasStopped = this._lifecycleState === STOPPED;
+    const shouldStop = !operation?.isStopped && (!wasStopped || !!this._childApps);
     const failureState = getFailureState(this, operation);
     return beginOperation(this, "restart", RESTARTING, failureState, async (nextOperation) => {
       if (shouldStop) {
-        await stopApplication(this, nextOperation, options);
+        await stopApplication(this, nextOperation, options, !wasStopped);
       } else {
         emptyView(this, options);
       }
@@ -3976,12 +3916,13 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     return beginOperation(this, "destroy", DESTROYING, failureState, async (nextOperation) => {
       if (shouldStop) {
         await stopApplication(this, nextOperation, options);
-      } else if (this._childApps && hasActiveChildApps(this)) {
+      } else if (this._childApps) {
         await stopChildApps(this, nextOperation, options);
       }
       emptyView(this, options);
       const readiness = beginReadiness(nextOperation, options, (context) => {
-        return this.triggerMethod("before:destroy", this, options, context);
+        this.triggerMethod("before:destroy", this, options);
+        return this.prepareDestroy?.(options, context);
       });
       await readiness.promise;
       completeReadiness(nextOperation);
@@ -4063,18 +4004,65 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
   getRegion() {
     return this._region;
   },
+  setView(view) {
+    if (isTerminal(this)) {
+      return view;
+    }
+    if (view === this._preparedView) {
+      return view;
+    }
+    if (view._isDestroyed) {
+      throw new MarionetteError({
+        code: "MN0007",
+        name: "ApplicationError",
+        message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`,
+        url: "marionette.application.html#setviewview"
+      });
+    }
+    if (view._parent && view._parent !== this.getRegion()) {
+      throw new MarionetteError({
+        code: "MN0003",
+        name: "ApplicationError",
+        message: "View is already managed by an Application, Region, or CollectionView",
+        url: "marionette.application.html#setviewview"
+      });
+    }
+    releasePreparedView(this)?.destroy();
+    if (view !== this.getRegion()?.currentView) {
+      this._preparedView = view;
+      view._parent = this;
+      view.on("destroy", onPreparedViewDestroyed, this);
+    }
+    return view;
+  },
   showView(view, ...args) {
     if (isTerminal(this)) {
       return view;
     }
-    this.getRegion().show(view, ...args);
-    return view;
+    if (view) {
+      this.setView(view);
+    }
+    const root = this.getView();
+    if (!root) {
+      return;
+    }
+    const region = this.getRegion();
+    if (root._parent === this) {
+      delete root._parent;
+    }
+    region.show(root, ...args);
+    if (region.currentView === root) {
+      releasePreparedView(this);
+    } else {
+      root._parent = this;
+    }
+    return root;
   },
   getView() {
-    return this.getRegion()?.currentView;
+    return this._preparedView || this.getRegion()?.currentView;
   }
 });
-var version2 = "5.0.0-beta.2";
+var version2 = "5.0.0-beta.4";
 function copyApi(api) {
   return {
     ...api

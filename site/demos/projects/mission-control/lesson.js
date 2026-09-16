@@ -32,7 +32,7 @@ export const MissionLesson = LessonController.extend({
     if (chapter === 1) {
       explain(
         'Lesson 1 · Readiness gates the app screen.',
-        readiness('MissionControl.onBeforeStart'),
+        readiness('MissionControl.prepareStart'),
         'Open the hangar in four deliberate steps. The pending Promise prevents the app from showing its root View. Cancel or fail an opening to compare those outcomes.',
       );
     } else {
@@ -62,7 +62,7 @@ export const MissionLesson = LessonController.extend({
       this.writes = app.getState().readinessWrites;
       explain(
         'Readiness is pending. No root View exists.',
-        readiness('MissionControl.onBeforeStart'),
+        readiness('MissionControl.prepareStart'),
         'Each click opens another 25%. Between clicks, start() stays pending. The fourth click completes preparation.',
       );
     }

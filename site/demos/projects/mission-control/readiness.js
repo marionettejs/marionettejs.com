@@ -95,7 +95,7 @@ const MissionControl = Application.extend({
       signal: null,
     };
   },
-  async onBeforeStart(app, { loader }, { signal }) {
+  async prepareStart({ loader }, { signal }) {
     this.getState().signal = signal;
     try {
       await loader.prepare(signal);

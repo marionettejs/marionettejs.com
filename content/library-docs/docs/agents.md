@@ -6,8 +6,8 @@ For changes to Marionette itself, use the [maintainer guide](https://github.com/
 
 ## Establish the installed contract
 
-Before choosing an API, inspect the application's package manifest, lockfile,
-installed declarations, and existing Marionette configuration. Record:
+Use the application's manifest, lockfile, and configuration to establish the
+contract when it is not already known. Relevant facts are:
 
 - the installed `marionette` version and matching optional package versions;
 - whether the dependency comes from a published package, Git commit, or local build;
@@ -28,8 +28,9 @@ silently upgrade dependencies to make an example fit.
 
 ## Read for the task
 
-Use the [compact framework reference](./compact-reference.md) for an overview of
-contracts, ownership, imports, and diagnostics before opening the specific guide.
+Use the task table directly. The [compact framework reference](./compact-reference.md)
+provides an overview when the task spans unfamiliar contracts; it is not a
+prerequisite for reading a specific guide.
 
 | Task | Start here | Verify |
 | --- | --- | --- |
@@ -62,6 +63,42 @@ for repeated children. Use an Application when work has an asynchronous feature
 lifecycle. A plain function or class is enough when it needs none of these
 contracts. The [class guide](./classes.md) explains the boundaries.
 
+Before expanding a small example into an application, revisit its data and ownership
+choices. A recipe demonstrating manually managed children is not a default data
+architecture for a todo application. Domain records belong in a data source;
+CollectionView children are their presentation. Do not use child View traversal as
+the application's record store. Plain arrays can remain appropriate for explicit
+snapshot updates. When records need shared observation, filtering, and coordinated
+updates, select an observable provider; for a new application without one, start
+with `@mnjs/data` and its [DataApi setup](./data.api.md). Native Collection
+`toArray()` returns plain attributes; iteration yields Models. Do not assume
+Backbone/Underscore methods.
+
+Native DOM defaults describe the integration, not a replacement for View composition.
+Render ordinary content through `template` and `templateContext`, place child Views
+through named Regions, and declare controls with `ui`, `events`, and `triggers`.
+Use `events` when the handler needs input or keyboard details; use `triggers` when
+an interaction should become a View event. Direct DOM work still belongs at real
+integration boundaries, such as focus, measurements, and an external animation or
+widget. Keep its lifetime with the owning View.
+
+Observe each field used by a template or derived display, including changes that
+do not come from its main button. Let CollectionView handle membership changes
+without a second whole-list render subscription. Keep focused editors stable
+when processing their own input.
+
+When building teaching examples, make the application runnable independently of
+narration and inspection. Prefer ordinary modules with explicit imports and exports.
+Check that the preview supports the selected packages and module structure; a tiny
+sandbox's restrictions should not silently become the recommended app architecture.
+
+For personalized applications, connect a real user preference to interaction and
+visual design. Preserve readable hierarchy, spacing, contrast, labels, and narrow
+layouts; inspect the rendered result at desktop and narrow widths when changing
+visuals. Do not collapse independent owners to meet a line count or include
+teaching/test controls in the app. The website's optional personal-app brief supplies
+its own starter; it does not authorize browsing private sources for personalization.
+
 Configure the selected runtime before creating its consumers. The default named
 exports share a runtime. Use [runtime isolation](./runtime-isolation.md) when
 independent configurations must coexist; do not create a runtime per View.
@@ -85,18 +122,19 @@ means the request was superseded. A current readiness failure rejects. Keep thos
 outcomes distinct. Constructor hooks run synchronously, and completion hooks are synchronous
 notifications; returning a Promise from them does not add readiness.
 
-Pass the readiness hook's signal to cancellable work. After an asynchronous step,
+Pass the preparation method's signal to cancellable work. After an asynchronous step,
 check that it still belongs to the active operation before committing application
 side effects. Marionette suppresses stale lifecycle completion; it cannot undo an
 arbitrary write made by application code. Follow the complete
 [routing pattern](./routing.md) for navigation and feature startup.
 
-## Prove the behavior in the application
+## Completion evidence
 
 Use the application's existing test runner, scripts, and package manager. Library
 maintenance commands are not a consumer project's test strategy.
 
-Test the successful interaction and the boundary most likely to break. For an
+The requested behavior is complete when its interaction and affected ownership
+boundary work in the installed application. For an
 asynchronous screen, navigate away while work is pending and ensure its stale
 result cannot replace the current screen. For a list, edit a surviving row while
 inserting, removing, or reordering another row. For a subscription, destroy one
@@ -106,6 +144,13 @@ Use a real browser when correctness depends on focus, attachment, DOM event
 propagation, or editable state. A build or screenshot alone does not prove those
 interactions. Use documented public APIs for assertions rather than private
 framework fields.
+
+Review the architecture separately from interaction results: identify the data
+source, the Views and Regions that own the screen, and the external work each owner
+releases. Working buttons do not establish that the example teaches those contracts.
+For observable data, change the source directly and verify all intended consumers
+update. For attachment-bound resources, also detach and reattach the same View;
+replacement alone does not prove that repeated attachment releases resources.
 
 When reporting a change, name the behavior, the tested package/source, the exact
 commands or interactions performed, and any untested boundary. Keep changes
@@ -118,25 +163,10 @@ Follow [Set up an agent](./agent-tools.md) to install the consumer skill and rea
 version-matched packaged docs. Adapt the [application instruction template](./application-agent-template.md)
 to preserve this project's actual decisions across tasks.
 
-For optional structured retrieval, follow the website's
-[documentation MCP setup](https://marionettejs.com/docs/mcp/). A link does not
-configure a client or activate a skill. Read `marionette://catalog` first; use its
-tools only when package version and source match this application, passing the
-exact installed `version` on every call. Follow `nextOffset` until it is `null`
-to read the complete contract, not just a search
-snippet. An unsupported version should send you back to the installed docs, not
-cause a dependency upgrade. WebMCP is separate: it controls website examples.
+For structured retrieval or service setup, use [the agent tools guide](./agent-tools.md).
+It owns exact-version/source matching, MCP pagination, and offline retrieval rules.
+Read those rules before using a remote service. No hosted service is required.
+Website WebMCP controls its example; its results do not establish application behavior.
 
-A Markdown page or versioned documentation index can be read directly. A service
-such as Context7 can help locate the relevant passage, but verify its library and
-version selection before using the result. When retrieval is unavailable, use the
-same source documents in the repository or the matching documentation artifact.
-
-A documentation index does not install instructions into every agent. An
-application's own agent instructions should link to this guide and record its
-installed version and architecture choices. They should not copy this entire guide
-or use this library's maintainer instructions as application policy.
-
-Use playground tools only to examine the example they control. Their results do
-not establish behavior in your application. No hosted AI service or MCP server is
-required to use Marionette or follow this workflow.
+Application instructions should record local decisions and link to the relevant
+contracts, not copy this guide or the library's maintainer policy.

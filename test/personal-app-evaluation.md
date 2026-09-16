@@ -17,7 +17,7 @@ Build the website, then preserve these exact inputs before a trial:
 - `dist/agent-prompt.md`: the brief including executable JavaScript and CSS.
 - `site/workshop/app.js` and `style.css`: readable starter sources.
 - `package-lock.json`, `content/provenance.json`, and
-  `site/vendor/demos.provenance.json`: exact published beta.2 runtime and hashes.
+  `site/vendor/demos.provenance.json`: exact published beta.4 runtime and hashes.
 - Website source commit plus a patch/hash for any local changes; archive the full
   build used by the browser. Record the library guidance revision separately.
 
@@ -106,6 +106,6 @@ that an app is beautiful, or a visual score with correct lifecycle behavior.
 ownership checks. It rejects handler-only rendering that misses direct Model
 changes and an unowned DOM listener that survives destruction.
 `node test/browser/personal-preview.mjs` verifies real mouse and keyboard form
-submission, the exported beta.2 runtime, narrow layout, and blocked external form
+submission, the exported beta.4 runtime, narrow layout, and blocked external form
 submission. It saves screenshots for visual review. These controls validate the
 reference and checking mechanism; they are not fresh-agent trials.
