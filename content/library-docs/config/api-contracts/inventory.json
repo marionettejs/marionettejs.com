@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "480080e631f47300a73ccbd2a1332e83026fe172cfdc493bb0f989bf219ca708",
+  "semanticsSha256": "0929a305cce177355389fafdc1c5b46d8332046647ce7c970b27b49be866c616",
   "entrypoints": [
     {
       "name": "marionette",
-      "version": "5.0.0-beta.2",
+      "version": "5.0.0-beta.4",
       "kind": "runtime",
       "source": "src/index.ts",
       "conditions": {
@@ -39,7 +39,7 @@
           "members": {
             "apply": "(receiver: object, args: IArguments | [options?: ApplicationOptions | undefined]) => void",
             "call": "(receiver: object, options?: ApplicationOptions | undefined) => void",
-            "extend": "<Added extends object = {}, AddedStatics extends object = {}>(this: Added extends { constructor: (...args: never[]) => unknown; } ? object : (this: object, ...args: never[]) => unknown, prototypeProperties?: (Added & ThisType<Merge<ApplicationInstance<Merge<DefaultOptions<Added>, OptionsFor<ArgumentsFor<Added, [options?: ApplicationOptions | undefined]>>>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>>, \"options\" extends keyof Added ? Omit<Added, keyof Added & \"options\"> : Added>>) | undefined, staticProperties?: (AddedStatics & ThisType<ApplicationConstructor<Added, ArgumentsFor<Added, [options?: ApplicationOptions | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics>>) | undefined) => ApplicationConstructor<Added, ArgumentsFor<Added, [options?: ApplicationOptions | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics>",
+            "extend": "<Added extends object = {}, AddedStatics extends object = {}>(this: Added extends { constructor: (...args: never[]) => unknown; } ? object : (this: object, ...args: never[]) => unknown, prototypeProperties?: (Added & ThisType<Merge<ApplicationInstance<Merge<DefaultOptions<Added>, OptionsFor<ArgumentsFor<Added, [options?: ApplicationOptions | undefined]>>>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, StartResultFor<Added>>, \"options\" extends keyof Added ? Omit<Added, keyof Added & \"options\"> : Added>>) | undefined, staticProperties?: (AddedStatics & ThisType<ApplicationConstructor<Added, ArgumentsFor<Added, [options?: ApplicationOptions | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics>>) | undefined) => ApplicationConstructor<Added, ArgumentsFor<Added, [options?: ApplicationOptions | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics>",
             "setStateApi": "<Receiver extends StateApiClass, Mixin extends object>(this: Receiver, mixin?: string | number | bigint | boolean | symbol | (Mixin & Partial<StateApi<never>>) | null | undefined) => Receiver"
           },
           "callableMembers": [
@@ -49,7 +49,7 @@
             "setStateApi"
           ],
           "construct": [
-            "<Provided extends [options?: ApplicationOptions | undefined] = [options?: ApplicationOptions | undefined]>(...args: Provided): ApplicationInstance<object & OptionsFor<Provided>, SuppliedState<Provided[0], object>>"
+            "<Provided extends [options?: ApplicationOptions | undefined] = [options?: ApplicationOptions | undefined]>(...args: Provided): ApplicationInstance<object & OptionsFor<Provided>, SuppliedState<Provided[0], object>, unknown>"
           ],
           "instance": {
             "addChildApp": "<Child extends ApplicationInstance<object, unknown>>(name: string, application: Child) => Child",
@@ -61,10 +61,10 @@
             "createState": "(options?: (object & ApplicationOptions) | undefined) => unknown",
             "destroy": "(options?: unknown) => Promise<boolean>",
             "getChannel": "() => Channel | undefined",
-            "getChildApp": "(name: string) => ApplicationInstance<object, unknown> | undefined",
-            "getChildApps": "() => Record<string, ApplicationInstance<object, unknown>>",
+            "getChildApp": "(name: string) => ApplicationInstance<object, unknown, unknown> | undefined",
+            "getChildApps": "() => Record<string, ApplicationInstance<object, unknown, unknown>>",
             "getName": "() => string | undefined",
-            "getOption": "{ (optionName?: false | \"\" | 0 | 0n | null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: false | 0n | PropertyKey | null | undefined): unknown; }",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
             "getRegion": "() => RegionInstance<RegionOptions> | undefined",
             "getState": "() => object",
             "getView": "() => SupportedView | undefined",
@@ -78,30 +78,34 @@
             "normalizeMethods": "{ (this: unknown, hash?: false | \"\" | 0 | 0n | null | undefined): undefined; (this: unknown, hash: object): EventMap; (this: unknown, hash?: OptionalBindings): EventMap | undefined; }",
             "off": "{ <Receiver>(this: Receiver, name?: string | null | undefined, callback?: EventCallback | null | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
-            "onBeforeDestroy": "?((application: ApplicationInstance<object & ApplicationOptions, object>, options: unknown, context: LifecycleContext) => unknown) | undefined",
-            "onBeforeStart": "?((application: ApplicationInstance<object & ApplicationOptions, object>, options: unknown, context: LifecycleContext) => unknown) | undefined",
-            "onBeforeStop": "?((application: ApplicationInstance<object & ApplicationOptions, object>, options: unknown, context: LifecycleContext) => unknown) | undefined",
+            "onBeforeDestroy": "?((application: ApplicationInstance<object & ApplicationOptions, object, unknown>, options: unknown) => unknown) | undefined",
+            "onBeforeStart": "?((application: ApplicationInstance<object & ApplicationOptions, object, unknown>, options: unknown) => unknown) | undefined",
+            "onBeforeStop": "?((application: ApplicationInstance<object & ApplicationOptions, object, unknown>, options: unknown) => unknown) | undefined",
             "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
-            "onDestroy": "?((application: ApplicationInstance<object & ApplicationOptions, object>, options: unknown) => unknown) | undefined",
-            "onStart": "?((application: ApplicationInstance<object & ApplicationOptions, object>, options: unknown) => unknown) | undefined",
-            "onStop": "?((application: ApplicationInstance<object & ApplicationOptions, object>, options: unknown) => unknown) | undefined",
+            "onDestroy": "?((application: ApplicationInstance<object & ApplicationOptions, object, unknown>, options: unknown) => unknown) | undefined",
+            "onStart": "?((application: ApplicationInstance<object & ApplicationOptions, object, unknown>, options: unknown, result: unknown) => unknown) | undefined",
+            "onStop": "?((application: ApplicationInstance<object & ApplicationOptions, object, unknown>, options: unknown) => unknown) | undefined",
             "options": "object & ApplicationOptions",
             "preinitialize": "(options?: (object & ApplicationOptions) | undefined) => void",
+            "prepareDestroy": "?((options: unknown, context: LifecycleContext) => unknown) | undefined",
+            "prepareStart": "?((options: unknown, context: LifecycleContext) => unknown) | undefined",
+            "prepareStop": "?((options: unknown, context: LifecycleContext) => unknown) | undefined",
             "Radio": "RadioApi",
             "radioEvents": "?object | (() => object) | undefined",
             "radioRequests": "?object | (() => object) | undefined",
             "region": "?RegionDefinition | undefined",
             "regionClass": "RegionClass",
-            "removeChildApp": "(name: string, options?: unknown) => Promise<ApplicationInstance<object, unknown> | undefined>",
+            "removeChildApp": "(name: string, options?: unknown) => Promise<ApplicationInstance<object, unknown, unknown> | undefined>",
             "restart": "(options?: unknown) => Promise<boolean>",
-            "showView": "<Child extends SupportedView>(view: Child, options?: ShowOptions | undefined) => Child",
+            "setView": "<Child extends SupportedView>(view: Child) => Child",
+            "showView": "{ (view?: undefined, options?: ShowOptions | undefined): SupportedView | undefined; <Child extends SupportedView>(view: Child, options?: ShowOptions | undefined): Child; }",
             "start": "(options?: unknown) => Promise<boolean>",
             "state": "?unknown",
             "State": "Partial<StateApi<never>>",
             "stateEvents": "?object | (() => object) | undefined",
             "stop": "(options?: unknown) => Promise<boolean>",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
             "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver"
@@ -138,8 +142,12 @@
             "onStart",
             "onStop",
             "preinitialize",
+            "prepareDestroy",
+            "prepareStart",
+            "prepareStop",
             "removeChildApp",
             "restart",
+            "setView",
             "showView",
             "start",
             "stop",
@@ -255,11 +263,23 @@
               "preinitialize": [
                 "application-composition"
               ],
+              "prepareDestroy": [
+                "application-lifecycle"
+              ],
+              "prepareStart": [
+                "application-lifecycle"
+              ],
+              "prepareStop": [
+                "application-lifecycle"
+              ],
               "removeChildApp": [
                 "application-composition"
               ],
               "restart": [
                 "application-lifecycle"
+              ],
+              "setView": [
+                "application-composition"
               ],
               "showView": [
                 "application-composition"
@@ -304,7 +324,7 @@
             "call"
           ],
           "construct": [
-            "<Provided extends Args = Args>(...args: Provided): Constructed<Props, Merge<ApplicationInstance<Merge<DefaultOptions<Props>, OptionsFor<Provided>>, SuppliedState<Provided[0], State>>, \"options\" extends keyof Props ? Omit<Props, keyof Props & \"options\"> : Props>>"
+            "<Provided extends Args = Args>(...args: Provided): Constructed<Props, Merge<ApplicationInstance<Merge<DefaultOptions<Props>, OptionsFor<Provided>>, SuppliedState<Provided[0], State>, StartResultFor<Props>>, \"options\" extends keyof Props ? Omit<Props, keyof Props & \"options\"> : Props>>"
           ],
           "instance": {},
           "callableInstanceMembers": [],
@@ -325,7 +345,7 @@
         {
           "name": "ApplicationInstance",
           "kind": "type",
-          "signature": "ApplicationInstance<Options, State>",
+          "signature": "ApplicationInstance<Options, State, StartResult>",
           "contracts": [
             "type-shapes"
           ],
@@ -339,10 +359,10 @@
             "createState": "(options?: Options | undefined) => unknown",
             "destroy": "(options?: unknown) => Promise<boolean>",
             "getChannel": "() => Channel | undefined",
-            "getChildApp": "(name: string) => ApplicationInstance<object, unknown> | undefined",
-            "getChildApps": "() => Record<string, ApplicationInstance<object, unknown>>",
+            "getChildApp": "(name: string) => ApplicationInstance<object, unknown, unknown> | undefined",
+            "getChildApps": "() => Record<string, ApplicationInstance<object, unknown, unknown>>",
             "getName": "() => string | undefined",
-            "getOption": "{ (optionName?: false | \"\" | 0 | 0n | null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: false | 0n | PropertyKey | null | undefined): unknown; }",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
             "getRegion": "() => RegionInstance<RegionOptions> | undefined",
             "getState": "() => State",
             "getView": "() => SupportedView | undefined",
@@ -356,30 +376,34 @@
             "normalizeMethods": "{ (this: unknown, hash?: false | \"\" | 0 | 0n | null | undefined): undefined; (this: unknown, hash: object): EventMap; (this: unknown, hash?: OptionalBindings): EventMap | undefined; }",
             "off": "{ <Receiver>(this: Receiver, name?: string | null | undefined, callback?: EventCallback | null | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
-            "onBeforeDestroy": "?((application: ApplicationInstance<Options, State>, options: unknown, context: LifecycleContext) => unknown) | undefined",
-            "onBeforeStart": "?((application: ApplicationInstance<Options, State>, options: unknown, context: LifecycleContext) => unknown) | undefined",
-            "onBeforeStop": "?((application: ApplicationInstance<Options, State>, options: unknown, context: LifecycleContext) => unknown) | undefined",
+            "onBeforeDestroy": "?((application: ApplicationInstance<Options, State, StartResult>, options: unknown) => unknown) | undefined",
+            "onBeforeStart": "?((application: ApplicationInstance<Options, State, StartResult>, options: unknown) => unknown) | undefined",
+            "onBeforeStop": "?((application: ApplicationInstance<Options, State, StartResult>, options: unknown) => unknown) | undefined",
             "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
-            "onDestroy": "?((application: ApplicationInstance<Options, State>, options: unknown) => unknown) | undefined",
-            "onStart": "?((application: ApplicationInstance<Options, State>, options: unknown) => unknown) | undefined",
-            "onStop": "?((application: ApplicationInstance<Options, State>, options: unknown) => unknown) | undefined",
+            "onDestroy": "?((application: ApplicationInstance<Options, State, StartResult>, options: unknown) => unknown) | undefined",
+            "onStart": "?((application: ApplicationInstance<Options, State, StartResult>, options: unknown, result: StartResult) => unknown) | undefined",
+            "onStop": "?((application: ApplicationInstance<Options, State, StartResult>, options: unknown) => unknown) | undefined",
             "options": "Options",
             "preinitialize": "(options?: Options | undefined) => void",
+            "prepareDestroy": "?((options: unknown, context: LifecycleContext) => unknown) | undefined",
+            "prepareStart": "?((options: unknown, context: LifecycleContext) => StartResult | PromiseLike<StartResult>) | undefined",
+            "prepareStop": "?((options: unknown, context: LifecycleContext) => unknown) | undefined",
             "Radio": "RadioApi",
             "radioEvents": "?object | (() => object) | undefined",
             "radioRequests": "?object | (() => object) | undefined",
             "region": "?RegionDefinition | undefined",
             "regionClass": "RegionClass",
-            "removeChildApp": "(name: string, options?: unknown) => Promise<ApplicationInstance<object, unknown> | undefined>",
+            "removeChildApp": "(name: string, options?: unknown) => Promise<ApplicationInstance<object, unknown, unknown> | undefined>",
             "restart": "(options?: unknown) => Promise<boolean>",
-            "showView": "<Child extends SupportedView>(view: Child, options?: ShowOptions | undefined) => Child",
+            "setView": "<Child extends SupportedView>(view: Child) => Child",
+            "showView": "{ (view?: undefined, options?: ShowOptions | undefined): SupportedView | undefined; <Child extends SupportedView>(view: Child, options?: ShowOptions | undefined): Child; }",
             "start": "(options?: unknown) => Promise<boolean>",
             "state": "?unknown",
             "State": "Partial<StateApi<never>>",
             "stateEvents": "?object | (() => object) | undefined",
             "stop": "(options?: unknown) => Promise<boolean>",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
             "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver"
@@ -416,8 +440,12 @@
             "onStart",
             "onStop",
             "preinitialize",
+            "prepareDestroy",
+            "prepareStart",
+            "prepareStop",
             "removeChildApp",
             "restart",
+            "setView",
             "showView",
             "start",
             "stop",
@@ -522,10 +550,22 @@
               "preinitialize": [
                 "type-shapes"
               ],
+              "prepareDestroy": [
+                "type-shapes"
+              ],
+              "prepareStart": [
+                "type-shapes"
+              ],
+              "prepareStop": [
+                "type-shapes"
+              ],
               "removeChildApp": [
                 "type-shapes"
               ],
               "restart": [
+                "type-shapes"
+              ],
+              "setView": [
                 "type-shapes"
               ],
               "showView": [
@@ -622,7 +662,7 @@
             "el": "Element",
             "EventDelegator": "EventDelegator",
             "events": "?DOMEvents | (() => DOMEvents) | undefined",
-            "getOption": "{ (optionName?: false | \"\" | 0 | 0n | null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: false | 0n | PropertyKey | null | undefined): unknown; }",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
             "getState": "() => unknown",
             "getUI": "(name: string) => ArrayLike<Element> | undefined",
             "initialize": "(options: object & BehaviorOptions, view: BehaviorHost<ArrayLike<Element>>) => void",
@@ -642,7 +682,7 @@
             "State": "Partial<StateApi<never>>",
             "stateEvents": "?object | (() => object) | undefined",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
             "ui": "?UIBindings | Record<string, ArrayLike<Element>> | undefined",
@@ -965,7 +1005,7 @@
             "el": "Element",
             "EventDelegator": "EventDelegator",
             "events": "?DOMEvents | (() => DOMEvents) | undefined",
-            "getOption": "{ (optionName?: false | \"\" | 0 | 0n | null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: false | 0n | PropertyKey | null | undefined): unknown; }",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
             "getState": "() => State",
             "getUI": "(name: string) => Query | undefined",
             "initialize": "(options: Options, view: Host) => void",
@@ -985,7 +1025,7 @@
             "State": "Partial<StateApi<never>>",
             "stateEvents": "?object | (() => object) | undefined",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
             "ui": "?UIBindings | Record<string, Query> | undefined",
@@ -1175,7 +1215,7 @@
             "reset": "() => Channel",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
             "stopReplying": "<Receiver>(this: Receiver, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown"
           },
           "callableMembers": [
@@ -1368,7 +1408,7 @@
             "getComparator": "() => false | Comparator<CollectionChild, CollectionViewInstance<CollectionChild, object & CollectionViewConfiguration<CollectionChild, never>, unknown, unknown, ArrayLike<Element>>>",
             "getEmptyRegion": "() => RegionInstance<RegionOptions>",
             "getFilter": "() => Filter<CollectionChild, CollectionViewInstance<CollectionChild, object & CollectionViewConfiguration<CollectionChild, never>, unknown, unknown, ArrayLike<Element>>>",
-            "getOption": "{ (optionName?: false | \"\" | 0 | 0n | null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: false | 0n | PropertyKey | null | undefined): unknown; }",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
             "getState": "() => unknown",
             "getTemplate": "() => unknown",
             "getUI": "(name: string) => ArrayLike<Element> | undefined",
@@ -1407,7 +1447,7 @@
             "State": "Partial<StateApi<never>>",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
             "swapChildViews": "<Receiver extends CollectionViewInstance<CollectionChild, object & CollectionViewConfiguration<CollectionChild, never>, unknown, unknown, ArrayLike<Element>>>(this: Receiver, view1: CollectionChild, view2: CollectionChild) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
             "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
@@ -1959,7 +1999,7 @@
             "getComparator": "() => false | Comparator<Child, CollectionViewInstance<Child, Options, State, Source, Query>>",
             "getEmptyRegion": "() => RegionInstance<RegionOptions>",
             "getFilter": "() => Filter<Child, CollectionViewInstance<Child, Options, State, Source, Query>>",
-            "getOption": "{ (optionName?: false | \"\" | 0 | 0n | null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: false | 0n | PropertyKey | null | undefined): unknown; }",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
             "getState": "() => State",
             "getTemplate": "() => unknown",
             "getUI": "(name: string) => Query | undefined",
@@ -2006,7 +2046,7 @@
             "tagName": "string | (() => string)",
             "template": "?unknown",
             "templateContext": "?object | (() => object) | undefined",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
             "ui": "?UIBindings | Record<string, Query> | undefined",
@@ -2676,7 +2716,7 @@
             "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown"
           },
           "callableMembers": [
@@ -2732,7 +2772,7 @@
             "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown"
           },
           "callableMembers": [
@@ -2988,7 +3028,7 @@
             "createState": "(options?: object | undefined) => unknown",
             "destroy": "<Receiver>(this: Receiver, options?: unknown) => Receiver",
             "getChannel": "() => Channel | undefined",
-            "getOption": "{ (optionName?: false | \"\" | 0 | 0n | null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: false | 0n | PropertyKey | null | undefined): unknown; }",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
             "getState": "() => object",
             "initialize": "(options?: object | undefined) => void",
             "isDestroyed": "() => boolean",
@@ -3007,7 +3047,7 @@
             "State": "Partial<StateApi<never>>",
             "stateEvents": "?object | (() => object) | undefined",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
             "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver"
@@ -3214,7 +3254,7 @@
             "createState": "(options?: Options | undefined) => unknown",
             "destroy": "<Receiver>(this: Receiver, options?: unknown) => Receiver",
             "getChannel": "() => Channel | undefined",
-            "getOption": "{ (optionName?: false | \"\" | 0 | 0n | null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: false | 0n | PropertyKey | null | undefined): unknown; }",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
             "getState": "() => State",
             "initialize": "(options?: Options | undefined) => void",
             "isDestroyed": "() => boolean",
@@ -3233,7 +3273,7 @@
             "State": "Partial<StateApi<never>>",
             "stateEvents": "?object | (() => object) | undefined",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
             "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver"
@@ -3365,7 +3405,7 @@
             "setDebug": "(setShouldDebug?: boolean) => void",
             "stopListening": "{ (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; }",
             "stopReplying": "{ (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; }",
-            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, events: Record<string, unknown>): Channel; }",
+            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, name: string, ...args: unknown[]): Channel; }",
             "triggerMethod": "{ (channelName: string, event: string, ...args: unknown[]): unknown; (channelName: string, event: string, ...args: unknown[]): unknown; }",
             "tuneIn": "(name: string) => RadioApi",
             "tuneOut": "(name: string) => RadioApi"
@@ -3477,7 +3517,7 @@
             "setDebug": "(setShouldDebug?: boolean) => void",
             "stopListening": "{ (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; }",
             "stopReplying": "{ (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; }",
-            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, events: Record<string, unknown>): Channel; }",
+            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, name: string, ...args: unknown[]): Channel; }",
             "triggerMethod": "{ (channelName: string, event: string, ...args: unknown[]): unknown; (channelName: string, event: string, ...args: unknown[]): unknown; }",
             "tuneIn": "(name: string) => RadioApi",
             "tuneOut": "(name: string) => RadioApi"
@@ -3613,7 +3653,7 @@
             "empty": "(options?: ShowOptions | undefined) => RegionInstance<object & RegionOptions>",
             "getEl": "(selector: string) => Element | undefined",
             "getName": "() => string | undefined",
-            "getOption": "{ (optionName?: false | \"\" | 0 | 0n | null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: false | 0n | PropertyKey | null | undefined): unknown; }",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
             "getOwner": "() => RegionOwner | undefined",
             "hasView": "() => boolean",
             "initialize": "(options?: (object & RegionOptions) | undefined) => void",
@@ -3634,7 +3674,7 @@
             "reset": "(options?: ShowOptions | undefined) => RegionInstance<object & RegionOptions>",
             "show": "(view: SupportedView, options?: ShowOptions | undefined) => RegionInstance<object & RegionOptions> | undefined",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
             "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver"
@@ -3927,7 +3967,7 @@
             "empty": "(options?: ShowOptions | undefined) => RegionInstance<Options>",
             "getEl": "(selector: string) => Element | undefined",
             "getName": "() => string | undefined",
-            "getOption": "{ (optionName?: false | \"\" | 0 | 0n | null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: false | 0n | PropertyKey | null | undefined): unknown; }",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
             "getOwner": "() => RegionOwner | undefined",
             "hasView": "() => boolean",
             "initialize": "(options?: Options | undefined) => void",
@@ -3948,7 +3988,7 @@
             "reset": "(options?: ShowOptions | undefined) => RegionInstance<Options>",
             "show": "(view: SupportedView, options?: ShowOptions | undefined) => RegionInstance<Options> | undefined",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
             "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver"
@@ -4470,7 +4510,7 @@
             "EventDelegator": "EventDelegator",
             "events": "?DOMEvents | (() => DOMEvents) | undefined",
             "getChildView": "(name: string) => SupportedView | undefined",
-            "getOption": "{ (optionName?: false | \"\" | 0 | 0n | null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: false | 0n | PropertyKey | null | undefined): unknown; }",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
             "getRegion": "(name: string) => RegionInstance<RegionOptions> | undefined",
             "getRegions": "() => Record<string, RegionInstance<RegionOptions>>",
             "getState": "() => unknown",
@@ -4515,7 +4555,7 @@
             "tagName": "string | (() => string)",
             "template": "?unknown",
             "templateContext": "?object | (() => object) | undefined",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
             "ui": "?UIBindings | Record<string, ArrayLike<Element>> | undefined",
@@ -4989,7 +5029,7 @@
             "EventDelegator": "EventDelegator",
             "events": "?DOMEvents | (() => DOMEvents) | undefined",
             "getChildView": "(name: string) => SupportedView | undefined",
-            "getOption": "{ (optionName?: false | \"\" | 0 | 0n | null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: false | 0n | PropertyKey | null | undefined): unknown; }",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
             "getRegion": "(name: string) => RegionInstance<RegionOptions> | undefined",
             "getRegions": "() => Record<string, RegionInstance<RegionOptions>>",
             "getState": "() => State",
@@ -5034,7 +5074,7 @@
             "tagName": "string | (() => string)",
             "template": "?unknown",
             "templateContext": "?object | (() => object) | undefined",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
             "ui": "?UIBindings | Record<string, Query> | undefined",
@@ -5302,7 +5342,7 @@
     },
     {
       "name": "@mnjs/utils",
-      "version": "5.0.0-beta.2",
+      "version": "5.0.0-beta.4",
       "kind": "runtime",
       "source": "packages/utils/src/index.ts",
       "conditions": {
@@ -5433,7 +5473,7 @@
             "on": "{ (name: string | Record<string, EventCallback>, callback?: EventCallback | undefined, context?: unknown): EventMethods; (events: Record<string, EventCallback>, context?: unknown, explicitContext?: unknown): EventMethods; }",
             "once": "{ (name: string | Record<string, EventCallback>, callback?: EventCallback | undefined, context?: unknown): EventMethods; (events: Record<string, EventCallback>, context?: unknown, explicitContext?: unknown): EventMethods; }",
             "stopListening": "(source?: EventSource | null | undefined, name?: string | Record<string, EventCallback> | null | undefined, callback?: EventCallback | null | undefined) => EventMethods",
-            "trigger": "{ (name: string, ...args: unknown[]): EventMethods; (events: Record<string, unknown>): EventMethods; }",
+            "trigger": "(name: string, ...args: unknown[]) => EventMethods",
             "triggerMethod": "TriggerMethod"
           },
           "callableMembers": [
@@ -5489,7 +5529,7 @@
             "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown"
           },
           "callableMembers": [
@@ -5545,7 +5585,7 @@
             "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown"
           },
           "callableMembers": [
@@ -5614,15 +5654,6 @@
           }
         },
         {
-          "name": "eventSplitter",
-          "kind": "value",
-          "signature": "RegExp",
-          "contracts": [
-            "event-arguments"
-          ],
-          "operationContracts": {}
-        },
-        {
           "name": "extend",
           "kind": "value",
           "signature": "Extend",
@@ -5650,14 +5681,14 @@
         {
           "name": "getOption",
           "kind": "value",
-          "signature": "{ (optionName?: false | \"\" | 0 | 0n | null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: false | 0n | PropertyKey | null | undefined): unknown; }",
+          "signature": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
           "contracts": [
             "get-option"
           ],
           "call": [
-            "(optionName?: false | \"\" | 0 | 0n | null | undefined): undefined",
-            "<Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>",
-            "(this: object, optionName: false | 0n | PropertyKey | null | undefined): unknown"
+            "(optionName?: null | undefined): undefined",
+            "<Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>",
+            "(this: object, optionName: PropertyKey | null | undefined): unknown"
           ],
           "operationContracts": {}
         },
@@ -5932,7 +5963,7 @@
     },
     {
       "name": "@mnjs/radio",
-      "version": "5.0.0-beta.2",
+      "version": "5.0.0-beta.4",
       "kind": "runtime",
       "source": "packages/radio/src/index.ts",
       "conditions": {
@@ -5970,7 +6001,7 @@
             "reset": "() => Channel",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
             "stopReplying": "<Receiver>(this: Receiver, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown"
           },
           "callableInstanceMembers": [
@@ -6055,7 +6086,7 @@
             "reset": "() => Channel",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
             "stopReplying": "<Receiver>(this: Receiver, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown"
           },
           "callableInstanceMembers": [
@@ -6153,7 +6184,7 @@
             "setDebug": "(setShouldDebug?: boolean) => void",
             "stopListening": "{ (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; }",
             "stopReplying": "{ (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; }",
-            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, events: Record<string, unknown>): Channel; }",
+            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, name: string, ...args: unknown[]): Channel; }",
             "triggerMethod": "{ (channelName: string, event: string, ...args: unknown[]): unknown; (channelName: string, event: string, ...args: unknown[]): unknown; }",
             "tuneIn": "(name: string) => RadioApi",
             "tuneOut": "(name: string) => RadioApi"
@@ -6265,7 +6296,7 @@
             "setDebug": "(setShouldDebug?: boolean) => void",
             "stopListening": "{ (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; }",
             "stopReplying": "{ (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; }",
-            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, events: Record<string, unknown>): Channel; }",
+            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, name: string, ...args: unknown[]): Channel; }",
             "triggerMethod": "{ (channelName: string, event: string, ...args: unknown[]): unknown; (channelName: string, event: string, ...args: unknown[]): unknown; }",
             "tuneIn": "(name: string) => RadioApi",
             "tuneOut": "(name: string) => RadioApi"
@@ -6393,7 +6424,7 @@
     },
     {
       "name": "@mnjs/data",
-      "version": "5.0.0-beta.2",
+      "version": "5.0.0-beta.4",
       "kind": "runtime",
       "source": "packages/data/src/index.ts",
       "conditions": {
@@ -6448,7 +6479,7 @@
             "sort": "(comparator?: string | ((left: ModelInstance, right: ModelInstance) => number) | undefined, options?: MutationOptions | null | undefined) => CollectionInstance<ModelInstance>",
             "stopListening": "(source?: EventSource | null | undefined, name?: string | Record<string, EventCallback> | null | undefined, callback?: EventCallback | null | undefined) => CollectionInstance<ModelInstance>",
             "toArray": "() => ModelAttributes[]",
-            "trigger": "{ (name: string, ...args: unknown[]): CollectionInstance<ModelInstance>; (events: Record<string, unknown>): CollectionInstance<ModelInstance>; }",
+            "trigger": "(name: string, ...args: unknown[]) => CollectionInstance<ModelInstance>",
             "triggerMethod": "TriggerMethod"
           },
           "callableInstanceMembers": [
@@ -6657,7 +6688,7 @@
             "on": "{ (name: string | Record<string, EventCallback>, callback?: EventCallback | undefined, context?: unknown): EventMethods; (events: Record<string, EventCallback>, context?: unknown, explicitContext?: unknown): EventMethods; }",
             "once": "{ (name: string | Record<string, EventCallback>, callback?: EventCallback | undefined, context?: unknown): EventMethods; (events: Record<string, EventCallback>, context?: unknown, explicitContext?: unknown): EventMethods; }",
             "stopListening": "(source?: EventSource | null | undefined, name?: string | Record<string, EventCallback> | null | undefined, callback?: EventCallback | null | undefined) => EventMethods",
-            "trigger": "{ (name: string, ...args: unknown[]): EventMethods; (events: Record<string, unknown>): EventMethods; }",
+            "trigger": "(name: string, ...args: unknown[]) => EventMethods",
             "triggerMethod": "TriggerMethod"
           },
           "callableMembers": [
@@ -6736,7 +6767,7 @@
             "set": "{ (attributes: Partial<ModelAttributes>, options?: MutationOptions | null | undefined): ModelInstance<ModelAttributes>; <Key extends string>(key: Key, value: Key extends string ? unknown : unknown, options?: MutationOptions | null | undefined): ModelInstance<ModelAttributes>; }",
             "stopListening": "(source?: EventSource | null | undefined, name?: string | Record<string, EventCallback> | null | undefined, callback?: EventCallback | null | undefined) => ModelInstance<ModelAttributes>",
             "toObject": "() => Partial<ModelAttributes>",
-            "trigger": "{ (name: string, ...args: unknown[]): ModelInstance<ModelAttributes>; (events: Record<string, unknown>): ModelInstance<ModelAttributes>; }",
+            "trigger": "(name: string, ...args: unknown[]) => ModelInstance<ModelAttributes>",
             "triggerMethod": "TriggerMethod",
             "unset": "(key: string, options?: MutationOptions | null | undefined) => ModelInstance<ModelAttributes>"
           },
@@ -6926,7 +6957,7 @@
     },
     {
       "name": "@mnjs/adapters/backbone",
-      "version": "5.0.0-beta.2",
+      "version": "5.0.0-beta.4",
       "kind": "runtime",
       "source": "packages/adapters/src/data/backbone.ts",
       "conditions": {
@@ -7001,7 +7032,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/jquery",
-      "version": "5.0.0-beta.2",
+      "version": "5.0.0-beta.4",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/jquery.ts",
       "conditions": {
@@ -7061,7 +7092,7 @@
     },
     {
       "name": "@mnjs/adapters/xstate",
-      "version": "5.0.0-beta.2",
+      "version": "5.0.0-beta.4",
       "kind": "runtime",
       "source": "packages/adapters/src/data/xstate.ts",
       "conditions": {
@@ -7148,7 +7179,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/morphdom",
-      "version": "5.0.0-beta.2",
+      "version": "5.0.0-beta.4",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/morphdom.ts",
       "conditions": {
@@ -7188,7 +7219,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/lit-html",
-      "version": "5.0.0-beta.2",
+      "version": "5.0.0-beta.4",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/lit-html.ts",
       "conditions": {
@@ -7242,6 +7273,7 @@
       "code": "MN0003",
       "slug": "view-already-owned",
       "objects": [
+        "Application",
         "CollectionView",
         "Region",
         "View"
@@ -7265,6 +7297,7 @@
       "code": "MN0007",
       "slug": "region-view-destroyed",
       "objects": [
+        "Application",
         "Region",
         "View"
       ]
@@ -7631,46 +7664,6 @@
     },
     {
       "source": "src/modules/view.ts",
-      "event": "'before:add:region'",
-      "kind": "literal",
-      "arguments": [
-        "this",
-        "name",
-        "region"
-      ]
-    },
-    {
-      "source": "src/modules/view.ts",
-      "event": "'add:region'",
-      "kind": "literal",
-      "arguments": [
-        "this",
-        "name",
-        "region"
-      ]
-    },
-    {
-      "source": "src/modules/view.ts",
-      "event": "'before:remove:region'",
-      "kind": "literal",
-      "arguments": [
-        "this",
-        "name",
-        "region"
-      ]
-    },
-    {
-      "source": "src/modules/view.ts",
-      "event": "'remove:region'",
-      "kind": "literal",
-      "arguments": [
-        "this",
-        "name",
-        "region"
-      ]
-    },
-    {
-      "source": "src/modules/view.ts",
       "event": "'before:render'",
       "kind": "literal",
       "arguments": [
@@ -7843,8 +7836,7 @@
       "kind": "literal",
       "arguments": [
         "application",
-        "options",
-        "context"
+        "options"
       ]
     },
     {
@@ -7853,7 +7845,8 @@
       "kind": "literal",
       "arguments": [
         "application",
-        "options"
+        "options",
+        "result"
       ]
     },
     {
@@ -7862,8 +7855,7 @@
       "kind": "literal",
       "arguments": [
         "application",
-        "options",
-        "context"
+        "options"
       ]
     },
     {
@@ -7881,8 +7873,7 @@
       "kind": "literal",
       "arguments": [
         "this",
-        "options",
-        "context"
+        "options"
       ]
     },
     {
@@ -8020,23 +8011,23 @@
     "packages/radio/src/debug.ts": "069c7aab08d8a48eff7a6cc5efe4ff09bac80f12acaa6ddc5721ed18e8065eb6",
     "packages/radio/src/index.ts": "24171247f65ecb3697629883abe9d248395b090d566ea70ac7c1b856d1cd7940",
     "packages/radio/src/radio.ts": "42a799d58d602c0fbbb4fcbc16170e1a89dad55c47d5f00ffaed69c8ee3d877f",
-    "packages/radio/src/requests.ts": "301d7d34aec269a194c67f574d67610e028d4b4fcc54f6c74bfe5560519cf37e",
-    "packages/utils/src/bind-events.ts": "be2926496e5900bdce77ee1d4efaf1d7443ea50e7d0b70c5a21d803ad2eda070",
+    "packages/radio/src/requests.ts": "68ccf97dbf79da12102c19d91bb9ba63a5fabe28866dd4a862de0df264747382",
+    "packages/utils/src/bind-events.ts": "15ac2efc033329536039f8d846199f39a5e999f4c9efcb9df8445854bded9059",
     "packages/utils/src/bind-requests.ts": "4888ab0880961e2c8eaa131f91031f1dc0f1b39ab11907506bce94b3bb4f2870",
-    "packages/utils/src/build-event-args.ts": "0fa3241090b0d2daf797cb514053c603936941c09087b8dc490cfb4dd3d8dc6e",
+    "packages/utils/src/build-event-args.ts": "229567f225c14e49ec063898daa1ee40ccb7bc72813dd4324f10a921585d5ba6",
     "packages/utils/src/call-handler.ts": "d12565a492c7db98041a9ad66698a9dce3d023fd626671d4ce7537d9c4afe138",
     "packages/utils/src/error.ts": "79aadefa5d87a7bb9ea65d10070e7c4f623f2eb72bee47fb676989c3daebceeb",
-    "packages/utils/src/events.ts": "7334b6bcc0ad3aa942f5ce0f4b1b9ae1307279de4c4e09dd3f2504de8407fc65",
+    "packages/utils/src/events.ts": "faeedf4cf22461ccb57b3c8ea23629c9060923e117e4db2ef6008bc3b6865d13",
     "packages/utils/src/extend.ts": "ea69bf3ae876e9266cd4259435f7a265c7a2d8c904ab54458e3af3c65c8c6bb7",
-    "packages/utils/src/get-option.ts": "88e4489b7ac4e13aae2690afdf8942a68b0519f5a2c41bbd8ae00f18aa9c3cbe",
+    "packages/utils/src/get-option.ts": "871bfce664422e78d80d260bd372195da8026e9592917183a5c351741af8cd85",
     "packages/utils/src/get-value.ts": "d394c66e9963fe5825b1dd94c5e541808389b4f404df64125552053ee877094c",
-    "packages/utils/src/index.ts": "094db4eddeee296b770afc831b5df142bfc166d059f0e9f79aade3b778da15c6",
+    "packages/utils/src/index.ts": "651f2e6bde6ae07c447f5de1d63dab8b2597571fcd267a6649b86a3cf88a0588",
     "packages/utils/src/is-string.ts": "ade502b56b6857bd0b20de302e31741b47c900ddf7d881903e973a7c6b81aaaf",
     "packages/utils/src/merge-options.ts": "b5af5bb62246f200c43f98b439ba018f4c1d7d396b65d88f11e35ce74d857a2d",
     "packages/utils/src/normalize-methods.ts": "6d75ac6a453b8e4aed11195b70bbe48e05911dfd62eeafca1e0d934f93b8024b",
     "packages/utils/src/once-wrap.ts": "736f8e44b05413637b2076f399e236754a81022da5c3d99886d4b8a28e3928d5",
     "packages/utils/src/set-property.ts": "a32a909a215d347ad891a26ce62ab249f24b49ca77cb910d32495447970eada6",
-    "packages/utils/src/trigger-method.ts": "876c69d683c2bae6321afbe191dce7fe04e93a9c624e77dd3c41dbffebcbccb6",
+    "packages/utils/src/trigger-method.ts": "3a6460a5fdc6e0a319a6eea1e323f34f19fa0811ee1ea71fccaa45ade531d38f",
     "packages/utils/src/unique-id.ts": "22f5f12062eeef10c1336ee01e4b28b7d0cfe562c0f53f79e2a3219eb389f72b",
     "src/create-marionette.ts": "12baf1aadeeae54aefbb7e5777db9392f74650a407dcd506e97ebf18b73cfcc1",
     "src/index.ts": "0fdbaa2bbb16566dd1032f786273e7b1acc8683390033b2c63b196e2dc04b449",
@@ -8050,17 +8041,17 @@
     "src/mixins/ui.ts": "5cb417e1456cd17b43357e480102be3fc1b436167c43b853af7d45ab79d35ffd",
     "src/mixins/view-events.ts": "108a31ba7d0f74916848c5b2f85b422afe15703a8e9fa2dbca0b17b6a5ff0fb2",
     "src/mixins/view.ts": "d0895d07d087d24d5cd8ce8d051a7acbbc9cee64fd2b5a6824b26973fc064e18",
-    "src/modules/application.ts": "07cb345e9edbeb32b6d9186bc4edbc3eacd886e66ed6787b731675f65b4531b7",
+    "src/modules/application.ts": "3c6be0f0d93e171a5d258d19556c3955f34ff00726f70ec10a4262f84e9e82af",
     "src/modules/behavior.ts": "475fe0451e629559992bd0f5ec18ad16438309b018bf643b5917dfc47a1693b6",
     "src/modules/child-view-container.ts": "ab52685a0a4fd8861534b8e9784704791c3e72a15ee19547766293be4a030803",
-    "src/modules/collection-view.ts": "6e9531ffe66b612a2b3ef1d74af1fd8c40ade13ab8315a58c197d3d88a492dc9",
+    "src/modules/collection-view.ts": "40bbaefedea29de171597e905f8fdde7ee6f55877da9e441996c9b5bf56bfe58",
     "src/modules/common/build-region.ts": "69fc222800674736c3385928e8a4b07932c1fd5ca7237b48fb4ab8f3a309022b",
     "src/modules/common/chainable-methods.ts": "5d61465f3de8bc0f84a3491e24067f7a711f2a7ebae08cb1a3d94375d9d153a2",
     "src/modules/common/monitor-view-events.ts": "e4f221ca598e2ce63c1cff766edbb2221d7cc7d1cb527086689e08b622a4f655",
     "src/modules/common/view.ts": "cd62997f30b7120e61f5067f876e612793dba629dfe942b46f156c861273c67e",
     "src/modules/object.ts": "23dacb7eacf2448ccbb690caa92195b49b992def43e4ef7cb598b50c03224100",
-    "src/modules/region.ts": "2c9997d56274176b13dc2ba114ff9be97cd1202381c61e968e9496fcedf03a82",
-    "src/modules/view.ts": "f1b62ba04dc111d5efc3cc3a72202b6b8cffdb5c4f76b2362f8f3f14ba508180",
+    "src/modules/region.ts": "03a7ab2a5721ca01ded6c1070217bdc10b40673ce4cc3a21e4bb699ef68bb569",
+    "src/modules/view.ts": "aef584d1b60da901488163831e2888104ff209278b6b79bd9dfbbeb35fe55d82",
     "src/runtime-id.ts": "3636769dee054da16eaa2171f2badc2a71a528dedb41ea1d4ac3342e09060087",
     "src/runtime/data-api.ts": "85b7ce5d823c9ca7cce5bde827fcb03322372f48c7a2bcf82956442aa847f9e5",
     "src/runtime/dom-api.ts": "6dcaec5e6e4c7e14c84da32daeb8ff5b8f85ae24ec1f82ab9af2054ed9166475",
@@ -8071,67 +8062,73 @@
     "src/utils/subscribe-bindings.ts": "24633b6b39c2d0a8c833670e2ab1d584fb6bed2fae3ac5cfb5d42461cf233f4a"
   },
   "evidence": {
-    "config/diagnostics/catalog.json": "a044dac8d4242de8e7c6c58a6442fb58384069c0f4d76ec6fabec03f34697eac",
-    "docs/choosing-integrations.md": "24ce6295dcc8cf8f587a52a935e2b351ebab4e9721e6ed311625c611eec0bc6c",
-    "docs/data.api.md": "c9bf72e4afd8c9b774391b3e343284808705887c8a38265609bfad910193e45c",
+    "config/diagnostics/catalog.json": "76cc4270e2ec939078cc3c8537d66e45bf0a58010fe25eeef81ab21f58886997",
+    "docs/choosing-integrations.md": "385bfb2c7d85a8e0db71fd795ed1fef488aa637aa5094e93210810ff91f31f12",
+    "docs/common.md": "1d14004d1c49e98ca40be9fd28d35faaf372f2a12f13fae6afa3cac8a8bf14cc",
+    "docs/data.api.md": "5b714e990415d75982e78aaa62c0e86ad4b2fb0e75ea089fd994a080fdcee01a",
     "docs/diagnostic-catalog.md": "1df844c7e8edbea59a8c07776d656d45f77266108babb770d7690183fe85d180",
     "docs/dom.api.md": "a697a637ae4c6cc92aa5d72850b404763f08e0417800feacc0b431ec073d3916",
     "docs/dom.interactions.md": "81bd678c7d498e08c08c84cfc3bbe1d27451ef46ed521e67fff4f72450bdbadb",
-    "docs/events.class.md": "1985e744dbd49b2c2cd47afd9ae2364e60ad457961cc408c52b19ff6d1d8a6e7",
-    "docs/events.md": "ecc54967f0964ae721d16a769db30016986a252eb391da5f3380f7d3b6b5adc3",
-    "docs/marionette.application.md": "0c820bfdad7a67a5f0697aca747da3f8c8354246ddc0882aba7675bac5c48ddc",
+    "docs/events.class.md": "faed5ac4f6eca3ec447ae7cd44b6efd8f039e935b38a4c191076d485bd57a35f",
+    "docs/events.md": "227484aca95a4003903bd8df51f3c38c11144480ace919b63bacbf5bc2bb3d22",
+    "docs/marionette.application.md": "bbb8db3bc58f2b021d9dd77d748a3a005ee9b6a3410d3a897c171dc8b3fb1a85",
     "docs/marionette.behavior.md": "bf002b5ba380cf1bb1054b98f9813d89b4aef16ba6495d02b823ed178ab3f0c4",
     "docs/marionette.collectionview.md": "5af1ed04daaf0e976fdd0538b0931fd370fd09167079d0c21b01195f8628cefe",
     "docs/marionette.mnobject.md": "056bb3041902d66831a0031e2e9c97770f485f613450861ae55aba46ca592243",
-    "docs/marionette.region.md": "ac3ddce3ccc4a5ba6980986cec0ca6cfacb7ff9271e11bf3f21593636e1e94ce",
-    "docs/marionette.state.md": "242b5a0d7e4bd99774c6f67c6152a218950f99a88ba962b2a9c4d6daab0a60ca",
+    "docs/marionette.region.md": "6716880b5ab5a6bf7b4b4a6dd7b66e7fdb7bd9c1c451578ad551d64f4be9e40d",
+    "docs/marionette.state.md": "fbee628142604499747a83f19055b05c0ba5831944760cf0910cc11cceef55f5",
     "docs/marionette.view.md": "b7b5871b0b56474cc3bc2513c2e2c4fdabdafcd724bfbaa8076ea7eee40d5ab5",
-    "docs/optional-backbone.md": "9156baef4f7ba47be1b2a017f98e05c8eeb99cdc5d44e267a3afcd33ab6671eb",
-    "docs/radio.md": "a5180c67bddc1c84125b0c7ca7fe9db0efc633b669bab2dfd566db47527a2635",
+    "docs/optional-backbone.md": "8f8323ba79c77de961b81c1e6f9d3ed10efa5566629772054de201ea247ddaba",
+    "docs/radio.md": "c0013e382554aa6cd4e46ab60908f5e6cce7117c134b3f4656c37a163f8a5f4e",
     "docs/runtime-isolation.md": "e18927a5aa30558805018c9c28dffceaf02d953394efce8eaa7d35f0711de7f4",
     "docs/typescript.md": "47ec746e0dcc04cce56f6227f0645d4c777585a2ae797f00c4683b32585922f1",
     "docs/utils.md": "5c2d0854895bb19f613926788cf81c5849cf18af1e43ac540e860b226fa80d2a",
     "docs/view.lifecycle.md": "2cc29e59e056174bb2fcbd2888ee508ff6fb044b86e9fcacd1025c1f4e036133",
     "docs/view.rendering.md": "6b397b0925b00c06ff644cd549b2273ba6235e1d6148ad6fa0514394f9c92df5",
-    "packages/adapters/readme.md": "358da8baf33d34ac4f8075733557c456388d022c08253fb5e60a2a9a3dca8c99",
-    "packages/data/readme.md": "6ef565045f1a0cea164b46d6e43b49d2a5666898e2535349c3073735f8c9d019",
-    "packages/utils/readme.md": "40330c4ba4f9682cfae6fa9cb0ea63c6b99864df12bb5f8067a62c727a8428a5",
+    "packages/adapters/readme.md": "67bca53b26a2facef67f4bc04931af31cbe9923167a9e62c98aa9789c40fd291",
+    "packages/data/readme.md": "45fe77f1744e39746be2c0f6ee872298f18fe9c12f7f7d94827c041b0e7f4b02",
+    "packages/utils/readme.md": "8ba1130cd1b6fd0aac3dd945d100bb2cebc8c87212890f1229a0863e2d9e4755",
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
-    "test/unit/application-lifecycle.spec.js": "52adc58534d8cb079dacb9b8b5f608bd62783c14ad5b98bb8cd85dcdd757c331",
-    "test/unit/application-ownership.spec.js": "639b5f3d5a4f27c7fd190caff628c98937e99019fdd95cfce5a3e71d3b85986f",
-    "test/unit/application-root-view.spec.js": "0a51c85c6fd01c6aae9beb1e663f0ca465a303f38bdb5ef5bd7ed6b5627da1f9",
+    "test/unit/application-child-lifecycle.spec.js": "e69e6a140e341563b49333d09bd1c483151f9f4b2a494960a4dfc78bb81f8dcb",
+    "test/unit/application-lifecycle.spec.js": "43da21063d3b03c1c16fd047735458a26a98abe003ef75e607bad0f01a473f37",
+    "test/unit/application-ownership.spec.js": "f1e6a74f639bb6ceedd85957c696a45de28e1526ed41df0f34663a23b25bb68f",
+    "test/unit/application-preparation.spec.js": "23e58351eec5983b4d412be099a7e9306f4b758a1f501874f46baca8be940b56",
+    "test/unit/application-prepared-view.spec.js": "440619dba9c73570974f1531bbe8b601fcb9a27ed64b499d6c10b9e8ca955dca",
+    "test/unit/application-root-view.spec.js": "2c1c642bb872836425b942580cc6600236cf3110186b427b1f7b2fd6263ff78d",
     "test/unit/backbone-adapter.spec.js": "016907f55d5e20d695f916dbd4189ac7e3e543a0f903df6a3922c207dade59df",
     "test/unit/behavior-lifecycle.spec.js": "8c70d05fa530d27eac901291a3487c9cacac1ef1d0c22a3adda917da5774d05a",
     "test/unit/behavior-ui-contract.spec.js": "65def27b40f17e3d931803faeff7c9dbb3c580e14f157fa5d2f8145fb95c1761",
-    "test/unit/collection-view/collection-view-children.spec.js": "7afbd9d535f508ac91c6bdcea32f412d4b038bf8c59237c46de3b3540082f381",
+    "test/unit/collection-view/collection-view-children.spec.js": "3383be2e1def6c561ce827bb4742b7d57e7f2396e99b0fd2b39b601accc327e4",
     "test/unit/collection-view/collection-view-lifecycle.spec.js": "6d331ff97770fcc755fc4f5ddaef20372ac000fa2948d53ead4670b7b56801ec",
     "test/unit/collection-view/collection-view-reconciliation.spec.js": "ad8766fe445a552d7882f089b96c8787082cd58bbb39f0cab141fb5f13ee601a",
     "test/unit/collection-view/collection-view-sorting.spec.js": "c20347ce2d7ef8352a5b5441a5a5b9d98537ca4ee5880ebb1d9b15740d9627df",
     "test/unit/common/bind-events.spec.js": "52704cfd2974216d9558751c7ba614e001a52a0606b1d3945d021988191c4f48",
     "test/unit/common/bind-request.spec.js": "44d59624cfd5cfd4899078b90cb700f3a175cdfb09f13191059d07909548a1e4",
-    "test/unit/common/get-option.spec.js": "0cd094ef9046c2d61d0d5b1a7841ca3164e99313377e1e0dfee24595cb28e0a7",
+    "test/unit/common/get-option.spec.js": "81d9dae942da61b078caa8647dd34adef1a2454891d34c7e92b7193ad8d85f55",
     "test/unit/common/merge-options.spec.js": "7c4be2ecd63be93d601a5818a474a681dda5ceb0f0e4a38b51aaa444cbde56cc",
     "test/unit/common/normalize-methods.spec.js": "383b711b57f9280e616c69f95a4fd67b113e7e7e8b5a520f7a28e139fa02a04d",
-    "test/unit/common/trigger-method.spec.js": "166cbd37c39b204b8fe8866aeb6cc3e8ee5291a2cd40ee841006a7b7071c2341",
+    "test/unit/common/trigger-method.spec.js": "a42d99fd40ceff5deb22f7b1822681edf440a6b51972bcf2ac132f8a29e415f5",
     "test/unit/create-marionette.spec.js": "ea65384c245530b7d46909b6f1bebedf3544c7ea5d08dc33a92c5ef956f02902",
     "test/unit/data-api-integration.spec.js": "50086bdabcadc63a4f91f395dd42ef0d9713d5ac687ae4976d19fffd71a908c7",
     "test/unit/data-api-redux.spec.js": "0d0cb3a11ecfaeacbea2ea5e30c8bdda73993aa7be2b1f45eb09fb7b548d7940",
     "test/unit/data-package/api-integration.spec.js": "6648f2577073c442c1db161e40b3e1909b011f9644efe155141efc4b238ebd77",
     "test/unit/data-package/collection.spec.js": "499b774fd34d75010f471db8ffd044a4a2ad00f84dfbf70df182f64f7a5db97a",
-    "test/unit/data-package/model.spec.js": "132c2a8545cce3bbfb52fd210b7ca0f62d7b9f50fc519ffd84bd9f76183c4efe",
+    "test/unit/data-package/model.spec.js": "b67c0783ae13e36b2903c404212d1a7c3bed0078f44a01f9828c2377991615ff",
     "test/unit/dom-adapters.spec.js": "12450f4ad513ae9000c9db640d481b995db91bcbe2f66c42fc503b72d019f69a",
-    "test/unit/events-parity.spec.js": "36cf9d4c206ed4334925fe039d70c7ea4e49f479085ea4e4c06f0cd81f4bf688",
+    "test/unit/events-literal-names.spec.js": "ed182d2c2d34f11ad702af6d6c69b439faa04745e93256e0ae28cc2c87298bf0",
+    "test/unit/events-parity.spec.js": "a0ec7cd3dac3636803ec6ecc6fb7161df2a74fa7d5e6d532477e12539a9bd71c",
+    "test/unit/events-single-dispatch.spec.js": "9405ceb5a59c4ebddf3aeb4a902588dcf81a6bc35aca40bde0e8aa41760fb6ce",
     "test/unit/jquery-dom-api.spec.js": "4b0187d3ca5dac647394dd906fe6c6ca11764688c12ef864bc4eae867a629ded",
-    "test/unit/model-based/application.spec.js": "b47267a169599d65eafb40ef0ff2d71a2d7d86732171f81499d9a222f6c2a21c",
+    "test/unit/model-based/application.spec.js": "e40a27ede3317869f8e3a1e10563be78f1bfe768365d62bcd1fedd38322a84ed",
     "test/unit/modules-error.spec.js": "3ca32416b3329999cb3fcdd3fbc66751d722e7a2c0082195b702b64dce6284c3",
     "test/unit/object.spec.js": "ca82986738229a1af224aa3bd2b0ab88d70ca92dc556806796e5b056b19ebb3e",
     "test/unit/provider-acceptance.spec.js": "9eb8795a222745b41ba2d76ae770dfa702e2f0f1ec8e17be8402be42c6166db9",
     "test/unit/radio-public.spec.js": "cc808f986107a14c0aefdfc3db3cac9b966154422d3527a6ee91e0a54d348ab9",
     "test/unit/region-lifecycle.spec.js": "1445b64c438a380f14bd490bb3f106ac0c3a73c0b8b2c744043e49288b71c66c",
-    "test/unit/requests.spec.js": "06b23e64a0f67767435e2c9d6fb20718a9d08aad8db5c940f48131ff15c1aef7",
+    "test/unit/requests.spec.js": "244e5a9a9d5cfd135435f820af6edb73c1abfb13ed2c0b92799ee56673bf854a",
     "test/unit/runtime/event-delegator.spec.js": "6d75e90b91a4b1441fed3f0c909ac6a0e52634265cad0d1604a779ea8007c65b",
     "test/unit/state-owner.spec.js": "6f5455831330909831bf427ef431dc46bc431239b5d34fdb5ed05df79378437a",
-    "test/unit/utils/build-event-args.spec.js": "d55894d86e2953ca76df421e0b7b883b059918028795ad69d6e33e4a537c827b",
+    "test/unit/utils/build-event-args.spec.js": "da1201c4d39e0ab8fb17502dfabe85f7784f5792ae98418b1b2119319dd3867e",
     "test/unit/utils/call-handler.spec.js": "9053aceb7afb3b516b8905d49c8888914c701117557791a99d936297b338ec8d",
     "test/unit/utils/extend.spec.js": "a84509ef093da7b6df8a26b3ba307289bdc474d456b4192a8e14ed818b04b257",
     "test/unit/utils/get-value.spec.js": "457ebe2fa1c9e5133c8911acd6a4ef7cd7e6c0b1554aebd835e2bc1ba2735702",
@@ -8144,6 +8141,7 @@
     "test/unit/view-get-regions.spec.js": "734dcb5099a6f3f386b5b9b8b50975953790be9603b97458e67d30ee5770f131",
     "test/unit/view-has-region.spec.js": "08322c63b7506f8d69dd683d27ae2fe8f1d9f7734fa446439d495e4609df0e72",
     "test/unit/view-lifecycle.spec.js": "6e44d3a1db83dd0fe7613f9b85a2dbab53bc4f135ac0ba647dc113f271370e19",
+    "test/unit/view-region-placeholder.spec.js": "4ca7a94727ad970eddb72955e5e6895152c8a0d2aa899949fd42eeb5fd71661a",
     "test/unit/view-render-attributes.spec.js": "8ba365cfacac43a47e0641b0749ff47b952569fc048fb1987ef1295e3228ec3b",
     "test/unit/xstate-adapter.spec.js": "faa8e56ba16128f22cdda5a75169d770f42e35980e647e801f674013f23fa082"
   }

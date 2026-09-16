@@ -61,3 +61,6 @@ You can keep Backbone models, an existing router, or a preferred template system
 Choose each integration for the job it does; the button above needs none of them.
 
 For versions before v5, see the [backbone.marionette repository](https://github.com/marionettejs/backbone.marionette).
+
+[Owning feature effects](./application-effects.md) covers subscriptions, requests, and stop permission.
+[Refreshing data](./application-refresh.md) preserves the layout and editor while replacing requests.

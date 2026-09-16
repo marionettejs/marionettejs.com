@@ -1,6 +1,6 @@
 {
-  "coreSha256": "9a337780d157075d7b2a8e64d41bdf64c356b557a0219599eb463ba27c09425d",
-  "dataVersion": "5.0.0-beta.2",
-  "dataIntegrity": "sha512-70pyH9scolIBs4pzTk8CqL4Gsh0WWADMJj0D6rWeHM4/6ttkCFLN5cAhBlX6fyoY9iGb7zmwhkoX+MDHGH/BOQ==",
-  "bundleSha256": "8d5434dbdc34f9c56952c4796bc529cc79857552a8d50a700ca48a199a606dfb"
+  "coreSha256": "00343d06271bf44c44057d404ab42311b43bd430b454e8fe6804554d0ec8406f",
+  "dataVersion": "5.0.0-beta.4",
+  "dataIntegrity": "sha512-HGGzEQFwdunKKePssL3S3AthLqfbdb5BBtIe5fk1rPVyDWs92HnDGntMO3YORa5jaYl3sUXotjzFk97HP9RR+A==",
+  "bundleSha256": "03fd7c954d65c84b23aa4df09db90e4fe23555ad20fa9c10a419016f8209b499"
 }

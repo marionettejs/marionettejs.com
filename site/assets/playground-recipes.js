@@ -3,9 +3,9 @@ import todoCSS from './todomvc-style.js';
 
 export const recipeRuntime = Object.freeze({
   "package": "marionette",
-  "version": "5.0.0-beta.2",
-  "revision": "13f4954c352e646c413091ffdd83f6da59404573",
-  "data": Object.freeze({ "package": "@mnjs/data", "version": "5.0.0-beta.2" })
+  "version": "5.0.0-beta.4",
+  "revision": "f4165f14198da115cc998c842fbf4b6a4886fe45",
+  "data": Object.freeze({ "package": "@mnjs/data", "version": "5.0.0-beta.4" })
 });
 
 const css = `
@@ -327,7 +327,7 @@ export const recipes = [
   ],
   css: css + lessonCSS + spacingCSS + motionCSS,
   readingGuide: [
-    { label: '1. Wait before showing the app', file: 'readiness.js', symbol: 'MissionControl.onBeforeStart', detail: 'MissionControl.onBeforeStart awaits readiness. onStart shows the root View only after success.' },
+    { label: '1. Wait before showing the app', file: 'readiness.js', symbol: 'MissionControl.prepareStart', detail: 'MissionControl.prepareStart awaits readiness. onStart shows the root View only after success.' },
     { label: '2. A View owns unfinished work', file: 'flight.js', symbol: 'Mission.fly', detail: 'Mission.fly awaits the animation. onBeforeDestroy aborts it; our code prevents a cancelled delivery.' },
     { label: '3. Cancel through the Region', file: 'flight.js', symbol: 'FlightDeck.cancelFlight', detail: 'FlightDeck.cancelFlight empties the worker Region. Marionette destroys its View and invokes our abort hook.' },
   ],

@@ -40,3 +40,22 @@ test('the next import recovers an interrupted replacement before validating new 
     await assert.rejects(access(`${target}.import`), { code: 'ENOENT' });
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
+
+test('release imports retain linked project, benchmark, and test resources', async () => {
+  const directory = await mkdtemp(resolve(tmpdir(), 'marionette-resources-'));
+  const target = resolve(directory, 'docs');
+  const resources = [
+    'ROADMAP.md',
+    'benchmarks/agent/evaluation-plan.md',
+    'test/README.md',
+    'test/unit/model-based/README.md',
+    'test/fixtures/docs-application-guides/effects.mjs',
+    'test/fixtures/docs-routing/refresh.mjs'
+  ];
+  try {
+    await importDocs(source, { target });
+    for (const resource of resources) {
+      assert.equal(await readFile(resolve(target, resource), 'utf8'), await readFile(resolve(source, resource), 'utf8'), resource);
+    }
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});

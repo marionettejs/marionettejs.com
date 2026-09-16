@@ -11,13 +11,16 @@ successful package workflow is only one stage of the complete release.
 
 The machine-readable publication gate is
 [`config/release-promotion.json`](../config/release-promotion.json). Stable publication is
-disabled; prerelease authorization is restricted to `5.0.0-beta.2`. Schema 2 separates `publication.stable`
+disabled; prerelease authorization is restricted to `5.0.0-beta.4`. Schema 2 separates `publication.stable`
 (a boolean) from `publication.prerelease` (one exact version string, or `null`).
 A beta authorization never authorizes stable or a later prerelease. Both channels
 use the same protected workflow and exact-artifact checks. Pull requests and manual
 dry runs exercise validation without creating an npm version, tag, or release.
-Stable authorization still requires the final evidence in
-[issue #147](https://github.com/marionettejs/marionette/issues/147).
+Stable authorization still requires the final evidence under the current
+[release criteria](../ROADMAP.md#stable-v5-release-criteria), recorded through the
+[release checklist](maintainers/release-checklist.md) and
+[issue #147](https://github.com/marionettejs/marionette/issues/147). Historical issue
+acceptance text does not reinstate retired comparative benchmark gates.
 Pull-request output cannot activate the write-capable jobs: those jobs also require a
 manual dispatch from `master` in this repository with the `publish` input enabled,
 followed by approval of the protected `stable-release` environment.
@@ -86,7 +89,7 @@ dry run:
 6. runs `npm publish <tarball> --dry-run --ignore-scripts` and validates the GitHub
    release plan.
 
-The candidate version is `5.0.0-beta.2`; the registry alpha belongs to an older
+The candidate version is `5.0.0-beta.4`; the registry alpha belongs to an older
 implementation. Inspect all five candidate versions and their Git tag before
 publication. A real publication request refuses any target that conflicts with the
 verified artifact before requesting write permissions; exact matching targets enter
@@ -95,17 +98,17 @@ the documented recovery path.
 ## Beta publication authorization
 
 The [beta contract and readiness checklist](./beta.md) define the candidate scope.
-Use matching `5.0.0-beta.2` versions across all five packages and their internal
+Use matching `5.0.0-beta.4` versions across all five packages and their internal
 requirements. `publication.stable` remains `false`; `publication.prerelease`
-authorizes only `5.0.0-beta.2`. This policy does not initiate publication: verify npm
+authorizes only `5.0.0-beta.4`. This policy does not initiate publication: verify npm
 access, certify the exact candidate, and obtain release approval before manually
 dispatching the protected workflow. Changing this policy changes the source commit
 and invalidates prior certification; rebuild and certify the authorization commit
 before publication.
 
 Until the first stable v5 release, the current v5 prerelease uses npm `latest`
-and remains a GitHub prerelease. Preparing or validating beta.2 does not change
-registry tags. Authorized publication moves `latest` from beta.1 to beta.2 for all
+and remains a GitHub prerelease. Preparing or validating beta.4 does not change
+registry tags. Authorized publication moves `latest` from beta.3 to beta.4 for all
 five packages and leaves `next` untouched. Once stable v5 ships, change
 `npm.prereleaseTag` to `next` before authorizing subsequent prereleases so `latest`
 continues to identify stable v5. Verification checks the policy-selected dist-tag
@@ -144,8 +147,11 @@ Markdown. See [MCP setup](https://marionettejs.com/docs/mcp/) for client instruc
 ## Stable publication authorization
 
 Final release authorization requires one reviewed commit that changes
-`publication.stable` to `true` after every gate in issue #147 passes. Before merging
-that authorization:
+`publication.stable` to `true` after the current
+[roadmap release criteria](../ROADMAP.md#stable-v5-release-criteria) pass and the
+[release checklist](maintainers/release-checklist.md) records the evidence. Issue
+#147 tracks that decision; its historical acceptance text is not an additional gate.
+Before merging that authorization:
 
 1. Create the protected GitHub environment named `stable-release` and require the
    maintainer approval appropriate for the release.
@@ -231,9 +237,9 @@ registry signatures and the available provenance, as described in
 A passing signature audit alone does not prove all five packages have provenance;
 the explicit presence check covers that gap.
 
-On 2026-09-09, beta.1's core package exposed SLSA provenance while the four
-companion packages did not. That historical publication is not an all-package
-provenance success. Existing tarballs are immutable and are not republished by
-these checks. The next authorized version must establish the five-package result;
-missing provenance requires diagnosing its publication path before a new version,
-not silently waiving the requirement or changing `latest`.
+On 2026-09-16, all five beta.2 package records exposed SLSA provenance metadata.
+That establishes the registry metadata for beta.2, not the current trusted-publisher
+configuration or beta.4's result. Existing tarballs are immutable and are not
+republished by these checks. The authorized beta.4 publication must establish the
+same five-package result; missing provenance requires diagnosing its publication
+path before a new version, not silently waiving the requirement or changing `latest`.

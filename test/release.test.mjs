@@ -46,7 +46,7 @@ test('release reading copies announce publication while the package source stays
     assert.equal(raw, npmSource);
     const published = await read(`dist/${path}`);
     assert.doesNotMatch(published, /becomes available after the beta|After publication, install|registry when available/);
-    assert.match(published, /5\.0\.0-beta\.2/);
+    assert.match(published, /5\.0\.0-beta\.4/);
   }
 });
 

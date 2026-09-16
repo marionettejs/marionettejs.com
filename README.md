@@ -1,4 +1,4 @@
-# Marionette website — 5.0.0-beta.2
+# Marionette website — 5.0.0-beta.4
 
 The live site is marionettejs.com; www.marionettejs.com and v5.marionettejs.com
 also work. Cloudflare Pages serves one complete artifact.
@@ -101,7 +101,7 @@ reassessment and remaining gates.
 CSS, the live example, and copied draft brand SVGs. `scripts/build.mjs` produces
 static files in ignored `dist/`. `scripts/dev.mjs` serves only that output.
 
-`site/vendor/marionette.js` bundles the published `marionette@5.0.0-beta.2`
+`site/vendor/marionette.js` bundles the published `marionette@5.0.0-beta.4`
 with matching `@mnjs/radio` and `@mnjs/utils` from package-lock.json. Run
 `npm run vendor:build` after an intentional package upgrade. It verifies the
 package/docs versions, bundles ESM with esbuild, includes all MIT licenses, and
