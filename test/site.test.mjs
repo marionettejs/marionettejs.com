@@ -55,6 +55,9 @@ test('all local JavaScript imports and CSS imports resolve in the built output',
 
 test('the demo runtime and documentation match the published beta',async()=>{
   const provenance=JSON.parse(await readFile(resolve(out,'reference/provenance.json'),'utf8'));
+  const betaNumber=provenance.packageVersion.match(/^5\.0\.0-beta\.(\d+)$/)?.[1];
+  assert.ok(betaNumber);
+  assert.match(await readFile(resolve(out,'index.html'),'utf8'),new RegExp(`MARIONETTE 5\\.0 · BETA ${betaNumber}`));
   assert.match(provenance.libraryRevision,/^[a-f0-9]{40}$/);
   const hash=createHash('sha256').update(await readFile(resolve(out,'vendor/marionette.js'))).digest('hex');
   assert.equal(hash,provenance.bundleSha256);
