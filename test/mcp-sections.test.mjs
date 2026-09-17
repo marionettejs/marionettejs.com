@@ -58,7 +58,7 @@ test('every indexed canonical section link resolves to a rendered page and ancho
   }
 });
 
-test('lifecycle retrieval diagnostic retains named contracts under the context budget', async () => {
+test('lifecycle retrieval diagnostic reports coverage within the context budget', async () => {
   const { execFileSync } = await import('node:child_process');
   const { fileURLToPath } = await import('node:url');
   const report = JSON.parse(execFileSync(process.execPath, [fileURLToPath(new URL('../scripts/benchmark-section-context.mjs', import.meta.url))], { encoding: 'utf8', timeout: 15_000 }));
