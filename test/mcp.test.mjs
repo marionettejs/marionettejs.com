@@ -50,6 +50,9 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
   assert.equal(sectionRead.sections[0].id, selected.id);
   const sectionDocument = corpus.documents.find(doc => doc.id === selected.documentId);
   assert.equal(sectionRead.sections[0].content, sectionDocument.markdown.slice(selected.start, selected.end));
+  assert.equal(sectionRead.sections[0].sourceSha256, sectionDocument.sourceSha256);
+  assert.equal(sectionRead.sections[0].sha256, sectionDocument.sha256);
+  assert.deepEqual(sectionRead.sections[0].sourceSupplements, sectionDocument.sourceSupplements);
   assert.deepEqual(sectionRead.omitted, []);
   const omitted = unpack(await client.callTool({ name: 'get_sections', arguments: { ids: [selected.id], version, maxCharacters: 1 } }));
   assert.equal(omitted.sections.length, 0);

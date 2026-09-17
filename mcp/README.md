@@ -158,7 +158,7 @@ of a document or example.
 
 ## Boundaries and verification
 
-The three tools only look up identifiers in loaded maps. Tool arguments cannot
+The tools only read the verified snapshot. Tool arguments cannot
 select filesystem paths, URLs, imports, or commands. The process reads fixed
 repository files during startup, makes no network requests, writes no files,
 and never executes recipe code. The MCP server does not run or certify the
@@ -231,8 +231,8 @@ Use `search_sections` with the exact package version to find headings, ancestry,
 source links and sizes. Pass returned IDs to `get_sections` in priority order with
 `maxCharacters` (default 20,000, maximum 30,000). The budget counts UTF-16 content
 characters, not tokens or response metadata. Sections include their subsections;
-overlapping selections are deduplicated. IDs combine document ID and the rendered
-heading anchor, so a heading rename changes its ID. Resolve IDs from the current
+overlapping selections are deduplicated. IDs combine document ID and a rendered heading anchor, or `@intro` for an
+introduction without a heading, so a heading rename changes its ID. Resolve IDs from the current
 version instead of persisting them across documentation revisions.
 
 The reader never truncates a section. Check `omitted` for contracts that did not fit;

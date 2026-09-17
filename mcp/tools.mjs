@@ -16,6 +16,7 @@ const exampleInput = z.object({ name: z.string().min(1).max(100), version: versi
 // Prepare immutable corpus lookups once; each request still owns a fresh MCP server.
 export function createDocsServerFactory(snapshot) {
   const { provenance } = snapshot;
+  const sections = new Map(snapshot.sections.map(section => [section.id, section]));
   const documents = new Map(snapshot.documents.map(doc => [doc.id, doc]));
   const examples = new Map(snapshot.examples.map(example => [example.id, example]));
   const assertVersion = version => {
@@ -80,14 +81,14 @@ export function createDocsServerFactory(snapshot) {
       description: 'Rank versioned documentation sections lexically. Returns exact IDs, heading ancestry, source links and character sizes. Search separately for related APIs; results do not establish dependency completeness.',
       inputSchema: searchInput, annotations,
     }, tool(({ query, offset, limit }) => {
-      const ranked = searchSections(snapshot.sections, query, snapshot.sectionIndex);
+      const ranked = searchSections(snapshot.sections, query, snapshot.sectionIndex, sections);
       return { results: ranked.slice(offset, offset + limit).map(sectionMetadata), total: ranked.length, offset,
         nextOffset: offset + limit < ranked.length ? offset + limit : null };
     }));
     server.registerTool('get_sections', {
       description: 'Read exact section IDs in requested priority order under a UTF-16 content-character budget (metadata excluded). Includes nested subsections, deduplicates overlap, never truncates a section. Reports budget omissions; use get_doc for oversized sections. Does not infer related contracts.',
       inputSchema: sectionsInput, annotations,
-    }, tool(({ ids, maxCharacters }) => selectSections(snapshot.sections, ids, maxCharacters)));
+    }, tool(({ ids, maxCharacters }) => selectSections(snapshot.sections, ids, maxCharacters, sections)));
     server.registerTool('get_doc', {
       description: 'Read a document by exact id from search_docs. Returns complete Markdown through bounded chunks with nextOffset. Paths are identifiers, never filesystem paths or URLs.',
       inputSchema: docInput, annotations,

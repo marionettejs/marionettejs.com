@@ -39,8 +39,9 @@ export function documentSections(document) {
     return { id: `${document.id}#${heading.anchor ?? '@intro'}`, documentId: document.id,
       heading: heading.heading, breadcrumbs: ancestors.map(item => item.heading),
       parentId: ancestors.length ? `${document.id}#${ancestors.at(-1).anchor}` : null,
-      url: heading.depth <= 1 ? document.url : `${document.url.split('#')[0]}#${heading.anchor}`,
-      markdownUrl: document.markdownUrl, sourceUrl: document.sourceUrl, documentSha256: document.sha256,
+      url: heading.depth <= 1 ? document.url.split('#')[0] : `${document.url.split('#')[0]}#${heading.anchor}`,
+      markdownUrl: document.markdownUrl, sourceUrl: document.sourceUrl, sourceSha256: document.sourceSha256, sha256: document.sha256,
+      ...(document.sourceSupplements ? { sourceSupplements: document.sourceSupplements } : {}),
       start: heading.start, end, content: document.markdown.slice(heading.start, end) };
   });
 }

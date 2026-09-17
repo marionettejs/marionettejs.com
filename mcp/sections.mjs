@@ -11,11 +11,10 @@ export function indexSections(sections) {
   return index;
 }
 
-export function searchSections(sections, query, index = indexSections(sections)) {
+export function searchSections(sections, query, index = indexSections(sections), lookup = new Map(sections.map(section => [section.id, section]))) {
   const terms = tokenize(query);
   if (!terms.length) throw new Error('Query must include an API name or substantive search word.');
   const matches = new Map();
-  const lookup = new Map(sections.map(section => [section.id, section]));
   for (const term of terms) for (const [id, inTitle] of Object.hasOwn(index, term) ? index[term] : []) {
     const match = matches.get(id) || { id, matchedTerms: [], titleScore: 0 };
     match.matchedTerms.push(term);
@@ -29,8 +28,7 @@ export function searchSections(sections, query, index = indexSections(sections))
 
 export const sectionMetadata = ({ content, ...section }) => ({ ...section, characters: content.length });
 
-export function selectSections(sections, ids, maxCharacters) {
-  const lookup = new Map(sections.map(section => [section.id, section]));
+export function selectSections(sections, ids, maxCharacters, lookup = new Map(sections.map(section => [section.id, section]))) {
   const requested = [...new Set(ids)].map(id => {
     if (!lookup.has(id)) throw new Error(`Unknown section id: ${id}. Use search_sections.`);
     return lookup.get(id);
@@ -46,8 +44,10 @@ export function selectSections(sections, ids, maxCharacters) {
       omitted.push({ id: section.id, characters: section.content.length, reason: 'budget' });
       continue;
     }
+    const insertionIndex = children.length ? Math.min(...children.map(child => selected.indexOf(child))) : selected.length;
     for (const child of children) selected.splice(selected.indexOf(child), 1);
-    selected.push(section); characters += required;
+    selected.splice(insertionIndex, 0, section);
+    characters += required;
   }
   return { sections: selected.map(section => ({ ...sectionMetadata(section), content: section.content })),
     omitted: omitted.filter(item => !selected.some(parent => { const child = lookup.get(item.id); return parent.documentId === child.documentId && parent.start <= child.start && parent.end >= child.end; })),

@@ -2,9 +2,6 @@
 import { loadSnapshot } from '../mcp/load.mjs';
 import { searchSections, selectSections } from '../mcp/sections.mjs';
 const snapshot = await loadSnapshot();
-const documentIds = ['docs/events.md', 'docs/events.class.md', 'docs/marionette.view.md', 'docs/marionette.region.md'];
-const documents = snapshot.documents.filter(doc => documentIds.includes(doc.id));
-const fullCharacters = documents.reduce((sum, doc) => sum + doc.markdown.length, 0);
 const cases = [
   { task: 'render-resource', queries: ['triggerMethod', 'render before:render', 'destroy before:destroy'],
     headings: [['docs/events.md', '`triggerMethod`'], ['docs/events.class.md', '`render` and `before:render` events'], ['docs/events.class.md', '`destroy` and `before:destroy` events']] },
@@ -12,8 +9,12 @@ const cases = [
     headings: [['docs/events.md', '`triggerMethod`'], ['docs/events.class.md', '`attach` and `before:attach` events'], ['docs/events.class.md', '`detach` and `before:detach` events'], ['docs/marionette.region.md', 'Detaching Existing Views'], ['docs/marionette.region.md', '`destroy` A Region']] },
 ];
 const results = cases.map(({ task, queries, headings }) => {
+  const documentIds = [...new Set(headings.map(([id]) => id))];
+  const fullCharacters = snapshot.documents.filter(doc => documentIds.includes(doc.id)).reduce((sum, doc) => sum + doc.markdown.length, 0);
   const manualIds = headings.map(([documentId, heading]) => {
-    const section = snapshot.sections.find(section => section.documentId === documentId && section.heading === heading);
+    const matches = snapshot.sections.filter(section => section.documentId === documentId && section.heading === heading);
+    if (matches.length > 1) throw new Error(`Ambiguous benchmark contract: ${documentId}: ${heading}`);
+    const section = matches[0];
     if (!section) throw new Error(`Missing benchmark contract: ${documentId}: ${heading}`);
     return section.id;
   });
@@ -25,7 +26,7 @@ const results = cases.map(({ task, queries, headings }) => {
     const expected = snapshot.sections.find(section => section.id === id);
     return automatic.sections.some(section => section.documentId === expected.documentId && section.start <= expected.start && section.end >= expected.end);
   });
-  return { task, queries, fullCharacters, manualCharacters: manual.characters, automaticCharacters: automatic.characters,
+  return { task, queries, documentIds, fullCharacters, manualCharacters: manual.characters, automaticCharacters: automatic.characters,
     expectedContracts: manualIds, coveredContracts: covered, missingContracts: manualIds.filter(id => !covered.includes(id)),
     manualIds: manual.sections.map(s => s.id), automaticIds: automatic.sections.map(s => s.id), omitted: automatic.omitted };
 });
