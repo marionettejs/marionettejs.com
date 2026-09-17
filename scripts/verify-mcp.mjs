@@ -24,7 +24,7 @@ export async function verifyMcp(endpoint) {
     assert.deepEqual(clients[0].getServerVersion(), clients[1].getServerVersion());
     const tools = await clients[0].listTools();
     assert.deepEqual(tools, await clients[1].listTools());
-    assert.deepEqual(tools.tools.map(t => t.name).sort(), ['get_doc', 'get_example', 'search_docs']);
+    assert.deepEqual(tools.tools.map(t => t.name).sort(), ['get_doc', 'get_example', 'get_sections', 'search_docs', 'search_sections']);
     assert.ok(tools.tools.every(t => t.annotations.readOnlyHint && !t.annotations.openWorldHint));
     assert.deepEqual(await clients[0].listResources(), await clients[1].listResources());
     const catalogs = await Promise.all(clients.map(c => c.readResource({ uri: 'marionette://catalog' })));
@@ -43,6 +43,17 @@ export async function verifyMcp(endpoint) {
     for (const query of ['Region', 'safely textContent', 'preserve draft while another list row changes', 'cancellation async startup', 'how do I diagnose MN0023?', 'zzzznosuchcontract', '__proto__', 'constructor', 'a'.repeat(200), 'View Region state data collection events render template lifecycle model application destroy '.repeat(2)]) {
       await call('search_docs', { query, limit: 10 });
     }
+    const sections = await call('search_sections', { query: 'detachView', limit: 10 });
+    const section = sections.results.find(item => item.characters <= 30_000);
+    assert.ok(section);
+    const selected = await call('get_sections', { ids: [section.id], maxCharacters: 30_000 });
+    assert.equal(selected.sections[0].id, section.id);
+    assert.deepEqual(selected.omitted, []);
+    const omitted = await call('get_sections', { ids: [section.id], maxCharacters: 1 });
+    assert.equal(omitted.omitted[0].id, section.id);
+    await call('get_sections', { ids: ['../secret'] }, true);
+    await call('get_sections', { ids: [section.id], version: 'latest' }, true);
+    await call('search_sections', { query: 'the and' }, true);
     // Concurrent requests must retain query-specific content and pagination.
     const regionMatches = await call('search_docs', { query: 'Region', limit: 5 });
     assert.ok(regionMatches.total > 5);

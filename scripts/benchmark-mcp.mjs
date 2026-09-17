@@ -19,6 +19,8 @@ const cases = [
   ['catalog', { method: 'resources/read', params: { uri: 'marionette://catalog' } }],
   ['tools-list', { method: 'tools/list' }],
   ['document', tool('get_doc', { path: snapshot.documents.reduce((a,b) => a.markdown.length > b.markdown.length ? a : b).id, limit: 12000 })],
+  ['section-search', tool('search_sections', { query: 'destroy before:destroy', limit: 10 })],
+  ['section-read', tool('get_sections', { ids: snapshot.sections.slice(0, 10).map(section => section.id), maxCharacters: 20_000 })],
   ['example', tool('get_example', { name: snapshot.examples[0].id, limit: 12000 })],
   ...['Region', 'preserve draft while another list row changes', 'zzzznosuchcontract', 'x'.repeat(200),
     'view region state data collection events render template lifecycle model application destroy '.repeat(2)]
@@ -103,7 +105,7 @@ try {
     summaries.push({ name, firstElapsedMs: elapsed[0], warmupRequests: 20, measuredRequests: 100,
       loopbackElapsedMs: { median: sorted[49], p95: sorted[94], p99: sorted[98] }, maxResponseBytes, topFrames });
   }
-  const sourceHashes = Object.fromEntries(await Promise.all(['mcp/worker.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'package-lock.json', 'output/mcp/snapshot.json'].map(async path => [path, createHash('sha256').update(await readFile(path)).digest('hex')])));
+  const sourceHashes = Object.fromEntries(await Promise.all(['mcp/worker.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'mcp/sections.mjs', 'mcp/index-sections.mjs', 'scripts/heading-ids.mjs', 'package-lock.json', 'output/mcp/snapshot.json'].map(async path => [path, createHash('sha256').update(await readFile(path)).digest('hex')])));
   sourceHashes.effectiveWranglerConfig = createHash('sha256').update(JSON.stringify(config)).digest('hex');
   const report = { sourceHashes, label, measuredAt: new Date().toISOString(), runtime: process.version, hardware: cpus()[0].model,
     measurement: 'Actual Worker in local workerd. Inspector samples identify hot frames; loopback elapsed times include I/O and are not edge CPU. Profiles include warmup; percentiles exclude first 20 requests. No module startup profile.',

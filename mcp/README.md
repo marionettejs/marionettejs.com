@@ -5,7 +5,7 @@ retrieval. No server login, API key, subscription, or model inference is require
 Your agent client's own access and model costs are separate.
 
 The hosted Cloudflare Worker and the optional local, read-only stdio server share
-`search_docs`, `get_doc`, `get_example`, and `marionette://catalog`. Both serve the
+`search_docs`, `get_doc`, `search_sections`, `get_sections`, `get_example`, and `marionette://catalog`. Both serve the
 same verified website corpus and workshop recipes. The current supported package
 is exactly **`marionette@5.0.0-beta.4`**.
 
@@ -224,3 +224,20 @@ repository. Builds and CI do not publish anything.
 Implementation references: [Cloudflare stateless handler](https://developers.cloudflare.com/agents/model-context-protocol/apis/handler-api/),
 [official SDK web-standard HTTP](https://ts.sdk.modelcontextprotocol.io/v2/serving/web-standard.html),
 and [SDK client compatibility](https://ts.sdk.modelcontextprotocol.io/v2/serving/legacy-clients.html).
+
+## Focused section retrieval
+
+Use `search_sections` with the exact package version to find headings, ancestry,
+source links and sizes. Pass returned IDs to `get_sections` in priority order with
+`maxCharacters` (default 20,000, maximum 30,000). The budget counts UTF-16 content
+characters, not tokens or response metadata. Sections include their subsections;
+overlapping selections are deduplicated. IDs combine document ID and the rendered
+heading anchor, so a heading rename changes its ID. Resolve IDs from the current
+version instead of persisting them across documentation revisions.
+
+The reader never truncates a section. Check `omitted` for contracts that did not fit;
+request them separately or use paginated `get_doc` for an oversized section. Search
+related APIs explicitly: lifecycle resource work may need event ordering, rendering,
+attachment, detachment and destruction contracts. Lexical ranking does not infer
+these dependencies or guarantee sufficient context. Full-document reading remains
+available when necessary.
