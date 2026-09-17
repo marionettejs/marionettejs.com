@@ -1,3 +1,5 @@
+import { indexSections } from './sections.mjs';
+import { documentSections } from './index-sections.mjs';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { tokenize } from './search.mjs';
@@ -35,7 +37,9 @@ export async function loadSnapshot() {
       (index[word] ??= []).push([id, titleWords.has(word)]);
     }
   }
+  const sections = [...documents.values()].flatMap(documentSections);
   return { provenance, documents: [...documents.values()], index,
+    sections, sectionIndex: indexSections(sections),
     examples: recipes.map(recipe => { const text = JSON.stringify(recipe, null, 2);
       return { id: recipe.id, title: recipe.title, summary: recipe.summary, text, sha256: hash(text) }; }) };
 }

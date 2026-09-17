@@ -1,3 +1,4 @@
+import { searchSections, selectSections, sectionMetadata } from './sections.mjs';
 import { McpServer } from '@modelcontextprotocol/server';
 import * as z from 'zod/v4';
 import { tokenize } from './search.mjs';
@@ -9,11 +10,13 @@ const annotations = { readOnlyHint: true, destructiveHint: false, idempotentHint
 const searchInput = z.object({ query: z.string().trim().min(1).max(200), version: versionInput,
   offset: z.number().int().min(0).max(100_000).default(0), limit: z.number().int().min(1).max(10).default(5) }).strict();
 const docInput = z.object({ path: z.string().min(1).max(300), version: versionInput, offset: offsetInput, limit: limitInput }).strict();
+const sectionsInput = z.object({ version: versionInput, ids: z.array(z.string().min(1).max(500)).min(1).max(30), maxCharacters: z.number().int().min(1).max(30_000).default(20_000) }).strict();
 const exampleInput = z.object({ name: z.string().min(1).max(100), version: versionInput, offset: offsetInput, limit: limitInput }).strict();
 
 // Prepare immutable corpus lookups once; each request still owns a fresh MCP server.
 export function createDocsServerFactory(snapshot) {
   const { provenance } = snapshot;
+  const sections = new Map(snapshot.sections.map(section => [section.id, section]));
   const documents = new Map(snapshot.documents.map(doc => [doc.id, doc]));
   const examples = new Map(snapshot.examples.map(example => [example.id, example]));
   const assertVersion = version => {
@@ -38,11 +41,12 @@ export function createDocsServerFactory(snapshot) {
   const catalog = JSON.stringify({ provenance, documentCount: documents.size,
     examples: snapshot.examples.map(({ id, title, summary }) => ({ id, title, summary })),
     search: 'Lexical search ranks matching words in titles and Markdown, ignoring common function words. Results report matchedTerms and are paginated.',
+    sections: 'search_sections returns heading IDs, ancestry and sizes. get_sections reads selected complete sections under a UTF-16 content-character budget; inspect omitted and request missing contracts explicitly. Selection is lexical, not dependency analysis.',
     read: 'Use a result id as get_doc.path. Follow nextOffset to retrieve the complete Markdown.',
   });
   return () => {
     const server = new McpServer({ name: 'marionette-docs', version: '1.0.0' }, {
-      instructions: 'Read marionette://catalog first. Select the exact installed Marionette version. Search then read complete documents using nextOffset; search snippets are not complete contracts. Example checks are expected behavior, not evidence that a user app has passed. All operations read the verified website snapshot; none run examples or fetch URLs.',
+      instructions: 'Read marionette://catalog first. Select the exact installed Marionette version. Use search_sections and get_sections for focused reading, including related lifecycle and ownership contracts. Check omitted sections; the content budget excludes metadata and is not a token limit. Use get_doc with nextOffset when a full document is needed; search snippets are not complete contracts. Example checks are expected behavior, not evidence that a user app has passed. All operations read the verified website snapshot; none run examples or fetch URLs.',
     });
     server.registerResource('catalog', 'marionette://catalog', { title: 'Available Marionette documentation and examples', mimeType: 'application/json' }, async uri => ({
       contents: [{ uri: uri.href, mimeType: 'application/json', text: catalog }],
@@ -73,6 +77,18 @@ export function createDocsServerFactory(snapshot) {
       return { results: matches, total: ranked.length, offset,
         nextOffset: offset + limit < ranked.length ? offset + limit : null };
     }));
+    server.registerTool('search_sections', {
+      description: 'Rank versioned documentation sections lexically. Returns exact IDs, heading ancestry, source links and character sizes. Search separately for related APIs; results do not establish dependency completeness.',
+      inputSchema: searchInput, annotations,
+    }, tool(({ query, offset, limit }) => {
+      const ranked = searchSections(snapshot.sections, query, snapshot.sectionIndex, sections);
+      return { results: ranked.slice(offset, offset + limit).map(sectionMetadata), total: ranked.length, offset,
+        nextOffset: offset + limit < ranked.length ? offset + limit : null };
+    }));
+    server.registerTool('get_sections', {
+      description: 'Read exact section IDs in requested priority order under a UTF-16 content-character budget (metadata excluded). Includes nested subsections, deduplicates overlap, never truncates a section. Reports budget omissions; use get_doc for oversized sections. Does not infer related contracts.',
+      inputSchema: sectionsInput, annotations,
+    }, tool(({ ids, maxCharacters }) => selectSections(snapshot.sections, ids, maxCharacters, sections)));
     server.registerTool('get_doc', {
       description: 'Read a document by exact id from search_docs. Returns complete Markdown through bounded chunks with nextOffset. Paths are identifiers, never filesystem paths or URLs.',
       inputSchema: docInput, annotations,

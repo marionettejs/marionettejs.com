@@ -1,3 +1,4 @@
+import { headingId } from './heading-ids.mjs';
 import { diagnosticExamples } from './development-docs.mjs';
 import { buildAgentDiscovery } from './agent-discovery.mjs';
 import { publishedMarkdown, publishedChannel, readingRevision } from './published-docs.mjs';
@@ -83,10 +84,7 @@ export function renderMarkdown(page, pages, manifest) {
   renderer.html = ({ text }) => /^\s*<!--[\s\S]*-->\s*$/.test(text) ? '' : escapeHtml(text);
   renderer.heading = function ({ tokens, depth }) {
     const text = this.parser.parseInline(tokens);
-    const base = text.replace(/<[^>]*>/g, '').replace(/&(?:[a-z]+|#\d+|#x[0-9a-f]+);/gi, '').toLowerCase().replace(/[^\p{L}\p{N}_\s-]/gu, '').replace(/\s/g, '-');
-    const count = used.get(base) || 0;
-    used.set(base, count + 1);
-    const id = count ? `${base}-${count}` : base;
+    const id = headingId(text, used);
     headings.push({ depth, id, text });
     return `<h${depth} id="${escapeHtml(id)}">${text}<a class="heading-anchor" data-pagefind-ignore href="#${escapeHtml(id)}" aria-label="Link to ${escapeHtml(text.replace(/<[^>]*>/g, ''))}">#</a></h${depth}>\n`;
   };

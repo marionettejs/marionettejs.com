@@ -34,7 +34,7 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
   const pid = transport.pid;
   assert.equal(client.getServerVersion().name, 'marionette-docs');
   const { tools } = await client.listTools();
-  assert.deepEqual(tools.map(tool => tool.name).sort(), ['get_doc', 'get_example', 'search_docs']);
+  assert.deepEqual(tools.map(tool => tool.name).sort(), ['get_doc', 'get_example', 'get_sections', 'search_docs', 'search_sections']);
   assert.ok(tools.every(tool => tool.annotations.readOnlyHint && !tool.annotations.openWorldHint));
   const { resources } = await client.listResources();
   assert.deepEqual(resources.map(resource => resource.uri), ['marionette://catalog']);
@@ -42,6 +42,27 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
   assert.equal(catalog.provenance.packageVersion, version);
   assert.ok(catalog.examples.length >= 2);
   assert.equal(catalog.documentCount, corpus.documents.length);
+  const sectionSearch = unpack(await client.callTool({ name: 'search_sections', arguments: { query: 'detachView', version, limit: 10 } }));
+  assert.ok(sectionSearch.results.length);
+  const selected = sectionSearch.results.find(section => section.characters <= 30_000);
+  assert.ok(selected);
+  const sectionRead = unpack(await client.callTool({ name: 'get_sections', arguments: { ids: [selected.id], version, maxCharacters: 30_000 } }));
+  assert.equal(sectionRead.sections[0].id, selected.id);
+  const sectionDocument = corpus.documents.find(doc => doc.id === selected.documentId);
+  assert.equal(sectionRead.sections[0].content, sectionDocument.markdown.slice(selected.start, selected.end));
+  assert.equal(sectionRead.sections[0].sourceSha256, sectionDocument.sourceSha256);
+  assert.equal(sectionRead.sections[0].sha256, sectionDocument.sha256);
+  assert.deepEqual(sectionRead.sections[0].sourceSupplements, sectionDocument.sourceSupplements);
+  assert.deepEqual(sectionRead.omitted, []);
+  const omitted = unpack(await client.callTool({ name: 'get_sections', arguments: { ids: [selected.id], version, maxCharacters: 1 } }));
+  assert.equal(omitted.sections.length, 0);
+  assert.equal(omitted.omitted[0].id, selected.id);
+  for (const [name, args] of [
+    ['get_sections', { ids: ['../package.json'] }], ['get_sections', { ids: [] }],
+    ['get_sections', { ids: [selected.id], maxCharacters: 30_001 }],
+    ['get_sections', { ids: [selected.id], version: 'latest' }],
+    ['search_sections', { query: 'the and' }], ['search_sections', { query: 'Region', version: 'latest' }],
+  ]) assert.equal((await client.callTool({ name, arguments: { version, ...args } })).isError, true);
   const snippetSearch = unpack(await client.callTool({ name: 'search_docs', arguments: { query: 'safely textContent', version } }));
   const security = snippetSearch.results.find(result => result.id === 'docs/security.md');
   assert.ok(security, 'Find the safety guide using its title and a later body match');
@@ -129,8 +150,8 @@ test('stdio server exits cleanly on EOF without requiring a signal', { timeout: 
 test('server refuses stale provenance and tampered Markdown before serving tools', { timeout: 10_000 }, async t => {
   const fixture = await mkdtemp(join(tmpdir(), 'marionette-mcp-'));
   t.after(() => rm(fixture, { recursive: true, force: true }));
-  for (const directory of ['mcp', 'content/library-docs', 'site/assets', 'dist/docs']) await mkdir(join(fixture, directory), { recursive: true });
-  for (const path of ['mcp/server.mjs', 'mcp/load.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'content/library-docs/manifest.json', 'content/docs-publication-edits.json', 'site/assets/playground-recipes.js']) {
+  for (const directory of ['mcp', 'scripts', 'content/library-docs', 'site/assets', 'dist/docs']) await mkdir(join(fixture, directory), { recursive: true });
+  for (const path of ['scripts/heading-ids.mjs', 'mcp/index-sections.mjs', 'mcp/sections.mjs', 'mcp/server.mjs', 'mcp/load.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'content/library-docs/manifest.json', 'content/docs-publication-edits.json', 'site/assets/playground-recipes.js']) {
     await cp(new URL(path, root), join(fixture, path));
   }
   await writeFile(join(fixture, 'package.json'), '{"type":"module"}');
