@@ -1,11 +1,12 @@
 # Website prototype
 
 This branch targets beta.4 on marionettejs.com (canonical and indexable).
-Verify the live provenance after manual deployment before reporting the release as live.
+Merging to `main` publishes the site and verifies the live origin in the same
+run; see the deployment section of README.md.
 www.marionettejs.com and v5.marionettejs.com also work; v5 is a mirror with a `noindex` directive.
 The launch was authorized and completed on September 9, 2026 (Asia/Seoul).
-Use manual Cloudflare Pages deployments only when requested.
-Do not add automatic publishing. Preserve old documentation links via the
+Do not publish out of band; let the workflow deploy what has been merged and
+reviewed. Preserve old documentation links via the
 v4.marionettejs.com GitHub Pages archive while those releases have consumers.
 
 This is the independent website repository. The earlier prototype and design

@@ -1,0 +1,43 @@
+name: Publish site
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: publish-site
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # The same gate a manual deployment ran: never publish an artifact the
+      # documentation, retrieval and provenance checks have not accepted.
+      - run: npm run check
+      - name: Publish to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PAGES_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT || 'marionette-v5' }}
+        run: npx --no-install wrangler pages deploy dist --project-name "$PAGES_PROJECT" --branch main --commit-dirty=true
+      # The custom domain can trail the upload by a few seconds.
+      - name: Verify the published site
+        env:
+          ORIGIN: ${{ vars.SITE_ORIGIN || 'https://marionettejs.com' }}
+        run: |
+          for attempt in 1 2 3 4 5; do
+            if node scripts/check-deployment.mjs "$ORIGIN"; then exit 0; fi
+            sleep 20
+          done
+          exit 1

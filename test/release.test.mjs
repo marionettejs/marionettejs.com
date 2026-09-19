@@ -3,7 +3,7 @@ import { publishedMarkdown } from '../scripts/published-docs.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { runInNewContext } from 'node:vm';
 
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
@@ -140,14 +140,33 @@ test('publication overrides retain complete source identity without rewriting th
   }
 });
 
-test('published pages keep a validator and the sitemap reports a revision date', async () => {
+test('published pages keep a validator and the sitemap dates every entry', async () => {
   // Cloudflare's HTML processing strips the ETag from any page it may rewrite,
   // which leaves a crawler nothing to revalidate and no sign a release happened.
   const headers = await read('dist/_headers');
-  for (const route of ['/', '/why/', '/thanks/', '/demos/', '/docs/*', '/errors/*']) {
-    assert.match(headers, new RegExp(`\\n${route.replace('*', '\\*')}\\n(  [^\\n]+\\n)*  Cache-Control: [^\\n]*no-transform`), route);
+  const rules = [...headers.matchAll(/\n(\/\S*)\n(?:  [^\n]+\n)*?  Cache-Control: [^\n]*no-transform/g)].map(([, rule]) => rule);
+  const dist = new URL('../dist/', import.meta.url);
+  const published = ['/'];
+  for (const entry of await readdir(dist, { withFileTypes: true })) {
+    if (entry.isDirectory() && await stat(new URL(`${entry.name}/index.html`, dist)).then(() => true, () => false)) published.push(`/${entry.name}/`);
   }
+  assert.ok(published.length > 4);
+  for (const route of published) {
+    assert.ok(rules.some(rule => rule.endsWith('*') ? route.startsWith(rule.slice(0, -1)) : rule === route),
+      `${route} may be transformed, and would lose the ETag a crawler revalidates with`);
+  }
+  // One date per entry, shared by all of them, and never ahead of the build that
+  // wrote it. The value itself belongs to whichever revision produced this dist,
+  // which is not necessarily the commit checked out when the test runs.
   const sitemap = await read('dist/sitemap.xml');
-  assert.equal([...sitemap.matchAll(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/g)].length,
-    [...sitemap.matchAll(/<loc>/g)].length);
+  const entries = [...sitemap.matchAll(/<url>(.*?)<\/url>/g)].map(([, entry]) => entry);
+  assert.ok(entries.length > 100);
+  const dates = new Set();
+  for (const entry of entries) {
+    const [, date] = entry.match(/<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/) ?? [];
+    assert.ok(date, `${entry} carries no lastmod`);
+    dates.add(date);
+  }
+  assert.equal(dates.size, 1);
+  assert.ok([...dates][0] <= new Date().toISOString().slice(0, 10));
 });
