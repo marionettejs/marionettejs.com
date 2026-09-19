@@ -9,12 +9,26 @@ preserved in the old website repository. The local preview still binds to loopba
 
 ## Deployment
 
-Use Cloudflare Pages Direct Upload for an explicitly requested deployment:
-1. Run `npm run check`.
-2. Upload the contents of `dist/` as the site root, not the repository or a containing folder.
-3. Verify the homepage, Why page, docs, agent briefs, and real playground interaction.
+Merging to `main` publishes the site. `.github/workflows/deploy.yml` runs
+`npm run check`, uploads `dist/` to Cloudflare Pages as the site root, and then
+verifies the live origin with `scripts/check-deployment.mjs ORIGIN --revision SHA`.
+The website commit is embedded in each generated page and must match the
+published commit on every checked route; the sitemap must also match the built
+artifact. Manual dispatch is restricted to `main`. A deployment that does not
+serve this revision fails the run.
 
-Keep deployments manual. The v4 GitHub Pages archive preserves the existing
+Publishing needs the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`
+repository secrets. The Pages project comes from the `CLOUDFLARE_PAGES_PROJECT`
+repository variable and defaults to `marionette-v5`.
+
+`scripts/check-deployment.mjs ORIGIN --health-only` reads the live site and reports what does not
+pass health checks: page version strings, provenance, sitemap `lastmod`, the
+headers that keep a validator on published pages, and the exact bytes of both
+vendor bundles. Run it locally, or through the "Deployed site check" workflow,
+which also runs daily. Still verify the homepage, Why page, docs, agent briefs
+and a real playground interaction by hand after a release.
+
+The v4 GitHub Pages archive preserves the existing
 versioned documentation and download paths. `_redirects` preserves those legacy paths and the published preview URLs
 (`/docs/regions/` and `/reference/region.md`); current `/docs/` serves beta documentation. The old root `sw.js` unregisters
 retained legacy service workers and clears only their named precache. Keep that
