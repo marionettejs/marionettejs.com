@@ -1,4 +1,4 @@
-# Manual documentation MCP deployment
+# Documentation MCP deployment
 
 Source: `marionettejs/marionettejs.com`. Worker: `marionette-docs-mcp`.
 Endpoint: `https://mcp.marionettejs.com/mcp`.
@@ -30,8 +30,9 @@ MCP clients need no authentication; browser Origins are explicitly restricted.
 ## Prepare, review, then deploy
 
 Use Node 24 and the lockfile. Follow the normal feature-branch PR and required
-`verify` check. Never push directly to main or bypass protections. Do not add
-hosting jobs to CI.
+`verify` check. Never push directly to main or bypass protections. Merging to main
+runs the
+shared Pages and Worker deployment workflow; do not publish out of band.
 
 ```sh
 npm ci
@@ -64,13 +65,20 @@ and the previous Pages deployment ID. Wrangler may warn that the authorization
 omits unrelated services; do not grant those scopes simply to silence the warning.
 Store deployment credentials outside the repository. The runtime requires none.
 
-After the reviewed PR merges, build and test the merged source, retain artifact
-hashes, and manually run:
+After the reviewed PR merges, `.github/workflows/deploy.yml` builds and tests
+the merged source, publishes and verifies Pages, then deploys and verifies the
+Worker. Both services use the same checkout. The production environment token
+requires Pages Edit for the account and Individual Workers Editor access
+scoped to `marionette-docs-mcp`. The existing custom domain does not need a new grant; changing it requires Workers Routes
+Edit for the `marionettejs.com` zone. The Worker version message records the
+source commit. A failed verification fails the workflow.
+
+To recover a failed publication, fix the cause and rerun the workflow on main.
+Uploads are not atomic: a Worker failure can leave Pages ahead until recovery.
+For local verification of the deployed artifact, run:
 
 ```sh
-npm run mcp:deploy
 node scripts/verify-mcp.mjs https://mcp.marionettejs.com/mcp
-npx --no-install wrangler pages deploy dist --project-name marionette-v5 --branch main
 node scripts/check-agent-site.mjs --base https://marionettejs.com --report output/agent-live.json
 ```
 

@@ -9,16 +9,25 @@ preserved in the old website repository. The local preview still binds to loopba
 
 ## Deployment
 
-Merging to `main` publishes the site. `.github/workflows/deploy.yml` runs
+Merging to `main` publishes the site and documentation MCP.
+`.github/workflows/deploy.yml` runs
 `npm run check`, uploads `dist/` to Cloudflare Pages as the site root, and then
 verifies the live origin with `scripts/check-deployment.mjs ORIGIN --revision SHA`.
 The website commit is embedded in each generated page and must match the
 published commit on every checked route; the sitemap must also match the built
 artifact. Manual dispatch is restricted to `main`. A deployment that does not
-serve this revision fails the run.
+serve this revision fails the run. The workflow then publishes the Worker from
+the same checkout and compares its live tools, corpus, documents, and examples
+with the local build using `scripts/verify-mcp.mjs`. A failed Worker deployment
+or parity check fails the run; rerun the workflow after correcting the cause.
+The two service uploads are sequential, not atomic.
 
 Publishing needs the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`
-repository secrets. The Pages project comes from the `CLOUDFLARE_PAGES_PROJECT`
+secrets in the `production` environment. The token needs Pages Edit for the
+deployment account and Individual Workers
+Editor access scoped to `marionette-docs-mcp`. The existing Worker custom domain
+is already configured; changing it also requires Workers Routes Edit for the
+`marionettejs.com` zone. The Pages project comes from the `CLOUDFLARE_PAGES_PROJECT`
 repository variable and defaults to `marionette-v5`.
 
 `scripts/check-deployment.mjs ORIGIN --health-only` reads the live site and reports what does not
@@ -35,7 +44,7 @@ retained legacy service workers and clears only their named precache. Keep that
 retirement file while returning browsers can retain those registrations.
 
 The public read-only documentation MCP endpoint is `https://mcp.marionettejs.com/mcp`.
-See [client setup](mcp/README.md) and the [manual Worker deployment runbook](mcp/DEPLOYMENT.md).
+See [client setup](mcp/README.md) and the [Worker deployment runbook](mcp/DEPLOYMENT.md).
 The Worker and local stdio process share the same verified corpus and tools.
 
 ## Search and sharing metadata

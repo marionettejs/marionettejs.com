@@ -1,4 +1,4 @@
-name: Publish site
+name: Publish site and MCP
 on:
   push:
     branches: [main]
@@ -39,6 +39,18 @@ jobs:
         run: |
           for attempt in 1 2 3 4 5; do
             if node scripts/check-deployment.mjs "$ORIGIN" --revision "$GITHUB_SHA"; then exit 0; fi
+            sleep 20
+          done
+          exit 1
+      - name: Publish documentation MCP
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --no-install wrangler deploy --message "$GITHUB_SHA"
+      - name: Verify the published MCP
+        run: |
+          for attempt in 1 2 3; do
+            if node scripts/verify-mcp.mjs https://mcp.marionettejs.com/mcp; then exit 0; fi
             sleep 20
           done
           exit 1
