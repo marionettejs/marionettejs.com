@@ -12,7 +12,7 @@ const handler = createMcpHandler(createDocsServerFactory(snapshot), {
   allowedOriginHostnames: ['marionettejs.com', 'www.marionettejs.com', 'v5.marionettejs.com', 'mcp.marionettejs.com', 'localhost', '127.0.0.1'],
 });
 
-export default {
+const worker = {
   async fetch(request) {
     if (new URL(request.url).pathname !== '/mcp') return new Response('Not found', { status: 404 });
     if (request.method !== 'POST') return handler.fetch(request);
@@ -44,5 +44,14 @@ export default {
       return new Response('One MCP request object is required; batches are unsupported', { status: 400 });
     }
     return handler.fetch(new Request(request, { body: bytes }), { parsedBody });
+  },
+};
+
+export default {
+  async fetch(request) {
+    const response = await worker.fetch(request);
+    const headers = new Headers(response.headers);
+    headers.set('x-marionette-revision', snapshot.deploymentRevision);
+    return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
   },
 };

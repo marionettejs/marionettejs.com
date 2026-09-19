@@ -18,7 +18,8 @@ published commit on every checked route; the sitemap must also match the built
 artifact. Manual dispatch is restricted to `main`. A deployment that does not
 serve this revision fails the run. The workflow then publishes the Worker from
 the same checkout and compares its live tools, corpus, documents, and examples
-with the local build using `scripts/verify-mcp.mjs`. A failed Worker deployment
+with the local build using `scripts/verify-mcp.mjs --revision SHA`.
+The Worker response revision must match the deployed commit. A failed Worker deployment
 or parity check fails the run; rerun the workflow after correcting the cause.
 The two service uploads are sequential, not atomic.
 

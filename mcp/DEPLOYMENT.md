@@ -71,7 +71,8 @@ Worker. Both services use the same checkout. The production environment token
 requires Pages Edit for the account and Individual Workers Editor access
 scoped to `marionette-docs-mcp`. The existing custom domain does not need a new grant; changing it requires Workers Routes
 Edit for the `marionettejs.com` zone. The Worker version message records the
-source commit. A failed verification fails the workflow.
+source commit. The verifier checks the response revision header against that
+commit in addition to content parity. A failed verification fails the workflow.
 
 To recover a failed publication, fix the cause and rerun the workflow on main.
 Uploads are not atomic: a Worker failure can leave Pages ahead until recovery.

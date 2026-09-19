@@ -50,7 +50,7 @@ jobs:
       - name: Verify the published MCP
         run: |
           for attempt in 1 2 3; do
-            if node scripts/verify-mcp.mjs https://mcp.marionettejs.com/mcp; then exit 0; fi
+            if node scripts/verify-mcp.mjs https://mcp.marionettejs.com/mcp --revision "$GITHUB_SHA"; then exit 0; fi
             sleep 20
           done
           exit 1
