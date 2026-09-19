@@ -1,6 +1,6 @@
 // Verify what the deployment actually serves. A release can be correct in this
 // repository, on npm and in a maintainer's browser while crawlers and returning
-// visitors still receive an earlier beta. Run it after a manual deployment.
+// visitors still receive an earlier beta. Use --revision SHA after publishing, or --health-only for scheduled checks.
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
@@ -8,6 +8,13 @@ import { createHash } from 'node:crypto';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const origin = process.argv[2] ?? 'https://marionettejs.com';
+const mode = process.argv.slice(3);
+const expectedRevision = mode[0] === '--revision' && mode.length === 2 && /^[a-f0-9]{40}$/.test(mode[1]) ? mode[1] : undefined;
+const healthOnly = mode.length === 1 && mode[0] === '--health-only';
+if (!expectedRevision && !healthOnly) {
+  console.error('Usage: check-deployment.mjs ORIGIN (--revision SHA | --health-only)');
+  process.exit(1);
+}
 const provenance = JSON.parse(await readFile(resolve(root, 'content/provenance.json'), 'utf8'));
 const demos = JSON.parse(await readFile(resolve(root, 'site/vendor/demos.provenance.json'), 'utf8'));
 const digest = source => createHash('sha256').update(source).digest('hex');
@@ -38,6 +45,9 @@ for (const route of ['/', '/why/', '/thanks/', '/demos/', '/docs/']) {
   const page = await body(route);
   if (!page) continue;
   expect(page.content.includes(provenance.packageVersion), `${route}: does not name ${provenance.packageVersion}`);
+  if (expectedRevision) {
+    expect(page.content.includes(`<meta name="site-revision" content="${expectedRevision}">`), `${route}: does not serve website revision ${expectedRevision}`);
+  }
   // Without a validator a crawler cannot ask whether its indexed copy still holds,
   // and Cloudflare strips the ETag from any page it is allowed to transform.
   expect(page.response.headers.has('etag'), `${route}: no ETag`);
@@ -54,6 +64,10 @@ for (const field of ['packageVersion', 'libraryRevision', 'bundleSha256', 'packa
 // which can hold commits that were deliberately not deployed.
 const sitemap = await body('/sitemap.xml');
 if (sitemap) {
+  if (expectedRevision) {
+    const expectedSitemap = await readFile(resolve(root, 'dist/sitemap.xml'), 'utf8');
+    expect(sitemap.content === expectedSitemap, '/sitemap.xml does not match the published artifact');
+  }
   const entries = [...sitemap.content.matchAll(/<url>(.*?)<\/url>/g)].map(([, entry]) => entry);
   const dated = entries.filter(entry => /<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/.test(entry));
   expect(entries.length > 0, '/sitemap.xml lists no URLs');
@@ -74,7 +88,7 @@ for (const [name, expected] of [['marionette', provenance.bundleSha256], ['demos
 }
 
 if (failures.length) {
-  console.error(`${origin} does not match this revision:\n${failures.map(failure => `  - ${failure}`).join('\n')}`);
+  console.error(`${origin} failed deployment checks:\n${failures.map(failure => `  - ${failure}`).join('\n')}`);
   process.exit(1);
 }
-console.log(`${origin} serves ${provenance.packageVersion}, with revalidatable pages, a dated sitemap and the expected bundles.`);
+console.log(`${origin} serves ${provenance.packageVersion}${expectedRevision ? ` at website revision ${expectedRevision}` : ' (health only; website revision not verified)'}, with revalidatable pages, a dated sitemap and the expected bundles.`);

@@ -10,6 +10,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   publish:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: production
@@ -37,7 +38,7 @@ jobs:
           ORIGIN: ${{ vars.SITE_ORIGIN || 'https://marionettejs.com' }}
         run: |
           for attempt in 1 2 3 4 5; do
-            if node scripts/check-deployment.mjs "$ORIGIN"; then exit 0; fi
+            if node scripts/check-deployment.mjs "$ORIGIN" --revision "$GITHUB_SHA"; then exit 0; fi
             sleep 20
           done
           exit 1

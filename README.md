@@ -11,15 +11,18 @@ preserved in the old website repository. The local preview still binds to loopba
 
 Merging to `main` publishes the site. `.github/workflows/deploy.yml` runs
 `npm run check`, uploads `dist/` to Cloudflare Pages as the site root, and then
-verifies the live origin with `scripts/check-deployment.mjs`. A deployment that
-does not serve this revision fails the run.
+verifies the live origin with `scripts/check-deployment.mjs ORIGIN --revision SHA`.
+The website commit is embedded in each generated page and must match the
+published commit on every checked route; the sitemap must also match the built
+artifact. Manual dispatch is restricted to `main`. A deployment that does not
+serve this revision fails the run.
 
 Publishing needs the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`
 repository secrets. The Pages project comes from the `CLOUDFLARE_PAGES_PROJECT`
 repository variable and defaults to `marionette-v5`.
 
-`scripts/check-deployment.mjs` reads the live site and reports what does not
-match this revision: page version strings, provenance, sitemap `lastmod`, the
+`scripts/check-deployment.mjs ORIGIN --health-only` reads the live site and reports what does not
+pass health checks: page version strings, provenance, sitemap `lastmod`, the
 headers that keep a validator on published pages, and the exact bytes of both
 vendor bundles. Run it locally, or through the "Deployed site check" workflow,
 which also runs daily. Still verify the homepage, Why page, docs, agent briefs

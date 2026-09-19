@@ -26,4 +26,4 @@ jobs:
       # Through the environment, so a dispatch value is never parsed by the shell.
       - env:
           ORIGIN: ${{ inputs.origin || vars.SITE_ORIGIN || 'https://marionettejs.com' }}
-        run: node scripts/check-deployment.mjs "$ORIGIN"
+        run: node scripts/check-deployment.mjs "$ORIGIN" --health-only
