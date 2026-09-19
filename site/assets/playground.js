@@ -27,7 +27,7 @@ const requests = new Map();
 let requestId = 0;
 
 async function loadAssets() {
-  if (!assets) assets = Promise.all(['/vendor/demos.js?v=5.0.0-beta.4', '/vendor/DEMOS-LICENSE.txt', '/agent-prompt.md'].map(async url => {
+  if (!assets) assets = Promise.all(['/vendor/demos.js', '/vendor/DEMOS-LICENSE.txt', '/agent-prompt.md'].map(async url => {
     const response = await fetch(url);
     if (!response.ok) throw new Error('The playground assets could not load. Try again after the local preview finishes rebuilding.');
     return response.text();
