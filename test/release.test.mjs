@@ -139,3 +139,15 @@ test('publication overrides retain complete source identity without rewriting th
     }
   }
 });
+
+test('published pages keep a validator and the sitemap reports a revision date', async () => {
+  // Cloudflare's HTML processing strips the ETag from any page it may rewrite,
+  // which leaves a crawler nothing to revalidate and no sign a release happened.
+  const headers = await read('dist/_headers');
+  for (const route of ['/', '/why/', '/thanks/', '/demos/', '/docs/*', '/errors/*']) {
+    assert.match(headers, new RegExp(`\\n${route.replace('*', '\\*')}\\n(  [^\\n]+\\n)*  Cache-Control: [^\\n]*no-transform`), route);
+  }
+  const sitemap = await read('dist/sitemap.xml');
+  assert.equal([...sitemap.matchAll(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/g)].length,
+    [...sitemap.matchAll(/<loc>/g)].length);
+});

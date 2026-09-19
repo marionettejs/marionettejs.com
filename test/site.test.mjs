@@ -101,3 +101,22 @@ test('entry, workshop and nested runtime imports use content versions to invalid
   for (const [, path, hash] of examples) assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
 
 });
+
+test('vendor bundles are requested by content, so a rebuild is always a new URL', async () => {
+  const version = source => createHash('sha256').update(source).digest('hex').slice(0, 12);
+  const bundles = Object.fromEntries(await Promise.all(['marionette', 'demos'].map(async name =>
+    [name, version(await readFile(resolve(out, `vendor/${name}.js`)))])));
+  let checked = 0;
+  for (const name of ['demo.js', 'motion.js', 'playground.js', 'examples.js']) {
+    const module = await readFile(resolve(out, 'assets', name), 'utf8');
+    const references = [...module.matchAll(/(['"])((?:\.\.)?\/vendor\/(marionette|demos)\.js)(\?v=([a-f0-9]+))?\1/g)];
+    assert.ok(references.length, name);
+    for (const [, , , bundle, , hash] of references) {
+      assert.equal(hash, bundles[bundle], `${name}: ${bundle} must carry its content version`);
+      checked++;
+    }
+  }
+  assert.equal(checked, 4);
+  // The downloadable project writes its own copy beside the page that imports it.
+  assert.ok((await readFile(resolve(out, 'assets/demo-project-tools.js'), 'utf8')).includes('"./vendor/marionette.js"'));
+});
