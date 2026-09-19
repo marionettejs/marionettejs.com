@@ -1,0 +1,29 @@
+name: Deployed site check
+on:
+  workflow_dispatch:
+    inputs:
+      origin:
+        description: Origin to check
+        default: https://marionettejs.com
+  schedule:
+    - cron: '17 9 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: deployed-site
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+      # Through the environment, so a dispatch value is never parsed by the shell.
+      - env:
+          ORIGIN: ${{ inputs.origin || vars.SITE_ORIGIN || 'https://marionettejs.com' }}
+        run: node scripts/check-deployment.mjs "$ORIGIN" --health-only
