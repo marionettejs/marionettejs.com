@@ -4,13 +4,13 @@ import * as z from 'zod/v4';
 import { tokenize } from './search.mjs';
 const versionInput = z.string().min(1).max(64).describe('Exact installed package version. Read marionette://catalog for the supported version. No latest aliases.');
 const offsetInput = z.number().int().min(0).max(10_000_000).default(0).describe('UTF-16 character offset returned as nextOffset by the previous call.');
-const limitInput = z.number().int().min(1).max(12_000).default(8_000).describe('Maximum characters to return; follow nextOffset until null.');
+const limitInput = z.number().int().min(1).max(12_000).default(8_000).describe('UTF-16 characters per page: integer 1–12000, default 8000. Follow nextOffset until null; do not request a larger limit.');
 const annotations = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false };
 // Construct immutable validation schemas once, while keeping each server independent.
-const searchInput = z.object({ query: z.string().trim().min(1).max(200), version: versionInput,
-  offset: z.number().int().min(0).max(100_000).default(0), limit: z.number().int().min(1).max(10).default(5) }).strict();
-const docInput = z.object({ path: z.string().min(1).max(300), version: versionInput, offset: offsetInput, limit: limitInput }).strict();
-const sectionsInput = z.object({ version: versionInput, ids: z.array(z.string().min(1).max(500)).min(1).max(30), maxCharacters: z.number().int().min(1).max(30_000).default(20_000) }).strict();
+const searchInput = z.object({ query: z.string().trim().min(1).max(200).describe('Search text, 1–200 characters. Use separate focused queries for related APIs.'), version: versionInput,
+  offset: z.number().int().min(0).max(100_000).default(0).describe('Result offset, integer 0–100000, default 0. Use nextOffset for another page.'), limit: z.number().int().min(1).max(10).default(5).describe('Results per page: integer 1–10, default 5. For more results, follow nextOffset instead of increasing limit above 10.') }).strict();
+const docInput = z.object({ path: z.string().min(1).max(300).describe('Exact id from search_docs, e.g. docs/marionette.region.md. Website routes such as docs/region.md and resource URIs such as marionette://catalog are not document IDs.'), version: versionInput, offset: offsetInput, limit: limitInput }).strict();
+const sectionsInput = z.object({ version: versionInput, ids: z.array(z.string().min(1).max(500)).min(1).max(30).describe('1–30 exact section IDs from search_sections, in priority order. Do not construct IDs from website URLs.'), maxCharacters: z.number().int().min(1).max(30_000).default(20_000).describe('UTF-16 content-character budget: integer 1–30000, default 20000; metadata excluded. Inspect omitted. Split requests or choose narrower sections; use get_doc if one section exceeds 30000 characters.') }).strict();
 const exampleInput = z.object({ name: z.string().min(1).max(100), version: versionInput, offset: offsetInput, limit: limitInput }).strict();
 
 // Prepare immutable corpus lookups once; each request still owns a fresh MCP server.
