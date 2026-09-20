@@ -9,10 +9,13 @@ export async function verifyMcp(endpoint, expectedRevision) {
   const version = corpus.packageVersion;
   const clients = [new Client({ name: 'marionette-http-verification', version: '1.0.0' }), new Client({ name: 'marionette-stdio-verification', version: '1.0.0' })];
   const responses = [];
+  let observedRevision = null;
   const http = new StreamableHTTPClientTransport(new URL(endpoint), { fetch: async (url, options) => {
     const response = await fetch(url, options);
+    assert.ok(response.status < 500, `MCP server failure: HTTP ${response.status}`);
+    observedRevision = response.headers.get('x-marionette-revision');
     assert.equal(response.headers.get('mcp-session-id'), null);
-    if (expectedRevision) assert.equal(response.headers.get('x-marionette-revision'), expectedRevision, 'MCP deployment revision');
+    if (expectedRevision) assert.equal(observedRevision, expectedRevision, 'MCP deployment revision');
     const bytes = (await response.clone().arrayBuffer()).byteLength;
     assert.ok(bytes <= 131_072, `Response exceeded 128 KiB: ${bytes}`);
     responses.push({ status: response.status, bytes });
@@ -132,7 +135,7 @@ export async function verifyMcp(endpoint, expectedRevision) {
     const stream = new ReadableStream({ start(controller) { controller.enqueue(new TextEncoder().encode('x'.repeat(16_385))); controller.close(); } });
     assert.equal((await fetch(endpoint, { method: 'POST', headers, body: stream, duplex: 'half' })).status, 413);
     assert.equal((await fetch(new URL('/other', endpoint))).status, 404);
-    return { endpoint, deploymentRevision: expectedRevision ?? null, verifiedAt: new Date().toISOString(), provenance: catalog.provenance, documents: corpus.documents.length, examples: catalog.examples.length, equivalentToolCalls: calls, httpResponses: responses.length, maxResponseBytes: Math.max(...responses.map(r => r.bytes)), sessions: false, checks: ['initialization', 'discovery', 'search pagination', 'every complete document', 'every complete example', 'content and provenance parity', 'version mismatch', 'invalid inputs', 'HTTP methods', 'Origins', 'body size including streaming'] };
+    return { endpoint, deploymentRevision: observedRevision, verifiedAt: new Date().toISOString(), provenance: catalog.provenance, documents: corpus.documents.length, examples: catalog.examples.length, equivalentToolCalls: calls, httpResponses: responses.length, maxResponseBytes: Math.max(...responses.map(r => r.bytes)), sessions: false, checks: ['initialization', 'discovery', 'search pagination', 'every complete document', 'every complete example', 'content and provenance parity', 'version mismatch', 'invalid inputs', 'HTTP methods', 'Origins', 'body size including streaming'] };
   } finally { await Promise.allSettled(clients.map(c => c.close())); }
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
