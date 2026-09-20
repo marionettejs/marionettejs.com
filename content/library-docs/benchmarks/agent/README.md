@@ -1,8 +1,8 @@
 # Agent benchmark prototypes and reference application
 
-This directory contains Fieldnotes, a runnable public reference application, thirteen
-draft implementation tasks, hidden public-API acceptance cases, known reference
-solutions, and a local evaluator. This is an unscored prototype, not a completed
+This directory contains Fieldnotes, a runnable public reference application, sixteen
+draft tasks (thirteen implementation exercises and three repairs), hidden
+public-API acceptance cases, known reference solutions, and a local evaluator. This is an unscored prototype, not a completed
 release evaluation or evidence of agent effectiveness.
 
 No model, runner/permissions profile, acceptance policy, counts, budgets, pilot,
@@ -49,8 +49,10 @@ abort.
 `capabilities.json` identifies the current prototype's framework contract areas.
 Its requirement for two independent tasks per capability is a fixture-diversity
 check, not a release task floor, sample-size rule, or proof of application coverage.
-The thirteen tasks are implementation exercises. A release evaluation still needs
-realistic change and repair work, successive changes, fresh-agent handoffs, and the
+The composed repair task adds lifecycle races to a working headless session.
+[Its coverage and handoff plan](tasks/composed-lifecycle-repair/README.md) records
+what it reuses and what remains uncollected. A release evaluation still needs
+independent attempts, successive changes, fresh-agent handoffs, and the
 public application and migration evidence specified in the roadmap.
 
 ## Evaluation policy
@@ -93,6 +95,11 @@ node --test test/agent-benchmark/*.test.mjs
 
 # Installed-consumer failure controls, after the reference command above.
 node test/agent-benchmark/evaluator-controls.mjs /tmp/agent-reference/nested-workspace
+
+# Borrowed-state acceptance accepts both retained and current-Region getters,
+# while still rejecting disposal of borrowed state.
+node test/agent-benchmark/acceptance-controls.mjs \
+  /tmp/agent-reference/borrowed-workspace-state /tmp/borrowed-state-controls
 
 # Runnable application and its three-engine UI check.
 node scripts/agent-benchmark/serve.mjs
@@ -164,6 +171,9 @@ reference solution, and withheld acceptance. Each is independently evaluated.
 | `async-session` | Async resource acquisition, stale cleanup, plain-service role |
 | `scoped-message-presenter` | Optional MnObject role, independent borrowed-source listeners |
 | `owned-workspace-state` | Nested Applications and separately owned Application/View state |
+| `render-resource` | Resource survives creation, receives the owning View, and releases once before replacement and on destroy |
+| `attach-resource` | Connection receives the owning View, survives attached rerenders, releases on detach/destroy, and reacquires on reattachment |
+| `composed-lifecycle-repair` | Two-stage startup/refresh races, rejected stop, active resources, draft and borrowed-state preservation |
 | `borrowed-workspace-state` | Nested ownership rejection and borrowed state/domain survival |
 
 `loadCorpus` validates task isolation, a complete decision inventory, and at least
@@ -171,3 +181,39 @@ two independent tasks for every capability in `capabilities.json`. This proves
 prototype metadata coverage; acceptance/control runs establish their actual case
 behavior. Neither establishes evaluation sample size, agent productivity, or stable
 release readiness.
+
+Acceptance controls also accept freshly prepared `async-session` and `filter-projects`
+reference directories. They verify microtask acquisition and DOM-hidden filtering
+as valid alternatives, while rejecting stale-provider leaks, missing filtering, and
+blank labels. Use a new output directory for each task. These are unscored controls.
+
+## Lifecycle context experiments
+
+`render-resource` and `attach-resource` repair resources released during their own
+creation event. Their acceptance observes acquisition, retained View identity, DOM
+attachment and exactly-once disposal across repeated operations. The render task
+requires release before the next acquisition, not necessarily before DOM replacement.
+Callbacks are synchronous and cleanup succeeds; reentrant callbacks and externally
+destroying the panel View are outside these tasks.
+
+For a context comparison, freeze these prompts and tests and vary only documentation:
+full relevant documents, manually selected sections, or automatically selected sections.
+Record selected source IDs/revisions, omitted sections, input/output/cached tokens and
+elapsed time. Retain all failed attempts. Successful references or a small pilot do not
+establish statistical equivalence, dollar savings or release readiness. An unseen
+migration task is required before generalizing a retrieval improvement.
+
+From the repository root, run lifecycle positive/negative controls against a prepared reference:
+
+```sh
+node test/agent-benchmark/lifecycle-controls.mjs /tmp/agent-reference/render-resource /tmp/render-controls
+node test/agent-benchmark/lifecycle-controls.mjs /tmp/agent-reference/attach-resource /tmp/attach-controls
+```
+
+These two repairs are correlated near-transfer probes of the same event-ordering
+misconception, not independent evidence of broad migration coverage. The attachment
+case additionally requires the connection to survive rerenders. Repeated terminal
+operations also exercise existing framework guards; the discriminating assertions
+are resource survival, callback owner identity, replacement ordering and exactly-once
+disposal. Scores count complete attempts, not individual assertions. Cleanup does
+not depend on which termination hook fires first because release is idempotent.

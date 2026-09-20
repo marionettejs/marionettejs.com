@@ -1,26 +1,26 @@
 {
   "schemaVersion": 1,
   "packageName": "marionette",
-  "packageVersion": "5.0.0-beta.4",
+  "packageVersion": "5.0.0-beta.5",
   "channel": "latest",
   "sourceRepository": "https://github.com/marionettejs/marionette",
-  "sourceRevision": "f4165f14198da115cc998c842fbf4b6a4886fe45",
+  "sourceRevision": "14153fd03fd616fdb989e210a860409853d84733",
   "sourceDirty": false,
-  "contentSha256": "5db1c1a1c3c8a81fce47be561c09fc63e9de7a8737af033920093635650906c4",
+  "contentSha256": "fb8b2810c5209dba3bd69f9e4b263bcfb2f07c64325e644af044c3d7a3f94b63",
   "pages": [
     {
       "source": "docs/readme.md",
       "route": "docs",
       "title": "Documentation",
       "section": "Start here",
-      "sha256": "e34b48f8ae44f23146b8a8701622f0dabfe2a44e94ecea5d18736eb7b2c93f38"
+      "sha256": "625af452fa9977d707d61f5c8d7c9f48596d98467e0d0145bd44d4b2aca9f176"
     },
     {
       "source": "docs/installation.md",
       "route": "docs/installation",
       "title": "Install and show a View",
       "section": "Start here",
-      "sha256": "1adf57247f055efafb72d772c6e68ea6ca62b8ac9758cb3f30713247dfae8047"
+      "sha256": "d04fd8e750f5de0e2f4c8fde342bf2d381ae37dbd8a4dd6bd18f14576c591cb8"
     },
     {
       "source": "docs/development.md",
@@ -41,7 +41,7 @@
       "route": "docs/beta",
       "title": "Try the beta candidate",
       "section": "Start here",
-      "sha256": "d51efb5301e7e9b2e17d3519b43dcb7977c1c89e3ec7082783743d7a99ac2462"
+      "sha256": "ba4dd61c45213427b754e619542827ddd20601d1aaefae3df5339f74148baf58"
     },
     {
       "source": "docs/agents.md",
@@ -55,7 +55,7 @@
       "route": "docs/compact-reference",
       "title": "Compact framework reference",
       "section": "Start here",
-      "sha256": "f7645181959c6ccd2d1c0cf0bccd9c019c4ca7dd1106f486913c83fb83000870"
+      "sha256": "0599fc4dc1462e432cd1dee128c7afc22593aaf006d222ed4fb27f70ef95ad4e"
     },
     {
       "source": "docs/classes.md",
@@ -83,7 +83,7 @@
       "route": "docs/agent-tools",
       "title": "Set up an agent",
       "section": "Start here",
-      "sha256": "47659ec3b9eb8f3e0153c54ea63c9a61a2c39c918e70d23c2869687948d6cadc"
+      "sha256": "4dff2733f621d399cf3ea96409499efbd1a20ab5cd59b141eac71414d0823f69"
     },
     {
       "source": "docs/application-agent-template.md",
@@ -104,7 +104,7 @@
       "route": "docs/region",
       "title": "Region",
       "section": "Build interfaces",
-      "sha256": "6716880b5ab5a6bf7b4b4a6dd7b66e7fdb7bd9c1c451578ad551d64f4be9e40d"
+      "sha256": "4b205c3699d771e6d6b288fd0914b15af80a7a76cfaaae9e63a92ac9ed0a6dee"
     },
     {
       "source": "docs/marionette.collectionview.md",
@@ -118,14 +118,14 @@
       "route": "docs/application",
       "title": "Application",
       "section": "Build interfaces",
-      "sha256": "bbb8db3bc58f2b021d9dd77d748a3a005ee9b6a3410d3a897c171dc8b3fb1a85"
+      "sha256": "711283795f71f7bff273498e97a0e0c54a815f02f1ff9339a22fdf13d8bca048"
     },
     {
       "source": "docs/application-effects.md",
       "route": "docs/application-effects",
       "title": "Own feature effects",
       "section": "Application guides",
-      "sha256": "92b6abad3ebfcb503a4d230bd28a80250143675549b743eb1b3cce6d6fd33cf1"
+      "sha256": "c4cca1c6a0d5c2391b7c7e56f65de439b08155c04da4b1441ab82c5bd2adb126"
     },
     {
       "source": "docs/application-refresh.md",
@@ -146,14 +146,14 @@
       "route": "docs/lifecycle",
       "title": "Lifecycle and cleanup",
       "section": "Build interfaces",
-      "sha256": "2cc29e59e056174bb2fcbd2888ee508ff6fb044b86e9fcacd1025c1f4e036133"
+      "sha256": "1e5f0e77d9bba799296ed40860a1d466e58cc086c36f72314cbe3c9daeedf8e3"
     },
     {
       "source": "docs/view.rendering.md",
       "route": "docs/rendering",
       "title": "Templates and rendering",
       "section": "Build interfaces",
-      "sha256": "6b397b0925b00c06ff644cd549b2273ba6235e1d6148ad6fa0514394f9c92df5"
+      "sha256": "106bd7c14f5897513a5072bed98d36e029b9be91650267f17ebcf90b03d8cb13"
     },
     {
       "source": "docs/dom.interactions.md",
@@ -174,21 +174,21 @@
       "route": "docs/task-recipes",
       "title": "Common application tasks",
       "section": "Build interfaces",
-      "sha256": "4477bf1b5b4fb57793663b32e34a330c424313ae785e108c2a8206df83a7e3a9"
+      "sha256": "35bb1433d42e8cf1aea7bf70931c4fa9bbc9674522a8ca3e3a7480ea95010b0a"
     },
     {
       "source": "docs/typescript.md",
       "route": "docs/typescript",
       "title": "TypeScript in applications",
       "section": "Application guides",
-      "sha256": "47ec746e0dcc04cce56f6227f0645d4c777585a2ae797f00c4683b32585922f1"
+      "sha256": "08361d38a3b3c29dcc45097fc44d74962cee91d9d97bea9f84006c1a9639e59b"
     },
     {
       "source": "docs/testing.md",
       "route": "docs/testing",
       "title": "Test an application",
       "section": "Application guides",
-      "sha256": "2af41bf009872459b8cd836384aae04ca5c34ff5eabc15e2ea45ba1357fb5fb9"
+      "sha256": "82f178b477d9e1ebd3d41653a5e98b8605953efe9cf738d4406954b48b78a4c5"
     },
     {
       "source": "docs/forms-and-accessibility.md",
@@ -223,14 +223,14 @@
       "route": "docs/state",
       "title": "State sources",
       "section": "Choose integrations",
-      "sha256": "fbee628142604499747a83f19055b05c0ba5831944760cf0910cc11cceef55f5"
+      "sha256": "2598f36fad1f5103f1f940312e311e1ed3c446d2e7725bdac690367511f73d97"
     },
     {
       "source": "docs/data.api.md",
       "route": "docs/data-api",
       "title": "Data and collections",
       "section": "Choose integrations",
-      "sha256": "5b714e990415d75982e78aaa62c0e86ad4b2fb0e75ea089fd994a080fdcee01a"
+      "sha256": "f96a24fa8f08ed1437944d558e91878a16f941b7efd3dcc40c91b2de52d1f5a2"
     },
     {
       "source": "docs/dom.api.md",
@@ -251,7 +251,7 @@
       "route": "docs/backbone",
       "title": "Backbone",
       "section": "Choose integrations",
-      "sha256": "8f8323ba79c77de961b81c1e6f9d3ed10efa5566629772054de201ea247ddaba"
+      "sha256": "f1d47cd797e109a9a57f56e1db187b50bafd16f1ff2775f03559f9f7e59bc86c"
     },
     {
       "source": "docs/runtime-isolation.md",
@@ -265,14 +265,14 @@
       "route": "docs/data-package",
       "title": "Data package",
       "section": "Choose integrations",
-      "sha256": "45fe77f1744e39746be2c0f6ee872298f18fe9c12f7f7d94827c041b0e7f4b02"
+      "sha256": "041e330fad1a87c891844b774dd5309aae61cc7a36d76b3dcf9ec5dfcd7b8c95"
     },
     {
       "source": "packages/adapters/readme.md",
       "route": "docs/adapters-package",
       "title": "Adapters package",
       "section": "Choose integrations",
-      "sha256": "67bca53b26a2facef67f4bc04931af31cbe9923167a9e62c98aa9789c40fd291"
+      "sha256": "d1be90d2631fcd4346b9e4648e7288e63ff28063fd7ffb860f32de25164d5d29"
     },
     {
       "source": "docs/common.md",
@@ -286,7 +286,7 @@
       "route": "docs/events",
       "title": "Events",
       "section": "API reference",
-      "sha256": "227484aca95a4003903bd8df51f3c38c11144480ace919b63bacbf5bc2bb3d22"
+      "sha256": "8225ceda0d100b6bf466ab779cacc1001b7eec16b8dfd09d8c43d97924228e50"
     },
     {
       "source": "docs/events.class.md",
@@ -342,28 +342,28 @@
       "route": "docs/radio-package",
       "title": "Radio package",
       "section": "API reference",
-      "sha256": "9deba7f7a0f7c600bfd7ab265fd929a9efea0ff9177dfb82fb8b9918fb951b79"
+      "sha256": "734eade5f9a776590f6387406f499c22d89dd692bf50bea0064fb9e366d09ee7"
     },
     {
       "source": "packages/utils/readme.md",
       "route": "docs/utils-package",
       "title": "Utils package",
       "section": "API reference",
-      "sha256": "8ba1130cd1b6fd0aac3dd945d100bb2cebc8c87212890f1229a0863e2d9e4755"
+      "sha256": "2ea64109e9b65c9fb66d48c30fec86b6475aa4d8c809cc68c68a28925ed93021"
     },
     {
       "source": "docs/migration-from-v4.md",
       "route": "docs/migration-from-v4",
       "title": "v4 compatibility ledger",
       "section": "Migration",
-      "sha256": "41f07e8dcd5c7f4747f8ccb978b383f9757d59ea11f59759c17eeef5cc002c15"
+      "sha256": "f3ee99ccf5c129b75638b7c6f59ede2075f892f077938d49d95974a38678c5ec"
     },
     {
       "source": "upgradeGuide.md",
       "route": "docs/upgrade-guide",
       "title": "Upgrade guide",
       "section": "Migration",
-      "sha256": "17c8389e475c49d12189d883f7b707d877b7344701d928e12040b82e12f3d437"
+      "sha256": "fc374cf6284b2b87f7b22fd30fc1a79c568f1ba63086b637d4059e55d48c96a0"
     },
     {
       "source": "docs/performance-baselines.md",
@@ -377,21 +377,21 @@
       "route": "docs/maintainers/release-profile",
       "title": "Release profile",
       "section": "Maintaining Marionette",
-      "sha256": "5ea9aa189fe640980266de1f2009f9e281bfc8ea89b11feb4d4b488f984e30ef"
+      "sha256": "7760de6b8ab71528ee612024f075738b681eaf43092bc1d3efecac9161f82ea6"
     },
     {
       "source": "docs/release-promotion.md",
       "route": "docs/maintainers/release-promotion",
       "title": "Release promotion",
       "section": "Maintaining Marionette",
-      "sha256": "e1e6dac510462b002a4641e7c7bd029b6de2611f4fa9787e0fa8d1de7a61ae1b"
+      "sha256": "cb46ae45c5b2324ae6fdc6630a1f012960c5c23d8cd71518a5ec6e3a24a13c1b"
     },
     {
       "source": "docs/maintainers/release-checklist.md",
       "route": "docs/maintainers/release-checklist",
       "title": "Release checklist",
       "section": "Maintaining Marionette",
-      "sha256": "068f8a693119667172f9220413a42ebebd41a19cbd9c759e119bb62fcd925f76"
+      "sha256": "0919b27861d04889ee302dff7f23aaf267f781571e12a320d4ef51137a059ab4"
     },
     {
       "source": "docs/maintainers/readme.md",
@@ -516,15 +516,15 @@
   "assets": [
     {
       "source": "config/diagnostics/catalog.json",
-      "sha256": "76cc4270e2ec939078cc3c8537d66e45bf0a58010fe25eeef81ab21f58886997"
+      "sha256": "45360deea6dfe7d531b256dbbebb443e9fa578fb0d43fc9becce7ab5126c76bf"
     },
     {
       "source": "config/api-contracts/inventory.json",
-      "sha256": "433b45f7c3ef116f213e51b3671f5efe663217042f89ee31440340aa168f12d7"
+      "sha256": "d237ccbf14dd41d8845044fc61a499dc52d2b73f93ff452e8b91e38e9bc1255f"
     },
     {
       "source": "config/api-contracts/semantics.json",
-      "sha256": "e213caa1284308597b5a6b693b5fad5f3bf1c997e0bde62cf268365936742b7e"
+      "sha256": "32bdf61b3a9823b768fba2cf3fdceb1a2a3c92a2dc2a5e8a542c09f9e1dc7368"
     },
     {
       "source": "scripts/api-contracts/README.md",
@@ -536,11 +536,15 @@
     },
     {
       "source": "test/fixtures/docs-application-guides/validate.mjs",
-      "sha256": "b911bd62d0988081db18c01b0534738731896b755c42b249c58daebb1e534c1a"
+      "sha256": "b0d0d8953ea3865a334dad081d5b3869a8253b0d82fbfea5ef661eb0d0debe72"
     },
     {
       "source": "test/fixtures/docs-application-guides/effects.mjs",
       "sha256": "231cd412eb41fd9d946997b73002215b1ad527051dd10a1907dbdb662fd13154"
+    },
+    {
+      "source": "test/fixtures/docs-application-guides/preparation.mjs",
+      "sha256": "4d80dfe0540a73cf9bf5c63dddcf530d349b13c7f2327b500404cd176db87320"
     },
     {
       "source": "test/fixtures/docs-application-guides/troubleshooting.mjs",
@@ -564,7 +568,7 @@
     },
     {
       "source": "test/fixtures/docs-prerendered-content/validate.mjs",
-      "sha256": "1ef28e7000b8d79b7675b0dbacabe8c68c3baa43656618d52d4c451b3bfd280a"
+      "sha256": "b5cbc9a310143230264ec45f0648c34152c935eaf9994f83b7505a39f4b1b7c9"
     },
     {
       "source": "test/fixtures/docs-region-lifecycle/package.json",
@@ -572,7 +576,7 @@
     },
     {
       "source": "test/fixtures/docs-region-lifecycle/validate.mjs",
-      "sha256": "7da375fdc0e75682abd129b73e9c6df661a3babcf313cda04a43971098a4fc69"
+      "sha256": "2382cab28e8f4bf5f85737285693e71fcd8f8d74685c4ddef3dd96fde4c54439"
     },
     {
       "source": "skills/marionette/SKILL.md",
@@ -592,11 +596,15 @@
     },
     {
       "source": "benchmarks/agent/README.md",
-      "sha256": "4adae7f70d80721d1ee10338db37a9653976f02a4f30b8c6b65569294bc31a89"
+      "sha256": "e7ca0d12e13d0b27a165248f0a03bb2650b57f8eb2f9dea148a000b63c7b3d07"
     },
     {
       "source": "benchmarks/agent/app/README.md",
       "sha256": "c647401a35fb4ad97ba32e75e18c457d25d391ccc1ea86862a0eecf12e3eef11"
+    },
+    {
+      "source": "benchmarks/agent/tasks/composed-lifecycle-repair/README.md",
+      "sha256": "1f817afd3979d66abe541458c596c499eb83f4567693645337cead490b9725f3"
     },
     {
       "source": "benchmarks/docs/README.md",
@@ -668,11 +676,19 @@
     },
     {
       "source": "test/README.md",
-      "sha256": "9afea944a98c8cdaf4a0a6beb543747b81fbafbd29f89c5a37490287bc9ea22b"
+      "sha256": "f99ea80861818f1875381f4ea6cdee9784dd13f5d943f59aa8274911c8e65cf2"
     },
     {
       "source": "test/unit/model-based/README.md",
       "sha256": "cbbe414c3396266c377c68fb7a1a9696f54115315b0b59524b0ef8f1056d895a"
+    },
+    {
+      "source": "test/fixtures/docs-prerendered-content/literal-template.mjs",
+      "sha256": "e1e88afd21b3c9cfe647e324bd6868da8ceb0a0f296d74836a6ba7691ea5fc41"
+    },
+    {
+      "source": "test/fixtures/docs-region-lifecycle/retry-delete.mjs",
+      "sha256": "c145dc37ac1c3d1d79fcf49821f4fc49071a4822367b7f7f4be39e122da241fa"
     }
   ]
 }
