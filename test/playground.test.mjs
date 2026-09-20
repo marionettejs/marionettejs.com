@@ -72,7 +72,7 @@ test('download contains the same pinned library, license and sandboxed standalon
   assert.match(output, /sandbox="allow-scripts allow-forms"/);
   assert.ok(!output.includes('allow-same-origin'));
   assert.ok(!output.includes('<script src='));
-  assert.match(output, /14153fd03fd616fdb989e210a860409853d84733/);
+  assert.ok(output.includes(revision));
   assert.match(output, /MIT/);
   const runner = output.match(/srcdoc="([^"]*)"/)[1].replaceAll('&quot;', '"').replaceAll('&gt;', '>').replaceAll('&lt;', '<').replaceAll('&amp;', '&');
   const config = JSON.parse(runner.slice(runner.indexOf('})({"app":') + 3, runner.indexOf('}, async function importProject') + 1));
