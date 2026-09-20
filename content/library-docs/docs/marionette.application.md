@@ -41,9 +41,9 @@ const myApplication = new Application();
 ### Initialization hooks
 
 `preinitialize(options)` runs after `options` and `cid` are assigned, before
-Marionette sets up the Region, Radio, and State. Use it to prepare instance
+Marionette sets up the Region, Radio, State, and declared children. Use it to prepare instance
 configuration those steps depend on. `initialize(options)` runs after that
-setup, before State event subscriptions are connected. Owned State is still
+setup, including child registration, before State event subscriptions are connected. Owned State is still
 created lazily when `getState()` is first called.
 
 ```javascript
@@ -187,8 +187,40 @@ also supersede its requested stop. Inspect the result and handle rejection; a
 ### Starting an Application
 
 Once configured, await `start(options)` before dispatching work that requires a
-running Application. The optional argument is passed to the lifecycle methods
-and events.
+running Application. The optional argument is passed unchanged to the lifecycle
+methods and events. Its `region` property can bind the Application to a
+Region instance before `before:start` and `prepareStart` run:
+
+```javascript
+const childRegion = layout.getRegion('content');
+await child.start({ region: childRegion, source: 'layout' });
+```
+
+An omitted or `undefined` `region` keeps the current host. The supplied Region is
+borrowed. Use constructor options to create an Application-owned Region from a
+selector, Region class, or definition object. Startup does not construct Regions
+or change the `region` constructor configuration; `getRegion()` returns the active
+host. A different host passed to `start()` while an Application is running or starting rejects
+with `MN0041`; await `stop()` before a new `start({ region })`, or use
+`restart({ region })` to stop and select a new host in one operation.
+An in-flight start with the same Region instance continues to share
+its existing Promise. A compatible in-flight restart also shares its Promise;
+a restart requesting a different host supersedes the earlier operation, which
+resolves `false`. Restart can replace an unfinished start: it cancels startup,
+completes deactivation, and then binds the requested host. Rebinding releases the
+Application's displayed root, preserves a prepared root for the new host, and
+destroys the previous owned Region.
+
+The `region` key is reserved for host configuration. Use a different option name
+for domain data, such as `regionCode`. The startup option must be a Region
+instance from the same Marionette runtime.
+
+With a shared borrowed host, `region.empty()` destroys the displayed View and
+clears its Application's displayed-root association, but does not stop that
+Application or destroy a separately prepared replacement. `application.stop()`
+deactivates the feature and clears its own preparation and display. The router
+or other shared-host coordinator must choose which Applications run; replacing
+or emptying a Region does not make that decision automatically.
 
 The application below loads a session before showing its root View. The supplied
 `loadSession({ signal })` function returns a Promise for an object with a
@@ -198,11 +230,14 @@ The application below loads a session before showing its root View. The supplied
 ```javascript
 import { Application, View } from 'marionette';
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+}
+
 const SessionView = View.extend({
-  template: () => '<h1></h1>',
-  onRender() {
-    this.el.querySelector('h1').textContent = this.model.name;
-  }
+  template: ({ name }) => `<h1>${escapeHtml(name)}</h1>`
 });
 
 export function createSessionApplication({ el, loadSession }) {
@@ -254,6 +289,66 @@ An Application may own named child Applications. Ownership is one-way: an
 Application locates and controls its children, while children receive required
 collaborators explicitly. Internal parent references exist only to enforce
 lifecycle and unlink children safely; upward lookup is not public API.
+
+### Declaring static children
+
+Use a `childApps` map, or a function returning that map, for children that can be
+constructed without arguments:
+
+```javascript
+const Workspace = Application.extend({
+  childApps: {
+    search: SearchApplication,
+    editor: EditorApplication
+  },
+  initialize() {
+    // Both children are already registered, but neither has been started.
+    this.getChildApp('search');
+  }
+});
+```
+
+Each parent instance constructs fresh children once, after Region, Radio, and
+State setup and before `initialize()`. Constructors receive no arguments;
+parent options are not forwarded. Entries register through `addChildApp()` in
+JavaScript own enumerable string-key order and follow its ownership rules.
+Children must belong to the parent's Marionette runtime. A function declaration
+runs once with the parent as `this`, at the same construction step.
+
+A child's own `initialize()` completes before registration, so `getName()` is
+still `undefined` there. Its registered name is available in start hooks and
+in the parent's `initialize()`. Lookup still returns the general
+`ApplicationInstance | undefined` type; declared keys do not infer child-specific
+methods.
+
+The declaration is inherited even when a subclass overrides `initialize()`.
+A subclass declaration or constructor `childApps` option replaces the entire
+inherited map; maps are not merged. A non-undefined `childApps` option takes
+precedence through `getOption()` without assigning to the declaration property,
+including a getter-only property. Use `{}` to omit inherited children.
+`preinitialize()` may configure the declaration property or `this.options.childApps`;
+a non-undefined option takes precedence over the property. With native classes, use a
+prototype `childApps()` method, getter, or `preinitialize()`, not an instance field assigned after
+`super()` has completed construction. TypeScript native subclasses should use a
+getter: the public interface declares `childApps` as a property, and TypeScript
+rejects overriding a property with a method declaration. This is a declaration-form
+restriction, not a consequence of the map-or-function union.
+
+Declaration only constructs and registers. Start chosen children explicitly with
+their startup options; parent start/restart does not activate or reconstruct them.
+Removing a declared child destroys it and does not recreate it on restart.
+Changing the map after construction does not change registered children.
+Use explicit `addChildApp()` for dynamic/lazy children or constructors requiring
+arguments. Per-child factories, shared instances, and option descriptors are not
+declaration forms. Constructor failures follow the synchronous failure boundary
+above; there is no partial-construction rollback. Declarations must describe a
+finite construction tree. Self-recursive or mutually recursive declarations are
+not detected before construction and can exhaust the call stack. The `MN0031`
+cycle check applies to ownership relationships between existing instances; it
+does not validate a graph of constructors. Invalid declaration shapes have no
+guaranteed diagnostic.
+
+### Registering and controlling children
 
 `addChildApp(name, application)` registers an existing live,
 parentless Application instance under a non-empty string name and returns that
@@ -388,21 +483,25 @@ import { Application, View } from 'marionette';
 
 export const refreshes = [];
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+}
+
 const DashboardView = View.extend({
   initialize(options) {
-    this.initialStatus = options.initialStatus;
+    this.status = options.initialStatus;
   },
 
-  template() {
-    return '<button class="refresh">Refresh</button><p class="status"></p>';
+  template({ status }) {
+    return `<button class="refresh">Refresh</button><p class="status">${escapeHtml(status)}</p>`;
   },
+
+  templateContext() { return { status: this.status }; },
 
   events: {
     'click .refresh': 'requestRefresh'
-  },
-
-  onRender() {
-    this.showStatus(this.initialStatus);
   },
 
   requestRefresh() {
@@ -410,7 +509,8 @@ const DashboardView = View.extend({
   },
 
   showStatus(status) {
-    this.el.querySelector('.status').textContent = status;
+    this.status = status;
+    this.render();
   }
 });
 
@@ -506,32 +606,40 @@ The Application owns a Region that it constructs from a selector, Region class,
 or definition object. Passing an existing Region instance instead borrows that
 host. The Application owns a prepared View only until `showView()` hands it to
 the Region. After adoption, the Region is the View's sole owner; the Application
-holds no separate View reference or ownership subscription.
+keeps only an association with the displayed root it selected. That association
+ends when the Region replaces, empties, or detaches the View.
 
-`getView()` returns the prepared View while one is pending, otherwise the host
-Region's `currentView`. Direct Region replacement or detachment therefore changes
-what `getView()` returns when no View is being prepared. While preparing a
-replacement, use `getRegion().currentView` to inspect the still-displayed View.
+`getView()` returns the prepared View while one is pending, otherwise the
+Application's selected displayed View. A View shown directly through the Region
+is not adopted or claimable by the Application. Prepare an unowned View with
+`setView()` before displaying it through the Application.
 
 Calling `setView(next)` destroys only a previous prepared View. It leaves the
 Region's current View visible until `showView()` replaces it through the normal
 Region lifecycle. Destroying a prepared View directly clears preparation, exposing
-the Region's current View through `getView()` again. Selecting that current View
-with `setView()` also cancels and destroys a pending replacement, without changing
-the displayed View.
+the selected displayed View through `getView()` again. Selecting the
+Application's own displayed View with `setView()` also cancels and destroys a
+pending replacement, without changing the displayed View.
 
-Stopping the Application destroys any prepared View and empties the host Region,
-including Views shown directly through it. Destroying the Application also
-destroys a Region it constructed, but never a borrowed Region. Restart cleans up
-both preparation and display before `onStart` builds a new root. Detaching a
-View through the host transfers it to the caller; the Application does not keep
-ownership of that detached View.
+Stopping the Application destroys any prepared View and empties the host Region
+only when its selected displayed View is still current. A replacement or
+detached View remains with the Region or caller that now owns it. Destroying the
+Application also destroys a Region it constructed, including whatever that
+Region currently displays, but never destroys a borrowed Region or an unrelated
+View in it. For a Region constructed by the Application, a directly shown View
+is also cleared by stop or restart; unmanaged HTML remains when there is no
+current View. Restart cleans up the Application's preparation and display before
+`onStart` builds a new root. Detaching a View through the host transfers it to
+the caller; the Application does not keep ownership of that detached View.
 
 Borrowing does not reserve a Region exclusively. Applications borrowing the same
-host read the same displayed View when neither has a prepared View. Each may
-prepare a distinct replacement; displaying one replaces the host's current View.
-Their external owner must coordinate display and stop calls, since either
-Application can empty the shared host. A prepared View itself has one owner and
+host keep independent selected roots. Each may prepare a distinct replacement;
+displaying one replaces the host's current View and ends the prior Application's
+association. Stopping one Application leaves another Application's selected
+displayed View in place. A View already displayed in the host, whether selected
+by another Application or shown directly through the Region, is rejected by
+`setView()` with `MN0003`; detaching it transfers it to the caller, who may then
+prepare it with another Application. A prepared View itself has one owner and
 cannot be adopted by another Application, Region, or CollectionView until handed
 to its host and subsequently detached.
 
@@ -580,11 +688,13 @@ Application owns the pending View until display, replacement, or cleanup.
 
 Preparing the same pending View again is a no-op. A different View destroys the
 previous pending View and its children, leaving the host's displayed View alone.
-Passing the host's current View cancels and destroys a pending replacement without
-changing Region ownership or display.
+Passing the Application's own displayed View cancels and destroys a pending
+replacement without changing Region ownership or display.
 
-A View owned elsewhere is rejected with `MN0003`; a destroyed View is rejected
-with `MN0007`. A prepared View cannot be adopted directly by another container:
+A View owned elsewhere or already displayed in the host is rejected with `MN0003`;
+a destroyed View is rejected with `MN0007`. The Application may reselect its own
+displayed View while the Region remains its sole owner. A prepared View cannot be
+adopted directly by another container:
 first display it through its Application, then use the host's `detachView()` to
 transfer it. Once displayed, normal Region ownership rules apply, including for
 Applications sharing a borrowed host.
@@ -604,9 +714,11 @@ Application's host Region. The Region adopts it and the Application releases its
 prepared reference and ownership subscription. The root is rendered only if
 needed. To pass options, use `showView(undefined, options)`.
 
-Without preparation, `showView()` delegates the Region's current View to `show()`
-(which is a no-op for that View), or returns `undefined` when neither a prepared
-nor current View exists. Otherwise it returns the View synchronously.
+Without preparation, `showView()` re-shows the Application's selected displayed
+View, or returns `undefined` when no View is selected. A View shown directly by
+the Region is not adopted or claimed by this call. Otherwise it returns the View
+synchronously. Calling it for the already displayed root is a no-op; supplied
+options are ignored and the View is not rendered or attached again.
 
 When no separate composition step is needed, `showView(view, options)` performs
 `setView(view)` followed by the same display operation, returning the supplied
@@ -618,12 +730,14 @@ prepared or displayed, and the supplied argument is returned, if any. A missing
 mount allowed by `allowMissingEl` leaves the View prepared and Application-owned;
 configure an available host element before a later `showView()`. Inspect
 `getRegion().currentView === getView()` with a defined View when you need to
-establish actual Region adoption. `getView()` alone does not establish display or
+establish actual Region display. `getView()` alone does not establish display or
 document attachment.
 
 ### `getView()`
 
-Return the prepared View while one is pending, otherwise the host Region's
-`currentView`, or `undefined` when neither exists. This is a read-only synchronous
-query; it does not render or attach a View. Once preparation has been handed off,
-all Region changes are reflected directly without a separate Application selection.
+Return the prepared View while one is pending, otherwise the Application's
+selected displayed View, or `undefined` when neither exists. This is a read-only
+synchronous query; it does not render or attach a View. Direct Region display is
+not adopted or claimable; prepare the View with `setView()` before displaying it
+through the Application. Read `getRegion().currentView` when you need the host's
+current display regardless of which owner selected it.

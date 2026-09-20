@@ -11,7 +11,7 @@ const readDevelopmentDocs = async () => {
 
 test('development guides preserve the matching published library source', async () => {
   const { manifest, pages } = await readDevelopmentDocs();
-  assert.equal(manifest.packageVersion, '5.0.0-beta.4');
+  assert.equal(manifest.packageVersion, '5.0.0-beta.5');
   for (const page of pages) {
     assert.equal(await readFile(`dist/docs/markdown/${page.source}`, 'utf8'), page.markdown);
     const html = await readFile(`dist/${page.route}/index.html`, 'utf8');

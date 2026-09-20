@@ -216,7 +216,7 @@ Install `@mnjs/data` with `marionette` when an application wants a small
 first-party observable Model and ordered Collection without Backbone:
 
 ```sh
-npm install marionette@5.0.0-beta.4 @mnjs/data@5.0.0-beta.4
+npm install marionette@5.0.0-beta.5 @mnjs/data@5.0.0-beta.5
 ```
 
 ```javascript
@@ -226,13 +226,16 @@ import { Collection, DataApi, Model, StateApi } from '@mnjs/data';
 setDataApi(DataApi);
 setStateApi(StateApi);
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+}
+
 const RowView = View.extend({
   tagName: 'li',
-  template: () => '',
-  modelEvents: { change: 'render' },
-  onRender() {
-    this.el.textContent = this.model.get('label');
-  }
+  template: ({ label }) => escapeHtml(label),
+  modelEvents: { change: 'render' }
 });
 const state = new Model({ selectedId: null });
 const collection = new Collection([{ id: 1, label: 'one' }]);

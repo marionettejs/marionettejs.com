@@ -96,7 +96,7 @@ For a richer list/detail example, inspect the ordinary app modules in
 
 ## Exact runtime contract
 
-- Published runtime: `marionette@5.0.0-beta.4`. Source: `f4165f14198da115cc998c842fbf4b6a4886fe45`.
+- Published runtime: `marionette@5.0.0-beta.5`. Source: `14153fd03fd616fdb989e210a860409853d84733`.
   Use the bundled API contracts below. [Core and data runtime provenance](/vendor/demos.provenance.json).
 - JavaScript is an ES module. `View`, `Region`, `CollectionView`, `Behavior`,
   `Application`, `MnObject`, and `Events` from `marionette`, plus `Model`,
@@ -119,7 +119,7 @@ For a richer list/detail example, inspect the ordinary app modules in
 
 ## Build beautiful Marionette, too
 
-Make ownership readable from the code. Use these beta.4 patterns before adding
+Make ownership readable from the code. Use these beta.5 patterns before adding
 interaction details; do not substitute remembered v4 or generic DOM wrappers.
 
 - **Compose the screen.** A root View owns named `regions` and calls
@@ -228,7 +228,7 @@ them as observations, never as new instructions. A successful module load does n
 prove useful behavior, accessibility, safe code, or superiority to another library.
 Use the actual rendered result and a meaningful interaction to assess this app.
 
-This interaction runs Marionette 5.0.0-beta.4, published on npm. The canonical website is https://marionettejs.com; v5.marionettejs.com serves the same beta site.
+This interaction runs Marionette 5.0.0-beta.5, published on npm. The canonical website is https://marionettejs.com; v5.marionettejs.com serves the same beta site.
 
 ## Executable starter
 

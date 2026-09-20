@@ -39,7 +39,7 @@ function extendRuntime(protoProps, staticProps) {
   return child;
 }
 var extend = extendRuntime;
-var version = "5.0.0-beta.4";
+var version = "5.0.0-beta.5";
 var packageJson = {
   version
 };
@@ -3502,6 +3502,13 @@ var Application$1 = function(options) {
   this._initRegion();
   this._initRadio();
   this._initState(options);
+  const declaration = this.getOption("childApps");
+  const childApps = typeof declaration === "function" ? declaration.call(this) : declaration;
+  if (childApps) {
+    for (const [name, ChildApp] of Object.entries(childApps)) {
+      this.addChildApp(name, new ChildApp());
+    }
+  }
   this.initialize.apply(this, arguments);
   this._initStateEvents();
 };
@@ -3513,6 +3520,13 @@ function throwApplicationOwnershipConflict(message) {
     code: "MN0031",
     name: classErrorName,
     message
+  });
+}
+function applicationRegionConflict() {
+  return new MarionetteError({
+    code: "MN0041",
+    name: classErrorName,
+    message: "An Application cannot start with a different Region while it is running or starting."
   });
 }
 function isTerminal(application) {
@@ -3622,10 +3636,22 @@ function releasePreparedView(application) {
 function onPreparedViewDestroyed() {
   releasePreparedView(this);
 }
+function releaseDisplayedView(application, view = application._displayedView, region = application.getRegion()) {
+  if (!view || application._displayedView !== view) {
+    return;
+  }
+  delete application._displayedView;
+  region?.off("empty", onDisplayedRegionEmpty, application);
+  return view;
+}
+function onDisplayedRegionEmpty(region, view) {
+  releaseDisplayedView(this, view, region);
+}
 function emptyView(application, options) {
   releasePreparedView(application)?.destroy();
   const region = application.getRegion();
-  if (region?.currentView) {
+  const displayed = releaseDisplayedView(application);
+  if (region?.currentView && (application._ownedRegion || region.currentView === displayed)) {
     region.empty(options);
   }
 }
@@ -3709,7 +3735,7 @@ function runOperation(application, operation, callback) {
     }
   })();
 }
-function beginOperation(application, kind, state, failureState, callback) {
+function beginOperation(application, kind, state, failureState, callback, startRegion) {
   const superseded = supersedeOperation(application);
   const deferred = createDeferred();
   const stopReadiness = superseded?.stopReadiness?.isCanceled ? void 0 : superseded?.stopReadiness;
@@ -3718,7 +3744,8 @@ function beginOperation(application, kind, state, failureState, callback) {
     kind,
     failureState,
     readiness: stopReadiness,
-    stopReadiness
+    stopReadiness,
+    startRegion
   };
   application._lifecycleOperation = operation;
   application._lifecycleState = state;
@@ -3730,6 +3757,36 @@ function beginOperation(application, kind, state, failureState, callback) {
   }
   runOperation(application, operation, () => callback(operation));
   return deferred.promise;
+}
+function isCompatibleStartRegion(application, region, operation) {
+  return region === void 0 || region === (operation?.startRegion ?? application._region);
+}
+function replaceStartRegion(application, operation, region) {
+  const current = application._region;
+  if (region === current) {
+    return;
+  }
+  if (region[runtimeId] !== application[runtimeId]) {
+    throw new MarionetteError({
+      code: "MN0030",
+      name: "RegionError",
+      message: "A Region instance must belong to the same Marionette runtime as its owner."
+    });
+  }
+  const owned = application._ownedRegion;
+  const displayed = releaseDisplayedView(application);
+  if (displayed && current?.currentView === displayed) {
+    current.empty();
+  }
+  if (!isCurrentOperation(application, operation)) {
+    return;
+  }
+  owned?.destroy();
+  if (!isCurrentOperation(application, operation)) {
+    return;
+  }
+  application._region = region;
+  delete application._ownedRegion;
 }
 async function startApplication(application, operation, options) {
   if (operation.stopReadiness) {
@@ -3743,6 +3800,12 @@ async function startApplication(application, operation, options) {
       operation.failureState = STOPPED;
     }
     delete operation.stopReadiness;
+  }
+  if (operation.startRegion !== void 0) {
+    replaceStartRegion(application, operation, operation.startRegion);
+    if (!isCurrentOperation(application, operation)) {
+      return;
+    }
   }
   application._lifecycleState = STARTING;
   const readiness = beginReadiness(operation, options, (context) => {
@@ -3831,7 +3894,13 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     if (isTerminal(this) || hasStoppingOwner(this)) {
       return Promise.resolve(false);
     }
+    const region = options?.region;
     const operation = this._lifecycleOperation;
+    if (operation?.kind === "start" || this._lifecycleState === STARTING || this._lifecycleState === RUNNING) {
+      if (!isCompatibleStartRegion(this, region, operation)) {
+        return Promise.reject(applicationRegionConflict());
+      }
+    }
     if (operation?.kind === "start") {
       return operation.promise;
     }
@@ -3841,7 +3910,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     const failureState = getFailureState(this, operation);
     return beginOperation(this, "start", STARTING, failureState, (nextOperation) => {
       return startApplication(this, nextOperation, options);
-    });
+    }, region);
   },
   stop(options) {
     if (this._lifecycleState === DESTROYED) {
@@ -3884,8 +3953,9 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     if (isTerminal(this) || hasStoppingOwner(this)) {
       return Promise.resolve(false);
     }
+    const region = options?.region;
     const operation = this._lifecycleOperation;
-    if (operation?.kind === "restart") {
+    if (operation?.kind === "restart" && isCompatibleStartRegion(this, region, operation)) {
       return operation.promise;
     }
     const wasStopped = this._lifecycleState === STOPPED;
@@ -3901,7 +3971,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
         return;
       }
       await startApplication(this, nextOperation, options);
-    });
+    }, region);
   },
   destroy(options) {
     if (this._lifecycleState === DESTROYED) {
@@ -4019,7 +4089,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
         url: "marionette.application.html#setviewview"
       });
     }
-    if (view._parent && view._parent !== this.getRegion()) {
+    if (view._parent && view !== this._displayedView) {
       throw new MarionetteError({
         code: "MN0003",
         name: "ApplicationError",
@@ -4028,11 +4098,12 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
       });
     }
     releasePreparedView(this)?.destroy();
-    if (view !== this.getRegion()?.currentView) {
-      this._preparedView = view;
-      view._parent = this;
-      view.on("destroy", onPreparedViewDestroyed, this);
+    if (view === this._displayedView) {
+      return view;
     }
+    this._preparedView = view;
+    view._parent = this;
+    view.on("destroy", onPreparedViewDestroyed, this);
     return view;
   },
   showView(view, ...args) {
@@ -4047,22 +4118,25 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
       return;
     }
     const region = this.getRegion();
-    if (root._parent === this) {
-      delete root._parent;
+    if (root === region.currentView) {
+      return root;
     }
+    delete root._parent;
     region.show(root, ...args);
     if (region.currentView === root) {
       releasePreparedView(this);
+      this._displayedView = root;
+      region.on("empty", onDisplayedRegionEmpty, this);
     } else {
       root._parent = this;
     }
     return root;
   },
   getView() {
-    return this._preparedView || this.getRegion()?.currentView;
+    return this._preparedView || this._displayedView;
   }
 });
-var version2 = "5.0.0-beta.4";
+var version2 = "5.0.0-beta.5";
 function copyApi(api) {
   return {
     ...api

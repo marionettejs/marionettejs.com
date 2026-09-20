@@ -3,9 +3,9 @@ import todoCSS from './todomvc-style.js';
 
 export const recipeRuntime = Object.freeze({
   "package": "marionette",
-  "version": "5.0.0-beta.4",
-  "revision": "f4165f14198da115cc998c842fbf4b6a4886fe45",
-  "data": Object.freeze({ "package": "@mnjs/data", "version": "5.0.0-beta.4" })
+  "version": "5.0.0-beta.5",
+  "revision": "14153fd03fd616fdb989e210a860409853d84733",
+  "data": Object.freeze({ "package": "@mnjs/data", "version": "5.0.0-beta.5" })
 });
 
 const css = `
