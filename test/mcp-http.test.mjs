@@ -1,4 +1,7 @@
 import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createServer } from 'node:http';
+import { once } from 'node:events';
 import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -20,6 +23,25 @@ test('Workers HTTP and local stdio agree on every document, example, and provena
     logLevel: 'error', experimental: { disableExperimentalWarning: true, watch: false },
   });
   t.after(() => worker.stop());
-  const result = await verifyMcp(`http://${worker.address}:${worker.port}/mcp`);
+  const endpoint = `http://${worker.address}:${worker.port}/mcp`;
+  const snapshot = JSON.parse(await readFile('output/mcp/snapshot.json', 'utf8'));
+  assert.match(snapshot.deploymentRevision, /^[a-f0-9]{40}$/);
+  await assert.rejects(verifyMcp(endpoint, 'wrong-revision'), /MCP deployment revision/);
+  const result = await verifyMcp(endpoint, snapshot.deploymentRevision);
+  assert.equal(result.deploymentRevision, snapshot.deploymentRevision);
   t.diagnostic(`${result.documents} complete documents, ${result.examples} complete examples, ${result.equivalentToolCalls} equivalent tool calls`);
+});
+
+test('MCP verification reports upstream failures before revision mismatches', async t => {
+  const server = createServer((_request, response) => {
+    response.writeHead(502);
+    response.end('Bad Gateway');
+  });
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  t.after(() => new Promise(resolve => server.close(resolve)));
+  await assert.rejects(
+    verifyMcp(`http://127.0.0.1:${server.address().port}/mcp`, 'a'.repeat(40)),
+    /MCP server failure: HTTP 502/,
+  );
 });

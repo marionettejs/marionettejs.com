@@ -1,8 +1,8 @@
 # Website prototype
 
 This branch targets beta.4 on marionettejs.com (canonical and indexable).
-Merging to `main` publishes the site and verifies the live origin in the same
-run; see the deployment section of README.md.
+Merging to `main` publishes the site and documentation MCP and verifies both
+in the same run; see the deployment section of README.md.
 www.marionettejs.com and v5.marionettejs.com also work; v5 is a mirror with a `noindex` directive.
 The launch was authorized and completed on September 9, 2026 (Asia/Seoul).
 Do not publish out of band; let the workflow deploy what has been merged and
