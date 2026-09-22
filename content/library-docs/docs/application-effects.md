@@ -1,12 +1,93 @@
 # Own effects explicitly
 
-Application `stateEvents`, `radioEvents`, `radioRequests`, and ordinary `listenTo`
-bindings have object lifetime. Stop does not remove them; destroy releases the
-framework-owned subscriptions. Use them for deliberately persistent behavior.
+Application `stateEvents` deliver during the active run, following `isRunning()`.
+Seed state before activation and read its current value in `onStart`; pending stop
+permission for stop/restart leaves delivery active until stopping succeeds.
+Terminal destruction deactivates delivery immediately. Subscriptions themselves
+remain installed until destruction, and suppressed notifications are not replayed.
+
+`radioEvents`, `radioRequests`, and ordinary `listenTo` bindings have object
+lifetime. Stop does not remove them; destroy releases the framework-owned
+subscriptions. Use explicit listeners for deliberately persistent state behavior.
 
 For a restartable feature, give subscriptions and asynchronous work an explicit
-owner. The following application module uses one small effects scope. It is
-application code, not a Marionette export or a new framework lifecycle.
+owner. Start with the lifetime and completion guidance below. The later effects
+scope example is application code for additional resources, not a Marionette
+export or a new framework lifecycle.
+
+## Choose the lifetime first
+
+| Lifetime | Owner and boundary | Canonical contract |
+| --- | --- | --- |
+| Application object | Survives stop/restart; retains its state source and ordinary `listenTo`/`bindEvents` and Radio bindings until explicit cleanup or destroy. | [Subscriptions](./marionette.application.md#subscription-lifetime-across-stop-and-restart), [state ownership](./marionette.state.md#borrowed-and-owned-sources) |
+| Active run | Configured Application `stateEvents` deliver during the run; this does not cancel requests or clean up other resources. | [Application state](./marionette.application.md#application-state) |
+| Preparation phase | The supplied signal tracks that pending lifecycle phase, not the later run. | [Preparation](./marionette.application.md#preparation-methods-and-notifications) |
+| Individual request | Its initiating screen/request owns permission to apply the result, even if persistence outlives that screen. | [Completion below](#allow-persistence-without-late-ui-effects), [replacement requests](./application-refresh.md) |
+
+Restart retains the Application and its state; it does not reset the source to its
+initial values. Read current state when composing the next screen. Use the public
+lifecycle and View ownership first; the effects helper below is only needed for
+resources whose lifetime is not already owned by those APIs.
+
+## Allow persistence without late UI effects
+
+Use this pattern when a save should finish after navigation away. The service owns
+persistence; the initiating Application root owns completion UI. Supply
+`saveRecord(value)` and synchronous `navigate(saved)` functions. This method is
+called while the feature is running. It returns `true` only when the save succeeds
+and its current screen applies success UI and navigation. A failure shows an error
+on the current screen and returns `false`; an obsolete completion returns `false`
+without updating UI. It handles late rejection too. Keep navigation out of the
+persistence service.
+
+<!-- executable-example: application-save-completion -->
+```javascript
+import { Application, View } from 'marionette';
+
+const Editor = View.extend({
+  template: () => '<p role="status">Ready</p>',
+  showStatus(message) { this.el.querySelector('[role="status"]').textContent = message; }
+});
+
+export function createEditor({ el, saveRecord, navigate }) {
+  const Feature = Application.extend({
+    onStart() { this.showView(new Editor()); },
+    async save(value) {
+      const screen = this.getView();
+      if (!this.isRunning() || !screen || screen.isDestroyed()) { return false; }
+      const request = {};
+      this.latestSave = request;
+      const isCurrent = () => this.latestSave === request && this.isRunning() &&
+        this.getView() === screen && !screen.isDestroyed();
+      try {
+        const saved = await saveRecord(value);
+        if (!isCurrent()) { return false; }
+        screen.showStatus('Saved');
+        navigate(saved);
+        return true;
+      } catch {
+        if (!isCurrent()) { return false; }
+        screen.showStatus('Could not save');
+        return false;
+      }
+    }
+  });
+  return new Feature({ region: { el } });
+}
+```
+
+Stopping destroys the owned root. Restart creates a different root, so a late save
+cannot update it even if `isRunning()` is true again. Replacing the displayed root
+also invalidates completion without requiring an Application stop. Request identity
+handles overlapping saves on the same screen; it does not serialize server writes.
+During pending stop permission the run and its screen remain active, so this policy
+still permits completion; a rejected stop keeps that screen usable. If the product
+must freeze interaction earlier, define that policy explicitly.
+
+For cancellation of the work itself, see the [form example](./forms-and-accessibility.md#save-without-replacing-the-users-input).
+Neither canceling a client request nor suppressing its completion proves that a
+server write was rolled back. The [installed completion checks](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-application-guides/completion.mjs)
+execute this example and the loading shell against packed packages.
 
 ## Choose when effects end
 
@@ -75,19 +156,45 @@ a newer successful start.
 
 ## Distinguish delivery from resource cleanup
 
-Configured `stateEvents` can intentionally remain subscribed for the object's
-lifetime. A handler guarded by `isRunning()` suppresses its work while the feature
-is stopped, but does not unsubscribe or cancel a timer. It also suppresses work
-while stop permission is pending, because that is a lifecycle transition. Use the
-explicit scope below when effects must continue until stop succeeds and remain
-active if permission rejects. Disposing them in `onBeforeStop` would end them before
-the permission decision; disposal belongs in `onStop` for that policy.
+Configured `stateEvents` gate delivery; they do not unsubscribe on stop or cancel
+work a handler already started. `isRunning()` stays true during pending stop
+permission, but a later run can also be active when an older request finishes.
+Use operation signals or a latest-request owner to prevent stale commits.
+
+Use the explicit scope below for effects that observe loading-time changes or own
+timers, requests, and other resources. Disposing them in `onBeforeStop` would end
+them before permission is decided; disposal belongs in `onStop` for this policy.
 
 Successful `prepareStart` does not give its signal the lifetime of the subsequent
 active run. Register active resources with their own scope and dispose that scope
 on successful stop and terminal destruction. The executable example below and its
 [installed checks](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-application-guides/effects.mjs)
 already cover rejected stop permission and successful timer cleanup.
+
+## Work started after activation
+
+An async action called from `onStart`, a state handler, or a user event is not part
+of `prepareStart` readiness. Handle its rejection at the action's owner and check
+whether its result still belongs to the current work before updating the UI.
+There are two separate questions:
+
+- Does this request still belong to the active run? A later run may make
+  `isRunning()` true again, so that boolean alone cannot identify the request's run.
+- Has a newer request replaced it within the same run? A run-scoped signal alone
+  does not establish latest-request-wins ordering.
+
+Use the [latest-request example](./application-refresh.md#share-one-latest-request-controller)
+for replaceable reads, with disposal tied to the feature's chosen lifetime.
+Ignoring an obsolete result or aborting a request does not undo a write already
+performed by a provider. Save and discard actions need an explicit mutation policy;
+do not assume the same replacement policy is appropriate for them.
+
+An owned child Application is useful when the work belongs to a feature with its
+own activation and cleanup, with state or UI where needed. Put its initial readiness in
+its `prepareStart` and render its prepared result in `onStart`. A child per Promise
+does not automatically solve request ordering. Even when startup belongs to an
+existing child, a parent's asynchronous failure handler must still check that the
+failure is relevant to the parent's current context.
 
 ## A complete feature
 

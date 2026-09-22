@@ -1,9 +1,27 @@
 # Try Marionette v5 beta
 
-`5.0.0-beta.5` is prepared for application trials. Registry installation requires
+`5.0.0-beta.6` is prepared for application trials. Registry installation requires
 a published release; use certified tarballs before publication. Release promotion
 sets npm `latest` to the current prerelease until stable v5. A matching version
 string alone does not prove that a locally built artifact matches a release.
+
+## Changes in beta.6
+
+Application `stateEvents` follows the active run: startup and stopped changes do
+not invoke configured handlers or replay later. Read initial state in `onStart`.
+An active Application remains running while stop permission is pending; a rejected
+stop preserves the run. Restart requests from completion callbacks begin a fresh
+cycle rather than reusing the completed restart.
+
+Native `@mnjs/data` mutations no longer support `{ silent: true }`. Remove those
+options and expect documented notifications after construction. Backbone mutation
+behavior is unchanged. Review the [upgrade guide](../upgradeGuide.md) before updating
+consumer code; these are breaking beta changes.
+
+The Application, ownership, interaction, migration, and agent-tooling guides include
+executable loading shells, child readiness, late completion, and event-boundary
+examples. These guides and the new consumer agent plugin do not add runtime APIs
+or establish measured agent effectiveness.
 
 ## What beta means
 
@@ -37,10 +55,10 @@ pins matching runtime dependencies; a candidate kit instead supplies exact local
 tarballs and a complete lockfile. Both include application agent instructions,
 typecheck, consumer lint, unit tests, build, and a browser-test command.
 
-The registry path requires beta.5 to be published first. Beta.4 remains the previous
-published candidate. Beta.5 adds ownership-aware root cleanup, existing Regions on
-start/restart, and static child declarations. When upgrading from beta.3 or earlier,
-move asynchronous `onBefore*` preparation to the corresponding `prepare*` methods.
+Beta.6 retains the beta.5 ownership-aware root
+cleanup, existing Regions on start/restart, and static child declarations. When
+upgrading from beta.3 or earlier, move asynchronous `onBefore*` preparation to
+the corresponding `prepare*` methods.
 
 The starter has editable rows, asynchronous local selection, deliberate cancellation,
 and teardown. It has no backend, persistence, or URL router. Connect its `navigate`
@@ -55,7 +73,7 @@ Use [TypeScript guidance](./typescript.md) when adding typed application code.
 3. Change a module during `npm run dev`. The old workspace should release its handlers.
 4. Run `npm test` and `npm run build`. Add a regression for your application's behavior.
 5. Test keyboard focus and selection in a real browser using the actual DOM adapter.
-6. Install the [consumer agent skill](./agent-tools.md) if useful, then ask it to locate
+6. Install the [consumer agent plugin or skill](./agent-tools.md) if useful, then ask it to locate
    the installed docs and identify the component responsible for cancellation.
 
 The installed-consumer fixture checks the starter outside the repository against
@@ -84,7 +102,7 @@ permission, propagation, or trusted-publisher configuration.
 
 ## If the beta fails in your application
 
-Pin `5.0.0-beta.4` across all five packages and restore the matching application
+Pin `5.0.0-beta.5` across all five packages and restore the matching application
 code and lockfile. The old `marionette@5.0.0-alpha.2` is not an API-compatible
 rollback for this candidate. Existing v4 applications should retain their
 pre-migration revision and `backbone.marionette` lockfile until their beta trial
@@ -93,5 +111,5 @@ succeeds.
 Maintainers must not overwrite a published beta version. Withdraw its recommendation,
 deprecate a broken version with a specific reason, and publish a corrected beta.
 Move the selected npm tag (`latest` before the first stable v5) only to the verified
-beta.4 release. Preserve exact artifacts and failure evidence.
+beta.5 release. Preserve exact artifacts and failure evidence.
 See [release recovery](https://github.com/marionettejs/marionette/blob/master/docs/release-promotion.md#recovery-and-rollback).

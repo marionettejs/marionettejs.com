@@ -19,8 +19,12 @@ current public behavior boundary. Final migration documentation is tracked in
    helper aliases using the [compatibility ledger](docs/migration-from-v4.md).
    Keep the existing application's routing and domain model unless it needs a change.
 4. Await Application `start`, `stop`, `restart` and `destroy` results at the
-   application boundary. Make asynchronous readiness respect cancellation before
-   committing side effects. Distinguish borrowed state/Regions from owned factories.
+   application boundary. Application is the Marionette owner with an asynchronous
+   active lifecycle; View, CollectionView, Behavior, MnObject and Region destruction
+   remains synchronous. Test and mount helpers must await Application destruction
+   before clearing or replacing its host. Make asynchronous readiness respect
+   cancellation before committing side effects. Distinguish borrowed state/Regions
+   from owned factories.
 5. Use the shipped public declarations and run the application's type/build
    checks. Test startup, navigation cancellation, child replacement, editable
    focus/drafts, repeated mounts and teardown through public behavior in a browser.
@@ -646,7 +650,47 @@ when stop, restart, or destroy must still stop its active descendants.
 Update cancellation work to use the preparation method's context, not a
 notification argument. Existing synchronous cleanup in `onBeforeDestroy` stays there.
 
-Toolkit's app-frontend-style `beforeStart(options)` maps to `prepareStart(options,
-{ signal })`; `onBeforeStart` remains the notification. Replace arrays of Promises
-with an explicit `Promise.all` and consume its array as one startup result.
+For multiple required requests, return an explicit `Promise.all` from
+`prepareStart` and consume its array as one startup result.
 See [Application preparation](docs/marionette.application.md#preparation-methods-and-notifications).
+
+## Application state events follow the active run
+
+Application `stateEvents` no longer invoke handlers during startup preparation
+(including the startup phase of a restart), or while stopped. Seed state normally
+before startup and read the current source in `onStart` for initial display. Remove per-handler
+`isRunning()` guards used only to enforce this boundary; suppressed events are
+not replayed. State identity and subscriptions persist across stop/restart.
+
+`isRunning()` now remains true while an active run awaits stop permission or
+owned-child stopping, including a restart's stop phase. It becomes false before
+root teardown and during the new startup preparation, or immediately when
+destruction begins.
+Rejected/canceled stop preserves activation. Use explicit listeners with owned
+cleanup if a feature deliberately needs loading-time or object-lifetime reactions.
+View state events, Radio bindings, and explicit listeners are unchanged.
+
+## Native data mutations notify observers
+
+`@mnjs/data` no longer supports `{ silent: true }`. Model mutations and Collection
+structural operations always publish their documented notifications; unchanged
+writes and no-op membership/move operations remain no-ops. Construction still
+seeds initial data without mutation events. Collection construction seeds
+membership directly and no longer invokes an overridden `reset`. Mutations called
+from `initialize` use the normal notifying methods. Complete initial setup during
+construction or initialization, subscribe afterward, and use the existing bulk
+setters and collection operations for later multi-value or multi-member changes.
+
+Remove `silent` options from native data calls. Arbitrary option metadata still
+passes through events, but cannot suppress notification. Backbone's own mutation
+API is unchanged. This change does not introduce batching or deferred delivery.
+
+## Restart requests from completion callbacks
+
+A compatible `restart()` still coalesces during stop/start preparation and retains
+the original operation's options. Once startup commits, before `onStart` and the
+`start` event, another `restart()` begins a new cycle with its own Promise/options.
+The previous cycle has completed successfully; cancellation or failure of the next
+cycle does not change that result. Do not restart unconditionally from every
+start notification. Completion callbacks remain synchronous notifications whose
+returned Promises Marionette does not await.
