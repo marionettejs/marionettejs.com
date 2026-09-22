@@ -101,7 +101,7 @@ export async function verifyMcp(endpoint, expectedRevision) {
     for (const unsupported of ['latest', 'next', '5', '4.1.3', '5.0.0-beta.1', `${version} `]) {
       for (const [name, args] of [['search_docs', { query: 'Region' }], ['get_doc', { path: corpus.documents[0].id }], ['get_example', { name: catalog.examples[0].id }]]) {
         const error = await call(name, { ...args, version: unsupported }, true);
-        assert.match(error.content[0].text, /Unsupported version:.*Supported version: 5.0.0-beta.5.*No fallback/);
+        assert.match(error.content[0].text, /Unsupported version:.*Supported version: 5.0.0-beta.6.*No fallback/);
       }
     }
     for (const [name, args] of [

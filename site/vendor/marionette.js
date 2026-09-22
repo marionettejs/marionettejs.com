@@ -39,7 +39,7 @@ function extendRuntime(protoProps, staticProps) {
   return child;
 }
 var extend = extendRuntime;
-var version = "5.0.0-beta.5";
+var version = "5.0.0-beta.6";
 var packageJson = {
   version
 };
@@ -997,12 +997,19 @@ var StateApi = {
     });
   }
 };
-function subscribeBindings(context, Api, source, bindings) {
+function subscribeBindings(context, Api, source, bindings, shouldDeliver) {
   const eventArgs = buildEventArgs(normalizeBindings(context, bindings), context);
   const cleanups = eventArgs.map(({
     name,
     callback
-  }) => Api.subscribe(source, name, callback, context));
+  }) => {
+    const handler = shouldDeliver ? (...args) => {
+      if (shouldDeliver(context)) {
+        return callback.apply(context, args);
+      }
+    } : callback;
+    return Api.subscribe(source, name, handler, context);
+  });
   return function() {
     cleanups.forEach((cleanup) => cleanup());
   };
@@ -1021,13 +1028,13 @@ var StateMixin = {
       this._stateOptions = options;
     }
   },
-  _initStateEvents() {
+  _initStateEvents(shouldDeliver) {
     if (this._isDestroyed) {
       return this;
     }
     const stateEvents = getValue(this, "stateEvents");
     if (stateEvents && !this._isDestroyed) {
-      this._stateEventCleanup = subscribeBindings(this, this.State, this.getState(), stateEvents);
+      this._stateEventCleanup = subscribeBindings(this, this.State, this.getState(), stateEvents, shouldDeliver);
     }
     return this;
   },
@@ -3510,8 +3517,15 @@ var Application$1 = function(options) {
     }
   }
   this.initialize.apply(this, arguments);
-  this._initStateEvents();
+  this._initStateEvents(isApplicationRunning);
 };
+function isApplicationRunning(application) {
+  return application._isRunning;
+}
+function setLifecycleState(application, state, running) {
+  application._lifecycleState = state;
+  application._isRunning = running;
+}
 function isCurrentOperation(application, operation) {
   return application._lifecycleOperation === operation;
 }
@@ -3694,7 +3708,7 @@ function getFailureState(application, operation) {
   if (operation?.stopReadiness) {
     return operation.failureState;
   }
-  return application._lifecycleState === RUNNING ? RUNNING : STOPPED;
+  return application._isRunning ? RUNNING : STOPPED;
 }
 function supersedeOperation(application) {
   const operation = application._lifecycleOperation;
@@ -3714,7 +3728,7 @@ function completeOperation(application, operation) {
 }
 function cancelOperation(application, operation) {
   delete application._lifecycleOperation;
-  application._lifecycleState = operation.failureState;
+  setLifecycleState(application, operation.failureState, operation.failureState === RUNNING);
   operation.resolve(false);
 }
 function failOperation(application, operation, error) {
@@ -3722,7 +3736,7 @@ function failOperation(application, operation, error) {
     return;
   }
   delete application._lifecycleOperation;
-  application._lifecycleState = operation.failureState;
+  setLifecycleState(application, operation.failureState, operation.failureState === RUNNING);
   operation.reject(error);
 }
 function runOperation(application, operation, callback) {
@@ -3748,7 +3762,7 @@ function beginOperation(application, kind, state, failureState, callback, startR
     startRegion
   };
   application._lifecycleOperation = operation;
-  application._lifecycleState = state;
+  setLifecycleState(application, state, state === DESTROYING ? false : application._isRunning);
   if (superseded?.readiness && superseded.readiness !== stopReadiness) {
     superseded.readiness.controller.abort();
   }
@@ -3801,13 +3815,14 @@ async function startApplication(application, operation, options) {
     }
     delete operation.stopReadiness;
   }
+  setLifecycleState(application, application._lifecycleState, false);
   if (operation.startRegion !== void 0) {
     replaceStartRegion(application, operation, operation.startRegion);
     if (!isCurrentOperation(application, operation)) {
       return;
     }
   }
-  application._lifecycleState = STARTING;
+  setLifecycleState(application, STARTING, false);
   const readiness = beginReadiness(operation, options, (context) => {
     application.triggerMethod("before:start", application, options);
     if (!isCurrentOperation(application, operation)) {
@@ -3820,7 +3835,8 @@ async function startApplication(application, operation, options) {
     return;
   }
   completeReadiness(operation);
-  application._lifecycleState = RUNNING;
+  delete operation.isStopped;
+  setLifecycleState(application, RUNNING, true);
   operation.failureState = RUNNING;
   operation.isCompleting = true;
   application.triggerMethod("start", application, options, result);
@@ -3853,6 +3869,7 @@ async function stopApplication(application, operation, options, notify = true) {
       cancelOperation(application, operation);
       return;
     }
+    setLifecycleState(application, application._lifecycleState, false);
     emptyView(application, readiness.options);
     if (!isCurrentOperation(application, operation)) {
       return;
@@ -3860,7 +3877,7 @@ async function stopApplication(application, operation, options, notify = true) {
     operation.failureState = STOPPED;
     operation.isStopped = true;
     if (operation.kind === "stop") {
-      application._lifecycleState = STOPPED;
+      setLifecycleState(application, STOPPED, false);
       operation.isCompleting = true;
     }
     if (readiness.notify) {
@@ -3887,8 +3904,9 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
   },
   cidPrefix: "mna",
   _lifecycleState: STOPPED,
+  _isRunning: false,
   isRunning() {
-    return this._lifecycleState === RUNNING;
+    return isApplicationRunning(this);
   },
   start(options) {
     if (isTerminal(this) || hasStoppingOwner(this)) {
@@ -3931,7 +3949,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     }
     if (operation?.isStopped) {
       const superseded = supersedeOperation(this);
-      this._lifecycleState = STOPPED;
+      setLifecycleState(this, STOPPED, false);
       superseded.readiness?.controller.abort();
       return Promise.resolve(true);
     }
@@ -3955,7 +3973,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     }
     const region = options?.region;
     const operation = this._lifecycleOperation;
-    if (operation?.kind === "restart" && isCompatibleStartRegion(this, region, operation)) {
+    if (operation?.kind === "restart" && !operation.isCompleting && isCompatibleStartRegion(this, region, operation)) {
       return operation.promise;
     }
     const wasStopped = this._lifecycleState === STOPPED;
@@ -4004,7 +4022,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
       delete this._region;
       delete this._ownedRegion;
       this._isDestroyed = true;
-      this._lifecycleState = DESTROYED;
+      setLifecycleState(this, DESTROYED, false);
       nextOperation.failureState = DESTROYED;
       nextOperation.isCompleting = true;
       if (this._parentApp) {
@@ -4136,7 +4154,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     return this._preparedView || this._displayedView;
   }
 });
-var version2 = "5.0.0-beta.5";
+var version2 = "5.0.0-beta.6";
 function copyApi(api) {
   return {
     ...api

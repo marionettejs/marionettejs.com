@@ -39,7 +39,7 @@ function extendRuntime(protoProps, staticProps) {
   return child;
 }
 var extend = extendRuntime;
-var version = "5.0.0-beta.5";
+var version = "5.0.0-beta.6";
 var packageJson = {
   version
 };
@@ -993,12 +993,19 @@ var StateApi = {
     });
   }
 };
-function subscribeBindings(context, Api, source, bindings) {
+function subscribeBindings(context, Api, source, bindings, shouldDeliver) {
   const eventArgs = buildEventArgs(normalizeBindings(context, bindings), context);
   const cleanups = eventArgs.map(({
     name,
     callback
-  }) => Api.subscribe(source, name, callback, context));
+  }) => {
+    const handler = shouldDeliver ? (...args) => {
+      if (shouldDeliver(context)) {
+        return callback.apply(context, args);
+      }
+    } : callback;
+    return Api.subscribe(source, name, handler, context);
+  });
   return function() {
     cleanups.forEach((cleanup) => cleanup());
   };
@@ -1017,13 +1024,13 @@ var StateMixin = {
       this._stateOptions = options;
     }
   },
-  _initStateEvents() {
+  _initStateEvents(shouldDeliver) {
     if (this._isDestroyed) {
       return this;
     }
     const stateEvents = getValue(this, "stateEvents");
     if (stateEvents && !this._isDestroyed) {
-      this._stateEventCleanup = subscribeBindings(this, this.State, this.getState(), stateEvents);
+      this._stateEventCleanup = subscribeBindings(this, this.State, this.getState(), stateEvents, shouldDeliver);
     }
     return this;
   },
@@ -3506,8 +3513,15 @@ var Application$1 = function(options) {
     }
   }
   this.initialize.apply(this, arguments);
-  this._initStateEvents();
+  this._initStateEvents(isApplicationRunning);
 };
+function isApplicationRunning(application) {
+  return application._isRunning;
+}
+function setLifecycleState(application, state, running) {
+  application._lifecycleState = state;
+  application._isRunning = running;
+}
 function isCurrentOperation(application, operation) {
   return application._lifecycleOperation === operation;
 }
@@ -3690,7 +3704,7 @@ function getFailureState(application, operation) {
   if (operation?.stopReadiness) {
     return operation.failureState;
   }
-  return application._lifecycleState === RUNNING ? RUNNING : STOPPED;
+  return application._isRunning ? RUNNING : STOPPED;
 }
 function supersedeOperation(application) {
   const operation = application._lifecycleOperation;
@@ -3710,7 +3724,7 @@ function completeOperation(application, operation) {
 }
 function cancelOperation(application, operation) {
   delete application._lifecycleOperation;
-  application._lifecycleState = operation.failureState;
+  setLifecycleState(application, operation.failureState, operation.failureState === RUNNING);
   operation.resolve(false);
 }
 function failOperation(application, operation, error) {
@@ -3718,7 +3732,7 @@ function failOperation(application, operation, error) {
     return;
   }
   delete application._lifecycleOperation;
-  application._lifecycleState = operation.failureState;
+  setLifecycleState(application, operation.failureState, operation.failureState === RUNNING);
   operation.reject(error);
 }
 function runOperation(application, operation, callback) {
@@ -3744,7 +3758,7 @@ function beginOperation(application, kind, state, failureState, callback, startR
     startRegion
   };
   application._lifecycleOperation = operation;
-  application._lifecycleState = state;
+  setLifecycleState(application, state, state === DESTROYING ? false : application._isRunning);
   if (superseded?.readiness && superseded.readiness !== stopReadiness) {
     superseded.readiness.controller.abort();
   }
@@ -3797,13 +3811,14 @@ async function startApplication(application, operation, options) {
     }
     delete operation.stopReadiness;
   }
+  setLifecycleState(application, application._lifecycleState, false);
   if (operation.startRegion !== void 0) {
     replaceStartRegion(application, operation, operation.startRegion);
     if (!isCurrentOperation(application, operation)) {
       return;
     }
   }
-  application._lifecycleState = STARTING;
+  setLifecycleState(application, STARTING, false);
   const readiness = beginReadiness(operation, options, (context) => {
     application.triggerMethod("before:start", application, options);
     if (!isCurrentOperation(application, operation)) {
@@ -3816,7 +3831,8 @@ async function startApplication(application, operation, options) {
     return;
   }
   completeReadiness(operation);
-  application._lifecycleState = RUNNING;
+  delete operation.isStopped;
+  setLifecycleState(application, RUNNING, true);
   operation.failureState = RUNNING;
   operation.isCompleting = true;
   application.triggerMethod("start", application, options, result);
@@ -3849,6 +3865,7 @@ async function stopApplication(application, operation, options, notify = true) {
       cancelOperation(application, operation);
       return;
     }
+    setLifecycleState(application, application._lifecycleState, false);
     emptyView(application, readiness.options);
     if (!isCurrentOperation(application, operation)) {
       return;
@@ -3856,7 +3873,7 @@ async function stopApplication(application, operation, options, notify = true) {
     operation.failureState = STOPPED;
     operation.isStopped = true;
     if (operation.kind === "stop") {
-      application._lifecycleState = STOPPED;
+      setLifecycleState(application, STOPPED, false);
       operation.isCompleting = true;
     }
     if (readiness.notify) {
@@ -3883,8 +3900,9 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
   },
   cidPrefix: "mna",
   _lifecycleState: STOPPED,
+  _isRunning: false,
   isRunning() {
-    return this._lifecycleState === RUNNING;
+    return isApplicationRunning(this);
   },
   start(options) {
     if (isTerminal(this) || hasStoppingOwner(this)) {
@@ -3927,7 +3945,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     }
     if (operation?.isStopped) {
       const superseded = supersedeOperation(this);
-      this._lifecycleState = STOPPED;
+      setLifecycleState(this, STOPPED, false);
       superseded.readiness?.controller.abort();
       return Promise.resolve(true);
     }
@@ -3951,7 +3969,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     }
     const region = options?.region;
     const operation = this._lifecycleOperation;
-    if (operation?.kind === "restart" && isCompatibleStartRegion(this, region, operation)) {
+    if (operation?.kind === "restart" && !operation.isCompleting && isCompatibleStartRegion(this, region, operation)) {
       return operation.promise;
     }
     const wasStopped = this._lifecycleState === STOPPED;
@@ -4000,7 +4018,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
       delete this._region;
       delete this._ownedRegion;
       this._isDestroyed = true;
-      this._lifecycleState = DESTROYED;
+      setLifecycleState(this, DESTROYED, false);
       nextOperation.failureState = DESTROYED;
       nextOperation.isCompleting = true;
       if (this._parentApp) {
@@ -4132,7 +4150,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     return this._preparedView || this._displayedView;
   }
 });
-var version2 = "5.0.0-beta.5";
+var version2 = "5.0.0-beta.6";
 function copyApi(api) {
   return {
     ...api
@@ -4312,7 +4330,7 @@ function extendRuntime2(protoProps, staticProps) {
   return child;
 }
 var extend3 = extendRuntime2;
-var version3 = "5.0.0-beta.5";
+var version3 = "5.0.0-beta.6";
 var packageJson2 = {
   version: version3
 };
@@ -4756,29 +4774,28 @@ function update(model, attributes, options = {}, removed = []) {
   }
   model.id = model.get(model.idAttribute);
   model.changed = changed;
-  if (!options.silent) {
-    const change = {
-      ...options,
-      changed,
-      previous
-    };
-    for (const key of changedKeys) {
-      model.triggerMethod(`change:${key}`, model, changed[key], change);
-    }
-    model.triggerMethod("change", model, change);
+  const change = {
+    ...options,
+    changed,
+    previous
+  };
+  for (const key of changedKeys) {
+    model.triggerMethod(`change:${key}`, model, changed[key], change);
   }
+  model.triggerMethod("change", model, change);
   return model;
 }
 var Model = function(attributes = {}, options = {}) {
   this.cid = `mnd${++modelId}`;
   this.attributes = {};
   const defaults = getDefaults(this);
-  update(this, {
+  for (const [key, value] of Object.entries({
     ...defaults,
     ...attributes
-  }, {
-    silent: true
-  });
+  })) {
+    setProperty2(this.attributes, key, value);
+  }
+  this.id = this.get(this.idAttribute);
   this.changed = {};
   this.initialize(attributes, options);
 };
@@ -4880,6 +4897,13 @@ function indexModels(models) {
   }
   return identities;
 }
+function replaceModels(collection, models) {
+  const preparedModels = asArray(models).map((model) => collection._prepareModel(model));
+  assertUniqueModels(preparedModels);
+  collection._replaceBindings(collection.models, preparedModels);
+  collection.models = preparedModels;
+  collection.length = preparedModels.length;
+}
 var Collection = function(models = [], options = {}) {
   options = normalizeOptions(options);
   this.models = [];
@@ -4887,9 +4911,7 @@ var Collection = function(models = [], options = {}) {
   if (options.model) {
     this.model = options.model;
   }
-  this.reset(models, {
-    silent: true
-  });
+  replaceModels(this, models);
   this.initialize(models, options);
 };
 Collection.extend = extend3;
@@ -4987,21 +5009,19 @@ Object.assign(Collection.prototype, Events2, {
     const at = Number.isInteger(options.at) ? Math.max(0, Math.min(options.at, this.models.length)) : this.models.length;
     this.models.splice(at, 0, ...added);
     this.length = this.models.length;
-    if (!options.silent) {
-      const change = {
-        kind: "update",
-        added,
-        removed: [],
-        updated: []
-      };
-      for (const model of added) {
-        this.triggerMethod("add", model, this, options);
-      }
-      this.triggerMethod("update", this, {
-        ...options,
-        changes: change
-      });
+    const change = {
+      kind: "update",
+      added,
+      removed: [],
+      updated: []
+    };
+    for (const model of added) {
+      this.triggerMethod("add", model, this, options);
     }
+    this.triggerMethod("update", this, {
+      ...options,
+      changes: change
+    });
     return Array.isArray(models) ? added : added[0];
   },
   remove(models, options = {}) {
@@ -5030,21 +5050,19 @@ Object.assign(Collection.prototype, Events2, {
     }
     this.models = nextModels;
     this.length = this.models.length;
-    if (!options.silent) {
-      const change = {
-        kind: "update",
-        added: [],
-        removed,
-        updated: []
-      };
-      for (const model of removed) {
-        this.triggerMethod("remove", model, this, options);
-      }
-      this.triggerMethod("update", this, {
-        ...options,
-        changes: change
-      });
+    const change = {
+      kind: "update",
+      added: [],
+      removed,
+      updated: []
+    };
+    for (const model of removed) {
+      this.triggerMethod("remove", model, this, options);
     }
+    this.triggerMethod("update", this, {
+      ...options,
+      changes: change
+    });
     return Array.isArray(models) ? removed : removed[0];
   },
   reset(models = [], options = {}) {
@@ -5052,14 +5070,8 @@ Object.assign(Collection.prototype, Events2, {
     if (this._isDestroyed) {
       return this;
     }
-    const preparedModels = asArray(models).map((model) => this._prepareModel(model));
-    assertUniqueModels(preparedModels);
-    this._replaceBindings(this.models, preparedModels);
-    this.models = preparedModels;
-    this.length = this.models.length;
-    if (!options.silent) {
-      this.triggerMethod("reset", this, options);
-    }
+    replaceModels(this, models);
+    this.triggerMethod("reset", this, options);
     return this;
   },
   move(model, index, options = {}) {
@@ -5078,9 +5090,7 @@ Object.assign(Collection.prototype, Events2, {
     }
     this.models.splice(previousIndex, 1);
     this.models.splice(nextIndex, 0, currentModel);
-    if (!options.silent) {
-      this.triggerMethod("sort", this, options);
-    }
+    this.triggerMethod("sort", this, options);
     return currentModel;
   },
   sort(comparator = this.comparator, options = {}) {
@@ -5099,9 +5109,7 @@ Object.assign(Collection.prototype, Events2, {
     } else {
       return this;
     }
-    if (!options.silent) {
-      this.triggerMethod("sort", this, options);
-    }
+    this.triggerMethod("sort", this, options);
     return this;
   },
   toArray() {

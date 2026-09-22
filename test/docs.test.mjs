@@ -109,6 +109,7 @@ test('explicit historical revisions are not rewritten to the current snapshot', 
 
 test('supporting resources publish exact bytes and resolve from HTML and agent Markdown', async () => {
   const { manifest, pages, assets } = await readSnapshot(source);
+  assert.ok(assets.some(asset => asset.source === 'skills/marionette/agents/openai.yaml'));
   for (const asset of assets) {
     assert.equal(await readFile(resolve(root, 'dist/docs/source', asset.source), 'utf8'), asset.content);
   }
@@ -136,6 +137,17 @@ test('supporting assets reject altered content and traversal', async () => {
     await writeFile(resolve(directory, asset.source), 'altered');
     await assert.rejects(readSnapshot(directory), /hash mismatch/);
     asset.source = '../outside.mjs';
+    await writeFile(resolve(directory, 'manifest.json'), JSON.stringify(manifest));
+    await assert.rejects(readSnapshot(directory), /Unsupported documentation asset/);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test('agent metadata support does not allow arbitrary YAML assets', async () => {
+  const directory = await mkdtemp(resolve(tmpdir(), 'marionette-agent-assets-'));
+  try {
+    await cp(source, directory, { recursive: true });
+    const manifest = JSON.parse(await readFile(resolve(directory, 'manifest.json'), 'utf8'));
+    manifest.assets.find(asset => asset.source === 'skills/marionette/agents/openai.yaml').source = 'skills/marionette/other.yaml';
     await writeFile(resolve(directory, 'manifest.json'), JSON.stringify(manifest));
     await assert.rejects(readSnapshot(directory), /Unsupported documentation asset/);
   } finally { await rm(directory, { recursive: true, force: true }); }
@@ -184,7 +196,7 @@ test('diagnostic link rewrites preserve fenced, indented, and inline code exampl
   const link = '[`MN0023`](diagnostic-catalog.md#look-up-a-code)';
   const code = `\`\`\`md\n${link}\n\`\`\`\n\n    ${link}\n\n\`\`${link}\`\`\n\n\`\`multiline\n${link}\n[ref]: marionette.region.md\n\`\``;
   const page = { source: 'docs/example.md', route: 'docs/example', title: 'Example', sha256: 'a'.repeat(64), markdown: `# Example\n\n**${link}**\n\n${code}\n` };
-  const manifest = { packageVersion: '5.0.0-beta.5', sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) };
+  const manifest = { packageVersion: '5.0.0-beta.6', sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) };
   const derived = deriveMarkdown(page, [], manifest);
   assert.ok(derived.includes('**[`MN0023`](/errors/MN0023.md)**'));
   assert.ok(derived.includes(code), 'All code examples remain byte-for-byte unchanged');

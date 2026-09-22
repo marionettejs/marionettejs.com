@@ -832,7 +832,7 @@ export function increment() { count += amount; }`,
     }, source);
     assert.deepEqual(result, { failure: code, fixed: expected[code] });
   }
-  console.log('PASS troubleshooting: four exact failing/fixed examples against pinned published beta.5');
+  console.log('PASS troubleshooting: four exact failing/fixed examples against pinned published beta.6');
   let licenseRequests = 0;
   await page.route('**/vendor/DEMOS-LICENSE.txt', route => {
     licenseRequests++;

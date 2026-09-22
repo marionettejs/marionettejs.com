@@ -46,12 +46,12 @@ test('release reading copies announce publication while the package source stays
     assert.equal(raw, npmSource);
     const published = await read(`dist/${path}`);
     assert.doesNotMatch(published, /becomes available after the beta|After publication, install|registry when available/);
-    assert.match(published, /5\.0\.0-beta\.5/);
+    assert.match(published, /5\.0\.0-beta\.6/);
   }
 });
 
 test('routing reading copies publish reviewed guidance without replacing the beta archive', async () => {
-  const exampleRevision = 'b777333934af5414256edab85c34c37ab20953f1';
+  const { sourceRevision: exampleRevision } = JSON.parse(await read('content/library-docs/manifest.json'));
   const reading = await read('dist/docs/routing.md');
   const html = await read('dist/docs/routing/index.html');
   for (const output of [reading, html]) {
