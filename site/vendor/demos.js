@@ -39,7 +39,7 @@ function extendRuntime(protoProps, staticProps) {
   return child;
 }
 var extend = extendRuntime;
-var version = "5.0.0-beta.6";
+var version = "5.0.0-rc.1";
 var packageJson = {
   version
 };
@@ -4150,7 +4150,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     return this._preparedView || this._displayedView;
   }
 });
-var version2 = "5.0.0-beta.6";
+var version2 = "5.0.0-rc.1";
 function copyApi(api) {
   return {
     ...api
@@ -4330,7 +4330,7 @@ function extendRuntime2(protoProps, staticProps) {
   return child;
 }
 var extend3 = extendRuntime2;
-var version3 = "5.0.0-beta.6";
+var version3 = "5.0.0-rc.1";
 var packageJson2 = {
   version: version3
 };

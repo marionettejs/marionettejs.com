@@ -18,7 +18,7 @@ Until the plugin is listed in the public directory, add Marionette's repository
 marketplace and install the plugin with the Codex CLI:
 
 ```sh
-codex plugin marketplace add marionettejs/marionette --ref v5.0.0-beta.6 \
+codex plugin marketplace add marionettejs/marionette --ref v5.0.0-rc.1 \
   --sparse .agents/plugins --sparse plugins/marionette
 codex plugin add marionette@marionettejs
 ```
@@ -120,13 +120,15 @@ and lockfile, including any npm alias. A v4 application may use
 marionette found” does not mean the application has no Marionette dependency.
 
 Download the exact target into a temporary directory without installing it in the
-application. This example inspects `5.0.0-beta.6`; set `migration_target_version` to
+application. This example inspects `5.0.0-rc.1`; set `migration_target_version` to
 the exact release selected for your migration, not `latest` or `next`. Downloading
-requires npm registry access; reading the extracted docs requires Node 24 or later.
+requires npm registry access and publication of the selected version; before
+publication, use the certified candidate tarballs described in the
+[release-candidate guide](./beta.md). Reading the extracted docs requires Node 24 or later.
 Run these commands in the same shell:
 
 ```sh
-migration_target_version="5.0.0-beta.6"
+migration_target_version="5.0.0-rc.1"
 migration_target_dir="$(mktemp -d)"
 npm pack "marionette@$migration_target_version" --ignore-scripts --pack-destination "$migration_target_dir"
 tar -xzf "$migration_target_dir/marionette-$migration_target_version.tgz" -C "$migration_target_dir"
@@ -184,6 +186,17 @@ skill does not guarantee an active MCP connection across clients.
 3. Use a search result's `id` as `get_doc.path`. Follow each returned `nextOffset`
    until it is `null` to read the complete document. For an example, use its catalog
    `id` as `get_example.name` and retrieve all chunks before parsing the recipe JSON.
+
+For focused reading, `search_sections` returns exact heading IDs, ancestry, and
+sizes; pass those IDs to `get_sections`. Inspect its `omitted` entries and request
+missing sections separately. Its `maxCharacters` budget counts UTF-16 code units,
+not tokens, excludes metadata, and never truncates a section. Use paginated
+`get_doc` for a section too large for the budget or when the full context matters.
+Section selection is lexical search, not dependency analysis: also read the linked
+ownership, setup, and cleanup contracts. For example, a Lit rendering excerpt alone
+does not explain how a [framework host](./hosting-views.md) attaches the View.
+Use exact tool limits advertised by the connected server; older snapshots may
+not expose section tools, in which case document retrieval remains sufficient.
 
 The hosted snapshot may lag a new release or candidate. Use installed Markdown
 when provenance does not match or the service is unavailable. Retrieved recipes

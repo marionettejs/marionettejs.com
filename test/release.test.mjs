@@ -8,7 +8,7 @@ import { runInNewContext } from 'node:vm';
 
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('public beta pages are canonical and indexable while mirrors stay noindexed', async () => {
+test('public release-candidate pages are canonical and indexable while mirrors stay noindexed', async () => {
   for (const path of ['index.html', 'why/index.html', 'docs/index.html', 'docs/installation/index.html']) {
     const html = await read(`dist/${path}`);
     assert.match(html, /rel="canonical" href="https:\/\/marionettejs.com\//);
@@ -46,11 +46,11 @@ test('release reading copies announce publication while the package source stays
     assert.equal(raw, npmSource);
     const published = await read(`dist/${path}`);
     assert.doesNotMatch(published, /becomes available after the beta|After publication, install|registry when available/);
-    assert.match(published, /5\.0\.0-beta\.6/);
+    assert.match(published, /5\.0\.0-rc\.1/);
   }
 });
 
-test('routing reading copies publish reviewed guidance without replacing the beta archive', async () => {
+test('routing reading copies publish reviewed guidance without replacing the package archive', async () => {
   const { sourceRevision: exampleRevision } = JSON.parse(await read('content/library-docs/manifest.json'));
   const reading = await read('dist/docs/routing.md');
   const html = await read('dist/docs/routing/index.html');

@@ -1,4 +1,4 @@
-# Marionette website — 5.0.0-beta.6
+# Marionette website — 5.0.0-rc.1
 
 The live site is marionettejs.com; www.marionettejs.com and v5.marionettejs.com
 also work. Cloudflare Pages serves one complete artifact.
@@ -40,7 +40,7 @@ and a real playground interaction by hand after a release.
 
 The v4 GitHub Pages archive preserves the existing
 versioned documentation and download paths. `_redirects` preserves those legacy paths and the published preview URLs
-(`/docs/regions/` and `/reference/region.md`); current `/docs/` serves beta documentation. The old root `sw.js` unregisters
+(`/docs/regions/` and `/reference/region.md`); current `/docs/` serves release-candidate documentation. The old root `sw.js` unregisters
 retained legacy service workers and clears only their named precache. Keep that
 retirement file while returning browsers can retain those registrations.
 
@@ -125,12 +125,12 @@ reassessment and remaining gates.
 CSS, the live example, and copied draft brand SVGs. `scripts/build.mjs` produces
 static files in ignored `dist/`. `scripts/dev.mjs` serves only that output.
 
-`site/vendor/marionette.js` bundles the published `marionette@5.0.0-beta.6`
+`site/vendor/marionette.js` bundles the published `marionette@5.0.0-rc.1`
 with matching `@mnjs/radio` and `@mnjs/utils` from package-lock.json. Run
 `npm run vendor:build` after an intentional package upgrade. It verifies the
 package/docs versions, bundles ESM with esbuild, includes all MIT licenses, and
 records the npm integrity and resulting bundle hash in `content/provenance.json`.
-The homepage and playground use the same runtime and docs as the beta package.
+The homepage and playground use the same runtime and docs as the release-candidate package.
 
 ## Launch copy
 

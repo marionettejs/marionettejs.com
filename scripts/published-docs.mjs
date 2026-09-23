@@ -14,7 +14,7 @@ export function publishedMarkdown(page) {
   return markdown;
 }
 
-// Before the first stable v5 release, the published beta is deliberately on latest.
+// Before the first stable v5 release, the published release candidate is deliberately on latest.
 export function publishedChannel(manifest) {
   if (manifest.packageVersion !== publication.packageVersion || publication.channel !== 'latest') {
     throw new Error('Review published documentation channel.');

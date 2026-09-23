@@ -176,6 +176,11 @@ Without `prepareStart`, the result is `undefined`. The operation's own
 Promise still resolves a boolean, not the prepared value. Canceled startup never
 emits completion with an obsolete result. Stop and destroy preparation results
 are ignored; those methods provide readiness rather than startup data.
+Returning `false` from a preparation method does not veto the operation:
+`prepareStart` passes it to `onStart` as data, and `prepareStop` ignores it.
+To refuse readiness, throw or reject. Do not confuse a child's `start()` result
+with the parent's preparation result; handle required-child cancellation explicitly
+as shown in [child readiness](#mount-loading-ui-before-readiness).
 
 Before notifications run before preparation begins. If a `before:start` or
 `before:stop` notification supersedes its pending operation, that preparation method
@@ -520,6 +525,15 @@ ownership registration, followed by explicit startup of chosen capabilities.
 Ownership gives teardown responsibility; it has no per-child lifecycle flags. Put a service
 that must outlive an Application under a longer-lived owner and pass it to the
 shorter-lived child as a dependency.
+
+Parent stop deactivates owned children; parent start does not reactivate them
+automatically. Registration and ownership persist across stop and restart until
+removal or destruction.
+An individual request made by a child has its own lifetime.
+For a shell with separately owned list and sidebar children, use the
+[persistent-shell refresh example](./application-refresh.md#keep-a-shell-and-independently-owned-children).
+It starts children explicitly, refreshes only the list's data, and preserves
+the sidebar while superseded requests finish.
 
 <!-- executable-example: application-child-ownership -->
 ```javascript
