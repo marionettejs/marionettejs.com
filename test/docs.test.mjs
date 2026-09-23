@@ -175,7 +175,7 @@ test('reading copies link diagnostic codes directly and expose class navigation'
   assert.match(classes, /<a href="#marionetteview">Marionette.View<\/a>/);
   const llms = await readFile(resolve(root, 'dist/docs/llms.txt'), 'utf8');
   const { manifest } = await readSnapshot(source);
-  assert.ok(llms.includes(`Channel: latest\nPublication: beta (published on npm)`));
+  assert.ok(llms.includes(`Channel: latest\nPublication: release candidate (published on npm)`));
 });
 
 test('diagnostic catalog schemas resolve beside all catalog copies with pinned provenance', async () => {
@@ -196,7 +196,7 @@ test('diagnostic link rewrites preserve fenced, indented, and inline code exampl
   const link = '[`MN0023`](diagnostic-catalog.md#look-up-a-code)';
   const code = `\`\`\`md\n${link}\n\`\`\`\n\n    ${link}\n\n\`\`${link}\`\`\n\n\`\`multiline\n${link}\n[ref]: marionette.region.md\n\`\``;
   const page = { source: 'docs/example.md', route: 'docs/example', title: 'Example', sha256: 'a'.repeat(64), markdown: `# Example\n\n**${link}**\n\n${code}\n` };
-  const manifest = { packageVersion: '5.0.0-beta.6', sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) };
+  const manifest = { packageVersion: '5.0.0-rc.1', sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) };
   const derived = deriveMarkdown(page, [], manifest);
   assert.ok(derived.includes('**[`MN0023`](/errors/MN0023.md)**'));
   assert.ok(derived.includes(code), 'All code examples remain byte-for-byte unchanged');

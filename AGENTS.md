@@ -1,6 +1,6 @@
 # Website prototype
 
-This branch targets beta.6 on marionettejs.com (canonical and indexable).
+This branch targets RC.1 on marionettejs.com (canonical and indexable).
 Merging to `main` publishes the site and documentation MCP and verifies both
 in the same run; see the deployment section of README.md.
 www.marionettejs.com and v5.marionettejs.com also work; v5 is a mirror with a `noindex` directive.
@@ -11,8 +11,8 @@ v4.marionettejs.com GitHub Pages archive while those releases have consumers.
 
 This is the independent website repository. The earlier prototype and design
 options remain in their existing checkouts; preserve them. Keep the website independent of the library's working directory.
-Use the exact published beta pinned in package-lock.json for the demos and
-personal workshop. The local consumer path now targets beta.6; this does not
+Use the exact published release candidate pinned in package-lock.json for the demos and
+personal workshop. The local consumer path now targets RC.1; this does not
 establish that it has been deployed. Rebuild core with `npm run vendor:build`,
 then the core/data consumer bundle with `npm run vendor:demos`; never substitute
 a moving local build.
