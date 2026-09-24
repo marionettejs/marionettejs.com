@@ -1,0 +1,19 @@
+test/site.test.mjs
+  s_40b5199a39a618::t_7590e455c9b796 23-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "4f32f028d423180abc58fcf12df61c5fdcc6f4a3",
+  "prompts": {},
+  "sessions": {
+    "s_40b5199a39a618": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d2c1-09d2-7d03-9d39-ff54956d62ce",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
