@@ -82,7 +82,7 @@ Use `MARIONETTE_PREVIEW_PORT` to select a different explicit port if necessary.
 - Homepage: dark interactive composition, draft brand assets, candid positioning, and a real Application with a screen View, CollectionView, and detail Region.
 - `/why/`: adoption criteria, community/hiring concerns, the AI-slop question, and evidence boundaries.
 - `/docs/`: the canonical documentation snapshot, with local search, task navigation, diagnostics, and copyable Markdown.
-- `/thanks/`: Patreon support, the merch store, credits and review tools, and maintainer acknowledgements. Future supporter names belong here only after confirmation and permission.
+- `/thanks/`: GitHub Sponsors support, the merch store, credits and review tools, and maintainer acknowledgements. Future supporter names belong here only after confirmation and permission.
 - `/llms.txt`: a compact task-oriented entry point with explicit version/status.
 - `/agent-prompt.md`: optional visible-browser workshop brief with completion criteria.
 - `/#playground`: theatrical reveal, editable JS/CSS, agent build notes, and actual app preview.
