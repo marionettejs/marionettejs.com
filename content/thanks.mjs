@@ -9,7 +9,7 @@ const tools = [
 
 export const thanks = {
   title: 'Thanks & support — Marionette',
-  description: 'Support Marionette on Patreon, browse the merch store, and meet the people and tools behind the open-source JavaScript library.',
+  description: 'Support Marionette through GitHub Sponsors, browse the merch store, and meet the people and tools behind the open-source JavaScript library.',
   active: 'thanks',
   body: `
 <section class="article-heading thanks-heading">
@@ -22,10 +22,10 @@ export const thanks = {
     <div class="thanks-label"><span class="eyebrow">01 / SUPPORTERS</span><span class="thanks-star" aria-hidden="true">✳</span></div>
     <div class="thanks-content">
       <h2 id="support-title">Help with what comes next.</h2>
-      <p>Support on Patreon helps make time for maintenance, documentation, and whatever the next browser breaks.</p>
+      <p>GitHub sponsorship helps Paul make time for maintenance, documentation, and whatever the next browser breaks. It also helps cover the AI tokens used in that work; the human still checks the diffs.</p>
       <p>Marionette is free and open source. If it’s useful to you, helping sustain the work is a lovely way to say so.</p>
-      <p>Become a String Puller, or be Suspiciously Helpful. Both memberships support the same project. Development updates are public; recognition here is optional.</p>
-      <a class="button" href="https://www.patreon.com/marionettejs">Support on Patreon <span aria-hidden="true">↗</span></a>
+      <p>Send a one-time tip, become a String Puller, or be Suspiciously Helpful. Monthly sponsors can request recognition here: a name at $5, or a name and link at $25. Recognition is optional.</p>
+      <a class="button" href="https://github.com/sponsors/paulfalgout">Sponsor Marionette <span aria-hidden="true">↗</span></a>
       <!-- Add supporters here when there are confirmed names and permission to display them. -->
     </div>
   </section>

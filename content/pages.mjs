@@ -57,8 +57,8 @@ ${invitation}
 <section class="night-closing"><p class="eyebrow">YES, THAT MARIONETTE.</p><h2>A familiar name.<br><span>Still pulling strings.</span></h2><p>Choose your data and rendering tools.<br>Marionette gives the application its structure.</p><a class="button" href="/why/">Explore Marionette 5 RC.1 <span aria-hidden="true">↗</span></a></section>
 ${demosInvitation}
 <section class="home-support" aria-labelledby="home-support-title">
- <div><p class="eyebrow">OPEN SOURCE / HUMAN MAINTAINED</p><h2 id="home-support-title">A little help behind the strings.</h2><p>Support the maintenance, docs, and releases on Patreon.<br>Or put your very specific taste in JavaScript on a T-shirt.</p><a class="text-link" href="/thanks/">Meet the people and tools behind Marionette →</a></div>
- <div class="support-actions"><a class="button" href="https://www.patreon.com/marionettejs">Support on Patreon <span aria-hidden="true">↗</span></a><a class="text-link" href="https://store.marionettejs.com/">Browse the merch store <span aria-hidden="true">↗</span></a></div>
+ <div><p class="eyebrow">OPEN SOURCE / HUMAN MAINTAINED</p><h2 id="home-support-title">A little help behind the strings.</h2><p>Support the maintenance, docs, and releases through GitHub Sponsors.<br>Or put your very specific taste in JavaScript on a T-shirt.</p><a class="text-link" href="/thanks/">Meet the people and tools behind Marionette →</a></div>
+ <div class="support-actions"><a class="button" href="https://github.com/sponsors/paulfalgout">Sponsor Marionette <span aria-hidden="true">↗</span></a><a class="text-link" href="https://store.marionettejs.com/">Browse the merch store <span aria-hidden="true">↗</span></a></div>
 </section>`};
 
 export const why={title:'Why Marionette 5? Application structure for coding agents',description:'Evaluate Marionette for your JavaScript project: application structure, agent-led development, flexible integrations, and the tradeoffs that matter.',active:'why',body:`
