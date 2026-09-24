@@ -1,0 +1,31 @@
+.github/workflows/deploy.yml
+  s_8bc4ebe3642b83::t_518acfc5662b95 13,41
+.github/workflows/deployment.yml
+  s_8bc4ebe3642b83::t_abcba610cc924c 29
+README.md
+  s_8bc4ebe3642b83::t_c8918488a943b5 14-18,24-25
+scripts/build-date.mjs
+  s_8bc4ebe3642b83::t_9a5f6317a02016 1-2
+scripts/build.mjs
+  s_8bc4ebe3642b83::t_bed68b730776c3 7,57-58,80
+scripts/check-deployment.mjs
+  s_8bc4ebe3642b83::t_be89db9422cc3a 3,11-17,48-50,67-70,91,94
+test/deployment.test.mjs
+  s_8bc4ebe3642b83::t_aff587670a79e8 1-60
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "cc823ec3a3dc799d47424607d0c5e13085eefa2b",
+  "prompts": {},
+  "sessions": {
+    "s_8bc4ebe3642b83": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0adca-119a-75a3-900a-83f3a223701a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

@@ -1,0 +1,151 @@
+scripts/library-docs.mjs
+  s_50b5496ca1acfb::t_b2eddc27dcbc19 32
+test/docs.test.mjs
+  s_50b5496ca1acfb::t_cc388da46b6d6f 145-155
+  s_50b5496ca1acfb::t_0f3082e347cb5e 199
+  s_50b5496ca1acfb::t_2f5e691aec90a1 112
+AGENTS.md
+  s_50b5496ca1acfb::t_5199b55d518021 3,15
+README.md
+  s_50b5496ca1acfb::t_09eeda8ad86993 1,128
+content/diagnostics-schema-provenance.json
+  s_50b5496ca1acfb::t_6e638896547509 3
+content/docs-publication-edits.json
+  s_50b5496ca1acfb::t_5038356204abd9 2-5,9-13,17,25,33,41,49,57,59,61,65,67,69,73-77,81-85,89-93,97-101,105-109,111
+content/library-docs/config/api-contracts/inventory.json
+  s_50b5496ca1acfb::t_2b248c9b74bba9 4,8,5361,5982,6443,6972,7047,7107,7194,7234,8027,8029,8058,8063,8081,8087,8090,8093,8097-8098,8100,8106-8109,8113,8117,8120-8121,8137-8139,8145
+content/library-docs/config/api-contracts/semantics.json
+  s_50b5496ca1acfb::t_9cfbb5fcf4d19e 1512,1515,1590-1597,1663,1700
+content/library-docs/docs/agent-tools.md
+  s_50b5496ca1acfb::t_c822f93856d0ad 10-37,44-46,123,129,145,147,169-176
+content/library-docs/docs/application-effects.md
+  s_50b5496ca1acfb::t_09476be210dc07 3-11,14-90,159-166,174-198
+content/library-docs/docs/beta.md
+  s_50b5496ca1acfb::t_ab7e9093ae5e96 3,8-25,58-61,76,105,114
+content/library-docs/docs/compact-reference.md
+  s_50b5496ca1acfb::t_ad895cefde52af 22
+content/library-docs/docs/data.api.md
+  s_50b5496ca1acfb::t_436dfc5ffc0bd3 219,250-253,271,273-275
+content/library-docs/docs/dom.interactions.md
+  s_50b5496ca1acfb::t_8f3d187813ce47 129-182
+content/library-docs/docs/installation.md
+  s_50b5496ca1acfb::t_bdb5d1fa006ad2 10,33,61,73,76,79,188,262,264
+content/library-docs/docs/maintainers/documentation.md
+  s_50b5496ca1acfb::t_f3c41ea4a0ef5f 34-46
+content/library-docs/docs/maintainers/line-audit-integrations.md
+  s_50b5496ca1acfb::t_39e360748bf64d 101-102
+content/library-docs/docs/maintainers/readme.md
+  s_50b5496ca1acfb::t_35449973c4ecf3 60
+content/library-docs/docs/maintainers/release-checklist.md
+  s_50b5496ca1acfb::t_1c65ef84bc73ee 60-63
+content/library-docs/docs/marionette.application.md
+  s_50b5496ca1acfb::t_bd410af6e5beed 22,25,81-87,98-131,172-175,249-254,331-399,651-676,679-687
+content/library-docs/docs/marionette.region.md
+  s_50b5496ca1acfb::t_32d2a6ff80ccd5 227-232
+content/library-docs/docs/marionette.state.md
+  s_50b5496ca1acfb::t_6255759cacf9e6 40-51,168-178
+content/library-docs/docs/migration-from-v4.md
+  s_50b5496ca1acfb::t_e0464370c12979 23,31,37,87-88,171-181
+content/library-docs/docs/optional-backbone.md
+  s_50b5496ca1acfb::t_ae63f2c3442198 10
+content/library-docs/docs/performance-baselines.md
+  s_50b5496ca1acfb::t_59559db1147c91 76-108
+content/library-docs/docs/release-profile.md
+  s_50b5496ca1acfb::t_0e2bb2063b8e68 36-43
+content/library-docs/docs/release-promotion.md
+  s_50b5496ca1acfb::t_53542c8973430b 14,81-88,109,118,120,127-128,261-262
+content/library-docs/docs/task-recipes.md
+  s_50b5496ca1acfb::t_ffd10554cba37c 17,107-189
+content/library-docs/docs/view.rendering.md
+  s_50b5496ca1acfb::t_860ecce2e25fad 287-295
+content/library-docs/manifest.json
+  s_50b5496ca1acfb::t_3bd4b6d3a8e83f 4,7,9,23,44,58,86,107,121,128,156,163,177,226,233,254,268,275,345,352,359,366,373,380,387,394,401,415,478,523,527,535,539-543,553-556,563,575,583,591-595,599,691,704-715
+content/library-docs/packages/adapters/readme.md
+  s_50b5496ca1acfb::t_dc70590ff8d2de 30,72,129,175,197
+content/library-docs/packages/data/readme.md
+  s_50b5496ca1acfb::t_3086cbd845a081 10,63-69,88-90,100,138-139
+content/library-docs/packages/radio/readme.md
+  s_50b5496ca1acfb::t_ce02365fe66f0f 6
+content/library-docs/packages/utils/readme.md
+  s_50b5496ca1acfb::t_181a4083b17286 7
+content/library-docs/skills/marionette/SKILL.md
+  s_50b5496ca1acfb::t_1389942b549931 3,45-46,55-57,76-78
+content/library-docs/skills/marionette/agents/openai.yaml
+  s_50b5496ca1acfb::t_0bbd06be5c2af8 1-13
+content/library-docs/skills/marionette/scripts/docs.mjs
+  s_50b5496ca1acfb::t_37545e096b49b6 60-65,77
+content/library-docs/test/README.md
+  s_50b5496ca1acfb::t_3b8f8974aa3554 83-90,207-215
+content/library-docs/test/fixtures/docs-application-guides/completion.mjs
+  s_50b5496ca1acfb::t_722d75f2937e7f 1-126
+content/library-docs/test/fixtures/docs-application-guides/package.json
+  s_50b5496ca1acfb::t_d6a6129781c673 8
+content/library-docs/test/fixtures/docs-application-guides/validate.mjs
+  s_50b5496ca1acfb::t_377ac5c830cba5 26,226-232
+content/library-docs/test/fixtures/docs-application-guides/workspace.mjs
+  s_50b5496ca1acfb::t_51cd18f2636c26 1-101
+content/library-docs/test/fixtures/docs-prerendered-content/package.json
+  s_50b5496ca1acfb::t_5d566b4f725f84 8
+content/library-docs/test/fixtures/docs-region-lifecycle/package.json
+  s_50b5496ca1acfb::t_90e3f70cd2952e 9
+content/library-docs/test/fixtures/docs-routing/package.json
+  s_50b5496ca1acfb::t_2cffa117cc6a99 8
+content/library-docs/test/fixtures/docs-view-dom-interactions/boundaries.mjs
+  s_50b5496ca1acfb::t_04c50cbd03cb9d 1-87
+content/library-docs/test/fixtures/docs-view-dom-interactions/package.json
+  s_50b5496ca1acfb::t_019d7dd4b07d8e 1-12
+content/library-docs/test/fixtures/docs-view-dom-interactions/validate.mjs
+  s_50b5496ca1acfb::t_5d4404b982bdaa 1-262
+content/library-docs/upgradeGuide.md
+  s_50b5496ca1acfb::t_61800b6ef8e2da 22-27,653-654,656-696
+content/provenance.json
+  s_50b5496ca1acfb::t_df1adde4c57b10 3-4,7,9-10
+content/social-card.svg
+  s_50b5496ca1acfb::t_0c68f37ee99b67 20
+mcp/README.md
+  s_50b5496ca1acfb::t_df4063fb96ccca 10,143
+package-lock.json
+  s_50b5496ca1acfb::t_64b4e9ea5f141f 12,17,1630-1632,1636,1643-1645,1649,1656-1658,3327-3329,3337-3338
+package.json
+  s_50b5496ca1acfb::t_8dc16630eee483 28,33
+scripts/build-vendor.mjs
+  s_50b5496ca1acfb::t_2664d6f9a8cc09 11,29
+scripts/build.mjs
+  s_50b5496ca1acfb::t_470faa7cb71da2 81
+scripts/verify-mcp.mjs
+  s_50b5496ca1acfb::t_2c8b29eab40901 104
+site/agent-prompt.md
+  s_50b5496ca1acfb::t_73240a4c15cae9 99,122,231
+site/assets/playground-recipes.js
+  s_50b5496ca1acfb::t_4692a33a443110 6-8
+site/assets/playground-runtime.js
+  s_50b5496ca1acfb::t_42ceb86b059932 4-5,166
+site/vendor/MARIONETTE-LICENSE.txt
+  s_50b5496ca1acfb::t_094598e7f11285 1,25,49
+site/vendor/marionette.js
+  s_50b5496ca1acfb::t_74bae90c78e678 42,1000,1005-1012,1031,1037,3520,3522-3528,3711,3731,3739,3765,3818,3825,3838-3839,3872,3880,3907,3909,3952,3976,4025,4157
+test/browser/agent-workshop.mjs
+  s_50b5496ca1acfb::t_3c262f63efe873 835
+test/development-docs.test.mjs
+  s_50b5496ca1acfb::t_6853b3926f4d56 14
+test/release.test.mjs
+  s_50b5496ca1acfb::t_c384a0a8a8fc34 49,54
+test/site.test.mjs
+  s_50b5496ca1acfb::t_4da19b272f9b09 20,64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "1d03fdb3ebdc32079dae50edf0ae3e5d419f32ff",
+  "prompts": {},
+  "sessions": {
+    "s_50b5496ca1acfb": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c9b0-1aa2-7270-afe5-d46d4e59d5ba",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
