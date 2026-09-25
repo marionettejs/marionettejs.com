@@ -17,8 +17,12 @@ test('every built page has valid local links, fragments, and asset references',a
     const html=await readFile(resolve(out,route),'utf8');
     assert.equal((html.match(/<h1[ >]/g)||[]).length,1,route);
     assert.match(html,/<html lang="en">/);
-    for (const link of ['/thanks/', 'https://www.patreon.com/marionettejs', 'https://store.marionettejs.com/', 'https://www.npmjs.com/package/marionette/v/5.0.0-rc.1']) {
+    for (const link of ['/thanks/', 'https://github.com/sponsors/paulfalgout', 'https://store.marionettejs.com/', 'https://www.npmjs.com/package/marionette/v/5.0.0-rc.1']) {
       assert.ok(html.includes(`href="${link}"`), `${route}: missing shared footer link ${link}`);
+    }
+    assert.ok(!html.includes('https://www.patreon.com/marionettejs'), `${route}: obsolete Patreon link`);
+    if (route === 'index.html' || route === 'thanks/index.html') {
+      assert.ok(html.includes('<a class="button" href="https://github.com/sponsors/paulfalgout">Sponsor Marionette'), `${route}: missing sponsor button`);
     }
     const socialImage = html.match(/property="og:image" content="([^"]+)"/);
     assert.ok(socialImage, `${route}: missing social preview`);
