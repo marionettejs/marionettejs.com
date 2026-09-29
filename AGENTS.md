@@ -1,6 +1,8 @@
 # Website prototype
 
-This branch targets RC.1 on marionettejs.com (canonical and indexable).
+This integration branch imports rebuilt rc.2 candidate documentation. Browser
+demos and workshops remain pinned to published rc.1 with separate provenance.
+A build or import does not establish deployment or publication approval.
 Merging to `main` publishes the site and documentation MCP and verifies both
 in the same run; see the deployment section of README.md.
 www.marionettejs.com and v5.marionettejs.com also work; v5 is a mirror with a `noindex` directive.

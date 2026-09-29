@@ -115,7 +115,7 @@ For a richer list/detail example, inspect the ordinary app modules in
 - Provide separate CSS as text. System fonts and inline graphics are sufficient.
   The editor limit is 60,000 JS characters, 20,000 CSS characters, and a 100-character
   title. All three fields are required, although CSS may be empty.
-- [Region reference](/docs/region.md), [guide](/docs/region/).
+- Browser examples use the rc.1 runtime identified above. The website [Region reference](/docs/api/region.md) describes its separately identified candidate; match it to your installed version before using its APIs.
 
 ## Build beautiful Marionette, too
 

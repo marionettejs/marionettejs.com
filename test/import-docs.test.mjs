@@ -41,16 +41,12 @@ test('the next import recovers an interrupted replacement before validating new 
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
 
-test('release imports retain linked project, benchmark, and test resources', async () => {
+test('consumer imports retain records, skill and diagnostic resources', async () => {
   const directory = await mkdtemp(resolve(tmpdir(), 'marionette-resources-'));
   const target = resolve(directory, 'docs');
   const resources = [
-    'ROADMAP.md',
-    'benchmarks/agent/evaluation-plan.md',
-    'test/README.md',
-    'test/unit/model-based/README.md',
-    'test/fixtures/docs-application-guides/effects.mjs',
-    'test/fixtures/docs-routing/refresh.mjs'
+    'examples/records/index.html', 'examples/records/src/main.js', 'examples/records/src/styles.css',
+    'skills/marionette/SKILL.md', 'config/diagnostics/catalog.schema.json', 'docs-sections.json'
   ];
   try {
     await importDocs(source, { target });

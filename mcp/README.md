@@ -6,12 +6,14 @@ Your agent client's own access and model costs are separate.
 
 The hosted Cloudflare Worker and the optional local, read-only stdio server share
 `search_docs`, `get_doc`, `search_sections`, `get_sections`, `get_example`, and `marionette://catalog`. Both serve the
-same verified website corpus and workshop recipes. The current supported package
-is exactly **`marionette@5.0.0-rc.1`**.
+same verified website corpus and packaged records example. This integration build
+targets the local **`marionette@5.0.0-rc.2`** candidate. Importing or building does
+not update the hosted endpoint: read its catalog before using it. Browser demos
+and workshops retain their separately pinned published rc.1 runtime.
 
 **Bundled Markdown remains the installed-version reference.** First inspect your
 application's installed package and its `dist/docs/` manifest, using the
-[consumer skill helper](https://marionettejs.com/docs/agent-tools/) if available.
+[consumer skill helper](https://marionettejs.com/docs/agents/) if available.
 Compare its version and source revision with the MCP catalog. A custom build with
 the same version label may contain different code. If they do not match, use the
 installed docs; never substitute the hosted snapshot for another version.
@@ -124,7 +126,7 @@ publication provenance.
 
 1. Read `marionette://catalog` for the exact supported package version,
    provenance, document count, and example names.
-2. Call `search_docs` with a short query and your exact installed `version`.
+2. Call `search_docs` with a short query, your exact installed `version`, and the matching `sourceRevision` for a candidate snapshot.
    Search ranks word matches in titles and Markdown, favors titles and multiple
    matching terms, and ignores common function words. Results report the terms
    that matched; they need not contain every query word. This is lexical search,
@@ -132,18 +134,17 @@ publication provenance.
 3. Pass a returned `id` to `get_doc` as `path`. Follow `nextOffset` until it is
    `null` to retrieve the complete contract. Search snippets are incomplete.
 4. Call `get_example` with a catalog example `name`. Concatenate its chunks,
-   then parse the resulting JSON for sourceFiles (ES modules), CSS, related docs,
-   and expected checks. Open that project on the demos page to run and inspect
-   its behavior. main.js is the module entry point; Download project includes
-   every source file and the pinned runtime.
+   then parse the resulting JSON for sourceFiles, sourceHashes and related docs.
+   The packaged README supplies installation and test instructions. This source
+   example is separate from the published browser workshops.
 
 For this snapshot, a search call is:
 
 ```json
-{"query":"Region", "version":"5.0.0-rc.1", "limit":5}
+{"query":"Region", "version":"5.0.0-rc.2", "sourceRevision":"<exact 40-character revision from installed docs>", "limit":5}
 ```
 
-`version` is required for every tool. Unsupported versions, including `latest`
+`version` is required for every tool. Candidate requests also require `sourceRevision` matching both your installed documentation and the catalog. Unsupported versions, including `latest`
 and `next`, return errors instead of silently choosing another release.
 Successful tool results contain snapshot version, revision, original content
 hash, publication edit hash, and generated corpus hash. Document results also

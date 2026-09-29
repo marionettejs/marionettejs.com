@@ -813,26 +813,6 @@ export function increment() { count += amount; }`,
   assert.equal(bounded.preview.recipe.lifecycle[0].length, 120);
   assert.equal(bounded.preview.recipe.checks[0].id.length, 80);
   console.log('PASS inspection boundaries: thrown inspectors and oversized app observations');
-  const troubleshooting = await readFile(resolve('content/library-docs/docs/troubleshooting.md'), 'utf8');
-  const examples = [...troubleshooting.matchAll(/<!-- troubleshooting-example: (MN\d{4}) -->\s*```javascript\n([\s\S]*?)\n```/g)];
-  assert.equal(examples.length, 4);
-  const expected = { MN0020: 'Ready', MN0003: true, MN0023: 'Save', MN0007: 'New' };
-  for (const [, code, source] of examples) {
-    const result = await page.evaluate(async source => {
-      const vendor = new URL('/vendor/marionette.js', location.href).href;
-      const url = URL.createObjectURL(new Blob([source.replace("'marionette'", JSON.stringify(vendor))], { type: 'text/javascript' }));
-      try {
-        const example = await import(url);
-        try {
-          let failure;
-          try { example.fail(); } catch (error) { failure = error.code; }
-          return { failure, fixed: example.fix() };
-        } finally { example.cleanup(); }
-      } finally { URL.revokeObjectURL(url); }
-    }, source);
-    assert.deepEqual(result, { failure: code, fixed: expected[code] });
-  }
-  console.log('PASS troubleshooting: four exact failing/fixed examples against pinned published RC.1');
   let licenseRequests = 0;
   await page.route('**/vendor/DEMOS-LICENSE.txt', route => {
     licenseRequests++;
@@ -847,12 +827,12 @@ export function increment() { count += amount; }`,
   assert.match(await page.locator('#codepen-help').innerText(), /Free Pens are public/);
   await page.unroute('**/vendor/DEMOS-LICENSE.txt');
   console.log('PASS CodePen recovery: transient preload failure, workshop retry, enabled export and restored help');
-  await page.goto(`http://127.0.0.1:${server.address().port}/docs/development/`);
+  await page.goto(`http://127.0.0.1:${server.address().port}/docs/quick-start/`);
   await page.locator('h1').waitFor();
-  assert.match(await page.locator('h1').innerText(), /Develop with the starter/);
+  assert.match(await page.locator('h1').innerText(), /Install and render/);
   await page.screenshot({ path: 'output/playwright/development-guide.png', fullPage: true });
   await page.setViewportSize({ width: 375, height: 812 });
-  for (const route of ['/docs/development/', '/docs/troubleshooting/', '/errors/MN0020/']) {
+  for (const route of ['/docs/quick-start/', '/docs/tooling/', '/errors/MN0020/']) {
     await page.goto(`http://127.0.0.1:${server.address().port}${route}`);
     assert.equal(await page.locator('h1').count(), 1);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, `${route} fits a phone viewport`);
@@ -861,8 +841,8 @@ export function increment() { count += amount; }`,
   console.log('PASS development reading path: desktop guide and three phone-width pages');
   for (const width of [1280, 375]) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto(`http://127.0.0.1:${server.address().port}/docs/routing/`);
-    const table = page.locator('.docs-prose table');
+    await page.goto(`http://127.0.0.1:${server.address().port}/docs/api/application/`);
+    const table = page.locator('.docs-prose table').first();
     await table.scrollIntoViewIfNeeded();
     const spacing = await table.evaluate(element => {
       const paragraph = element.nextElementSibling;

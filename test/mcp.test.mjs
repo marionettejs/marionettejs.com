@@ -40,13 +40,18 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
   assert.deepEqual(resources.map(resource => resource.uri), ['marionette://catalog']);
   const catalog = JSON.parse((await client.readResource({ uri: resources[0].uri })).contents[0].text);
   assert.equal(catalog.provenance.packageVersion, version);
-  assert.ok(catalog.examples.length >= 2);
+  assert.deepEqual(catalog.examples.map(example => example.id), ['records']);
   assert.equal(catalog.documentCount, corpus.documents.length);
-  const sectionSearch = unpack(await client.callTool({ name: 'search_sections', arguments: { query: 'detachView', version, limit: 10 } }));
+  for (const sourceRevision of [undefined, '0'.repeat(40)]) {
+    const response = await client.callTool({ name: 'search_docs', arguments: { query: 'Region', version, sourceRevision } });
+    assert.equal(response.isError, true);
+    assert.match(response.content[0].text, /Source revision mismatch/);
+  }
+  const sectionSearch = unpack(await client.callTool({ name: 'search_sections', arguments: { sourceRevision: corpus.sourceRevision, query: 'detachView', version, limit: 10 } }));
   assert.ok(sectionSearch.results.length);
   const selected = sectionSearch.results.find(section => section.characters <= 30_000);
   assert.ok(selected);
-  const sectionRead = unpack(await client.callTool({ name: 'get_sections', arguments: { ids: [selected.id], version, maxCharacters: 30_000 } }));
+  const sectionRead = unpack(await client.callTool({ name: 'get_sections', arguments: { sourceRevision: corpus.sourceRevision, ids: [selected.id], version, maxCharacters: 30_000 } }));
   assert.equal(sectionRead.sections[0].id, selected.id);
   const sectionDocument = corpus.documents.find(doc => doc.id === selected.documentId);
   assert.equal(sectionRead.sections[0].content, sectionDocument.markdown.slice(selected.start, selected.end));
@@ -54,7 +59,7 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
   assert.equal(sectionRead.sections[0].sha256, sectionDocument.sha256);
   assert.deepEqual(sectionRead.sections[0].sourceSupplements, sectionDocument.sourceSupplements);
   assert.deepEqual(sectionRead.omitted, []);
-  const omitted = unpack(await client.callTool({ name: 'get_sections', arguments: { ids: [selected.id], version, maxCharacters: 1 } }));
+  const omitted = unpack(await client.callTool({ name: 'get_sections', arguments: { sourceRevision: corpus.sourceRevision, ids: [selected.id], version, maxCharacters: 1 } }));
   assert.equal(omitted.sections.length, 0);
   assert.equal(omitted.omitted[0].id, selected.id);
   for (const [name, args] of [
@@ -62,30 +67,30 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
     ['get_sections', { ids: [selected.id], maxCharacters: 30_001 }],
     ['get_sections', { ids: [selected.id], version: 'latest' }],
     ['search_sections', { query: 'the and' }], ['search_sections', { query: 'Region', version: 'latest' }],
-  ]) assert.equal((await client.callTool({ name, arguments: { version, ...args } })).isError, true);
-  const snippetSearch = unpack(await client.callTool({ name: 'search_docs', arguments: { query: 'safely textContent', version } }));
-  const security = snippetSearch.results.find(result => result.id === 'docs/security.md');
+  ]) assert.equal((await client.callTool({ name, arguments: { sourceRevision: corpus.sourceRevision, version, ...args } })).isError, true);
+  const snippetSearch = unpack(await client.callTool({ name: 'search_docs', arguments: { sourceRevision: corpus.sourceRevision, query: 'untrusted rendering', version } }));
+  const security = snippetSearch.results.find(result => result.id === 'docs/guides/accessibility-rendering.md');
   assert.ok(security, 'Find the safety guide using its title and a later body match');
-  assert.match(security.snippet, /textContent/i, 'A title-only match must not hide the matching body passage');
+  assert.match(security.snippet, /untrusted/i, 'A title-only match must not hide the matching body passage');
   for (const [query, expectedId] of [
-    ['preserve draft while another list row changes', 'docs/task-recipes.md'],
-    ['cancellation async startup', 'docs/marionette.application.md'],
+    ['refresh retaining UI', 'docs/guides/retained-refresh.md'],
+    ['cancellation async startup', 'docs/api/application.md'],
     ['how do I diagnose MN0023?', 'errors/MN0023'],
   ]) {
-    const response = unpack(await client.callTool({ name: 'search_docs', arguments: { query, version } }));
+    const response = unpack(await client.callTool({ name: 'search_docs', arguments: { sourceRevision: corpus.sourceRevision, query, version } }));
     assert.ok(response.results.some(result => result.id === expectedId), `${query}: ${JSON.stringify(response.results.map(result => result.id))}`);
   }
-  const search = unpack(await client.callTool({ name: 'search_docs', arguments: { query: 'Region', version, limit: 2 } }));
+  const search = unpack(await client.callTool({ name: 'search_docs', arguments: { sourceRevision: corpus.sourceRevision, query: 'Region', version, limit: 2 } }));
   assert.equal(search.results.length, 2);
   assert.ok(search.total > 2);
   assert.equal(search.nextOffset, 2);
   assert.ok(search.results.every(result => result.snippet.length <= 600 && result.url.startsWith('https://marionettejs.com/')));
-  const nextSearch = unpack(await client.callTool({ name: 'search_docs', arguments: { query: 'Region', version, offset: search.nextOffset, limit: 2 } }));
+  const nextSearch = unpack(await client.callTool({ name: 'search_docs', arguments: { sourceRevision: corpus.sourceRevision, query: 'Region', version, offset: search.nextOffset, limit: 2 } }));
   assert.ok(nextSearch.results.every(result => !search.results.some(previous => previous.id === result.id)));
   const expected = corpus.documents.find(document => document.id === search.results[0].id);
   let actual = '', offset = 0;
   do {
-    const page = unpack(await client.callTool({ name: 'get_doc', arguments: { path: expected.id, version, offset, limit: 1_000 } }));
+    const page = unpack(await client.callTool({ name: 'get_doc', arguments: { sourceRevision: corpus.sourceRevision, path: expected.id, version, offset, limit: 1_000 } }));
     assert.ok(page.content.length <= 1_000);
     assert.equal(page.document.sha256, expected.sha256);
     assert.equal(page.totalCharacters, expected.markdown.length);
@@ -95,39 +100,43 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
   assert.equal(actual, expected.markdown);
   let exampleJson = ''; offset = 0;
   do {
-    const page = unpack(await client.callTool({ name: 'get_example', arguments: { name: catalog.examples[0].id, version, offset, limit: 500 } }));
+    const page = unpack(await client.callTool({ name: 'get_example', arguments: { sourceRevision: corpus.sourceRevision, name: catalog.examples[0].id, version, offset, limit: 500 } }));
     assert.ok(page.content.length <= 500);
     exampleJson += page.content; offset = page.nextOffset;
   } while (offset !== null);
   const example = JSON.parse(exampleJson);
-  const { recipes } = await import('../site/assets/playground-recipes.js');
-  assert.deepEqual(example, recipes.find(recipe => recipe.id === catalog.examples[0].id));
-  assert.ok(example.sourceFiles['main.js'].length && example.checks.length);
+  const { loadSnapshot } = await import('../mcp/load.mjs');
+  const snapshot = await loadSnapshot();
+  assert.deepEqual(example, JSON.parse(snapshot.examples[0].text));
+  assert.equal(example.runtime.packageVersion, version);
+  assert.ok(example.sourceFiles['src/main.js'].length && example.sourceFiles['tests/records.spec.js'].length);
+  assert.equal(example.sourceHashes['src/main.js'].length, 64);
+  assert.ok(example.relatedDocs.every(id => corpus.documents.some(doc => doc.id === id)));
   for (const unsupported of ['latest', 'next', '5', '4.1.3', `${version} `]) {
     for (const [name, args] of [['get_doc', { path: expected.id }], ['search_docs', { query: 'Region' }], ['get_example', { name: example.id }]]) {
-      const response = await client.callTool({ name, arguments: { ...args, version: unsupported } });
+      const response = await client.callTool({ name, arguments: { sourceRevision: corpus.sourceRevision, ...args, version: unsupported } });
       assert.equal(response.isError, true);
       assert.match(response.content[0].text, /Unsupported version/);
     }
   }
   for (const path of ['../package.json', '/etc/passwd', 'file:///etc/passwd', '%2e%2e/package.json', 'https://localhost/', '__proto__', 'constructor', `${expected.id}\0`]) {
-    const response = await client.callTool({ name: 'get_doc', arguments: { path, version } });
+    const response = await client.callTool({ name: 'get_doc', arguments: { sourceRevision: corpus.sourceRevision, path, version } });
     assert.equal(response.isError, true);
     assert.match(response.content[0].text, /Unknown document id/);
   }
   for (const name of ['../package.json', '__proto__', 'constructor', 'https://example.com/']) {
-    const response = await client.callTool({ name: 'get_example', arguments: { name, version } });
+    const response = await client.callTool({ name: 'get_example', arguments: { sourceRevision: corpus.sourceRevision, name, version } });
     assert.equal(response.isError, true);
     assert.match(response.content[0].text, /Unknown example name/);
   }
   for (const args of [{ path: expected.id, limit: 12_001 }, { path: expected.id, offset: -1 }, { path: expected.id, extra: true }]) {
-    const response = await client.callTool({ name: 'get_doc', arguments: { version, ...args } });
+    const response = await client.callTool({ name: 'get_doc', arguments: { sourceRevision: corpus.sourceRevision, version, ...args } });
     assert.equal(response.isError, true);
   }
-  const outOfBounds = await client.callTool({ name: 'get_doc', arguments: { version, path: expected.id, offset: expected.markdown.length + 1 } });
+  const outOfBounds = await client.callTool({ name: 'get_doc', arguments: { sourceRevision: corpus.sourceRevision, version, path: expected.id, offset: expected.markdown.length + 1 } });
   assert.equal(outOfBounds.isError, true);
   await assert.rejects(client.readResource({ uri: 'file:///etc/passwd' }));
-  assert.equal(unpack(await client.callTool({ name: 'search_docs', arguments: { query: 'zzzznosuchcontract', version } })).total, 0);
+  assert.equal(unpack(await client.callTool({ name: 'search_docs', arguments: { sourceRevision: corpus.sourceRevision, query: 'zzzznosuchcontract', version } })).total, 0);
   await client.close();
   assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' });
   assert.equal(stderr, '');
@@ -150,15 +159,21 @@ test('stdio server exits cleanly on EOF without requiring a signal', { timeout: 
 test('server refuses stale provenance and tampered Markdown before serving tools', { timeout: 10_000 }, async t => {
   const fixture = await mkdtemp(join(tmpdir(), 'marionette-mcp-'));
   t.after(() => rm(fixture, { recursive: true, force: true }));
-  for (const directory of ['mcp', 'scripts', 'content/library-docs', 'site/assets', 'dist/docs']) await mkdir(join(fixture, directory), { recursive: true });
-  for (const path of ['scripts/heading-ids.mjs', 'mcp/index-sections.mjs', 'mcp/sections.mjs', 'mcp/server.mjs', 'mcp/load.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'content/library-docs/manifest.json', 'content/docs-publication-edits.json', 'site/assets/playground-recipes.js']) {
+  for (const directory of ['mcp', 'scripts', 'content', 'dist/docs']) await mkdir(join(fixture, directory), { recursive: true });
+  await cp(new URL('content/library-docs', root), join(fixture, 'content/library-docs'), { recursive: true });
+  for (const path of ['scripts/heading-ids.mjs', 'mcp/index-sections.mjs', 'mcp/sections.mjs', 'mcp/server.mjs', 'mcp/load.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'content/docs-publication-edits.json', 'scripts/library-docs.mjs', 'scripts/published-docs.mjs', 'scripts/publication-status.mjs', 'scripts/agent-discovery.mjs']) {
     await cp(new URL(path, root), join(fixture, path));
   }
   await writeFile(join(fixture, 'package.json'), '{"type":"module"}');
   await symlink(fileURLToPath(new URL('node_modules', root)), join(fixture, 'node_modules'), 'dir');
+  await writeFile(join(fixture, 'dist/docs/corpus.json'), JSON.stringify(corpus));
+  const loader = await import(new URL('mcp/load.mjs', new URL(`file://${fixture}/`)));
+  assert.equal((await loader.loadSnapshot()).documents.length, corpus.documents.length);
   const stale = structuredClone(corpus); stale.sourceRevision = '0'.repeat(40);
   const tampered = structuredClone(corpus); tampered.documents[0].markdown += '\nUnverified replacement';
-  for (const invalid of [stale, tampered]) {
+  const publication = structuredClone(corpus); publication.publication = 'release candidate (published on npm)';
+  const missingReference = structuredClone(corpus); missingReference.documents = missingReference.documents.filter(doc => doc.id !== 'docs/architecture.md');
+  for (const invalid of [stale, tampered, publication, missingReference]) {
     await writeFile(join(fixture, 'dist/docs/corpus.json'), JSON.stringify(invalid));
     const child = spawn(process.execPath, [join(fixture, 'mcp/server.mjs')], { stdio: ['pipe', 'pipe', 'pipe'] });
     let output = '', errors = '';

@@ -57,7 +57,7 @@ test('all local JavaScript imports and CSS imports resolve in the built output',
   }
 });
 
-test('the demo runtime and documentation match the published release candidate',async()=>{
+test('published demo runtime and candidate documentation have distinct verified provenance',async()=>{
   const provenance=JSON.parse(await readFile(resolve(out,'reference/provenance.json'),'utf8'));
   const candidateNumber=provenance.packageVersion.match(/^5\.0\.0-rc\.(\d+)$/)?.[1];
   assert.ok(candidateNumber);
@@ -66,9 +66,11 @@ test('the demo runtime and documentation match the published release candidate',
   const hash=createHash('sha256').update(await readFile(resolve(out,'vendor/marionette.js'))).digest('hex');
   assert.equal(hash,provenance.bundleSha256);
   assert.equal(provenance.packageVersion, '5.0.0-rc.1');
-  assert.equal(provenance.packageVersion, manifest.packageVersion);
-  assert.equal(provenance.libraryRevision, manifest.sourceRevision);
-  assert.equal(manifest.sourceDirty, false);
+  const installed = JSON.parse(await readFile(new URL('../node_modules/marionette/dist/docs/manifest.json', import.meta.url), 'utf8'));
+  assert.equal(provenance.packageVersion, installed.packageVersion);
+  assert.equal(provenance.libraryRevision, installed.sourceRevision);
+  assert.equal(manifest.packageVersion, '5.0.0-rc.2');
+  assert.ok(provenance.documentationNote.includes('separate provenance'));
   assert.match(await readFile(resolve(out,'vendor/MARIONETTE-LICENSE.txt'),'utf8'),/MIT/);
 });
 

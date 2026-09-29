@@ -10,8 +10,11 @@ import { publish } from '../scripts/docs-sync/publish.mjs';
 
 async function fixture(t) {
   const repository = await mkdtemp(join(tmpdir(), 'docs-sync-test-'));
-  t.after(() => rm(repository, { recursive: true, force: true }));
+  t.after(() => rm(repository, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 }));
   git(repository, 'init', '-q');
+  // Commits must not leave detached Git maintenance writing into a disposed fixture.
+  git(repository, 'config', 'maintenance.auto', 'false');
+  git(repository, 'config', 'gc.auto', '0');
   git(repository, 'config', 'user.name', 'Documentation test');
   git(repository, 'config', 'user.email', 'test@example.invalid');
   await mkdir(join(repository, 'docs'));
@@ -133,20 +136,21 @@ test('routing sync builds and validates independently, rejecting corrupted deliv
   const publicationPath = join(root, 'content/docs-publication-edits.json');
   const publication = JSON.parse(await readFile(publicationPath, 'utf8'));
   const archive = JSON.parse(await readFile(join(root, 'content/library-docs/manifest.json'), 'utf8'));
-  const edit = publication.edits.find(edit => edit.source === 'docs/routing.md');
+  const routing = archive.pages.find(page => page.source === 'docs/guides/routing.md');
+  const original = await readFile(join(root, 'content/library-docs', routing.source), 'utf8');
   const f = await fixture(t);
-  await writeFile(join(f.repository, 'docs/routing.md'), edit.after);
+  await mkdir(join(f.repository, 'docs/guides'));
+  await writeFile(join(f.repository, routing.source), original);
   git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'docs: routing baseline');
   const previousRevision = git(f.repository, 'rev-parse', 'HEAD');
-  const incoming = edit.after + '\nReview direct navigation alongside browser back and forward behavior.\n';
-  await writeFile(join(f.repository, 'docs/routing.md'), incoming);
+  await writeFile(join(f.repository, routing.source), original + '\nReview direct navigation alongside browser Back and Forward behavior.\n');
   git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'docs: clarify routing verification');
   const revision = git(f.repository, 'rev-parse', 'HEAD');
-  const routing = archive.pages.find(page => page.source === edit.source);
-  const update = await syncPublication({ repository: f.repository, revision, manifest: archive,
-    pages: [{ ...routing, markdown: edit.before }],
-    publication: { ...publication, edits: [{ ...edit, sourceRevision: previousRevision, sourceSha256: hash(edit.after) }] } });
-  publication.edits = publication.edits.map(item => item === edit ? update.publication.edits[0] : item);
+  archive.sourceDirty = false;
+  await writeFile(join(root, 'content/library-docs/manifest.json'), JSON.stringify(archive, null, 2) + '\n');
+  const update = await syncPublication({ repository: f.repository, revision, manifest: { ...archive, sourceRevision: previousRevision },
+    pages: [{ ...routing, markdown: original }], publication });
+  publication.edits = update.publication.edits;
   const content = JSON.stringify(publication, null, 2) + '\n';
   await writeFile(publicationPath, content);
   git(root, 'init', '-q'); git(root, 'config', 'user.name', 'Documentation test');
@@ -156,8 +160,8 @@ test('routing sync builds and validates independently, rejecting corrupted deliv
   for (const script of ['scripts/build-demo-projects.mjs', 'scripts/build.mjs', 'scripts/build-mcp.mjs']) {
     await run(process.execPath, [script], { cwd: root });
   }
-  await run(process.execPath, ['--test', 'test/release.test.mjs', 'test/docs.test.mjs', 'test/site.test.mjs', 'test/agent-discovery.test.mjs'], { cwd: root });
-  assert.ok((await readFile(join(root, 'dist/docs/routing.md'), 'utf8')).includes(`reading source revision ${revision}`));
+  await run(process.execPath, ['--test', 'test/docs.test.mjs', 'test/site.test.mjs', 'test/agent-discovery.test.mjs'], { cwd: root });
+  assert.ok((await readFile(join(root, 'dist/docs/guides/routing.md'), 'utf8')).includes(`reading source revision ${revision}`));
   await mkdir(join(root, 'output/docs-sync'));
   await writeFile(join(root, 'output/docs-sync/state.json'), JSON.stringify({ main: git(root, 'rev-parse', 'HEAD'), sha256: hash(content) }));
   await validateSync(root);

@@ -4,9 +4,9 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { Marked } from 'marked';
-import { sha256 } from '../scripts/agent-discovery.mjs';
+import { sha256, validateDiscoveryRoutes, bundleGroups } from '../scripts/agent-discovery.mjs';
 import { readSnapshot } from '../scripts/library-docs.mjs';
-import { publishedMarkdown } from '../scripts/published-docs.mjs';
+import { publishedMarkdown, validatePublication } from '../scripts/published-docs.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const read = path => readFile(resolve(root, 'dist', path.replace(/^\//, '')), 'utf8');
@@ -19,7 +19,7 @@ test('corpus retrieval returns exact published Markdown and distinct source iden
   assert.equal(corpus.packageVersion, manifest.packageVersion);
   assert.equal(corpus.sourceRevision, manifest.sourceRevision);
   assert.equal(corpus.sourceContentSha256, manifest.contentSha256);
-  assert.equal(corpus.sourceDirty, false);
+  assert.equal(corpus.sourceDirty, manifest.sourceDirty);
   assert.equal(corpus.publicationEditsSha256, sha256(await read('docs/publication.json')));
   assert.equal(new Set(corpus.documents.map(doc => doc.id)).size, corpus.documents.length);
   for (const doc of corpus.documents) {
@@ -40,8 +40,8 @@ test('corpus retrieval returns exact published Markdown and distinct source iden
     }
   }
   assert.equal(corpus.documents.filter(doc => doc.kind === 'guide').length, pages.length);
-  const beta = corpus.documents.find(doc => doc.id === 'docs/beta.md');
-  assert.notEqual(beta.sha256, beta.sourceSha256, 'published reading and original bytes must not share a misleading hash');
+  assert.equal(corpus.publication, 'development candidate (local source)');
+  assert.ok(corpus.documents.some(doc => doc.id === 'docs/guides/production.md'));
 });
 
 test('root index and task syllabus lead to resolvable version-matched resources', async () => {
@@ -67,7 +67,7 @@ test('root index and task syllabus lead to resolvable version-matched resources'
 test('full context and topic bundles include reading copies once with intact code bytes', async () => {
   const corpus = await parse('docs/corpus.json');
   const full = await read('llms-full.txt');
-  const bundles = await Promise.all(['start', 'integrations', 'reference', 'maintainers'].map(name => read(`docs/bundles/${name}.txt`)));
+  const bundles = await Promise.all(['start', 'guides', 'integrations', 'reference'].map(name => read(`docs/bundles/${name}.txt`)));
   for (const doc of corpus.documents) {
     assert.ok(full.includes(doc.markdown), doc.id);
     assert.equal(full.split(`Document: ${doc.id}\n`).length - 1, 1);
@@ -105,7 +105,7 @@ test('production headers stay within Cloudflare limits and expose safe retrieval
   assert.match(headers, /Link: <https:\/\/marionettejs\.com\/llms\.txt>; rel="describedby"/);
   // Actual documents expose verified HTML alternates without advertising
   // nonexistent Markdown for /docs/source/, /docs/markdown/, or /docs/bundles/.
-  for (const path of ['docs/region', 'errors/MN0001', 'docs/agent-start', 'docs/coverage']) {
+  for (const path of ['docs/api/region', 'errors/MN0001', 'docs/agent-start', 'docs/coverage']) {
     const html = await read(`${path}/index.html`);
     assert.ok(html.includes(`rel="alternate" type="text/markdown" href="/${path}.md"`));
     await read(`${path}.md`);
@@ -122,4 +122,24 @@ test('llms indexes use level-two sections containing Markdown file lists', async
     for (const section of sections) assert.match(section, /^- \[.+?\]\(https:\/\/marionettejs\.com\//m);
   }
   assert.ok((await read('_headers')).includes('/docs/*\n  Link: <https://marionettejs.com/docs/llms.txt>; rel="describedby"'));
+});
+
+test('discovery rejects omitted or multiply assigned sections and missing task routes', async () => {
+  const { pages } = await readSnapshot(resolve(root, 'content/library-docs'));
+  validateDiscoveryRoutes(pages);
+  assert.throws(() => validateDiscoveryRoutes([...pages, { route: 'docs/new', section: 'Unassigned' }]), /exactly one bundle/);
+  assert.throws(() => validateDiscoveryRoutes(pages, { ...bundleGroups, other: ['Guides'] }), /exactly one bundle/);
+  assert.throws(() => validateDiscoveryRoutes(pages.filter(page => page.route !== 'docs/architecture')), /missing documentation: architecture/);
+});
+
+test('publication status requires matching clean npm archive evidence', () => {
+  const manifest = { packageVersion: '5.0.0-rc.2', channel: 'latest', sourceRevision: 'a'.repeat(40), contentSha256: 'b'.repeat(64), sourceDirty: false };
+  const declaration = { packageVersion: manifest.packageVersion, channel: manifest.channel, status: 'release candidate (published on npm)' };
+  const installed = { ...manifest, registryArchive: true, integrity: 'sha512-evidence' };
+  assert.equal(validatePublication(manifest, declaration, installed), 'latest');
+  assert.throws(() => validatePublication(manifest, declaration), /npm archive evidence/);
+  for (const change of [{ sourceDirty: true }, { sourceRevision: 'c'.repeat(40) }, { registryArchive: false }, { integrity: null }]) assert.throws(() => validatePublication(manifest, declaration, { ...installed, ...change }), /npm archive evidence/);
+  assert.throws(() => validatePublication({ ...manifest, sourceDirty: true }, declaration, installed), /npm archive evidence/);
+  assert.throws(() => validatePublication(manifest, { ...declaration, status: 'stable release (published on npm)' }, installed), /npm archive evidence/);
+  assert.equal(validatePublication({ ...manifest, sourceDirty: true }, { ...declaration, status: 'development candidate (local source)' }), 'latest');
 });

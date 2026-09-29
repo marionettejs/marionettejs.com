@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Marionette website and published release-candidate documentation",
+  "description": "Marionette website with versioned consumer documentation and separately pinned browser examples",
   "engines": {
     "node": ">=24"
   },
@@ -21,7 +21,8 @@
     "mcp:deploy": "wrangler deploy",
     "test:mcp:http": "node --test test/mcp-http.test.mjs",
     "vendor:demos": "node scripts/build-demo-vendor.mjs",
-    "docs:sync": "node scripts/docs-sync/prepare.mjs"
+    "docs:sync": "node scripts/docs-sync/prepare.mjs",
+    "test:docs:browser": "node test/browser/docs-candidate.mjs"
   },
   "devDependencies": {
     "@babel/parser": "8.0.4",

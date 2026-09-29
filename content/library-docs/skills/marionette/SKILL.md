@@ -1,80 +1,57 @@
 ---
 name: marionette
-description: Build, debug, review, or test Marionette v5 applications using version-matched docs, including v4-to-v5 migration and @mnjs integrations. For changes to the library itself, follow its repository guidance.
+description: Build, debug, review, or test Marionette v5 applications using their installed, version-matched documentation.
 ---
 
-# Build with Marionette
+# Marionette applications
 
-Use the application's installed contract and preserve compatible integration
-choices. This skill does not authorize dependency upgrades.
+Use this skill for application work. For changes to Marionette itself, follow its repository guidance.
 
-## Locate matching docs
+## Find the application's documentation
 
-Resolve the package from the application workspace, not the copied skill directory
-or a neighboring monorepo package. The read-only helper requires Node 24 or later.
-Its path is `scripts/docs.mjs` relative to the directory containing this `SKILL.md`:
+From the application workspace, locate `marionette/package.json` with Node's `require.resolve` and read its version. Open `docs/agents.md` or `docs/readme.md` beside that file. Check the application's renderer and data setup before choosing APIs. If packaged documentation is missing, obtain the exact release or known source revision; do not substitute a different version's contracts.
 
-- In the npm package, that directory is `<package-root>/dist/agent-skill/`.
-- After copying the skill, it is the copied directory, such as
-  `/path/to/application/.agents/skills/marionette/`.
+The paths below are relative to the installed package, not this skill directory. Start with the relevant task and follow its canonical references. A narrow API change does not require reading the whole corpus.
 
-Replace `/path/to/skill-directory` with that directory's absolute path and
-`/path/to/application` with the application's absolute path. These commands work
-from any working directory:
-
-```sh
-node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --list
-node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --page docs/agents.md
-```
-
-These are lookup options, not a required sequence. `--list` returns provenance and
-available page paths; `--page` reads one source path. The helper checks packaged
-documentation hashes and version without executing project code or using a network.
-For installations without `node_modules`, supply `--package-root` with the physical
-package directory obtained from that application's package manager.
-
-If packaged docs are absent, use the exact release or known source commit and
-installed exports/declarations. Do not silently substitute current website docs,
-`master`, or another workspace's package. An alpha version alone does not establish
-source identity; `sourceDirty: true` is not an immutable release. Documentation
-hashes do not prove a custom runtime matches them; test uncertain runtime behavior.
-
-## Select the relevant contract
-
-Pass the task page's `source` field from the manifest or `--list` output to
-`--page`; it prints provenance followed by the page content. Only `--list` returns
-each page's absolute `path`, for reading the file directly:
-
+<!-- task-routes:start -->
 | Task | Packaged page |
 | --- | --- |
-| New application | `docs/development.md` for the typed starter; `docs/choosing-integrations.md` for integration decisions |
-| Migrating an existing application | `docs/agent-tools.md` (pre-migration setup); `docs/migration-from-v4.md` and `upgradeGuide.md` from that target |
-| Application architecture or unfamiliar ownership | `docs/agents.md` |
-| Rendering or screen replacement | `docs/marionette.view.md`, `docs/marionette.region.md`, `docs/view.lifecycle.md` |
-| Changing lists or observable records | `docs/marionette.collectionview.md`, `docs/data.api.md` |
-| Application runs, readiness, or late save completion | `docs/marionette.application.md`, `docs/application-effects.md`; request replacement: `docs/application-refresh.md` |
-| Navigation | `docs/routing.md` |
-| Hover, nested clicks, or DOM preservation | `docs/dom.interactions.md`, `docs/view.rendering.md` |
-| State ownership or framework error | `docs/marionette.state.md` or `docs/diagnostic-catalog.md` |
-| Skill setup or optional documentation MCP | `docs/agent-tools.md` |
+| Install and render a first View | `docs/quick-start.md`, `docs/integrations/setup.md` |
+| Migrate an existing v4 application | `docs/guides/migration.md`, `docs/packages/adapters.md` |
+| Test interaction, readiness, or teardown | `docs/guides/testing.md`, `docs/tooling.md` |
+| Choose ownership and lifetimes | `docs/architecture.md`, `docs/api.md` |
+| Handle a local control or edit | `docs/guides/local-editing.md`, `docs/api/view.md`, `docs/api/shared/view-bindings.md` |
+| Prepare, start, stop, or refresh a feature | `docs/api/application.md`, `docs/architecture.md` |
+| Refresh while retaining a draft or shell | `docs/guides/retained-refresh.md`, `docs/api/application.md` |
+| Enhance existing markup | `docs/guides/existing-html.md`, `docs/api/view.md` |
+| Embed a feature in another UI | `docs/guides/existing-ui.md`, `docs/api/region.md` |
+| Connect URLs and destination lifetimes | `docs/guides/routing.md`, `docs/api/application.md` |
+| Show, replace, or retain child UI | `docs/api/region.md`, `docs/api/view.md` |
+| Render, filter, or sort repeated children | `docs/guides/lists.md`, `docs/api/collection-view.md` |
+| Share observable data and state | `docs/api/shared/state.md`, `docs/api/providers/data.md`, `docs/packages/data.md` |
+| Connect events and clean up subscriptions | `docs/api/shared/events.md`, `docs/api/shared/view-bindings.md` |
+| Connect channels and request/reply handlers | `docs/packages/radio.md`, `docs/api/shared/common.md` |
+| Configure a renderer or another data layer | `docs/packages/adapters.md`, `docs/api/runtime.md`, `docs/api/providers/dom.md`, `docs/api/providers/data.md` |
+| Write typed options, handlers, or lifecycle hooks | `docs/guides/typescript.md`, `docs/tooling.md` |
+| Check types, lint, or diagnose a failure | `docs/tooling.md`, `docs/api/errors.md` |
+| Integrate an imperative control | `docs/guides/widgets.md`, `docs/api/behavior.md` |
+| Check keyboard, focus, or rendering safety | `docs/guides/accessibility-rendering.md`, `docs/api/providers/dom.md` |
+| Build and deploy an application | `docs/guides/production.md`, `docs/tooling.md` |
+| Apply the concepts in a composed feature | `docs/records.md` |
+<!-- task-routes:end -->
 
-Follow relevant links rather than loading an overview and every reference. For MCP,
-read the retrieval rules in `docs/agent-tools.md` before remote use: exact version
-and source must match. Installed Markdown remains sufficient. For v4 applications,
-use matching migration material and installed APIs; this skill is not an upgrade plan.
+## Apply the contract
 
-DataApi, StateApi, renderer, DomApi, EventDelegator, and router are independent
-choices; a Backbone router does not require Backbone data. Register configuration
-before consumers. Use templates, named Regions, and public lifecycle APIs; domain
-records belong in data sources, not child View traversal. For application design,
-including personalized examples, use `docs/agents.md`.
+Use `docs/architecture.md` when deciding ownership or lifetimes. Keep local interaction in a View when that fits the task; coordinate feature readiness and shared work at the lifetime that owns it. An asynchronous call alone does not require an Application. A View may save its own model if the configured data layer supplies that operation; `@mnjs/data` does not supply persistence or `Model.save()`.
 
-## Completion
+Use the relevant reference for method arguments, event payloads, and cleanup. Verify the changed behavior, including replacement or cancellation when those are part of the task. Distinguish executed checks from conclusions based only on source inspection.
 
-The requested application behavior works against the installed package, preserves
-unrelated edits/focus and ownership, and has evidence for the affected interaction
-and cleanup boundary. Reproduce uncertain contracts through public package APIs.
-Use the application's checks; exercise actual clicks, focus, hover boundaries,
-replacement and cleanup with the selected adapters. Browser interactions require
-browser evidence. Report actual results and untested boundaries. Record changed
-integration decisions in the application's notes, keeping API details in the docs.
+## Optional lookup helper
+
+Run `node <skill>/scripts/docs.mjs --list` from the application directory, replacing `<skill>` with this skill's directory. Use `--search 'query'`, `--page docs/api/view.md`, or `--section <id>` returned by search. For an external package store, pass `--package-root <directory>`.
+
+The helper reads the installed package and verifies its documentation manifest and hashes. Reading the same Markdown files directly is also supported. See the installed `docs/agents.md` for the full discovery workflow.
+
+## Optional hosted lookup
+
+The plugin also supplies a documentation MCP connection. Read `marionette://catalog` before using its search tools: both `provenance.packageVersion` and `provenance.sourceRevision` must match the installed package and its docs manifest, even when the version matches. A hosted development candidate can reuse a version. `sourceDirty: true` means local changes beyond that revision. Follow the catalog's `requestIdentity` for required tool arguments. Pass the exact `version`; candidate search and read calls also require the matching `sourceRevision`. Use the IDs returned by search. Missing revision metadata, a mismatch, or an unavailable service leaves the installed Markdown and local helper as the authority; do not substitute its current corpus. The copied skill works without MCP.

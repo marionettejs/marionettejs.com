@@ -20,7 +20,7 @@ export const examples = {
       <form id="example-codepen" action="https://codepen.io/pen/define" method="POST" target="_blank" rel="noopener noreferrer" hidden><input name="data" type="hidden"></form>
     </section>
 
-    <noscript><p>The interactive examples need JavaScript. Read the <a href="/docs/region/">Region guide</a> or <a href="/docs/application/">Application guide</a>.</p></noscript>
+    <noscript><p>The interactive examples need JavaScript. Read the <a href="/docs/api/region/">Region guide</a> or <a href="/docs/api/application/">Application guide</a>.</p></noscript>
   </section>`
 };
 

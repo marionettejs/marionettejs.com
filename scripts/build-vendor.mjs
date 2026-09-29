@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const pkg = JSON.parse(await readFile(resolve(root, 'node_modules/marionette/package.json'), 'utf8'));
-const docs = JSON.parse(await readFile(resolve(root, 'content/library-docs/manifest.json'), 'utf8'));
+const docs = JSON.parse(await readFile(resolve(root, 'node_modules/marionette/dist/docs/manifest.json'), 'utf8'));
 const lock = JSON.parse(await readFile(resolve(root, 'package-lock.json'), 'utf8'));
 if (pkg.version !== '5.0.0-rc.1' || docs.packageVersion !== pkg.version || docs.sourceDirty) throw new Error('Expected the published release-candidate package and matching clean documentation.');
 for (const name of ['marionette', '@mnjs/utils', '@mnjs/radio']) {
@@ -29,6 +29,6 @@ await writeFile(resolve(root, 'content/provenance.json'), JSON.stringify({
   publication: 'Marionette 5.0.0-rc.1 public website',
   bundleSha256: createHash('sha256').update(vendor).digest('hex'),
   documentationManifest: '/docs/manifest.json',
-  documentationNote: 'The demos and documentation use the same published release candidate. Original packaged documentation is preserved; website release wording is recorded separately.'
+  documentationNote: 'The browser demos use this pinned published runtime. Candidate documentation has separate provenance at /docs/manifest.json; match the installed version before combining them.'
 }, null, 2) + '\n');
 console.log(`Bundled marionette@${pkg.version} and matching radio/utils from npm.`);

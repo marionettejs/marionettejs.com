@@ -1,178 +1,78 @@
-# Build with Marionette
+# Work with an agent
 
-Use this guide when an agent is building or maintaining an application with
-Marionette. It links each decision to the same contracts a human reviewer uses.
-For changes to Marionette itself, use the [maintainer guide](https://github.com/marionettejs/marionette/blob/master/docs/maintainers/readme.md).
+Use the same version-matched documentation whether you are writing code yourself or working with a coding agent. This page routes application tasks to the relevant guides and contracts. For changes to Marionette itself, follow the repository's contributor guidance.
 
-## Establish the installed contract
+## Find the installed contract
 
-Use the application's manifest, lockfile, and configuration to establish the
-contract when it is not already known. Relevant facts are:
+From the application's directory, locate its package:
 
-- the installed `marionette` version and matching optional package versions;
-- whether the dependency comes from a published package, Git commit, or local build;
-- the source revision for a checkout or custom artifact;
-- the selected renderer, data/state sources, DOM integrations, and router.
+```sh
+node -p "require.resolve('marionette/package.json')"
+```
 
-This documentation describes the current source. A local build with the same
-version string may contain different code. A website example, a copied prompt, or a
-third-party search result is not proof that the installed package has that API.
-Match the documentation's source revision to the artifact when available, then
-check the installed exports and declarations. Reproduce uncertain behavior with
-a small test against that package.
+Read the version in that file and open `docs/readme.md` beside it. The installed documentation, declarations, and configured renderer/data providers describe the contract available to this application. When documentation is absent, obtain it from the exact release or known source revision. Current website documentation may describe a different version.
 
-For a fresh application, follow [installation](./installation.md). For a v4
-application, use the [migration guide](./migration-from-v4.md) and
-[upgrade guide](../upgradeGuide.md) before applying current patterns. Do not
-silently upgrade dependencies to make an example fit.
+Start with the task below, then follow links to the exact class or provider reference. Read the composed records lesson when you need an end-to-end example; individual API lookups do not require it.
 
-## Read for the task
+<!-- task-routes:start -->
+| Task | Read |
+| --- | --- |
+| Install and render a first View | [Quick start](quick-start.md), [renderer and data setup](integrations/setup.md) |
+| Migrate an existing v4 application | [Migration guide](guides/migration.md), [optional adapters](packages/adapters.md) |
+| Test interaction, readiness, or teardown | [Consumer testing](guides/testing.md), [application tooling](tooling.md) |
+| Choose ownership and lifetimes | [Architecture](architecture.md), [API index](api.md) |
+| Handle a local control or edit | [Local editing](guides/local-editing.md), [View responsibilities](api/view.md#local-interaction-and-feature-coordination), [View bindings](api/shared/view-bindings.md) |
+| Prepare, start, stop, or refresh a feature | [Application](api/application.md), [ownership and lifetimes](architecture.md) |
+| Refresh while retaining a draft or shell | [Retained refresh](guides/retained-refresh.md), [Application](api/application.md#restart-and-retained-ui) |
+| Enhance existing markup | [Existing HTML](guides/existing-html.md), [View](api/view.md) |
+| Embed a feature in another UI | [Existing UI](guides/existing-ui.md), [Region](api/region.md) |
+| Connect URLs and destination lifetimes | [Navigation](guides/routing.md), [Application composition](api/application.md#child-applications) |
+| Show, replace, or retain child UI | [Region](api/region.md), [View Regions and existing elements](api/view.md) |
+| Render, filter, or sort repeated children | [Lists](guides/lists.md), [CollectionView](api/collection-view.md) |
+| Share observable data and state | [state](api/shared/state.md), [data providers](api/providers/data.md), [optional @mnjs/data](packages/data.md) |
+| Connect events and clean up subscriptions | [Events](api/shared/events.md), [child and entity bindings](api/shared/view-bindings.md) |
+| Connect channels and request/reply handlers | [Radio](packages/radio.md), [class Radio bindings](api/shared/common.md#declarative-radio-bindings) |
+| Configure a renderer or another data layer | [Optional adapters](packages/adapters.md), [Runtime configuration](api/runtime.md), [DOM providers](api/providers/dom.md), [data providers](api/providers/data.md) |
+| Write typed options, handlers, or lifecycle hooks | [TypeScript guide](guides/typescript.md), [application tooling](tooling.md) |
+| Check types, lint, or diagnose a failure | [Application tooling](tooling.md), [errors and diagnostics](api/errors.md) |
+| Integrate an imperative control | [Widgets](guides/widgets.md), [Behavior](api/behavior.md) |
+| Check keyboard, focus, or rendering safety | [Accessibility and rendering](guides/accessibility-rendering.md), [DOM providers](api/providers/dom.md) |
+| Build and deploy an application | [Production](guides/production.md), [application tooling](tooling.md) |
+| Apply the concepts in a composed feature | [Records lesson](records.md) |
+<!-- task-routes:end -->
 
-Use the task table directly. The [compact framework reference](./compact-reference.md)
-provides an overview when the task spans unfamiliar contracts; it is not a
-prerequisite for reading a specific guide.
+## Make changes at the right boundary
 
-| Task | Start here | Verify |
-| --- | --- | --- |
-| Show or update a piece of UI | [View](./marionette.view.md), [rendering](./view.rendering.md) | The intended element and content change; relevant handlers still work after rendering. |
-| Replace part of a screen | [Region](./marionette.region.md), [View lifecycle](./view.lifecycle.md) | The outgoing View is cleaned up and the new View owns the intended mount. |
-| Render a changing list | [CollectionView](./marionette.collectionview.md), [DataApi](./data.api.md) | Stable item identity, correct ordering, removal cleanup, and preservation of surviving edits. |
-| Coordinate a feature or navigate | [Application](./marionette.application.md), [routing](./routing.md) | Startup success, stale navigation, failure, stop, and destruction. |
-| Choose data, state, rendering, or DOM integration | [Choosing integrations](./choosing-integrations.md) | The chosen capability matches the source; configuring one integration does not implicitly configure another. |
-| Host a screen in Vue, React, or another shell | [Host a Marionette screen](./hosting-views.md) | Managed attachment, one DOM owner, stable drafts, and cleanup before host removal. |
-| Add local or shared state | [State sources](./marionette.state.md) | The correct observer updates; destroying one borrower does not dispose shared state. |
-| Handle DOM or component events | [DOM interactions](./dom.interactions.md), [events](./events.md) | One intended response per interaction and no response after teardown. |
-| Diagnose a framework error | [Diagnostic catalog](./diagnostic-catalog.md) | The invariant associated with the diagnostic code; do not match only error-message text. |
+Use the [architecture guide](architecture.md) to choose the owner of the behavior you are changing. A View can handle local interaction, including saving its own model when the selected data layer provides that method. Feature readiness, shared decisions, and work that survives panel replacement need an owner with the corresponding lifetime. The presence of an asynchronous call alone does not determine the class.
 
-Read the relevant page and its direct references. Load the full documentation only
-when the task requires a broader API review.
+Check the configured data provider before using persistence methods. `@mnjs/data` supplies observable Models and Collections, but is incomplete as an application data solution: fetching and persistence require an API layer or another provider. It does not supply `Model.save()`.
 
-## Choose the smallest supported pattern
+Verify the changed behavior at that boundary: observable updates for data changes, replacement and teardown for composition, and failure or cancellation for asynchronous work. A successful build checks a different property from successful user interaction. The [API index](api.md) identifies reference coverage that is still being completed.
 
-Keep the application's established integrations unless the task requires changing
-them. For new code, start with the built-in defaults: native DOM APIs, function
-templates, and plain objects or arrays. Plain sources are not observable; update
-the UI explicitly or select an observable integration when the task needs one.
+## Choose an agent installation
 
-Choose data, state, rendering, and DOM capabilities independently. Follow the
-[integration decision order](./choosing-integrations.md) before writing a custom
-adapter. Record the chosen provider and its registration point once in the
-application's own architecture notes so later agents do not choose again.
+The installed package includes `skills/marionette`. The skill routes to that application's installed docs and includes an offline lookup helper. Reading `SKILL.md` directly also works.
 
-Use a View for interface ownership, a Region for placement, and a CollectionView
-for repeated children. Use an Application when work has an asynchronous feature
-lifecycle. A plain function or class is enough when it needs none of these
-contracts. The [class guide](./classes.md) explains the boundaries.
+For a Codex project, copy the complete folder to `.agents/skills/marionette` in your application and invoke `$marionette`. Keep the scripts with the entrypoint. For other clients, use their documented skill location and invocation support. See [Codex skill installation](https://learn.chatgpt.com/docs/build-skills).
 
-Before expanding a small example into an application, revisit its data and ownership
-choices. A recipe demonstrating manually managed children is not a default data
-architecture for a todo application. Domain records belong in a data source;
-CollectionView children are their presentation. Do not use child View traversal as
-the application's record store. Plain arrays can remain appropriate for explicit
-snapshot updates. When records need shared observation, filtering, and coordinated
-updates, select an observable provider; for a new application without one, start
-with `@mnjs/data` and its [DataApi setup](./data.api.md). Native Collection
-`toArray()` returns plain attributes; iteration yields Models. Do not assume
-Backbone/Underscore methods.
+The `marionette` plugin is distributed through repository marketplaces, separately from the npm package. To use it, obtain a source checkout matching the installed package version and its manifest's `sourceRevision`; use the corresponding working checkout for a dirty candidate. Otherwise, copy the skill delivered with the package. The plugin combines that checkout's skill with the hosted documentation MCP connection. In a Codex client supporting local marketplaces, add the matching checkout with `codex plugin marketplace add /absolute/path/to/checkout`, then install Marionette from that marketplace using the client's plugin interface. See [OpenAI plugin installation](https://developers.openai.com/plugins/build/plugins). The repository includes Claude Code and Cursor marketplace manifests; their client installation and activation must be verified in those clients.
 
-Native DOM defaults describe the integration, not a replacement for View composition.
-Render ordinary content through `template` and `templateContext`, place child Views
-through named Regions, and declare controls with `ui`, `events`, and `triggers`.
-Use `events` when the handler needs input or keyboard details; use `triggers` when
-an interaction should become a View event. Direct DOM work still belongs at real
-integration boundaries, such as focus, measurements, and an external animation or
-widget. Keep its lifetime with the owning View.
+Choose the copied skill for local lookup without MCP. A plugin-capable client can use the bundled skill and hosted connection together, but installation does not make the hosted corpus match your package. The next section explains that check.
 
-Observe each field used by a template or derived display, including changes that
-do not come from its main button. Let CollectionView handle membership changes
-without a second whole-list render subscription. Keep focused editors stable
-when processing their own input.
+### Local contract lookup
 
-When building teaching examples, make the application runnable independently of
-narration and inspection. Prefer ordinary modules with explicit imports and exports.
-Check that the preview supports the selected packages and module structure; a tiny
-sandbox's restrictions should not silently become the recommended app architecture.
+Run the helper from your application directory, replacing `<skill>` with the copied directory:
 
-For personalized applications, connect a real user preference to interaction and
-visual design. Preserve readable hierarchy, spacing, contrast, labels, and narrow
-layouts; inspect the rendered result at desktop and narrow widths when changing
-visuals. Do not collapse independent owners to meet a line count or include
-teaching/test controls in the app. The website's optional personal-app brief supplies
-its own starter; it does not authorize browsing private sources for personalization.
+```sh
+node <skill>/scripts/docs.mjs --list
+node <skill>/scripts/docs.mjs --search 'prepareStart'
+node <skill>/scripts/docs.mjs --page docs/api/application.md
+```
 
-Configure the selected runtime before creating its consumers. The default named
-exports share a runtime. Use [runtime isolation](./runtime-isolation.md) when
-independent configurations must coexist; do not create a runtime per View.
+Use `--section` with an ID returned by search to read a single section. For a package in an external store, pass `--package-root` with its physical directory. The helper verifies the bundled manifest and content hashes, and reports the installed version and source revision with its results. These checks establish which documentation was read; they do not prove that an implementation follows it.
 
-## Make ownership and cancellation explicit
+## Optional hosted documentation MCP
 
-For each resource, name the owner and the operation that releases it. Let the
-owning Region or CollectionView manage its child Views through public APIs.
-Use [View lifecycle hooks](./view.lifecycle.md) for external listeners, timers,
-and widgets according to their actual render, attachment, and destruction lifetime.
-A rerender must not accumulate resources; destroying a View must not leave them
-running.
+The plugin's connection is `https://mcp.marionettejs.com/mcp`. Before searching it, read the `marionette://catalog` resource. Compare both `provenance.packageVersion` and `provenance.sourceRevision` with the application's installed package and `docs-manifest.json`. A matching version alone does not establish the same contract, including when the hosted catalog serves a development candidate. Follow the catalog's `requestIdentity` field for required tool arguments. Pass the exact `version`; for a development candidate, also pass the matching `sourceRevision` on search and read calls, including `search_docs`, `search_sections`, and retrieval of their returned IDs. Do not use a latest-version alias.
 
-A supplied `state` source is borrowed. A `createState()` result is owned and uses
-the configured StateApi's optional disposal hook when its owner is destroyed.
-Marionette does not infer ownership from which object first reads a source.
-
-Await Application lifecycle operations when later work depends on their result.
-They return `Promise<boolean>`: `true` means the target state was reached; `false`
-means the request was superseded. A current readiness failure rejects. Keep those
-outcomes distinct. Constructor hooks run synchronously, and completion hooks are synchronous
-notifications; returning a Promise from them does not add readiness.
-
-Pass the preparation method's signal to cancellable work. After an asynchronous step,
-check that it still belongs to the active operation before committing application
-side effects. Marionette suppresses stale lifecycle completion; it cannot undo an
-arbitrary write made by application code. Follow the complete
-[routing pattern](./routing.md) for navigation and feature startup.
-
-Keep an Application's active lifetime separate from each data request. If list
-results and a sidebar have separate owners under one shell, refresh the list's
-collection in place and cancel superseded requests; restarting their parent
-destroys both UI trees. See the [persistent-shell example](./application-refresh.md#keep-a-shell-and-independently-owned-children).
-
-## Completion evidence
-
-Use the application's existing test runner, scripts, and package manager. Library
-maintenance commands are not a consumer project's test strategy.
-
-The requested behavior is complete when its interaction and affected ownership
-boundary work in the installed application. For an
-asynchronous screen, navigate away while work is pending and ensure its stale
-result cannot replace the current screen. For a list, edit a surviving row while
-inserting, removing, or reordering another row. For a subscription, destroy one
-consumer and confirm the remaining consumer still receives updates.
-
-Use a real browser when correctness depends on focus, attachment, DOM event
-propagation, or editable state. A build or screenshot alone does not prove those
-interactions. Use documented public APIs for assertions rather than private
-framework fields.
-
-Review the architecture separately from interaction results: identify the data
-source, the Views and Regions that own the screen, and the external work each owner
-releases. Working buttons do not establish that the example teaches those contracts.
-For observable data, change the source directly and verify all intended consumers
-update. For attachment-bound resources, also detach and reattach the same View;
-replacement alone does not prove that repeated attachment releases resources.
-
-When reporting a change, name the behavior, the tested package/source, the exact
-commands or interactions performed, and any untested boundary. Keep changes
-focused and avoid introducing runtime instrumentation merely to help an agent
-understand the code.
-
-## Use agent tools as another way to read the same docs
-
-Follow [Set up an agent](./agent-tools.md) to install the consumer skill and read
-version-matched packaged docs. Adapt the [application instruction template](./application-agent-template.md)
-to preserve this project's actual decisions across tasks.
-
-For structured retrieval or service setup, use [the agent tools guide](./agent-tools.md).
-It owns exact-version/source matching, MCP pagination, and offline retrieval rules.
-Read those rules before using a remote service. No hosted service is required.
-Website WebMCP controls its example; its results do not establish application behavior.
-
-Application instructions should record local decisions and link to the relevant
-contracts, not copy this guide or the library's maintainer policy.
+A reused prerelease version can contain different contracts. A manifest with `sourceDirty: true` includes changes beyond that revision, so its local docs remain authoritative. If either revision is unavailable, the identities differ, or the service is unavailable, use installed Markdown and the local helper. Hosted results do not override the installed artifact's contract. Copying the skill alone requires no hosted connection; disable the bundled server only through your client's supported settings if using the plugin without MCP.

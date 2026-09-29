@@ -9,5 +9,5 @@
   "publication": "Marionette 5.0.0-rc.1 public website",
   "bundleSha256": "2ae4eb12644f7283f29f4909a6d6fee284e2b3046ed5290e32217ef6de0c110d",
   "documentationManifest": "/docs/manifest.json",
-  "documentationNote": "The demos and documentation use the same published release candidate. Original packaged documentation is preserved; website release wording is recorded separately."
+  "documentationNote": "The browser demos use this pinned published runtime. Candidate documentation has separate provenance at /docs/manifest.json; match the installed version before combining them."
 }
