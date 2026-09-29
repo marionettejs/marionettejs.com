@@ -185,7 +185,7 @@ export const recipes = [
   "docs": [
     "/docs/api/collection-view/",
     "/docs/api/view/",
-    "/docs/api/view/"
+    "/docs/guides/lists/"
   ],
   "checks": [
     {

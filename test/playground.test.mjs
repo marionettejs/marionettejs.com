@@ -29,6 +29,7 @@ test('the discoverable brief embeds the exact executable starter', async () => {
   assert.equal(starter.code, (await readFile(new URL('../site/workshop/app.js', import.meta.url), 'utf8')).trimEnd());
   assert.equal(starter.css, await readFile(new URL('../site/workshop/style.css', import.meta.url), 'utf8'));
   assert.ok(!brief.includes('<!-- playground-starter -->'));
+  assert.ok(brief.includes(`https://github.com/marionettejs/marionette/blob/${revision}/docs/compact-reference.md`), 'Workshop API guidance must match its runtime revision');
 });
 
 test('app submissions reject malformed, oversized and extra inputs before execution', () => {
@@ -91,6 +92,7 @@ test('canonical recipe catalog rejects unknown ids and stays pinned to the demo'
   assert.equal(new Set(recipes.map(recipe => recipe.id)).size, recipes.length);
   assert.ok(listRecipes().every(recipe => !('code' in recipe) && !('css' in recipe)));
   for (const recipe of recipes) {
+    assert.equal(new Set(recipe.docs).size, recipe.docs.length, `Duplicate documentation links: ${recipe.id}`);
     assert.deepEqual(recipe.sourceFiles, getRecipe({ id: recipe.id }).sourceFiles);
     assert.match(recipe.sourceFiles['main.js'], /import .* from/);
     for (const path of recipe.docs) await readFile(new URL(`../dist${path}index.html`, import.meta.url), 'utf8');

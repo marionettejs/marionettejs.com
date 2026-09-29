@@ -107,28 +107,33 @@ conflict. Rerun after the fix. Inspect failed Actions logs for the diagnostic co
 no token body or API error response is printed. Validation failures need an actual
 content or test-contract fix, not a bypass or an automatic merge.
 
-## Explicit npm releases and manual deployment
+## Explicit npm releases and reviewed deployment
 
-For a published release, read the exact source revision from the npm package's
-`dist/docs/manifest.json`, check out that revision cleanly in the library, and run
-`npm run docs:export`. Use the existing
-`npm run docs:import -- /path/to/released-source/.docs-export` workflow to import
-that complete corpus, including maintainer guides. The npm `dist/docs` directory
-alone is narrower and must not replace the full website snapshot.
+For the rebuilt rc.2 package, read the exact source revision from its root
+`docs-manifest.json`; canonical Markdown lives under `docs/`. The existing
+published rc.1 workshop package uses `dist/docs/manifest.json` and
+`dist/docs/docs/`. Keep that older layout scoped to rc.1 and remove its runtime
+path when the workshop upgrades.
 
-Before accepting the import, require `sourceDirty: false`, matching package version,
-repository and revision, identical metadata/bytes for every npm consumer page and
-asset, and the reviewed maintainer page/route inventory. `npm run check` compares
-the consumer subset against the installed pinned npm package; review the complete
-manifest diff for maintainer scope. See the root README's documentation-source
-procedure. Review the package/runtime pins, publication
-wording, full archive hashes and diagnostic schema provenance together. Reset/rebase
-the pending reading-copy edits deliberately against that new archive and revalidate.
-Ordinary sync never replaces archive files or imports unreleased skill/starter,
-fixture, catalog, or package assets; links to archived resources stay pinned.
+Check out the released source revision cleanly in the library and run
+`npm run docs:export`. Import the complete consumer snapshot with
+`npm run docs:import -- /path/to/released-source/.docs-export`. It includes the
+selected diagnostic/schema, skill and records assets as well as Markdown. Import
+through the manifest rather than copying a documentation directory; maintainer
+and planning pages are outside this consumer corpus.
 
-After the sync PR merges, follow [the deployment runbook](../../mcp/DEPLOYMENT.md).
-Build once from the reviewed merged website commit; manually deploy that complete
-`dist/` and its generated MCP snapshot. Record the website commit, archived package
-revision, publication hash and corpus hash for both deployments, and verify live
-website and MCP parity. A merged PR does not mean either host has been deployed.
+Before accepting the import, require `sourceDirty: false`, matching package
+version, repository and revision, and identical metadata/bytes for every released
+consumer page and asset. Review the complete manifest diff. Upgrade the pinned
+core/data/radio/utils runtime packages together, rebuild both vendor bundles and
+their provenance, and update workshop/export/recipe version assertions. See the
+root README's published-archive gate and runtime-upgrade steps. A published status
+requires matching installed registry-package evidence; changing the label alone
+is insufficient. Review publication wording, archive hashes and diagnostic schema
+provenance together. Rebase pending reading-copy edits deliberately against the
+new archive and revalidate with `npm run check` and the workshop browser checks.
+
+Ordinary reading-copy sync does not replace package archives or selected resource
+assets. After a reviewed website PR merges, the shared workflow publishes Pages
+and MCP; follow [the deployment runbook](../../mcp/DEPLOYMENT.md). Do not deploy
+this candidate or update the hosted catalog outside that release process.

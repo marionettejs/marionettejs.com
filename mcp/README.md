@@ -12,7 +12,9 @@ not update the hosted endpoint: read its catalog before using it. Browser demos
 and workshops retain their separately pinned published rc.1 runtime.
 
 **Bundled Markdown remains the installed-version reference.** First inspect your
-application's installed package and its `dist/docs/` manifest, using the
+application's installed package: the rebuilt rc.2 layout has `docs-manifest.json`
+at the package root and Markdown under `docs/`. The existing published rc.1 runtime
+has its manifest at `dist/docs/manifest.json` and Markdown under `dist/docs/docs/`. Use the
 [consumer skill helper](https://marionettejs.com/docs/agents/) if available.
 Compare its version and source revision with the MCP catalog. A custom build with
 the same version label may contain different code. If they do not match, use the

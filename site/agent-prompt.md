@@ -115,7 +115,7 @@ For a richer list/detail example, inspect the ordinary app modules in
 - Provide separate CSS as text. System fonts and inline graphics are sufficient.
   The editor limit is 60,000 JS characters, 20,000 CSS characters, and a 100-character
   title. All three fields are required, although CSS may be empty.
-- Browser examples use the rc.1 runtime identified above. The website [Region reference](/docs/api/region.md) describes its separately identified candidate; match it to your installed version before using its APIs.
+- For this workshop runtime, use the [rc.1 API reference](https://github.com/marionettejs/marionette/blob/469e790fea03993a5c063e39028445ac3610c9e4/docs/compact-reference.md) and its linked class guides. The website reference describes a separate rc.2 candidate.
 
 ## Build beautiful Marionette, too
 
@@ -183,8 +183,9 @@ interaction details; do not substitute remembered v4 or generic DOM wrappers.
 
 For a v5 contract demonstrated interactively, use `/demos/`. The Backstage Demos
 link opens another tab so the personal app stays intact; asynchronous lessons advance
-only when requested. For an API question, use the linked release-candidate reference. The optional
-recipe inspection contract below is for apps that expose extra observations.
+only when requested. For API questions about this workshop, use the rc.1 reference
+linked in the runtime contract above. The optional recipe inspection contract
+below is for apps that expose extra observations.
 
 ## Optional recipe inspection
 
