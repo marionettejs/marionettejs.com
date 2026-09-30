@@ -52,6 +52,6 @@ export async function loadSnapshot() {
   for (const id of recipe.relatedDocs) if (!documents.has(id)) throw new Error(`Example references missing documentation: ${id}`);
   const text = JSON.stringify(recipe, null, 2);
   return { provenance, documents: [...documents.values()], index,
-    sections, sectionIndex: indexSections(sections),
+    sections, sectionIndex: indexSections(sections, [...documents.values()]),
     examples: [{ id: recipe.id, title: recipe.title, summary: recipe.summary, text, sha256: hash(text) }] };
 }

@@ -46,7 +46,8 @@ test('consumer imports retain records, skill and diagnostic resources', async ()
   const target = resolve(directory, 'docs');
   const resources = [
     'examples/records/index.html', 'examples/records/src/main.js', 'examples/records/src/styles.css',
-    'skills/marionette/SKILL.md', 'config/diagnostics/catalog.schema.json', 'docs-sections.json'
+    'skills/marionette/SKILL.md', 'skills/marionette/scripts/search.mjs',
+    'config/diagnostics/catalog.schema.json', 'docs-sections.json', 'docs-symbols.json'
   ];
   try {
     await importDocs(source, { target });

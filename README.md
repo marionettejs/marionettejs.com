@@ -83,7 +83,7 @@ Social services may cache old previews after deployment.
 
 ## View locally
 
-Requires Node.js 24 or newer. Browser tests also require Chromium (`npx playwright install chromium`) and the `unzip` command to verify downloaded projects. Run `npm ci` before the first build to install the pinned documentation renderer and search tools.
+Requires Node.js 24 or newer. With nvm, run `nvm use` before installation. Browser tests also require Chromium (`npx playwright install chromium`) and the `unzip` command to verify downloaded projects. Run `npm ci` before the first build to install the pinned documentation renderer and search tools.
 
 ```sh
 npm run dev
@@ -270,6 +270,29 @@ rebuild both vendor bundles and their provenance, import
 the matching published documentation archive, and pass the workshop, docs and MCP
 checks before changing publication status. Remove the rc.1 manifest-layout choice
 in `scripts/published-docs.mjs` when that workshop upgrade is complete.
+
+For rc.2, perform the registry upgrade as one reviewed change after publication:
+
+```sh
+npm install --save-dev --save-exact marionette@5.0.0-rc.2 @mnjs/data@5.0.0-rc.2
+npm ls marionette @mnjs/data @mnjs/radio @mnjs/utils
+```
+
+Require all four installed versions to match. Switch the vendor builder to the
+root `docs-manifest.json`, require the exact rc.2 version and clean source, and
+remove its rc.1 layout and version assertion. Update the workshop brief, runtime,
+recipes, export assertions and README/AGENTS pins from the installed artifact's
+version and source revision. Rebuild with `npm run vendor:build` and
+`npm run vendor:demos`; verify both resulting hashes and license bundles.
+
+Compare every imported page and supporting asset with the installed registry
+archive before setting published metadata. Run `npm run check`,
+`npm run test:docs:browser`, `npm run test:browser` and
+`node test/browser/personal-preview.mjs`, plus the deployment runbook's HTTP MCP
+verification. A local candidate import may be checked before publication, with
+its candidate status retained. Final deployment must use the matching registry
+runtime and verified publication metadata.
+
 
 
 Marked escapes raw HTML and blocks unsafe URL schemes. Pagefind builds a static

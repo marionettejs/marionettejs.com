@@ -4,23 +4,23 @@
   "packageVersion": "5.0.0-rc.2",
   "channel": "latest",
   "sourceRepository": "https://github.com/marionettejs/marionette",
-  "sourceRevision": "37cda1fb3b370ac02b0f13988d6571e4524f4356",
+  "sourceRevision": "f72f1c4a4ed08532bbb36ceaebaa0ef3d2df2702",
   "sourceDirty": false,
-  "contentSha256": "04f344624bf4afa012adcedcfb0823b2cee9ce0303743c0920cc3bd861f18778",
+  "contentSha256": "e57843a5937e38288625037572682763413b361a085cfbbb5187809001503a4f",
   "pages": [
     {
       "source": "docs/readme.md",
       "route": "docs",
       "title": "Marionette v5 documentation",
       "section": "Start here",
-      "sha256": "4308402598ebac1e298e8a18c030310f0a5a8a36aa24f876f31db3733de77dc6"
+      "sha256": "5a60a2c6743fc3c762e101c57dea91d9dab2e3222e1f8ccd74cbf09733e527cf"
     },
     {
       "source": "docs/quick-start.md",
       "route": "docs/quick-start",
       "title": "Install and render a View",
       "section": "Start here",
-      "sha256": "5c360f6eb55e783caa2813a3fb938d1e822087ac2ba9a24f0ee3f5c1be2299d4"
+      "sha256": "9a01001c583a26792e02b4b5df9259ee86c6f9bf9dcde5156dc38089af2f2637"
     },
     {
       "source": "docs/architecture.md",
@@ -34,21 +34,21 @@
       "route": "docs/agents",
       "title": "Agent workflow",
       "section": "Start here",
-      "sha256": "ff350282c347dc49891000c21ac26cef36a8b5e8766ba346444533c63d699b07"
+      "sha256": "3a4bd973b48e1f2adf87b80769fe095533945fb1cbc42d8dc9a47b6b96d11ffa"
     },
     {
       "source": "docs/api.md",
       "route": "docs/api",
       "title": "API reference",
       "section": "Start here",
-      "sha256": "dc5c55965ea811c45717cd9ef870f771c361080dda63c347948471fe71df835b"
+      "sha256": "3f287a77eeb0aa0467ff9ee18fc502d4f5bc28425a4e372529a8c06358b6117f"
     },
     {
       "source": "docs/api/application.md",
       "route": "docs/api/application",
       "title": "Application",
       "section": "Core classes",
-      "sha256": "2a3aacbbb3194e07dc96cc8a3168dcb2a88f0dc38288b43c93ab8dce769360aa"
+      "sha256": "4d6f761e5b75352c7b66ea1b854c08197abfbe6a22952fcbb99f9c3ef1d719c8"
     },
     {
       "source": "docs/api/view.md",
@@ -76,14 +76,14 @@
       "route": "docs/api/behavior",
       "title": "Behavior",
       "section": "Core classes",
-      "sha256": "d83fce01476376a3101ebb6bd77363134f841367422fe775b8431dc38128c7fa"
+      "sha256": "1d60b523fe3279bbff968bbe27be474a6f7ebaebdfb60f110e7395c3344bd31a"
     },
     {
       "source": "docs/api/mnobject.md",
       "route": "docs/api/mnobject",
       "title": "MnObject",
       "section": "Core classes",
-      "sha256": "230e69cbdb697142c4d2a6979a925395cae5f71232dfa4f9ce21f287c707f1fa"
+      "sha256": "db47ead2b1f9d5cd987c3d32d4ec4f1d923823a686357bc1ccf38da8a23f59c5"
     },
     {
       "source": "docs/api/shared/common.md",
@@ -97,7 +97,7 @@
       "route": "docs/api/shared/events",
       "title": "Events",
       "section": "Shared class contracts",
-      "sha256": "55cae66f2ac4b5de06cf68763a4f841a9d7ff55c065de8e4112df29109925051"
+      "sha256": "d32469eb9dab26b77b94615c8bc337fc360536dd3e0489e12ad1ebb086f685f0"
     },
     {
       "source": "docs/api/shared/state.md",
@@ -174,7 +174,7 @@
       "route": "docs/integrations/setup",
       "title": "Setup and data",
       "section": "Integration guides",
-      "sha256": "d009e98971def967328762cabe63d270a97dadf73074c7bce9346b0bc95a686d"
+      "sha256": "929e8a13cf61f97fe75cf90d78fe54d34a9da79258744ef10c5e5e3f1051c0e2"
     },
     {
       "source": "docs/guides/migration.md",
@@ -202,7 +202,7 @@
       "route": "docs/guides/local-editing",
       "title": "Edit a View’s own model",
       "section": "Guides",
-      "sha256": "bf65e682c4b1a4a47b4d5205f5deffdd3878daaec2f8f39fd63fcd53805e2e1c"
+      "sha256": "45afd4ebdecb95e766770bc4a76f3c755510ba28f88bc797072cb417d4e13af1"
     },
     {
       "source": "docs/guides/retained-refresh.md",
@@ -230,7 +230,7 @@
       "route": "docs/guides/routing",
       "title": "Connect navigation to feature ownership",
       "section": "Guides",
-      "sha256": "683eae713eaf5e5472abf50473cb3599684b2f2cc7af9593c46297c47a07b4f9"
+      "sha256": "030d555a9ff9b90187c0ff52555e95d6df18b487c7a26fc3237e7f7f0a90f9af"
     },
     {
       "source": "docs/guides/lists.md",
@@ -272,7 +272,7 @@
       "route": "docs/tooling",
       "title": "Check and debug an application",
       "section": "Development tools",
-      "sha256": "7d966f4dbacd338a4530af3d87b1177288573acbc910fcfd19b92446d4a54d02"
+      "sha256": "a623a46b5f0b68c4597e685a3018587e96ee7db3064c64b6bd9700c5d55c5a3c"
     }
   ],
   "assets": [
@@ -286,7 +286,7 @@
     },
     {
       "source": "skills/marionette/SKILL.md",
-      "sha256": "539012b33ba5955a05a7468c46a5b555f4c5dbf4aa99c576ac71a0c402d1524d"
+      "sha256": "f0ec1f140af9c783c1f3542554e468664dd0c3d9ae3a78a88c039d5e0c08681a"
     },
     {
       "source": "skills/marionette/agents/openai.yaml",
@@ -294,11 +294,11 @@
     },
     {
       "source": "skills/marionette/scripts/docs.mjs",
-      "sha256": "589e87ea1caa5b6fcec8cd2893175795c99462c6b595d987b51ad528d1148c3d"
+      "sha256": "7eb7a388d1ab1e2d37419c4746c72b540f085513671384bf84af37a537063bc1"
     },
     {
       "source": "skills/marionette/scripts/search.mjs",
-      "sha256": "36870f635359a1f42f0c170d9647f84f45d52b394319f8b0637d7bc0766f2b0b"
+      "sha256": "99eeb6ef5b5f8cf1bef6ac1b0cc163f129955d62f8811071ffdffad7aeffe1b1"
     },
     {
       "source": "skills/marionette/scripts/symbols.mjs",
@@ -374,7 +374,11 @@
     },
     {
       "source": "docs-sections.json",
-      "sha256": "9ebbaeb6967f0af291864815972b97cb6d329246bd939f24e7421e41e408c2ab"
+      "sha256": "dc919b887b2dc11d18a0a29ee3061178461c298c12a8252b83168a1b0da88771"
+    },
+    {
+      "source": "docs-symbols.json",
+      "sha256": "a250cfaaef432212f5115ef2802b8c939846c566a2521b00f0de3a6a68b42f91"
     }
   ]
 }

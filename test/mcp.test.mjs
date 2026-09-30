@@ -43,12 +43,46 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
   assert.deepEqual(catalog.examples.map(example => example.id), ['records']);
   assert.equal(catalog.documentCount, corpus.documents.length);
   for (const sourceRevision of [undefined, '0'.repeat(40)]) {
-    const response = await client.callTool({ name: 'search_docs', arguments: { query: 'Region', version, sourceRevision } });
-    assert.equal(response.isError, true);
-    assert.match(response.content[0].text, /Source revision mismatch/);
+    for (const name of ['search_docs', 'search_sections']) {
+      const response = await client.callTool({ name, arguments: { query: 'Region', version, sourceRevision } });
+      assert.equal(response.isError, true);
+      assert.match(response.content[0].text, /Source revision mismatch/);
+    }
   }
-  const sectionSearch = unpack(await client.callTool({ name: 'search_sections', arguments: { sourceRevision: corpus.sourceRevision, query: 'detachView', version, limit: 10 } }));
+  const sectionSearch = unpack(await client.callTool({ name: 'search_sections', arguments: { sourceRevision: corpus.sourceRevision, query: 'detachView', version, limit: 5 } }));
   assert.ok(sectionSearch.results.length);
+  assert.ok(sectionSearch.total <= 5);
+  assert.equal(sectionSearch.nextOffset, null);
+  const firstSection = unpack(await client.callTool({ name: 'search_sections', arguments: { sourceRevision: corpus.sourceRevision, query: 'detachView', version, limit: 1 } }));
+  assert.equal(firstSection.results.length, 1);
+  assert.equal(firstSection.nextOffset, firstSection.total > 1 ? 1 : null);
+  if (firstSection.nextOffset !== null) {
+    const nextSection = unpack(await client.callTool({ name: 'search_sections', arguments: { sourceRevision: corpus.sourceRevision, query: 'detachView', version, limit: 1, offset: firstSection.nextOffset } }));
+    assert.equal(nextSection.results[0].id, sectionSearch.results[1].id);
+  }
+  const paginated = [];
+  let sectionOffset = 0;
+  do {
+    const page = unpack(await client.callTool({ name: 'search_sections', arguments: { sourceRevision: corpus.sourceRevision, query: 'detachView', version, limit: 1, offset: sectionOffset } }));
+    assert.equal(page.total, sectionSearch.total);
+    paginated.push(...page.results.map(result => result.id));
+    sectionOffset = page.nextOffset;
+  } while (sectionOffset !== null);
+  assert.deepEqual(paginated, sectionSearch.results.map(result => result.id));
+  for (const offset of [sectionSearch.total, 5]) {
+    const end = unpack(await client.callTool({ name: 'search_sections', arguments: { sourceRevision: corpus.sourceRevision, query: 'detachView', version, offset } }));
+    assert.deepEqual(end.results, []);
+    assert.equal(end.total, sectionSearch.total);
+    assert.equal(end.nextOffset, null);
+  }
+  for (const query of ['the and', 'why', 'by']) {
+    const canonical = (await import('../content/library-docs/skills/marionette/scripts/search.mjs')).searchSections;
+    const snapshot = await (await import('../mcp/load.mjs')).loadSnapshot();
+    const files = new Map(snapshot.sectionIndex.files.map(([source, content]) => [source, { content }]));
+    const expected = canonical(snapshot.sectionIndex.sections, files, query);
+    const actual = unpack(await client.callTool({ name: 'search_sections', arguments: { sourceRevision: corpus.sourceRevision, query, version } }));
+    assert.deepEqual(actual.results.map(result => result.id), expected.map(result => result.id), query);
+  }
   const selected = sectionSearch.results.find(section => section.characters <= 30_000);
   assert.ok(selected);
   const sectionRead = unpack(await client.callTool({ name: 'get_sections', arguments: { sourceRevision: corpus.sourceRevision, ids: [selected.id], version, maxCharacters: 30_000 } }));
@@ -66,7 +100,8 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
     ['get_sections', { ids: ['../package.json'] }], ['get_sections', { ids: [] }],
     ['get_sections', { ids: [selected.id], maxCharacters: 30_001 }],
     ['get_sections', { ids: [selected.id], version: 'latest' }],
-    ['search_sections', { query: 'the and' }], ['search_sections', { query: 'Region', version: 'latest' }],
+    ['search_sections', { limit: 6, query: 'Region' }], ['search_sections', { offset: 6, query: 'Region' }],
+    ['search_sections', { query: 'Region', version: 'latest' }],
   ]) assert.equal((await client.callTool({ name, arguments: { sourceRevision: corpus.sourceRevision, version, ...args } })).isError, true);
   const snippetSearch = unpack(await client.callTool({ name: 'search_docs', arguments: { sourceRevision: corpus.sourceRevision, query: 'untrusted rendering', version } }));
   const security = snippetSearch.results.find(result => result.id === 'docs/guides/accessibility-rendering.md');

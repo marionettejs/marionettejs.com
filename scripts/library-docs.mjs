@@ -33,9 +33,9 @@ export async function readSnapshot(directory) {
   }
   const assets = [];
   if (!Array.isArray(manifest.assets)) throw new Error('Documentation snapshot assets are required.');
-  // Only canonical consumer skill, diagnostics, section index, and packaged example sources are served.
+  // Only canonical consumer skill, diagnostics, lookup indexes, and packaged example sources are served.
   for (const asset of manifest.assets) {
-    const supported = /^(?:config\/diagnostics\/catalog(?:\.schema)?\.json|docs-sections\.json|skills\/marionette\/(?:SKILL\.md|agents\/openai\.yaml|scripts\/(?:docs|search|symbols)\.mjs)|examples\/records\/[a-zA-Z0-9._/-]+\.(?:md|json|m?js|html|css))$/.test(asset.source);
+    const supported = /^(?:config\/diagnostics\/catalog(?:\.schema)?\.json|docs-(?:sections|symbols)\.json|skills\/marionette\/(?:SKILL\.md|agents\/openai\.yaml|scripts\/(?:docs|search|symbols)\.mjs)|examples\/records\/[a-zA-Z0-9._/-]+\.(?:md|json|m?js|html|css))$/.test(asset.source);
     if (!safePath(asset.source) || !supported || sources.has(asset.source)) throw new Error('Unsupported documentation asset.');
     const content = await readSource(asset.source);
     if (hash(content) !== asset.sha256) throw new Error(`Documentation hash mismatch: ${asset.source}`);
@@ -156,7 +156,19 @@ export async function buildLibraryDocs({ directory, out, shell }) {
     const written = await index.writeFiles({ outputPath: resolve(out, 'pagefind') });
     if (written.errors?.length) throw new Error(written.errors.join('\n'));
   } finally { await pagefind.close(); }
+  await verifySearchIndex(resolve(out, 'pagefind'), pages.length);
   return pages.length + JSON.parse(catalog.content).diagnostics.length + 4;
+}
+
+export async function verifySearchIndex(directory, expectedPages) {
+  try {
+    const metadata = JSON.parse(await readFile(resolve(directory, 'pagefind-entry.json'), 'utf8'));
+    const english = metadata.languages?.en;
+    if (!Number.isInteger(english?.page_count) || english.page_count < expectedPages || !/^en_[a-f0-9]+$/.test(english.hash)) throw new Error('English index omits documentation pages.');
+    if (!(await readFile(resolve(directory, `pagefind.${english.hash}.pf_meta`))).length) throw new Error('Referenced English metadata is empty.');
+  } catch (error) {
+    throw new Error('Generated documentation search metadata is invalid.', { cause: error });
+  }
 }
 
 async function buildDiagnostics({ out, shell, manifest, asset }) {

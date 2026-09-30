@@ -11,6 +11,10 @@ const annotations = { readOnlyHint: true, destructiveHint: false, idempotentHint
 // Construct immutable validation schemas once, while keeping each server independent.
 const searchInput = z.object({ query: z.string().trim().min(1).max(200).describe('Search text, 1–200 characters. Use separate focused queries for related APIs.'), version: versionInput, sourceRevision: sourceRevisionInput,
   offset: z.number().int().min(0).max(100_000).default(0).describe('Result offset, integer 0–100000, default 0. Use nextOffset for another page.'), limit: z.number().int().min(1).max(10).default(5).describe('Results per page: integer 1–10, default 5. For more results, follow nextOffset instead of increasing limit above 10.') }).strict();
+const sectionSearchInput = searchInput.extend({
+  offset: z.number().int().min(0).max(5).default(0).describe('Offset within the query’s top five results: integer 0–5, default 0. Follow nextOffset; an offset at or beyond total returns an empty page.'),
+  limit: z.number().int().min(1).max(5).default(5).describe('Results per page within the query’s top five: integer 1–5, default 5. total counts this bounded set; nextOffset is null when it is exhausted.'),
+});
 const docInput = z.object({ path: z.string().min(1).max(300).describe('Exact id from search_docs, e.g. docs/api/region.md. Website routes such as docs/api/region/ and resource URIs such as marionette://catalog are not document IDs.'), version: versionInput, sourceRevision: sourceRevisionInput, offset: offsetInput, limit: limitInput }).strict();
 const sectionsInput = z.object({ version: versionInput, sourceRevision: sourceRevisionInput, ids: z.array(z.string().min(1).max(500)).min(1).max(30).describe('1–30 exact section IDs from search_sections, in priority order. Do not construct IDs from website URLs.'), maxCharacters: z.number().int().min(1).max(30_000).default(20_000).describe('UTF-16 code-unit budget: integer 1–30000, default 20000; metadata excluded. Inspect omitted. Split requests or choose narrower sections; use get_doc if one section exceeds 30000 code units.') }).strict();
 const exampleInput = z.object({ name: z.string().min(1).max(100), version: versionInput, sourceRevision: sourceRevisionInput, offset: offsetInput, limit: limitInput }).strict();
@@ -43,8 +47,8 @@ export function createDocsServerFactory(snapshot) {
     ({ id, title, section, kind, url, markdownUrl, sourceUrl, sourceSha256, sha256, sourceSupplements });
   const catalog = JSON.stringify({ provenance, documentCount: documents.size,
     examples: snapshot.examples.map(({ id, title, summary }) => ({ id, title, summary })),
-    search: 'Lexical search ranks matching words in titles and Markdown, ignoring common function words. Results report matchedTerms and are paginated.',
-    sections: 'search_sections returns heading IDs, ancestry and sizes. get_sections reads selected complete sections under a UTF-16 code-unit budget; inspect omitted and request missing contracts explicitly. Selection is lexical, not dependency analysis.',
+    search: 'search_docs ranks matching words in titles and Markdown, ignoring common function words. Its results report matchedTerms and are paginated across all matching documents.',
+    sections: 'search_sections uses the imported consumer skill ranking and returns at most five heading IDs, ancestry and sizes per query. limit and offset paginate within that bounded set; total counts only that set and nextOffset is null when exhausted. Queries with no substantive terms return an empty set. get_sections reads selected complete sections under a UTF-16 code-unit budget; inspect omitted and request missing contracts explicitly. Selection is lexical, not dependency analysis.',
     requestIdentity: 'Use the exact installed version and source revision. Local candidate requests require sourceRevision matching this catalog; use installed docs when either differs.',
     read: 'Use a result id as get_doc.path. Follow nextOffset to retrieve the complete Markdown.',
   });
@@ -82,8 +86,8 @@ export function createDocsServerFactory(snapshot) {
         nextOffset: offset + limit < ranked.length ? offset + limit : null };
     }));
     server.registerTool('search_sections', {
-      description: 'Rank versioned documentation sections lexically. Returns exact IDs, heading ancestry, source links and character sizes. Search separately for related APIs; results do not establish dependency completeness.',
-      inputSchema: searchInput, annotations,
+      description: 'Rank versioned documentation sections with the imported consumer skill: identifier components, BM25 body scoring, heading weight and ancestor context. Returns up to five exact IDs, heading ancestry, source links and character sizes. Search separately for related APIs; results do not establish dependency completeness.',
+      inputSchema: sectionSearchInput, annotations,
     }, tool(({ query, offset, limit }) => {
       const ranked = searchSections(snapshot.sections, query, snapshot.sectionIndex, sections);
       return { results: ranked.slice(offset, offset + limit).map(sectionMetadata), total: ranked.length, offset,

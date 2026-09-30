@@ -52,7 +52,7 @@ export async function verifyMcp(endpoint, expectedRevision) {
     for (const query of ['Region', 'safely textContent', 'preserve draft while another list row changes', 'cancellation async startup', 'how do I diagnose MN0023?', 'zzzznosuchcontract', '__proto__', 'constructor', 'a'.repeat(200), 'View Region state data collection events render template lifecycle model application destroy '.repeat(2)]) {
       await call('search_docs', { query, limit: 10 });
     }
-    const sections = await call('search_sections', { query: 'detachView', limit: 10 });
+    const sections = await call('search_sections', { query: 'detachView', limit: 5 });
     const section = sections.results.find(item => item.characters <= 30_000);
     assert.ok(section);
     const selected = await call('get_sections', { ids: [section.id], maxCharacters: 30_000 });
@@ -62,7 +62,7 @@ export async function verifyMcp(endpoint, expectedRevision) {
     assert.equal(omitted.omitted[0].id, section.id);
     await call('get_sections', { ids: ['../secret'] }, true);
     await call('get_sections', { ids: [section.id], version: 'latest' }, true);
-    await call('search_sections', { query: 'the and' }, true);
+    assert.equal((await call('search_sections', { query: 'the and' })).total, 0);
     // Concurrent requests must retain query-specific content and pagination.
     const regionMatches = await call('search_docs', { query: 'Region', limit: 5 });
     assert.ok(regionMatches.total > 5);

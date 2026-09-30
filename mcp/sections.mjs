@@ -1,29 +1,20 @@
-import { tokenize } from './search.mjs';
+import { searchSections as rankSections } from '../content/library-docs/skills/marionette/scripts/search.mjs';
 
-export function indexSections(sections) {
-  const index = Object.create(null);
-  for (const section of sections) {
-    const title = new Set(tokenize(section.heading));
-    for (const term of tokenize(`${section.heading}\n${section.content}`)) {
-      (index[term] ??= []).push([section.id, title.has(term)]);
-    }
-  }
-  return index;
+export function indexSections(sections, documents) {
+  // Plain entries survive the JSON snapshot used by the HTTP Worker. Ranking
+  // uses the imported skill's implementation against website reading copies.
+  return {
+    sections: sections.map(section => ({ id: section.id, source: section.documentId,
+      start: section.start, end: section.end, heading: section.heading, ancestors: section.breadcrumbs })),
+    files: documents.map(document => [document.id, document.markdown]),
+  };
 }
 
-export function searchSections(sections, query, index = indexSections(sections), lookup = new Map(sections.map(section => [section.id, section]))) {
-  const terms = tokenize(query);
-  if (!terms.length) throw new Error('Query must include an API name or substantive search word.');
-  const matches = new Map();
-  for (const term of terms) for (const [id, inTitle] of Object.hasOwn(index, term) ? index[term] : []) {
-    const match = matches.get(id) || { id, matchedTerms: [], titleScore: 0 };
-    match.matchedTerms.push(term);
-    match.titleScore += inTitle ? 10 : 0;
-    matches.set(id, match);
-  }
-  return [...matches.values()].map(({ id, matchedTerms, titleScore }) => ({
-    ...lookup.get(id), matchedTerms, score: matchedTerms.length ** 2 + titleScore
-  })).sort((a, b) => b.score - a.score || a.content.length - b.content.length || a.id.localeCompare(b.id, 'en'));
+export function searchSections(sections, query, index, lookup = new Map(sections.map(section => [section.id, section]))) {
+  const files = new Map(index.files.map(([source, content]) => [source, { content }]));
+  return rankSections(index.sections, files, query).map(({ id, matchedTerms, score }) => ({
+    ...lookup.get(id), matchedTerms, score,
+  }));
 }
 
 export const sectionMetadata = ({ content, ...section }) => ({ ...section, characters: content.length });

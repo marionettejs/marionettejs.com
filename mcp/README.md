@@ -231,7 +231,15 @@ and [SDK client compatibility](https://ts.sdk.modelcontextprotocol.io/v2/serving
 ## Focused section retrieval
 
 Use `search_sections` with the exact package version to find headings, ancestry,
-source links and sizes. Pass returned IDs to `get_sections` in priority order with
+source links and sizes. It uses the imported consumer skill's lexical ranking:
+identifier components, BM25 body scoring, heading weight and ancestor context.
+Each query returns up to five sections, scored from each heading's own text;
+section reads still include nested subsections. `limit` accepts 1–5 and `offset`
+accepts 0–5, paginating within that query's top five. `total` counts this bounded
+set; `nextOffset` becomes null when it is exhausted. An offset at or beyond
+`total` returns an empty page. Queries with no substantive terms return an empty
+set. `search_docs` separately paginates across all matching documents.
+Pass returned IDs to `get_sections` in priority order with
 `maxCharacters` (default 20,000, maximum 30,000). The budget counts UTF-16 content
 characters, not tokens or response metadata. Sections include their subsections;
 overlapping selections are deduplicated. IDs combine document ID and a rendered heading anchor, or `@intro` for an

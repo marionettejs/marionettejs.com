@@ -6,10 +6,30 @@ import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Marked } from 'marked';
-import { readSnapshot, renderMarkdown, markdownUrl, canonicalSourceUrl, deriveMarkdown } from '../scripts/library-docs.mjs';
+import { readSnapshot, renderMarkdown, markdownUrl, canonicalSourceUrl, deriveMarkdown, verifySearchIndex } from '../scripts/library-docs.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const source = resolve(root, 'content/library-docs');
+
+test('search artifact validation accepts a complete isolated index', async t => {
+  const directory = await mkdtemp(resolve(tmpdir(), 'marionette-search-valid-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  await writeFile(resolve(directory, 'pagefind-entry.json'), JSON.stringify({ languages: { en: { hash: 'en_1234', page_count: 3 } } }));
+  await writeFile(resolve(directory, 'pagefind.en_1234.pf_meta'), Buffer.from([1, 2, 3]));
+  await verifySearchIndex(directory, 3);
+});
+
+for (const [name, metadata, content] of [
+  ['malformed JSON', '{', Buffer.from([1])],
+  ['partial page count', JSON.stringify({ languages: { en: { hash: 'en_1234', page_count: 2 } } }), Buffer.from([1])],
+  ['empty referenced metadata', JSON.stringify({ languages: { en: { hash: 'en_1234', page_count: 3 } } }), Buffer.alloc(0)],
+]) test(`search artifact validation rejects ${name} in an isolated directory`, async t => {
+  const directory = await mkdtemp(resolve(tmpdir(), 'marionette-search-invalid-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  await writeFile(resolve(directory, 'pagefind-entry.json'), metadata);
+  await writeFile(resolve(directory, 'pagefind.en_1234.pf_meta'), content);
+  await assert.rejects(verifySearchIndex(directory, 3), /Generated documentation search metadata is invalid/);
+});
 
 test('every canonical page publishes its exact Markdown and source identity', async () => {
   const { manifest, pages } = await readSnapshot(source);
@@ -25,6 +45,9 @@ test('every canonical page publishes its exact Markdown and source identity', as
   const llms = await readFile(resolve(root, 'dist/docs/llms.txt'), 'utf8');
   for (const page of pages) assert.ok(llms.includes(markdownUrl(page)));
   assert.ok((await readFile(resolve(root, 'dist/pagefind/pagefind.js'), 'utf8')).length > 100);
+  const search = JSON.parse(await readFile(resolve(root, 'dist/pagefind/pagefind-entry.json'), 'utf8'));
+  assert.ok(search.languages.en.page_count >= pages.length);
+  assert.ok((await readFile(resolve(root, 'dist/pagefind', `pagefind.${search.languages.en.hash}.pf_meta`))).length > 0);
 });
 
 test('import refuses altered content and unsafe paths before replacement', async () => {
