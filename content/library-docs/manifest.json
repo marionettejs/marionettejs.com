@@ -4,9 +4,9 @@
   "packageVersion": "5.0.0-rc.2",
   "channel": "latest",
   "sourceRepository": "https://github.com/marionettejs/marionette",
-  "sourceRevision": "c29622b67132864b9b2395b1eeb227b411df4c26",
+  "sourceRevision": "689a5c6fbc691a01f9086bae6b2ed2b8c3954e64",
   "sourceDirty": false,
-  "contentSha256": "020d1014aea41e24f057fdc9abe5d7f9e5db1defcdeee9d0bc4a83baa9ad50f9",
+  "contentSha256": "c25b901d10f5294ebaec59eea32cc32a0cef36041fa566783a2634fdb7b4164f",
   "pages": [
     {
       "source": "docs/readme.md",
@@ -132,14 +132,14 @@
       "route": "docs/api/providers/dom",
       "title": "Rendering and DOM providers",
       "section": "Provider interfaces",
-      "sha256": "c27ba850a18003b0fc15f9dfc8dec36e207b527bafb15b0ba87c5602cb72e57f"
+      "sha256": "7445ee9633d751c9220c9c725040383632f56d06f946f9a60181023ce42a3b8c"
     },
     {
       "source": "docs/api/providers/data.md",
       "route": "docs/api/providers/data",
       "title": "Data and state providers",
       "section": "Provider interfaces",
-      "sha256": "4354afe1dedf5ab53ea9e507fb07055fb37e6b2cb356585619507e3d2158f408"
+      "sha256": "bfdc9fcac45390611b75d28d7cc12fd256325463355fd338abfc6be503844275"
     },
     {
       "source": "docs/packages/data.md",
@@ -188,7 +188,7 @@
       "route": "docs/guides/testing",
       "title": "Test an application",
       "section": "Guides",
-      "sha256": "8d4a8cff86cdcafd7a53542af7e8e36ad402d6755108e82108a5e7ed5cd6d45c"
+      "sha256": "88b8225820cc2354a65896e9d34645e1b6b576da51053574f2ef108eae1c0e3d"
     },
     {
       "source": "docs/guides/typescript.md",
@@ -216,7 +216,7 @@
       "route": "docs/guides/existing-html",
       "title": "Add behavior to existing HTML",
       "section": "Guides",
-      "sha256": "052b1b216adaa6de91a76eb2a365bfcb5062a3525e3f1cbbe7cf87a091cf8a95"
+      "sha256": "024ec76fab9e8a7d64153f35453aa4ae436d03d718a9669bb8ca9e518b1371e7"
     },
     {
       "source": "docs/guides/existing-ui.md",
@@ -374,7 +374,7 @@
     },
     {
       "source": "docs-sections.json",
-      "sha256": "3bd9f170be895458b5cfee899fbd21ce601b677b3a280d2074a4d68289ec25dd"
+      "sha256": "2a8981d90410533cb6d9d1780b366cc207f7de959c2320c8000674c118b00076"
     },
     {
       "source": "docs-symbols.json",
