@@ -4,7 +4,7 @@
   "packageVersion": "5.0.0-rc.2",
   "channel": "latest",
   "sourceRepository": "https://github.com/marionettejs/marionette",
-  "sourceRevision": "689a5c6fbc691a01f9086bae6b2ed2b8c3954e64",
+  "sourceRevision": "1eb1f56fd9bba481ee833fd7df53a9a2edd9f800",
   "sourceDirty": false,
   "contentSha256": "c25b901d10f5294ebaec59eea32cc32a0cef36041fa566783a2634fdb7b4164f",
   "pages": [
