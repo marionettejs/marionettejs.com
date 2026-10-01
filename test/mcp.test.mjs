@@ -108,7 +108,7 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
   assert.ok(security, 'Find the safety guide using its title and a later body match');
   assert.match(security.snippet, /untrusted/i, 'A title-only match must not hide the matching body passage');
   for (const [query, expectedId] of [
-    ['refresh retaining UI', 'docs/guides/retained-refresh.md'],
+    ['restart retaining UI', 'docs/guides/retained-restart.md'],
     ['cancellation async startup', 'docs/api/application.md'],
     ['how do I diagnose MN0023?', 'errors/MN0023'],
   ]) {

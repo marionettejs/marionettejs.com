@@ -92,7 +92,7 @@ test('canonical source ranking agrees with the imported consumer skill for publi
   const websiteIndex = indexSections(sections, pages.map(page => ({ id: page.source, markdown: page.markdown })));
   const identity = section => ({ source: section.source ?? section.documentId, start: section.start,
     end: section.end, heading: section.heading, matchedTerms: section.matchedTerms, score: section.score });
-  for (const query of ['listenTo', 'retained refresh', 'prepareStart', 'detachView', 'bindRequests', 'Model set', 'setFilter', 'Application stop destroy']) {
+  for (const query of ['listenTo', 'retained restart', 'prepareStart', 'detachView', 'bindRequests', 'Model set', 'setFilter', 'Application stop destroy']) {
     assert.deepEqual(searchSections(sections, query, websiteIndex).map(identity), canonicalSearch(index.sections, files, query).map(identity), query);
   }
 });

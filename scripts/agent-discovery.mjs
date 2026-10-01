@@ -12,7 +12,7 @@ const link = (label, path) => `[${label}](${origin}${path})`;
 const tasks = [
   ['Start an application', ['quick-start', 'architecture', 'agents'], 'Establish the installed version and choose an owner for the feature.'],
   ['Choose data, state, or rendering', ['integrations/setup', 'api/runtime', 'api/providers/data', 'api/providers/dom'], 'Select each capability explicitly.'],
-  ['Keep edits and UI during updates', ['guides/local-editing', 'guides/retained-refresh', 'guides/lists'], 'Choose updates at the boundary that changed.'],
+  ['Keep edits and UI during updates', ['guides/local-editing', 'guides/retained-restart', 'guides/lists'], 'Choose updates at the boundary that changed.'],
   ['Own a feature and its navigation', ['api/application', 'guides/routing', 'guides/existing-ui'], 'Connect readiness, child ownership and host cleanup.'],
   ['Wire interactions and controls', ['api/view', 'api/shared/events', 'guides/widgets', 'guides/accessibility-rendering'], 'Keep DOM and resource lifetimes with their owner.'],
   ['Validate and deploy', ['tooling', 'guides/testing', 'guides/typescript', 'guides/production'], 'Check the installed contract and observable behavior.'],
