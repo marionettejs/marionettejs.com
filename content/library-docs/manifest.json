@@ -4,9 +4,9 @@
   "packageVersion": "5.0.0-rc.2",
   "channel": "latest",
   "sourceRepository": "https://github.com/marionettejs/marionette",
-  "sourceRevision": "ed1b1ac2ecd8e3d6e7f5c28ab2ff1a7fbe6f4cde",
+  "sourceRevision": "c29622b67132864b9b2395b1eeb227b411df4c26",
   "sourceDirty": false,
-  "contentSha256": "bf98bd5932f54da5ba05dd312eb8c00803100186964fcd643263c25c7f6d7666",
+  "contentSha256": "020d1014aea41e24f057fdc9abe5d7f9e5db1defcdeee9d0bc4a83baa9ad50f9",
   "pages": [
     {
       "source": "docs/readme.md",
@@ -265,7 +265,7 @@
       "route": "docs/records",
       "title": "Build a records feature",
       "section": "Guides",
-      "sha256": "595ff3c0a3f8127d0518152cfa99da21a347be810080fe3a9c7e0b3e90cee2e2"
+      "sha256": "926ba5d1458a991d7c3ff8e8eb4073f7da98b2d7093f4bdb65441cf091b431d3"
     },
     {
       "source": "docs/tooling.md",
@@ -306,7 +306,7 @@
     },
     {
       "source": "examples/records/README.md",
-      "sha256": "2fe4ba3d1cce9c5af2637c67313f07212704a997c03e787e8f95ceca121d8c51"
+      "sha256": "ce5c4c6d11b7569a9113893767c7ee7e46d49b819031d75b3625b2633f8eca88"
     },
     {
       "source": "examples/records/index.html",
@@ -374,7 +374,7 @@
     },
     {
       "source": "docs-sections.json",
-      "sha256": "5bbd34ca4da8b4f1075030efe762fb18c08f2cac8ef3cfb0ee36c0500fb8e36f"
+      "sha256": "3bd9f170be895458b5cfee899fbd21ce601b677b3a280d2074a4d68289ec25dd"
     },
     {
       "source": "docs-symbols.json",
