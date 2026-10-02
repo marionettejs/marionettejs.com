@@ -13,12 +13,29 @@ const installedPackage=JSON.parse(await readFile(resolve(root,'node_modules/mari
 const catalog=JSON.parse(await readFile(resolve(out,'docs/diagnostics.json'),'utf8'));
 const routes=['demos/index.html','errors/index.html',...catalog.diagnostics.map(entry=>`errors/${entry.code}/index.html`),'thanks/index.html','index.html','why/index.html','404.html',...manifest.pages.map(page=>`${page.route}/index.html`)];
 
+test('documentation embeds the branded Context7 widget without changing Markdown', async () => {
+  for (const page of manifest.pages) {
+    const html = await readFile(resolve(out, `${page.route}/index.html`), 'utf8');
+    assert.equal((html.match(/src="https:\/\/context7.com\/widget.js"/g) || []).length, 1, page.route);
+    assert.match(html, /<script async src="https:\/\/context7.com\/widget.js"/);
+    assert.match(html, /data-library="\/marionettejs\/marionette"/);
+    assert.match(html, /data-color="#b4232d" data-position="bottom-right"/);
+    assert.match(html, /data-placeholder="Ask about Marionette v5…"/);
+    assert.match(html, /Questions are sent to Context7\./);
+    const markdownPath = page.route === 'docs' ? 'docs/index.md' : `${page.route}.md`;
+    assert.ok(!(await readFile(resolve(out, markdownPath), 'utf8')).includes('context7.com/widget.js'));
+  }
+  assert.ok(!(await readFile(resolve(out, 'index.html'), 'utf8')).includes('context7.com/widget.js'));
+});
+
 test('every built page has valid local links, fragments, and asset references',async()=>{
   let checked=0;
   for(const route of routes){
     const html=await readFile(resolve(out,route),'utf8');
     assert.equal((html.match(/<h1[ >]/g)||[]).length,1,route);
     assert.match(html,/<html lang="en">/);
+    assert.equal((html.match(/src="https:\/\/context7.com\/docs7-analytics.js"/g) || []).length, 1, route);
+    assert.ok(html.includes('<script defer src="https://context7.com/docs7-analytics.js" data-site="b83657b2-fde7-4916-a683-2d3ba41f185b"></script>'), route);
     for (const link of ['/thanks/', 'https://github.com/sponsors/paulfalgout', 'https://store.marionettejs.com/', `https://www.npmjs.com/package/marionette/v/${installedPackage.version}`]) {
       assert.ok(html.includes(`href="${link}"`), `${route}: missing shared footer link ${link}`);
     }

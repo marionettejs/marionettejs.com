@@ -37,6 +37,66 @@ The Worker response revision must match the deployed commit. A failed Worker dep
 or parity check fails the run; rerun the workflow after correcting the cause.
 The two service uploads are sequential, not atomic.
 
+### Context7 distribution and feedback
+
+After a successful site and MCP deployment, a change to the documentation manifest
+or publication metadata calls `.github/workflows/context7.yml` to request a refresh
+of `/marionettejs/marionette`. Manual deployment also requests a refresh. Marketing
+changes do not. Context7 failures fail the separate job after deployment; correct
+the cause and use the Context7 workflow's manual refresh rather than redeploying.
+
+Set `CONTEXT7_API_KEY` in the `production` environment from the Context7 teamspace
+that owns the library. The key is used only by trusted `main` workflows. The library
+repository's `context7.json` owns indexing configuration; its `previousVersions`
+list declares supported immutable tags. Add the new release tag there as part of
+release preparation. Website CI refreshes the library's configured branch, and
+Context7 processes the declared versions. Refresh acceptance means queued work;
+verify the tag's completed indexing in the owner dashboard.
+
+The same workflow collects measurements weekly and on manual dispatch. It saves
+`context7-evidence` artifacts for 90 days: expected docs identity, reported index
+state/date, token and snippet counts, benchmark score (null when unavailable),
+available versions, 30-day usage and lifetime topic counts. It makes two read calls,
+plus one request on refresh runs; it does not launch a separate paid evaluation.
+Configuration failures are reported in the job log before a snapshot is collected.
+The API does not attest source revision parity. Check returned snippets against
+the expected release before treating a snapshot as evidence about those docs.
+
+Use the [owner dashboard](https://context7.com/marionettejs/marionette/admin) to
+review Benchmark suggestions and question-level results when available. For each
+candidate improvement, check whether the question is a real supported task and
+whether the failure came from the docs, indexing, retrieval or grading. Correct
+the relevant guide or reference, then compare with a saved snapshot. Keep questions
+and versions consistent where possible; avoid adding prose just to improve a score.
+Trust scores reflect source reputation, usage reflects reach, and benchmark scores
+judge documentation answers. None establishes application correctness or agent
+time/token efficiency; use our consumer checks and controlled tasks for those.
+
+Context7's automatic refresh is usage-triggered with popularity-based thresholds,
+not a release webhook. See its [refresh policy](https://context7.com/docs/library-updates),
+[Actions integration](https://context7.com/docs/integrations/github-actions),
+and [current feedback pipeline](https://upstash.com/blog/context7-research).
+The old owner-run benchmarks were [deprecated by Context7](https://github.com/upstash/context7/issues/2760#issuecomment-4706452541).
+There is currently no documented public benchmark trigger. The API may return zero
+while the dashboard says no benchmark data; this is not a measured failure score.
+
+Documentation HTML also embeds the optional Context7 chat widget with Marionette's
+red, a bottom-right position and a short branded welcome. It uses the public library
+ID, never the CI API key. Enable it in the owner dashboard's Chat tab and allow
+`marionettejs.com` and the public aliases where it should work. Its current script
+sends chat messages to Context7 when visitors submit them; the welcome states this.
+The configured library follows the indexed default branch. Check answers against
+the docs version shown on the page, especially before a new release is published.
+Ordinary docs, Markdown and search work without the widget. The documentation
+browser suite checks this by blocking its script; verify the actual widget on the
+allowed deployed domain after merging. Chat billing is not specified in the widget
+guide; do not infer it from API or private-parsing prices.
+
+All HTML pages include the deferred Docs7 analytics script for connected site
+`b83657b2-fde7-4916-a683-2d3ba41f185b`. This is a public site identifier, not an API
+key. Analytics appears in that site's Docs7 dashboard after deployment; embedding
+the script alone does not establish that visits have been recorded.
+
 Publishing needs the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`
 secrets in the `production` environment. The token needs Pages Edit for the
 deployment account and Individual Workers

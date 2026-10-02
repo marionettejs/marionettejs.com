@@ -1,0 +1,45 @@
+name: Context7 documentation feedback
+on:
+  workflow_call:
+    inputs:
+      refresh:
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      refresh:
+        description: Request a refresh as well as collect measurements
+        type: boolean
+        default: false
+  schedule:
+    - cron: '23 10 * * 1'
+permissions:
+  contents: read
+concurrency:
+  group: context7-documentation-${{ inputs.refresh && 'refresh' || 'report' }}
+  cancel-in-progress: false
+jobs:
+  context7:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: production
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+      - name: Refresh or collect Context7 measurements
+        env:
+          CONTEXT7_API_KEY: ${{ secrets.CONTEXT7_API_KEY }}
+          CONTEXT7_MODE: ${{ inputs.refresh && 'refresh' || 'report' }}
+        run: node scripts/context7.mjs "$CONTEXT7_MODE"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: context7-evidence
+          path: output/context7/
+          if-no-files-found: warn
+          retention-days: 90
