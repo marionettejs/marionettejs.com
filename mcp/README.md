@@ -6,15 +6,13 @@ Your agent client's own access and model costs are separate.
 
 The hosted Cloudflare Worker and the optional local, read-only stdio server share
 `search_docs`, `get_doc`, `search_sections`, `get_sections`, `get_example`, and `marionette://catalog`. Both serve the
-same verified website corpus and packaged records example. This integration build
-targets the local **`marionette@5.0.0-rc.2`** candidate. Importing or building does
-not update the hosted endpoint: read its catalog before using it. Browser demos
-and workshops retain their separately pinned published rc.1 runtime.
+same verified website corpus and packaged records example. This integration
+targets `marionette@5.0.0-rc.2` across docs, browser demos and workshops. Importing or
+building does not update the hosted endpoint: read its catalog before using it.
 
 **Bundled Markdown remains the installed-version reference.** First inspect your
-application's installed package: the rebuilt rc.2 layout has `docs-manifest.json`
-at the package root and Markdown under `docs/`. The existing published rc.1 runtime
-has its manifest at `dist/docs/manifest.json` and Markdown under `dist/docs/docs/`. Use the
+application's installed package: `docs-manifest.json` is at the package root and
+Markdown is under `docs/`. Use the
 [consumer skill helper](https://marionettejs.com/docs/agents/) if available.
 Compare its version and source revision with the MCP catalog. A custom build with
 the same version label may contain different code. If they do not match, use the

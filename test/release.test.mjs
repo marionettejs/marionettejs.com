@@ -27,11 +27,12 @@ test('public release-candidate pages are canonical and indexable while mirrors s
   assert.match(await read('dist/sitemap.xml'), /https:\/\/marionettejs.com\/docs\/quick-start\//);
 });
 
-test('candidate reading copies preserve every imported source without claiming npm publication', async () => {
+test('reading copies preserve every imported source and declared publication status', async () => {
   const manifest = JSON.parse(await read('content/library-docs/manifest.json'));
   const publication = JSON.parse(await read('dist/docs/publication.json'));
   assert.equal(publication.packageVersion, manifest.packageVersion);
-  assert.equal(publication.status, 'development candidate (local source)');
+  const declaration = JSON.parse(await read('content/docs-publication-edits.json'));
+  assert.equal(publication.status, declaration.status);
   for (const page of manifest.pages) assert.equal(await read(`dist/docs/markdown/${page.source}`), await read(`content/library-docs/${page.source}`));
   const routing = await read('dist/docs/guides/routing.md');
   assert.match(routing, /hashchange/);

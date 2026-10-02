@@ -4,16 +4,16 @@
   "packageVersion": "5.0.0-rc.2",
   "channel": "latest",
   "sourceRepository": "https://github.com/marionettejs/marionette",
-  "sourceRevision": "0b08f76a21a48a56b08144c8cef30b8611af195f",
+  "sourceRevision": "f4243b8334cafe0bd1b06eba85d87e2310cb3618",
   "sourceDirty": false,
-  "contentSha256": "67377b5aaa81dc01b313a36b23e6e31392109b5f77c4327d48d673e031b947ee",
+  "contentSha256": "33e25b34b7de8097aedad992ba19af5f381a282cc9f1a14a124dc8f6b69384de",
   "pages": [
     {
       "source": "docs/readme.md",
       "route": "docs",
       "title": "Marionette v5 documentation",
       "section": "Start here",
-      "sha256": "b67b6ce5410fd321cae588e0bf8dc6652bca96c61b8c739baa02a219b0c03f00"
+      "sha256": "e5eb855b5c440c71c2faea9e8e2396edde58b7ab8616a1a89f1b2ba91281da0e"
     },
     {
       "source": "docs/quick-start.md",
@@ -34,7 +34,7 @@
       "route": "docs/agents",
       "title": "Agent workflow",
       "section": "Start here",
-      "sha256": "1a9bc577df53bd90372c2aed5d29e5c43bda6d1b8794cc96aa5263a8c606964b"
+      "sha256": "7a4af7179aadcf16439d3b05ed246220e69f80ad30988e301b40868a036e851f"
     },
     {
       "source": "docs/api.md",
@@ -374,7 +374,7 @@
     },
     {
       "source": "docs-sections.json",
-      "sha256": "2bb8263f281f89167591e049085b9c0f5839b9d89ed4c7f795f31b47736fc427"
+      "sha256": "af8b74ad3ac050bd4e4a6a38cd12515bd4b10befe58cbbed1ee31401d891d54b"
     },
     {
       "source": "docs-symbols.json",

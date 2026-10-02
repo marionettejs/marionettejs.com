@@ -110,11 +110,9 @@ content or test-contract fix, not a bypass or an automatic merge.
 
 ## Explicit npm releases and reviewed deployment
 
-For the rebuilt rc.2 package, read the exact source revision from its root
-`docs-manifest.json`; canonical Markdown lives under `docs/`. The existing
-published rc.1 workshop package uses `dist/docs/manifest.json` and
-`dist/docs/docs/`. Keep that older layout scoped to rc.1 and remove its runtime
-path when the workshop upgrades.
+Read the exact released source revision from the package's root
+`docs-manifest.json`; canonical Markdown lives under `docs/`. The website runtime
+and imported documentation must match that published artifact.
 
 Check out the released source revision cleanly in the library and run
 `npm run docs:export`. Import the complete consumer snapshot with

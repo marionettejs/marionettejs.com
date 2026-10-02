@@ -107,12 +107,9 @@ const StationConsole = View.extend({
       );
     }
   },
-  async onClickClose() {
-    const attempt = ++this.attempt;
-    await this.application.stop();
-    if (attempt !== this.attempt || this.isDestroyed()) {
-      return;
-    }
+  onClickClose() {
+    ++this.attempt;
+    this.application.stop();
     this.present(
       'closed',
       'CLOSED. The Application has no flight screen. Open again for a fresh start.',
@@ -121,12 +118,9 @@ const StationConsole = View.extend({
   onClickFailPreparation() {
     this.getChildView('loader').fail();
   },
-  async onClickDestroy() {
-    const attempt = ++this.attempt;
-    await this.application.destroy();
-    if (attempt !== this.attempt || this.isDestroyed()) {
-      return;
-    }
+  onClickDestroy() {
+    ++this.attempt;
+    this.application.destroy();
     this.present(
       'destroyed',
       'DESTROYED. Even mission control has left the building. Reset to build a new Application.',
@@ -165,7 +159,7 @@ const StationConsole = View.extend({
   },
   releaseApplication() {
     this.attempt++;
-    this.application?.destroy().catch(error => console.error(error));
+    this.application?.destroy();
   },
   onBeforeDestroy() {
     this.releaseApplication();

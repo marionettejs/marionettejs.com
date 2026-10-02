@@ -10,7 +10,8 @@ const out = resolve(root,'dist');
 const port = Number(process.env.MARIONETTE_PREVIEW_PORT || 4175);
 const clients = new Set();
 const serveBuilt = process.argv.includes('--serve-built');
-const build = () => spawnSync(process.execPath,['scripts/build.mjs'],{cwd:root,stdio:'inherit'}).status === 0;
+const build = () => ['scripts/build-workshop-starter.mjs', 'scripts/build-demo-projects.mjs', 'scripts/build.mjs']
+  .every(script => spawnSync(process.execPath, [script], { cwd: root, stdio: 'inherit' }).status === 0);
 if (!serveBuilt && !build()) process.exit(1);
 const types={'.png':'image/png','.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.md':'text/markdown; charset=utf-8','.txt':'text/plain; charset=utf-8','.json':'application/json; charset=utf-8','.wasm':'application/wasm'};
 const server=createServer(async(req,res)=>{

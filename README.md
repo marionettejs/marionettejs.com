@@ -1,4 +1,4 @@
-# Marionette website — candidate documentation integration
+# Marionette website — v5 documentation integration
 
 The live site is marionettejs.com; www.marionettejs.com and v5.marionettejs.com
 also work. Cloudflare Pages serves one complete artifact.
@@ -7,20 +7,19 @@ The apex is canonical; v5 remains a noindexed mirror.
 Source lives in `marionettejs/marionettejs.com`. Earlier design commits and checkouts remain
 preserved in the old website repository. The local preview still binds to loopback.
 
-## Candidate integration
+## Versioned integration
 
-This branch imports rebuilt rc.2 consumer docs with `npm run docs:import -- /path/to/export`.
-Its publication metadata identifies local candidate source; `latest` is the exported
-routing label and does not assert npm publication. Browser demos and workshops
-remain pinned to published rc.1, with separate `/reference/provenance.json`.
+This integration targets `marionette@5.0.0-rc.2` across documentation, browser demos
+and workshops. Import consumer docs with `npm run docs:import -- /path/to/export`.
 Website and MCP retrieval use the same imported corpus and packaged records assets.
-Builds do not publish the candidate, the website, or the MCP service.
+Runtime version and revision come from the installed package's vendor provenance;
+`/docs/manifest.json` identifies the documentation snapshot. Builds do not publish
+the package, website, or MCP service.
 
-A complete import replaces the old corpus and its navigation. Preserve matching
-snapshot bytes and hashes; remove obsolete publication overlays. Import the
-final reviewed clean export, run `npm run check`, and review desktop/narrow docs
-before requesting any publication. A main merge deploys both services, so the
-candidate release and endpoint/version policy must be decided before merging.
+A complete import replaces the corpus and its navigation. Preserve matching
+snapshot bytes and hashes; import the reviewed clean released source and verify it
+against the installed registry archive before setting published metadata. Run
+`npm run check` and review desktop/narrow docs. A main merge deploys both services.
 
 ## Deployment
 
@@ -140,12 +139,13 @@ reassessment and remaining gates.
 CSS, the live example, and copied draft brand SVGs. `scripts/build.mjs` produces
 static files in ignored `dist/`. `scripts/dev.mjs` serves only that output.
 
-`site/vendor/marionette.js` bundles the published `marionette@5.0.0-rc.1`
+`site/vendor/marionette.js` bundles the exact published `marionette` version
 with matching `@mnjs/radio` and `@mnjs/utils` from package-lock.json. Run
 `npm run vendor:build` after an intentional package upgrade. It verifies the
 package/docs versions, bundles ESM with esbuild, includes all MIT licenses, and
 records the npm integrity and resulting bundle hash in `content/provenance.json`.
-The homepage and playground retain that published runtime. Imported candidate documentation has its own manifest and publication status.
+The homepage and playground use that runtime. Imported documentation must match
+its package version and source revision before publication.
 
 ## Launch copy
 
@@ -256,34 +256,24 @@ within the imported snapshot. Code remains intact. Diagnostic schemas are hashed
 assets from the same export, rather than an independently maintained supplement.
 
 `content/docs-publication-edits.json` records publication status and any reviewed
-reading-copy changes separately. This integration has no editorial overlay. Website
-and MCP builds use the same corpus hashes and source identity. Their included records
-example comes from the same packaged source assets; the browser workshop retains
-its separate published runtime and does not establish candidate behavior.
+reading-copy changes separately. Website and MCP builds use the same corpus hashes
+and source identity. Their included records example comes from the same packaged
+source assets. The browser workshop identifies its exact runtime independently.
 
 Published documentation labels require a clean snapshot matching the installed npm
-archive, including its revision, content digest and locked registry integrity. The
-current rc.1 workshop pin therefore prevents marking rc.2 docs as published. To
-remove this gate after an authorized rc.2 release, update the exact core/data
-package pins, lockfile and the version guard in `scripts/build-vendor.mjs`,
-rebuild both vendor bundles and their provenance, import
-the matching published documentation archive, and pass the workshop, docs and MCP
-checks before changing publication status. Remove the rc.1 manifest-layout choice
-in `scripts/published-docs.mjs` when that workshop upgrade is complete.
-
-For rc.2, perform the registry upgrade as one reviewed change after publication:
+archive, including its revision, content digest and locked registry integrity.
+After an authorized release, upgrade the exact core/data pins together:
 
 ```sh
 npm install --save-dev --save-exact marionette@5.0.0-rc.2 @mnjs/data@5.0.0-rc.2
 npm ls marionette @mnjs/data @mnjs/radio @mnjs/utils
 ```
 
-Require all four installed versions to match. Switch the vendor builder to the
-root `docs-manifest.json`, require the exact rc.2 version and clean source, and
-remove its rc.1 layout and version assertion. Update the workshop brief, runtime,
-recipes, export assertions and README/AGENTS pins from the installed artifact's
-version and source revision. Rebuild with `npm run vendor:build` and
-`npm run vendor:demos`; verify both resulting hashes and license bundles.
+Require all four installed versions to match. The vendor builder reads the package's
+root `docs-manifest.json` and requires RC2 with clean source. Rebuild with
+`npm run vendor:build` and `npm run vendor:demos`; verify both resulting hashes and
+license bundles. `npm run build` derives the workshop brief, runtime, recipes and
+export identity from the resulting provenance, including the released source revision.
 
 Compare every imported page and supporting asset with the installed registry
 archive before setting published metadata. Run `npm run check`,
@@ -292,7 +282,6 @@ archive before setting published metadata. Run `npm run check`,
 verification. A local candidate import may be checked before publication, with
 its candidate status retained. Final deployment must use the matching registry
 runtime and verified publication metadata.
-
 
 
 Marked escapes raw HTML and blocks unsafe URL schemes. Pagefind builds a static

@@ -12,6 +12,8 @@ test('CodePen export preserves the draft and exact runtime without HTML parser b
   const app = { ...starter, title: 'Quotes " & 한국어 </script>', code: `${starter.code}\n// unsaved edit: </script>` };
   const output = codePenData(app, vendor, license);
   assert.equal(output.title, app.title);
+  assert.ok(output.description.includes(`marionette@${version}`));
+  assert.ok(output.description.includes(revision));
   assert.ok(output.js.endsWith(app.code));
   assert.ok(output.css.endsWith(app.css));
   const runtime = JSON.parse(output.html.match(/<script[^>]*>([\s\S]*)<\/script>/)[1]);
@@ -29,7 +31,9 @@ test('the discoverable brief embeds the exact executable starter', async () => {
   assert.equal(starter.code, (await readFile(new URL('../site/workshop/app.js', import.meta.url), 'utf8')).trimEnd());
   assert.equal(starter.css, await readFile(new URL('../site/workshop/style.css', import.meta.url), 'utf8'));
   assert.ok(!brief.includes('<!-- playground-starter -->'));
-  assert.ok(brief.includes(`https://github.com/marionettejs/marionette/blob/${revision}/docs/compact-reference.md`), 'Workshop API guidance must match its runtime revision');
+  assert.ok(brief.includes(`marionette@${version}`));
+  assert.doesNotMatch(brief, /\{\{runtime(?:Version|Revision)\}\}/);
+  assert.ok(brief.includes(`https://github.com/marionettejs/marionette/blob/${revision}/docs/api.md`), 'Workshop API guidance must match its runtime revision');
 });
 
 test('app submissions reject malformed, oversized and extra inputs before execution', () => {

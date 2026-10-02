@@ -83,6 +83,6 @@ if (document.modelContext?.registerTool) {
 addEventListener('pagehide', event => {
   if (!event.persisted) {
     toolsLifetime.abort();
-    app.destroy().catch(error => console.warn('Application example cleanup failed.', error));
+    app.destroy();
   }
 });

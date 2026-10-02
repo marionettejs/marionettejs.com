@@ -12,7 +12,7 @@ const demo = `<section class="demo application-demo" id="demo" aria-labelledby="
   <p class="demo-status" id="demo-status" role="status">One Application. A screen with independently owned parts.</p>
 </section>`;
 
-export const home = {title:'Marionette 5 RC.1 — JavaScript library for agent-led development',description:'Build JavaScript applications with explicit structure, ownership, and lifecycles. Tuned for coding agents, with data and rendering tools you choose.',active:'home',body:`
+export const home = {title:`Marionette 5 RC.${candidateNumber} — JavaScript library for agent-led development`,description:'Build JavaScript applications with explicit structure, ownership, and lifecycles. Tuned for coding agents, with data and rendering tools you choose.',active:'home',body:`
 <div class="opening-act"><svg class="opening-thread" aria-hidden="true"><path/></svg>
 <section class="night-hero">
   <div class="hero-grid" aria-hidden="true"></div>
@@ -54,7 +54,7 @@ ${invitation}
  </figure>
 </section>
 <section class="night-honesty"><p class="eyebrow">03 / REASONABLE SUPERVISION</p><h2>We’re optimistic<br>about agents.<br><em>We’ve also read<br>the diffs.</em></h2><div><p>An agent can write the next feature. You should be able to follow what changed.</p><p>Marionette makes ownership explicit, gives changes a place to belong, and keeps the structure visible to whoever reads the diff.</p><a class="text-link" href="/why/#evidence">See the structure at work →</a></div><span class="honesty-mark" aria-hidden="true">*</span></section>
-<section class="night-closing"><p class="eyebrow">YES, THAT MARIONETTE.</p><h2>A familiar name.<br><span>Still pulling strings.</span></h2><p>Choose your data and rendering tools.<br>Marionette gives the application its structure.</p><a class="button" href="/why/">Explore Marionette 5 RC.1 <span aria-hidden="true">↗</span></a></section>
+<section class="night-closing"><p class="eyebrow">YES, THAT MARIONETTE.</p><h2>A familiar name.<br><span>Still pulling strings.</span></h2><p>Choose your data and rendering tools.<br>Marionette gives the application its structure.</p><a class="button" href="/why/">Explore Marionette 5 RC.${candidateNumber} <span aria-hidden="true">↗</span></a></section>
 ${demosInvitation}
 <section class="home-support" aria-labelledby="home-support-title">
  <div><p class="eyebrow">OPEN SOURCE / HUMAN MAINTAINED</p><h2 id="home-support-title">A little help behind the strings.</h2><p>Support the maintenance, docs, and releases through GitHub Sponsors.<br>Or put your very specific taste in JavaScript on a T-shirt.</p><a class="text-link" href="/thanks/">Meet the people and tools behind Marionette →</a></div>

@@ -3,14 +3,17 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+const installedPackage = JSON.parse(await readFile('node_modules/marionette/package.json', 'utf8'));
+const declaration = JSON.parse(await readFile('content/docs-publication-edits.json', 'utf8'));
+
 test('canonical consumer guides replace obsolete instructional paths', async () => {
   const { manifest, pages } = await readSnapshot('content/library-docs');
-  assert.equal(manifest.packageVersion, '5.0.0-rc.2');
+  assert.equal(manifest.packageVersion, installedPackage.version);
   for (const source of ['docs/quick-start.md', 'docs/tooling.md', 'docs/guides/testing.md', 'docs/guides/production.md']) {
     const page = pages.find(page => page.source === source);
     assert.equal(await readFile(`dist/docs/markdown/${source}`, 'utf8'), page.markdown);
     const html = await readFile(`dist/${page.route}/index.html`, 'utf8');
-    assert.ok(html.includes('development candidate (local source)'));
+    assert.ok(html.includes(declaration.status));
     assert.ok(html.includes(manifest.sourceRevision.slice(0, 8)));
   }
   const redirects = await readFile('dist/_redirects', 'utf8');
@@ -24,6 +27,7 @@ test('diagnostics use the matching catalog without obsolete example supplements'
     if (document.id !== 'errors/index') assert.ok(document.markdown.includes('/docs/tooling/'));
   }
   const demo = JSON.parse(await readFile('dist/reference/provenance.json', 'utf8'));
-  assert.equal(demo.packageVersion, '5.0.0-rc.1');
-  assert.ok(demo.documentationNote.includes('separate provenance'));
+  assert.equal(demo.packageVersion, installedPackage.version);
+  const manifest = JSON.parse(await readFile('dist/docs/manifest.json', 'utf8'));
+  assert.equal(demo.libraryRevision, manifest.sourceRevision);
 });

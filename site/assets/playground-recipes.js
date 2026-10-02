@@ -1,12 +1,8 @@
 import { projects } from './demo-projects.js';
 import todoCSS from './todomvc-style.js';
+import { runtime } from './workshop-starter.js';
 
-export const recipeRuntime = Object.freeze({
-  "package": "marionette",
-  "version": "5.0.0-rc.1",
-  "revision": "469e790fea03993a5c063e39028445ac3610c9e4",
-  "data": Object.freeze({ "package": "@mnjs/data", "version": "5.0.0-rc.1" })
-});
+export const recipeRuntime = Object.freeze({ ...runtime, data: Object.freeze(runtime.data) });
 
 const css = `
 body { background:#f6f0e3; color:#292c35; }

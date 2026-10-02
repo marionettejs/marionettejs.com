@@ -1,7 +1,7 @@
 {
   "packageVersion": "5.0.0-rc.2",
-  "reason": "Canonical rebuilt consumer documentation imported from its versioned candidate snapshot; no editorial overlay.",
+  "reason": "Canonical documentation and supporting assets imported byte for byte from the matching published npm package; no editorial overlay.",
   "channel": "latest",
-  "status": "development candidate (local source)",
+  "status": "release candidate (published on npm)",
   "edits": []
 }

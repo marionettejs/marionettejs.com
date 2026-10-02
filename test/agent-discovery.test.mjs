@@ -41,7 +41,8 @@ test('corpus retrieval returns exact published Markdown and distinct source iden
     }
   }
   assert.equal(corpus.documents.filter(doc => doc.kind === 'guide').length, pages.length);
-  assert.equal(corpus.publication, 'development candidate (local source)');
+  const declaration = JSON.parse(await readFile(new URL('../content/docs-publication-edits.json', import.meta.url), 'utf8'));
+  assert.equal(corpus.publication, declaration.status);
   assert.ok(corpus.documents.some(doc => doc.id === 'docs/guides/production.md'));
 });
 

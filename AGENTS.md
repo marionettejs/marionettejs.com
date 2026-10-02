@@ -1,7 +1,7 @@
 # Website prototype
 
-This integration branch imports rebuilt rc.2 candidate documentation. Browser
-demos and workshops remain pinned to published rc.1 with separate provenance.
+This integration targets Marionette 5.0.0-rc.2 for the documentation, browser
+demos and workshops. Use the matching published package and verified provenance.
 A build or import does not establish deployment or publication approval.
 Merging to `main` publishes the site and documentation MCP and verifies both
 in the same run; see the deployment section of README.md.
@@ -14,14 +14,16 @@ v4.marionettejs.com GitHub Pages archive while those releases have consumers.
 This is the independent website repository. The earlier prototype and design
 options remain in their existing checkouts; preserve them. Keep the website independent of the library's working directory.
 Use the exact published release candidate pinned in package-lock.json for the demos and
-personal workshop. The local consumer path now targets RC.1; this does not
-establish that it has been deployed. Rebuild core with `npm run vendor:build`,
+personal workshop. Runtime and documentation versions and source revisions must
+match the installed artifact; a local build does not establish deployment.
+Rebuild core with `npm run vendor:build`,
 then the core/data consumer bundle with `npm run vendor:demos`; never substitute
 a moving local build.
 
 The personal-app brief is `site/agent-prompt.md`. Its executable starter is authored
 in `site/workshop/app.js` and `style.css`; `npm run build` generates the runtime
-strings and embeds both sources in the brief. Edit those sources, not generated
+strings and embeds both sources in the brief. Runtime version and revision are
+derived from vendor provenance. Edit those sources, not generated
 `site/assets/workshop-starter.js`. Verify the full browser suite and
 `node test/browser/personal-preview.mjs` after changing this path. Fresh-agent
 evaluation requires the declared profile in `test/personal-app-evaluation.md`;

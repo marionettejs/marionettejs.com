@@ -193,12 +193,13 @@ test('supporting assets reject symlink escapes after safe manifest paths', async
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
 
-test('reading copies expose modular class navigation and truthful candidate provenance', async () => {
+test('reading copies expose modular class navigation and truthful publication provenance', async () => {
   const application = await readFile(resolve(root, 'dist/docs/api/application/index.html'), 'utf8');
   assert.match(application, /id="prepare-before-showing-ui"/);
   assert.match(application, /href="\/docs\/api\/view\/"/);
   const llms = await readFile(resolve(root, 'dist/docs/llms.txt'), 'utf8');
-  assert.ok(llms.includes('Channel: latest\nPublication: development candidate (local source)'));
+  const publication = JSON.parse(await readFile(resolve(root, 'content/docs-publication-edits.json'), 'utf8'));
+  assert.ok(llms.includes(`Channel: ${publication.channel}\nPublication: ${publication.status}`));
   assert.doesNotMatch(application, /npm archive|homepage demo runs this release candidate/i);
 });
 
@@ -216,11 +217,11 @@ test('diagnostic catalog schemas resolve beside all catalog copies with pinned p
   }
 });
 
-test('diagnostic link rewrites preserve fenced, indented, and inline code examples', () => {
+test('diagnostic link rewrites preserve fenced, indented, and inline code examples', async () => {
   const link = '[`MN0023`](diagnostic-catalog.md#look-up-a-code)';
   const code = `\`\`\`md\n${link}\n\`\`\`\n\n    ${link}\n\n\`\`${link}\`\`\n\n\`\`multiline\n${link}\n[ref]: api/region.md\n\`\``;
   const page = { source: 'docs/example.md', route: 'docs/example', title: 'Example', sha256: 'a'.repeat(64), markdown: `# Example\n\n**${link}**\n\n${code}\n` };
-  const manifest = { packageVersion: '5.0.0-rc.2', channel: 'latest', sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) };
+  const { manifest } = await readSnapshot(source);
   const derived = deriveMarkdown(page, [], manifest);
   assert.ok(derived.includes('**[`MN0023`](/errors/MN0023.md)**'));
   assert.ok(derived.includes(code), 'All code examples remain byte-for-byte unchanged');

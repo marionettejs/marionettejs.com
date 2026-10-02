@@ -45,8 +45,12 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
   for (const sourceRevision of [undefined, '0'.repeat(40)]) {
     for (const name of ['search_docs', 'search_sections']) {
       const response = await client.callTool({ name, arguments: { query: 'Region', version, sourceRevision } });
-      assert.equal(response.isError, true);
-      assert.match(response.content[0].text, /Source revision mismatch/);
+      if (sourceRevision === undefined && corpus.publication.endsWith('(published on npm)')) {
+        unpack(response);
+      } else {
+        assert.equal(response.isError, true);
+        assert.match(response.content[0].text, /Source revision mismatch/);
+      }
     }
   }
   const sectionSearch = unpack(await client.callTool({ name: 'search_sections', arguments: { sourceRevision: corpus.sourceRevision, query: 'detachView', version, limit: 5 } }));
@@ -205,7 +209,7 @@ test('server refuses stale provenance and tampered Markdown before serving tools
   t.after(() => rm(fixture, { recursive: true, force: true }));
   for (const directory of ['mcp', 'scripts', 'content', 'dist/docs']) await mkdir(join(fixture, directory), { recursive: true });
   await cp(new URL('content/library-docs', root), join(fixture, 'content/library-docs'), { recursive: true });
-  for (const path of ['scripts/heading-ids.mjs', 'mcp/index-sections.mjs', 'mcp/sections.mjs', 'mcp/server.mjs', 'mcp/load.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'content/docs-publication-edits.json', 'scripts/library-docs.mjs', 'scripts/published-docs.mjs', 'scripts/publication-status.mjs', 'scripts/agent-discovery.mjs']) {
+  for (const path of ['package-lock.json', 'scripts/heading-ids.mjs', 'mcp/index-sections.mjs', 'mcp/sections.mjs', 'mcp/server.mjs', 'mcp/load.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'content/docs-publication-edits.json', 'scripts/library-docs.mjs', 'scripts/published-docs.mjs', 'scripts/publication-status.mjs', 'scripts/agent-discovery.mjs']) {
     await cp(new URL(path, root), join(fixture, path));
   }
   await writeFile(join(fixture, 'package.json'), '{"type":"module"}');
@@ -215,7 +219,8 @@ test('server refuses stale provenance and tampered Markdown before serving tools
   assert.equal((await loader.loadSnapshot()).documents.length, corpus.documents.length);
   const stale = structuredClone(corpus); stale.sourceRevision = '0'.repeat(40);
   const tampered = structuredClone(corpus); tampered.documents[0].markdown += '\nUnverified replacement';
-  const publication = structuredClone(corpus); publication.publication = 'release candidate (published on npm)';
+  const publication = structuredClone(corpus); publication.publication = corpus.publication.endsWith('(published on npm)')
+    ? 'development candidate (local source)' : 'release candidate (published on npm)';
   const missingReference = structuredClone(corpus); missingReference.documents = missingReference.documents.filter(doc => doc.id !== 'docs/architecture.md');
   for (const invalid of [stale, tampered, publication, missingReference]) {
     await writeFile(join(fixture, 'dist/docs/corpus.json'), JSON.stringify(invalid));

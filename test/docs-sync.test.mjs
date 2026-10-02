@@ -135,6 +135,7 @@ test('routing sync builds and validates independently, rejecting corrupted deliv
   await symlink(new URL('../node_modules', import.meta.url).pathname, join(root, 'node_modules'), 'dir');
   const publicationPath = join(root, 'content/docs-publication-edits.json');
   const publication = JSON.parse(await readFile(publicationPath, 'utf8'));
+  publication.status = 'development candidate (local source)';
   const archive = JSON.parse(await readFile(join(root, 'content/library-docs/manifest.json'), 'utf8'));
   const routing = archive.pages.find(page => page.source === 'docs/guides/routing.md');
   const original = await readFile(join(root, 'content/library-docs', routing.source), 'utf8');
@@ -157,7 +158,7 @@ test('routing sync builds and validates independently, rejecting corrupted deliv
   git(root, 'config', 'user.email', 'test@example.invalid');
   git(root, 'add', 'content'); git(root, 'commit', '-qm', 'docs: archive fixture');
   const run = promisify(execFile);
-  for (const script of ['scripts/build-demo-projects.mjs', 'scripts/build.mjs', 'scripts/build-mcp.mjs']) {
+  for (const script of ['scripts/build-workshop-starter.mjs', 'scripts/build-demo-projects.mjs', 'scripts/build.mjs', 'scripts/build-mcp.mjs']) {
     await run(process.execPath, [script], { cwd: root });
   }
   await run(process.execPath, ['--test', 'test/docs.test.mjs', 'test/site.test.mjs', 'test/agent-discovery.test.mjs', 'test/release.test.mjs'], { cwd: root });
