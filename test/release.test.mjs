@@ -91,7 +91,7 @@ test('worker retirement finishes when one closing window rejects navigation', as
 test('publication overrides retain complete source identity without rewriting the archive', async () => {
   const publication = JSON.parse(await read('dist/docs/publication.json'));
   const originals = JSON.parse(await read('content/library-docs/manifest.json'));
-  for (const edit of publication.edits.filter(edit => edit.sourceRevision)) {
+  for (const edit of publication.edits) {
     assert.match(edit.sourceRevision, /^[a-f0-9]{40}$/);
     const archived = await read(`dist/docs/markdown/${edit.source}`);
     assert.equal(createHash('sha256').update(archived).digest('hex'),
@@ -102,10 +102,10 @@ test('publication overrides retain complete source identity without rewriting th
     // Compare every byte of the delivered reading copy, including prose, while
     // allowing the documented link rewriting and provenance/footer additions.
     assert.equal(await read(`dist${markdownUrl(page)}`), deriveMarkdown(page, originals.pages, originals), edit.source);
-    if (edit.readingSha256) {
-      assert.equal(createHash('sha256').update(edit.after).digest('hex'), edit.readingSha256);
-      assert.match(edit.sourceSha256, /^[a-f0-9]{64}$/);
-    }
+    assert.match(edit.sourceSha256, /^[a-f0-9]{64}$/);
+    assert.match(edit.readingSha256, /^[a-f0-9]{64}$/);
+    assert.equal(createHash('sha256').update(archived).digest('hex'), edit.sourceSha256);
+    assert.equal(createHash('sha256').update(edit.after).digest('hex'), edit.readingSha256);
   }
 });
 
