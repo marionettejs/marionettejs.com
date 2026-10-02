@@ -2,7 +2,7 @@ import { projects } from './demo-projects.js';
 import todoCSS from './todomvc-style.js';
 import { runtime } from './workshop-starter.js';
 
-export const recipeRuntime = Object.freeze({ ...runtime, data: Object.freeze(runtime.data) });
+export const recipeRuntime = Object.freeze({ ...runtime, data: Object.freeze({ ...runtime.data }) });
 
 const css = `
 body { background:#f6f0e3; color:#292c35; }

@@ -36,7 +36,7 @@ test('the brief delivers runtime and ownership first, with the exact starter ava
   assert.equal(starter.css, await readFile(new URL('../site/workshop/style.css', import.meta.url), 'utf8'));
   assert.ok(!brief.includes('<!-- playground-starter -->'));
   assert.ok(brief.includes(`marionette@${version}`));
-  assert.doesNotMatch(brief, /\{\{runtime(?:Version|Revision)\}\}/);
+  assert.doesNotMatch(brief, /\{\{[^}]+\}\}/);
   assert.ok(brief.includes(`https://github.com/marionettejs/marionette/blob/${revision}/docs/api.md`), 'Workshop API guidance must match its runtime revision');
 });
 

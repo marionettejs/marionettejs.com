@@ -40,4 +40,9 @@ const server=createServer(async(req,res)=>{
 server.on('error',err=>{console.error(err.message);process.exit(1);});
 server.listen(port,'127.0.0.1',()=>console.log(`Local preview: http://127.0.0.1:${server.address().port}/`));
 let timer;
-if (!serveBuilt) for(const dir of ['site','content','scripts'])watch(resolve(root,dir),{recursive:true},()=>{clearTimeout(timer);timer=setTimeout(()=>{if(build())for(const client of clients)client.write('data: reload\n\n');},160);});
+const generatedAssets = new Set(['assets/workshop-starter.js', 'assets/demo-projects.js', 'assets/demo-project-tools.js']);
+if (!serveBuilt) for (const dir of ['site', 'content', 'scripts']) watch(resolve(root, dir), { recursive:true }, (_event, filename) => {
+  if (dir === 'site' && generatedAssets.has(filename?.replaceAll('\\', '/'))) return;
+  clearTimeout(timer);
+  timer = setTimeout(() => { if (build()) for (const client of clients) client.write('data: reload\n\n'); }, 160);
+});
