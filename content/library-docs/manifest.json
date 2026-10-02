@@ -4,23 +4,23 @@
   "packageVersion": "5.0.0-rc.2",
   "channel": "latest",
   "sourceRepository": "https://github.com/marionettejs/marionette",
-  "sourceRevision": "1eb1f56fd9bba481ee833fd7df53a9a2edd9f800",
+  "sourceRevision": "1d4dbe77ebb1e29f46075684e1f7428d59b1edad",
   "sourceDirty": false,
-  "contentSha256": "c25b901d10f5294ebaec59eea32cc32a0cef36041fa566783a2634fdb7b4164f",
+  "contentSha256": "b38a6f15478dafb83211b9383220c86cf73e7b4aee548a61f306fe7cbfd70030",
   "pages": [
     {
       "source": "docs/readme.md",
       "route": "docs",
       "title": "Marionette v5 documentation",
       "section": "Start here",
-      "sha256": "3c47b021bb60713b1d80346a320cc37e4a7ed6fdebb871f2c3df06342484cd47"
+      "sha256": "f9ce550f1304812ba03d20259dcd629d1285310a833d86c1d55a291da63c5499"
     },
     {
       "source": "docs/quick-start.md",
       "route": "docs/quick-start",
       "title": "Install and render a View",
       "section": "Start here",
-      "sha256": "9a01001c583a26792e02b4b5df9259ee86c6f9bf9dcde5156dc38089af2f2637"
+      "sha256": "8247f0aea271ccbd585f044f26ff37bc2d2f9b88ab6b7165cae905767c8a113c"
     },
     {
       "source": "docs/architecture.md",
@@ -34,7 +34,7 @@
       "route": "docs/agents",
       "title": "Agent workflow",
       "section": "Start here",
-      "sha256": "6df9cf3573e8d77edfe649130e40ebb5033d43b159b734e5665ae3ba6fe98cee"
+      "sha256": "1a9bc577df53bd90372c2aed5d29e5c43bda6d1b8794cc96aa5263a8c606964b"
     },
     {
       "source": "docs/api.md",
@@ -111,7 +111,7 @@
       "route": "docs/api/shared/view-bindings",
       "title": "Rendering and View bindings",
       "section": "Shared class contracts",
-      "sha256": "7bb193ccf1541859eabf927f45217febd8b0251ab4c9f74c0fdfc218ded5b167"
+      "sha256": "f1dc8acd160f1bf8b59f5cf0ac3b4582122135d0481fafa8c246475e05a10130"
     },
     {
       "source": "docs/api/errors.md",
@@ -286,7 +286,7 @@
     },
     {
       "source": "skills/marionette/SKILL.md",
-      "sha256": "be7eac70ef871a8ab7221092586711e7085d4589fcf1ec0d996f068e8425944f"
+      "sha256": "beda360e5090993ae10dd7f0ac44b913a8ff92ef23f212673cdd18aa74a28ec5"
     },
     {
       "source": "skills/marionette/agents/openai.yaml",
@@ -302,7 +302,7 @@
     },
     {
       "source": "skills/marionette/scripts/symbols.mjs",
-      "sha256": "6681e72d8c52cd5b1395b8a76692f04b2a7c674d9f85574c51494592a09d9678"
+      "sha256": "86518119d7e8ac6ad43c4ef40b805f7c02326ccdebb8d134708c301e9fcdfeca"
     },
     {
       "source": "examples/records/README.md",
@@ -374,11 +374,11 @@
     },
     {
       "source": "docs-sections.json",
-      "sha256": "2a8981d90410533cb6d9d1780b366cc207f7de959c2320c8000674c118b00076"
+      "sha256": "16259e459a4abbcf84a948297adce41b8b9ee8988fc09555124fe392c56c4bd3"
     },
     {
       "source": "docs-symbols.json",
-      "sha256": "1a832b9ad220cc1d745b5d178cc0393613beaa857c79efde53903d2bfd90a5e7"
+      "sha256": "0a386e550d6df88009aabfd989644ef575be7a337f4bfa9561ffd37e928d3685"
     }
   ]
 }
