@@ -92,6 +92,11 @@ browser suite checks this by blocking its script; verify the actual widget on th
 allowed deployed domain after merging. Chat billing is not specified in the widget
 guide; do not infer it from API or private-parsing prices.
 
+All HTML pages include the deferred Docs7 analytics script for connected site
+`b83657b2-fde7-4916-a683-2d3ba41f185b`. This is a public site identifier, not an API
+key. Analytics appears in that site's Docs7 dashboard after deployment; embedding
+the script alone does not establish that visits have been recorded.
+
 Publishing needs the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`
 secrets in the `production` environment. The token needs Pages Edit for the
 deployment account and Individual Workers
