@@ -10,7 +10,8 @@ const out = resolve(root,'dist');
 const port = Number(process.env.MARIONETTE_PREVIEW_PORT || 4175);
 const clients = new Set();
 const serveBuilt = process.argv.includes('--serve-built');
-const build = () => spawnSync(process.execPath,['scripts/build.mjs'],{cwd:root,stdio:'inherit'}).status === 0;
+const build = () => ['scripts/build-workshop-starter.mjs', 'scripts/build-demo-projects.mjs', 'scripts/build.mjs']
+  .every(script => spawnSync(process.execPath, [script], { cwd: root, stdio: 'inherit' }).status === 0);
 if (!serveBuilt && !build()) process.exit(1);
 const types={'.png':'image/png','.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.md':'text/markdown; charset=utf-8','.txt':'text/plain; charset=utf-8','.json':'application/json; charset=utf-8','.wasm':'application/wasm'};
 const server=createServer(async(req,res)=>{
@@ -39,4 +40,9 @@ const server=createServer(async(req,res)=>{
 server.on('error',err=>{console.error(err.message);process.exit(1);});
 server.listen(port,'127.0.0.1',()=>console.log(`Local preview: http://127.0.0.1:${server.address().port}/`));
 let timer;
-if (!serveBuilt) for(const dir of ['site','content','scripts'])watch(resolve(root,dir),{recursive:true},()=>{clearTimeout(timer);timer=setTimeout(()=>{if(build())for(const client of clients)client.write('data: reload\n\n');},160);});
+const generatedAssets = new Set(['assets/workshop-starter.js', 'assets/demo-projects.js', 'assets/demo-project-tools.js']);
+if (!serveBuilt) for (const dir of ['site', 'content', 'scripts']) watch(resolve(root, dir), { recursive:true }, (_event, filename) => {
+  if (dir === 'site' && generatedAssets.has(filename?.replaceAll('\\', '/'))) return;
+  clearTimeout(timer);
+  timer = setTimeout(() => { if (build()) for (const client of clients) client.write('data: reload\n\n'); }, 160);
+});

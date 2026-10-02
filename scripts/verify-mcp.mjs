@@ -1,3 +1,4 @@
+import { isCandidatePublication } from './publication-status.mjs';
 import assert from 'node:assert/strict';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +37,7 @@ export async function verifyMcp(endpoint, expectedRevision) {
     const catalog = JSON.parse(catalogs[0].contents[0].text);
     assert.equal(catalog.provenance.packageVersion, version);
     const call = async (name, args, error = false) => {
-      const results = await Promise.all(clients.map(c => c.callTool({ name, arguments: { version, ...args } })));
+      const results = await Promise.all(clients.map(c => c.callTool({ name, arguments: { version, sourceRevision: corpus.sourceRevision, ...args } })));
       assert.deepEqual(results[0], results[1], `${name} transport parity`); calls++;
       assert.equal(results[0].isError === true, error, JSON.stringify(results[0].content).slice(0,500));
       if (error) return results[0];
@@ -44,10 +45,14 @@ export async function verifyMcp(endpoint, expectedRevision) {
       assert.deepEqual(results[0].structuredContent.provenance, catalog.provenance);
       return results[0].structuredContent;
     };
+    if (isCandidatePublication(corpus.publication)) for (const sourceRevision of [undefined, '0'.repeat(40)]) {
+      const error = await call('search_docs', { query: 'Region', sourceRevision }, true);
+      assert.match(error.content[0].text, /Source revision mismatch/);
+    }
     for (const query of ['Region', 'safely textContent', 'preserve draft while another list row changes', 'cancellation async startup', 'how do I diagnose MN0023?', 'zzzznosuchcontract', '__proto__', 'constructor', 'a'.repeat(200), 'View Region state data collection events render template lifecycle model application destroy '.repeat(2)]) {
       await call('search_docs', { query, limit: 10 });
     }
-    const sections = await call('search_sections', { query: 'detachView', limit: 10 });
+    const sections = await call('search_sections', { query: 'detachView', limit: 5 });
     const section = sections.results.find(item => item.characters <= 30_000);
     assert.ok(section);
     const selected = await call('get_sections', { ids: [section.id], maxCharacters: 30_000 });
@@ -57,7 +62,7 @@ export async function verifyMcp(endpoint, expectedRevision) {
     assert.equal(omitted.omitted[0].id, section.id);
     await call('get_sections', { ids: ['../secret'] }, true);
     await call('get_sections', { ids: [section.id], version: 'latest' }, true);
-    await call('search_sections', { query: 'the and' }, true);
+    assert.equal((await call('search_sections', { query: 'the and' })).total, 0);
     // Concurrent requests must retain query-specific content and pagination.
     const regionMatches = await call('search_docs', { query: 'Region', limit: 5 });
     assert.ok(regionMatches.total > 5);
@@ -89,19 +94,22 @@ export async function verifyMcp(endpoint, expectedRevision) {
       } while (offset !== null);
       assert.equal(text, doc.markdown);
     }
-    const { recipes } = await import('../site/assets/playground-recipes.js');
+    const { loadSnapshot } = await import('../mcp/load.mjs');
+    const localExamples = (await loadSnapshot()).examples;
     for (const example of catalog.examples) {
+      const localExample = localExamples.find(item => item.id === example.id);
+      assert.ok(localExample, `Deployed example ${example.id} is absent from the local snapshot.`);
       let text = ''; offset = 0;
       do {
         const page = await call('get_example', { name: example.id, offset, limit: 1000 });
         text += page.content; offset = page.nextOffset;
       } while (offset !== null);
-      assert.deepEqual(JSON.parse(text), recipes.find(r => r.id === example.id));
+      assert.deepEqual(JSON.parse(text), JSON.parse(localExample.text), `Example content differs: ${example.id}`);
     }
     for (const unsupported of ['latest', 'next', '5', '4.1.3', '5.0.0-beta.1', `${version} `]) {
       for (const [name, args] of [['search_docs', { query: 'Region' }], ['get_doc', { path: corpus.documents[0].id }], ['get_example', { name: catalog.examples[0].id }]]) {
         const error = await call(name, { ...args, version: unsupported }, true);
-        assert.match(error.content[0].text, /Unsupported version:.*Supported version: 5\.0\.0-rc\.1.*No fallback/);
+        assert.ok(error.content[0].text.includes(`Supported version: ${version}. No fallback`));
       }
     }
     for (const [name, args] of [
@@ -117,7 +125,7 @@ export async function verifyMcp(endpoint, expectedRevision) {
     try {
       await modern.connect(new StreamableHTTPClientTransport(new URL(endpoint)));
       assert.deepEqual((await modern.listTools()).tools, tools.tools);
-      const result = await modern.callTool({ name: 'search_docs', arguments: { query: 'Region', version } });
+      const result = await modern.callTool({ name: 'search_docs', arguments: { query: 'Region', version, sourceRevision: corpus.sourceRevision } });
       assert.deepEqual(result.structuredContent, await call('search_docs', { query: 'Region' }));
     } finally { await modern.close(); }
     const headers = { 'content-type': 'application/json', accept: 'application/json, text/event-stream' };

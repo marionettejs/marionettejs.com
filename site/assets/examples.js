@@ -198,7 +198,7 @@ async function select(input) {
   const links = selected.docs.map(path => {
     const link = document.createElement('a');
     link.href = path;
-    link.textContent = path.split('/')[2].replaceAll('-', ' ') + ' docs ↗';
+    link.textContent = path.split('/').filter(Boolean).at(-1).replaceAll('-', ' ') + ' docs ↗';
     return link;
   });
   page.querySelector('#example-docs').replaceChildren(...links);

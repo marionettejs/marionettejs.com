@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { documentSections } from '../mcp/index-sections.mjs';
-import { searchSections, selectSections } from '../mcp/sections.mjs';
+import { indexSections, searchSections, selectSections } from '../mcp/sections.mjs';
+import { searchSections as canonicalSearch, prepareSectionSearch } from '../content/library-docs/skills/marionette/scripts/search.mjs';
 const doc = markdown => ({ id: 'docs/example.md', title: 'Example', markdown, url: 'https://marionettejs.com/docs/example/', sha256: 'fixture' });
 
 test('sections preserve source, ignore fenced headings, and match nested duplicate anchors', () => {
@@ -37,12 +38,66 @@ test('selection never truncates contracts and deduplicates parent-child overlap 
 });
 
 test('search ranks exact API headings and has deterministic ties', () => {
-  const sections = documentSections(doc('# Intro\nMention detachView here.\n## detachView\nPreserve the view.\n## Destroy\nRelease it.\n'));
-  const result = searchSections(sections, 'detachView');
+  const document = doc('# Intro\nMention detachView here.\n## detachView\nPreserve the view.\n## Destroy\nRelease it.\n');
+  const sections = documentSections(document);
+  const index = indexSections(sections, [document]);
+  const result = searchSections(sections, 'detachView', index);
   assert.equal(result[0].heading, 'detachView');
-  assert.deepEqual(result, searchSections(sections, 'detachView'));
-  assert.throws(() => searchSections(sections, 'the and'), /substantive/);
-  assert.deepEqual(searchSections(sections, 'unfindable'), []);
+  assert.deepEqual(result, searchSections(sections, 'detachView', index));
+  assert.deepEqual(searchSections(sections, 'the and', index), []);
+  assert.deepEqual(searchSections(sections, 'unfindable', index), []);
+});
+
+test('section ranking splits identifiers and scores own text while reads retain descendants', () => {
+  const document = doc('# Root\nNeutral introduction.\n## listenToOnce\nSubscribe once.\n## Links\n[website](https://needle.example)\n### Needle\nneedle contract.\n');
+  const sections = documentSections(document);
+  const index = indexSections(sections, [document]);
+  assert.equal(searchSections(sections, 'listentoonce', index)[0].heading, 'listenToOnce');
+  assert.equal(searchSections(sections, 'listen once', index)[0].heading, 'listenToOnce');
+  const matches = searchSections(sections, 'needle', index);
+  assert.deepEqual(matches.map(section => section.heading), ['Needle']);
+  const root = sections[0];
+  assert.match(selectSections(sections, [root.id], 1000).sections[0].content, /needle contract/);
+  assert.deepEqual(searchSections(sections, 'listen once', JSON.parse(JSON.stringify(index))), searchSections(sections, 'listen once', index));
+});
+
+test('ranking keeps full source bytes with leading text and gaps in selected sections', () => {
+  const document = doc('Leading text before headings.\r\n\r\n## First\r\nGap body omitted from section selection.\r\n\r\n## Second\r\nTailneedle contract.\r\n');
+  const sections = documentSections(document).filter(section => section.heading === 'Second');
+  const index = indexSections(sections, [document]);
+  assert.equal(index.files[0][1], document.markdown);
+  assert.equal(searchSections(sections, 'tailneedle', index)[0].heading, 'Second');
+  assert.deepEqual(searchSections(sections, 'leading gap', index), []);
+});
+
+test('section query acceptance follows the canonical tokenizer', () => {
+  const document = doc('# Root\nBy why its these once contract.\n');
+  const sections = documentSections(document);
+  const index = indexSections(sections, [document]);
+  const files = new Map([[document.id, { content: document.markdown }]]);
+  for (const query of ['by', 'why', 'its', 'these', 'the and', 'would', 'listenToOnce']) {
+    assert.deepEqual(searchSections(sections, query, index).map(section => section.score), canonicalSearch(index.sections, files, query).map(section => section.score), query);
+  }
+  assert.ok(searchSections(sections, 'by', index).length);
+  assert.deepEqual(searchSections(sections, 'why', index), []);
+});
+
+test('canonical source ranking agrees with the imported consumer skill for public API queries', async () => {
+  const { readSnapshot } = await import('../scripts/library-docs.mjs');
+  const { readFile } = await import('node:fs/promises');
+  const { pages } = await readSnapshot(new URL('../content/library-docs/', import.meta.url).pathname);
+  const index = JSON.parse(await readFile(new URL('../content/library-docs/docs-sections.json', import.meta.url), 'utf8'));
+  const files = new Map(pages.map(page => [page.source, { content: page.markdown }]));
+  const sections = pages.flatMap(page => documentSections({ ...doc(page.markdown), id: page.source, title: page.title }));
+  const websiteIndex = indexSections(sections, pages.map(page => ({ id: page.source, markdown: page.markdown })));
+  const identity = section => ({ source: section.source ?? section.documentId, start: section.start,
+    end: section.end, heading: section.heading, matchedTerms: section.matchedTerms, score: section.score });
+  const preparedSearch = prepareSectionSearch(websiteIndex.sections, files);
+  for (const query of ['listenTo', 'retained restart', 'prepareStart', 'detachView', 'bindRequests', 'Model set', 'setFilter', 'Application stop destroy']) {
+    assert.deepEqual(searchSections(sections, query, websiteIndex).map(identity), canonicalSearch(index.sections, files, query).map(identity), query);
+    assert.deepEqual(searchSections(sections, query, websiteIndex, undefined, preparedSearch).map(identity),
+      canonicalSearch(index.sections, files, query).map(identity), query);
+  }
 });
 
 // Renderer and indexer parse heading input differently: this integration check proves parity.
@@ -50,6 +105,8 @@ test('every indexed canonical section link resolves to a rendered page and ancho
   const { loadSnapshot } = await import('../mcp/load.mjs');
   const { readFile } = await import('node:fs/promises');
   const snapshot = await loadSnapshot();
+  const rankingFiles = new Map(snapshot.sectionIndex.files);
+  for (const document of snapshot.documents) assert.equal(rankingFiles.get(document.id), document.markdown, document.id);
   const pages = new Map();
   for (const section of snapshot.sections) {
     const url = new URL(section.url);

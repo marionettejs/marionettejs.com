@@ -1,8 +1,10 @@
 import { createHash } from 'node:crypto';
 import { readFile, realpath, stat } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
+import { searchSections } from './search.mjs';
+import { findSymbols, validateSymbolIndex } from './symbols.mjs';
 
-const usage = 'Usage: node docs.mjs [--project PATH] [--package-root PATH] [--list | --page SOURCE]';
+const usage = 'Usage: node docs.mjs [--project PATH] [--package-root PATH] [--list | --page SOURCE [--section HEADING] | --search QUERY | --section SOURCE#ANCHOR | --symbol NAME | --diagnostic MNxxxx]';
 const hash = value => createHash('sha256').update(value).digest('hex');
 const json = async path => JSON.parse(await readFile(path, 'utf8'));
 
@@ -36,12 +38,15 @@ async function main() {
     if (argument === '--list') {
       if (mode) { throw new Error(usage); }
       mode = 'list';
-    } else if (['--project', '--package-root', '--page'].includes(argument)) {
+    } else if (['--project', '--package-root', '--page', '--search', '--section', '--symbol', '--diagnostic'].includes(argument)) {
       const value = args[++index];
       if (!value || value.startsWith('--')) { throw new Error(usage); }
-      if (argument === '--page') {
-        if (mode) { throw new Error(usage); }
-        mode = 'page';
+      if (['--page', '--search', '--section', '--symbol', '--diagnostic'].includes(argument)) {
+        const nextMode = argument.slice(2);
+        const scopedSection = mode && !options[nextMode] &&
+          ((mode === 'page' && nextMode === 'section') || (mode === 'section' && nextMode === 'page'));
+        if (mode && !scopedSection) { throw new Error(usage); }
+        mode = scopedSection ? 'section' : nextMode;
       }
       options[argument.slice(2)] = value;
     } else {
@@ -50,15 +55,11 @@ async function main() {
   }
   const packageRoot = options['package-root'] ? await realpath(options['package-root']) : await installedPackage(options.project);
   const metadata = await json(resolve(packageRoot, 'package.json'));
-  const docsRoot = await realpath(resolve(packageRoot, 'dist/docs')).catch(() => {
-    throw new Error('This package has no dist/docs. Read its exports/declarations and obtain documentation from its exact release or known source revision; do not substitute current master.');
+  const manifestPath = await realpath(resolve(packageRoot, 'docs-manifest.json')).catch(error => {
+    if (error.code !== 'ENOENT') { throw error; }
+    throw new Error('This package has no docs-manifest.json. Read its exports/declarations and obtain documentation from its exact release or known source revision; do not substitute current master.');
   });
-  const docsLocal = relative(packageRoot, docsRoot);
-  if (docsLocal === '..' || docsLocal.startsWith(`..${sep}`) || isAbsolute(docsLocal)) {
-    throw new Error('Documentation root escapes its package.');
-  }
-  const manifestPath = await realpath(resolve(docsRoot, 'manifest.json'));
-  const manifestLocal = relative(docsRoot, manifestPath);
+  const manifestLocal = relative(packageRoot, manifestPath);
   if (manifestLocal === '..' || manifestLocal.startsWith(`..${sep}`) || isAbsolute(manifestLocal)) {
     throw new Error('Documentation manifest escapes its package.');
   }
@@ -78,9 +79,9 @@ async function main() {
       throw new Error('Unsafe documentation source path.');
     }
     if (files.has(source)) { throw new Error(`Duplicate documentation source: ${source}`); }
-    const path = await realpath(resolve(docsRoot, source));
-    const local = relative(docsRoot, path);
-    if (local === '..' || local.startsWith(`..${sep}`) || isAbsolute(local)) {
+    const path = await realpath(resolve(packageRoot, source));
+    const local = relative(packageRoot, path);
+    if (!local || local === '..' || local.startsWith(`..${sep}`) || isAbsolute(local)) {
       throw new Error(`Documentation source escapes its package: ${source}`);
     }
     const content = await readFile(path);
@@ -97,7 +98,82 @@ async function main() {
     sourceDirty: manifest.sourceDirty,
     contentSha256: digest,
   };
-  if (mode === 'page') {
+  if (mode === 'diagnostic') {
+    if (!/^MN[0-9]{4}$/.test(options.diagnostic)) { throw new Error('Diagnostic lookup requires an exact MNxxxx code.'); }
+    const source = 'config/diagnostics/catalog.json';
+    const entry = manifest.assets.find(asset => asset.source === source);
+    if (!entry) { throw new Error('This artifact has no diagnostic catalog.'); }
+    const catalog = JSON.parse(files.get(source).content.toString('utf8'));
+    if (catalog?.schemaVersion !== 2 || !Array.isArray(catalog.diagnostics) || !catalog.diagnostics.length) {
+      throw new Error('Unsupported or incomplete diagnostic catalog.');
+    }
+    const codes = new Set();
+    // Check the lookup record's shape and identity. Full semantic catalog
+    // validation remains the publishing check, not a second schema here.
+    for (const diagnostic of catalog.diagnostics) {
+      if (!diagnostic || typeof diagnostic.code !== 'string' || !/^MN[0-9]{4}$/.test(diagnostic.code) || codes.has(diagnostic.code) ||
+          !['defined', 'active', 'deprecated', 'retired'].includes(diagnostic.status) ||
+          !['slug', 'category', 'severity', 'remediation', 'benchmarkCategory'].every(field =>
+            typeof diagnostic[field] === 'string' && diagnostic[field].trim()) ||
+          !['objects', 'surfaces'].every(field => Array.isArray(diagnostic[field]) && diagnostic[field].length &&
+            diagnostic[field].every(value => typeof value === 'string' && value.trim())) ||
+          diagnostic.docsAnchor !== `/errors/${diagnostic.code}/` ||
+          (diagnostic.status === 'deprecated' ? !/^MN[0-9]{4}$/.test(diagnostic.replacementCode) :
+            diagnostic.replacementCode !== undefined)) {
+        throw new Error('Invalid or duplicate diagnostic catalog entry.');
+      }
+      codes.add(diagnostic.code);
+    }
+    const diagnostic = catalog.diagnostics.find(value => value.code === options.diagnostic);
+    if (!diagnostic) { throw new Error(`Unknown diagnostic code: ${options.diagnostic}`); }
+    console.log(JSON.stringify({ ...provenance, source, sha256: entry.sha256, diagnostic }, null, 2));
+  } else if (mode === 'search' || mode === 'section' || mode === 'symbol') {
+    const entry = files.get('docs-sections.json');
+    if (!entry) { throw new Error('This artifact has no section index. Use --page or search its installed Markdown directly.'); }
+    const index = JSON.parse(entry.content.toString('utf8'));
+    if (index.schemaVersion !== 1 || !Array.isArray(index.sections)) {
+      throw new Error('Unsupported documentation section index.');
+    }
+    const pageSources = new Set(manifest.pages.map(page => page.source));
+    const ids = new Set();
+    for (const section of index.sections) {
+      if (typeof section.id !== 'string' || ids.has(section.id) || !pageSources.has(section.source) ||
+          typeof section.heading !== 'string' || !Number.isInteger(section.depth) || !Array.isArray(section.ancestors) ||
+          !Number.isInteger(section.start) || !Number.isInteger(section.end) || section.start < 0 ||
+          section.end < section.start || section.end > files.get(section.source).content.toString('utf8').length) {
+        throw new Error('Invalid documentation section index.');
+      }
+      ids.add(section.id);
+    }
+    if (mode === 'symbol') {
+      const symbols = files.get('docs-symbols.json');
+      if (!symbols) { throw new Error('This artifact has no symbol index. Use --search against its installed sections.'); }
+      const symbolIndex = JSON.parse(symbols.content.toString('utf8'));
+      validateSymbolIndex(symbolIndex, ids);
+      console.log(JSON.stringify({ ...provenance, ...findSymbols(symbolIndex, index.sections, files, options.symbol) }, null, 2));
+    } else if (mode === 'search') {
+      if (!options.search.trim() || options.search.length > 200) { throw new Error('Search requires 1–200 characters.'); }
+      console.log(JSON.stringify({ ...provenance, query: options.search,
+        results: searchSections(index.sections, files, options.search) }, null, 2));
+    } else {
+      if (options.page && !pageSources.has(options.page)) {
+        throw new Error('Page is not in this package manifest. Use --list to find its exact source path.');
+      }
+      const matches = index.sections.filter(value => options.page ? value.source === options.page &&
+        (value.id === options.section || value.heading === options.section ||
+          value.id.slice(value.id.indexOf('#') + 1) === options.section) :
+        value.id === options.section);
+      if (matches.length > 1) {
+        throw new Error(`Ambiguous section heading. Use --section with one exact ID: ${matches.map(value => value.id).join(', ')}`);
+      }
+      const section = matches[0];
+      if (!section) {
+        throw new Error('Unknown section ID or heading. Use --section SOURCE#ANCHOR or --page SOURCE --section "Heading". Use --search when the location is unknown.');
+      }
+      console.log(JSON.stringify({ ...provenance, ...section }));
+      console.log(files.get(section.source).content.toString('utf8').slice(section.start, section.end));
+    }
+  } else if (mode === 'page') {
     const page = manifest.pages.find(entry => entry.source === options.page);
     if (!page) { throw new Error('Page is not in this package manifest. Use --list to find its exact source path.'); }
     console.log(JSON.stringify({ ...provenance, source: page.source, sha256: page.sha256 }));

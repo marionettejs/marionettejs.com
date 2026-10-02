@@ -1,3 +1,5 @@
+import provenance from './provenance.json' with { type: 'json' };
+
 export const adoptionQuestions = [
   {
     question:'“What makes this useful for agent-led development?”',
@@ -9,11 +11,11 @@ export const adoptionQuestions = [
   },
   {
     question:'“Does Marionette choose my data and rendering stack?”',
-    answer:'Marionette exposes DataApi, StateApi, DomApi, and renderer integration points. The bundled runtime provides setDataApi, setStateApi, setDomApi, and setRenderer, including on isolated createMarionette runtimes. Backbone is one integration option, not the extent of that flexibility. For each required tool, identify its integration point, an available adapter or renderer if there is one, and any project-owned integration work. An extension point does not establish that a ready-made integration exists.'
+    answer:'Marionette exposes DataApi, StateApi, DomApi, and renderer integration points. The bundled runtime provides setDataApi, setStateApi, setDomApi, and setRenderer, including on isolated createMarionette runtimes. @mnjs/data is an optional observable data layer; API transport and persistence need a separate integration or a different data solution. Backbone is another integration option. For each required tool, identify its integration point, an available adapter or renderer if there is one, and any project-owned integration work. An extension point does not establish that a ready-made integration exists.'
   },
   {
     question:'“Is it maintained? Is it ready?”',
-    answer:'Evaluate the 5.0 API and its documented contracts, not conclusions drawn from v4-era examples or dependencies. Match your support requirements to maintainer availability, required integrations, and the people who will review and maintain the application. The age of a familiar name does not define the current library.'
+    answer:`Marionette ${provenance.packageVersion} is published on npm as a release candidate. Stable-release acceptance is still in progress. Evaluate the 5.0 API and its documented contracts, not conclusions drawn from v4-era examples or dependencies. Match your support requirements to maintainer availability, required integrations, and the people who will review and maintain the application. The age of a familiar name does not define the current library.`
   },
   {
     question:'“What about the community and hiring pool?”',

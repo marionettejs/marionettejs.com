@@ -3,10 +3,10 @@ import { loadSnapshot } from '../mcp/load.mjs';
 import { searchSections, selectSections } from '../mcp/sections.mjs';
 const snapshot = await loadSnapshot();
 const cases = [
-  { task: 'render-resource', queries: ['triggerMethod', 'render before:render', 'destroy before:destroy'],
-    headings: [['docs/events.md', '`triggerMethod`'], ['docs/events.class.md', '`render` and `before:render` events'], ['docs/events.class.md', '`destroy` and `before:destroy` events']] },
-  { task: 'attach-resource', queries: ['triggerMethod', 'attach before:attach', 'detach before:detach', 'Detaching Existing Views', 'destroy A Region'],
-    headings: [['docs/events.md', '`triggerMethod`'], ['docs/events.class.md', '`attach` and `before:attach` events'], ['docs/events.class.md', '`detach` and `before:detach` events'], ['docs/marionette.region.md', 'Detaching Existing Views'], ['docs/marionette.region.md', '`destroy` A Region']] },
+  { task: 'render-resource', queries: ['triggerMethod', 'render lifecycle', 'destroy cleanup'],
+    headings: [['docs/api/shared/events.md', 'Trigger events and hooks'], ['docs/api/view.md', 'Lifecycle hooks and events'], ['docs/api/shared/events.md', 'Cleanup']] },
+  { task: 'attach-resource', queries: ['attach detach lifecycle', 'detachView', 'destroy Region'],
+    headings: [['docs/api/view.md', 'Lifecycle hooks and events'], ['docs/api/region.md', 'Empty, detach, reset, and destroy'], ['docs/api/region.md', 'Construction and options']] },
 ];
 const results = cases.map(({ task, queries, headings }) => {
   const documentIds = [...new Set(headings.map(([id]) => id))];

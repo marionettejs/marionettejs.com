@@ -13,19 +13,9 @@ test('MCP setup is discoverable as the same website-authored guide without chang
   assert.match(page, /type="text\/markdown" href="\/docs\/mcp.md"/);
   assert.match(page, /local, read-only stdio server/);
   assert.match(page, /https:\/\/mcp\.marionettejs\.com\/mcp/);
-  for (const path of ['dist/docs/agents.md', 'dist/docs/agent-tools.md']) {
-    const text = await read(path);
-    if (path.endsWith('/agents.md')) {
-      assert.match(text, /\]\(\/docs\/agent-tools\.md\)/);
-    } else {
-      assert.match(text, /https:\/\/marionettejs\.com\/docs\/mcp\//);
-      assert.match(text, /marionette:\/\/catalog/);
-      assert.match(text, /nextOffset/);
-    }
-    assert.equal(await read(path.replace('dist/docs/', 'dist/docs/markdown/docs/')),
-      await read(path.replace('dist/docs/', 'content/library-docs/docs/')), 'Original package documentation remains immutable');
-  }
-  assert.ok((await read('dist/docs/agent-tools.md')).includes('https://mcp.marionettejs.com/mcp'));
+  const agents = await read('dist/docs/agents.md');
+  assert.match(agents, /Local contract lookup/);
+  assert.equal(await read('dist/docs/markdown/docs/agents.md'), await read('content/library-docs/docs/agents.md'));
   assert.ok((await read('dist/docs/index.html')).includes('href="/docs/mcp/"'));
   assert.ok((await read('dist/sitemap.xml')).includes('https://marionettejs.com/docs/mcp/'));
   const corpus = JSON.parse(await read('dist/docs/corpus.json'));

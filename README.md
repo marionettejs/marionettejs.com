@@ -1,4 +1,4 @@
-# Marionette website — 5.0.0-rc.1
+# Marionette website — v5 documentation integration
 
 The live site is marionettejs.com; www.marionettejs.com and v5.marionettejs.com
 also work. Cloudflare Pages serves one complete artifact.
@@ -6,6 +6,20 @@ The apex is canonical; v5 remains a noindexed mirror.
 
 Source lives in `marionettejs/marionettejs.com`. Earlier design commits and checkouts remain
 preserved in the old website repository. The local preview still binds to loopback.
+
+## Versioned integration
+
+This integration targets `marionette@5.0.0-rc.2` across documentation, browser demos
+and workshops. Import consumer docs with `npm run docs:import -- /path/to/export`.
+Website and MCP retrieval use the same imported corpus and packaged records assets.
+Runtime version and revision come from the installed package's vendor provenance;
+`/docs/manifest.json` identifies the documentation snapshot. Builds do not publish
+the package, website, or MCP service.
+
+A complete import replaces the corpus and its navigation. Preserve matching
+snapshot bytes and hashes; import the reviewed clean released source and verify it
+against the installed registry archive before setting published metadata. Run
+`npm run check` and review desktop/narrow docs. A main merge deploys both services.
 
 ## Deployment
 
@@ -68,7 +82,7 @@ Social services may cache old previews after deployment.
 
 ## View locally
 
-Requires Node.js 24 or newer. Browser tests also require Chromium (`npx playwright install chromium`) and the `unzip` command to verify downloaded projects. Run `npm ci` before the first build to install the pinned documentation renderer and search tools.
+Requires Node.js 24 or newer. With nvm, run `nvm use` before installation. Browser tests also require Chromium (`npx playwright install chromium`) and the `unzip` command to verify downloaded projects. Run `npm ci` before the first build to install the pinned documentation renderer and search tools.
 
 ```sh
 npm run dev
@@ -125,12 +139,13 @@ reassessment and remaining gates.
 CSS, the live example, and copied draft brand SVGs. `scripts/build.mjs` produces
 static files in ignored `dist/`. `scripts/dev.mjs` serves only that output.
 
-`site/vendor/marionette.js` bundles the published `marionette@5.0.0-rc.1`
+`site/vendor/marionette.js` bundles the exact published `marionette` version
 with matching `@mnjs/radio` and `@mnjs/utils` from package-lock.json. Run
 `npm run vendor:build` after an intentional package upgrade. It verifies the
 package/docs versions, bundles ESM with esbuild, includes all MIT licenses, and
 records the npm integrity and resulting bundle hash in `content/provenance.json`.
-The homepage and playground use the same runtime and docs as the release-candidate package.
+The homepage and playground use that runtime. Imported documentation must match
+its package version and source revision before publication.
 
 ## Launch copy
 
@@ -221,92 +236,75 @@ executable starter; a source test prevents the two from drifting.
 
 ## Documentation source
 
-For an npm release, export the full website corpus from a clean checkout of the
-exact `sourceRevision` recorded in that published package's `dist/docs/manifest.json`.
-Run `npm run docs:export` there, then import its `.docs-export` directory here.
-Do not use moving `master` or import the narrower npm `dist/docs` directory alone:
-that directory omits the maintainer guides and would remove their website routes.
+Import the complete reviewed consumer export from the corresponding library
+revision. For a published release, compare it with that package's bundled manifest;
+for a candidate, retain its actual revision, dirty flag and local-source publication
+status. Never infer publication from the exported `latest` routing label.
 
 ```sh
-npm run docs:import -- /absolute/path/to/released-source/.docs-export
+npm run docs:import -- /absolute/path/to/library/.docs-export
 npm run check
+node test/browser/docs-candidate.mjs
 ```
 
-The importer validates source paths, routes, every content hash, and the aggregate
-digest before replacing `content/library-docs/`. Confirm that the export is clean,
-its version/revision/repository match the published npm manifest, every npm consumer
-page and asset matches the npm metadata and bytes, and all reviewed maintainer routes
-remain present. `npm run check` verifies the npm consumer subset against the installed
-package; review the full manifest diff for the maintainer corpus. Never replace the
-archive until those checks pass. Commit that generated snapshot
-with its manifest after reviewing the source diff. Do not edit imported Markdown.
-The manifest records the package version, base source revision, content digest, and
-whether the source checkout includes local changes. A local-change snapshot is suitable
-for review; publish from a reviewed committed revision. Version alone is not enough
-to identify development snapshots that share the same alpha number.
+The importer checks bounded paths, symlink containment, unique routes, every source
+hash and the aggregate digest before replacing `content/library-docs/`. Review the
+manifest diff and do not edit imported files. Candidate imports replace the prior
+corpus, navigation and diagnostic assets together. Original bytes remain available
+under `/docs/markdown/` and `/docs/source/`; HTML and reading Markdown resolve links
+within the imported snapshot. Code remains intact. Diagnostic schemas are hashed
+assets from the same export, rather than an independently maintained supplement.
 
-The build renders all pages at manifest routes under `/docs/`, publishes reading Markdown at the same route with `.md` (the index uses `/docs/index.md`),
-and preserves canonical source byte for byte under `/docs/markdown/`. Reading
-Markdown resolves documentation links to the snapshot and other source links to its
-base revision; fenced examples and inline code remain unchanged. Its metadata names
-the original source hash, not a hash of the transformed Markdown. The build also
-publishes `/docs/llms.txt` and
-`/docs/manifest.json`. Diagnostic pages at `/errors/` and their Markdown exports
-come from the included catalog. The catalog names `docs.marionettejs.com` diagnostic routes, while runtime errors
-still use the legacy versioned URL prefix. Align runtime URLs and diagnostic
-hosting in a separate release change; this website serves its diagnostic reference under /errors/.
+`content/docs-publication-edits.json` records publication status and any reviewed
+reading-copy changes separately. Website and MCP builds use the same corpus hashes
+and source identity. Their included records example comes from the same packaged
+source assets. The browser workshop identifies its exact runtime independently.
 
-Marked 18.0.12 renders Markdown with raw HTML escaped and unsafe URL schemes blocked.
-Pagefind 1.5.2 indexes generated pages during the build and serves search entirely
-from static files. Search begins with consumer docs selected; readers can include
-maintainer material with the Audience filter. There are no service
-keys, hosted search requests, AI inference calls, or request-based service charges
-in this implementation. Hosting providers can still impose free-tier limits.
+Published documentation labels require a clean snapshot matching the installed npm
+archive, including its revision, content digest and locked registry integrity.
+After an authorized release, upgrade the exact core/data pins together:
 
-Publication wording fixes for the reading copies live in
-`content/docs-publication-edits.json`. Both HTML and agent Markdown apply these
-exact prose edits. Archived package Markdown and its hashes remain unchanged.
-Do not silently describe an edited source archive as the released artifact.
+```sh
+npm install --save-dev --save-exact marionette@5.0.0-rc.2 @mnjs/data@5.0.0-rc.2
+npm ls marionette @mnjs/data @mnjs/radio @mnjs/utils
+```
 
-The normal build creates one `dist/` artifact containing marketing, documentation,
-search, and the workshop. Deploy the complete output to all three active hosts.
+Require all four installed versions to match. The vendor builder reads the package's
+root `docs-manifest.json` and requires RC2 with clean source. Rebuild with
+`npm run vendor:build` and `npm run vendor:demos`; verify both resulting hashes and
+license bundles. `npm run build` derives the workshop brief, runtime, recipes and
+export identity from the resulting provenance, including the released source revision.
 
-Always deploy from this repository and branch with both marketing and documentation present. The old `marionettejs.com` docs worktree is not the deployment source. Preserve the full `dist/` build, including `/thanks/`, documentation, search, agent briefs, and pinned demo assets.
+Compare every imported page and supporting asset with the installed registry
+archive before setting published metadata. Run `npm run check`,
+`npm run test:docs:browser`, `npm run test:browser` and
+`node test/browser/personal-preview.mjs`, plus the deployment runbook's HTTP MCP
+verification. A local candidate import may be checked before publication, with
+its candidate status retained. Final deployment must use the matching registry
+runtime and verified publication metadata.
 
-## Packaged sources and website corrections
 
-`content/library-docs/` is the archived npm documentation snapshot. Keep its
-manifest and listed files byte-for-byte intact. `content/docs-publication-edits.json`
-records corrections applied only to HTML and reading Markdown; diagnostic-code
-links in reading copies go directly to the matching error page.
+Marked escapes raw HTML and blocks unsafe URL schemes. Pagefind builds a static
+search index. The browser check covers every imported page at desktop and narrow
+widths and checks rendered search. It does not run all instructional examples or
+measure reader effectiveness; those are library/consumer verification boundaries.
 
-The package omits the JSON schema referenced by its diagnostic catalog.
-`content/diagnostics-schema.json` supplies the exact schema from the same release
-revision, with its source and hash in `content/diagnostics-schema-provenance.json`.
-The build verifies that identity and publishes the schema beside all catalog
-copies. Recheck this supplement when importing a newer release.
+Imports stage a replacement and retain the previous directory until installation
+succeeds. Failed installation restores it; the next import recovers an interrupted
+replacement before checking new input. Build and review the complete `dist/`
+artifact before requesting publication. Main merges deploy both website and MCP,
+so package release policy, public endpoint version and source reachability need
+agreement before merging this candidate integration.
 
-The published preview URLs `/docs/regions/` and `/reference/region.md` have redirects
-because they were shared externally. Retain them while those links remain in use;
-remove them only after external references are migrated and access logs show no use.
-
-Documentation imports retain the previous snapshot in `content/library-docs.backup/`
-until installation succeeds. A failed install restores it automatically; after
-an interrupted process, the next import restores a missing target before reading
-new input. If a build is needed first, rename the backup to `content/library-docs/`.
-
-Development and troubleshooting are part of the same published snapshot. For an npm release, import
-all guides from the same exact released-source export using the procedure above. The browser check executes their
-actual failing/corrected snippets against the matching published demo bundle.
-The previously shared `/development/` and `/troubleshooting/` URLs redirect to
-`/docs/development/` and `/docs/troubleshooting/`. Their old manifest and source
-URLs also redirect to the matching canonical snapshot; retain those redirects while
-external references use them, and remove only after references migrate and access
-logs show no use. These checks do not authorize deploying the site.
+The existing v0-v4 archive URLs remain supported for those consumers. Previously
+shared `/docs/regions/` and `/reference/region.md` links resolve to the new modular
+Region reference. Their compatibility reason is external links; remove them when
+those references migrate and access logs establish they are unused.
 
 ## Library documentation sync
 
-[`scripts/docs-sync/README.md`](scripts/docs-sync/README.md) describes the single
-automated reading-copy sync, credentials, failure recovery, and manual deployment
-boundary. Ordinary library documentation merges update publication edits through
-one reviewed PR. Only explicit npm-release imports replace `content/library-docs/`.
+[`scripts/docs-sync/README.md`](scripts/docs-sync/README.md) describes the bounded
+reading-copy sync and reviewed PR path. It preserves the imported archive and
+rejects navigation changes. Changes to the canonical corpus require an explicit
+complete snapshot import and website review. Neither import nor build authorizes
+publication.

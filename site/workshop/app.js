@@ -18,11 +18,7 @@ const Victory = View.extend({
   triggers: {
     'click @ui.toggle': 'click:toggle',
   },
-  modelEvents: {
-    'change:completed': 'render',
-    'change:title': 'render',
-    'change:id': 'render',
-  },
+  modelEvents: { change: 'render' },
   onClickToggle() {
     this.model.set('completed', !this.model.get('completed'));
     this.getUI('toggle')[0].focus();
@@ -53,17 +49,16 @@ const VictorySummary = View.extend({
 VictorySummary.setDataApi(DataApi);
 
 const Scratchpad = View.extend({
-  createState() { return new Model({ draft: '' }); },
-  templateContext() { return this.getState().toObject(); },
+  createState() { return { draft: '' }; },
+  templateContext() { return this.getState(); },
   template: ({ draft }) => `<label for="victory-notes">Tomorrow can wait here.</label>
     <textarea id="victory-notes" placeholder="An unfinished thought…">${escapeHTML(draft)}</textarea>`,
   ui: { notes: '#victory-notes' },
   events: { 'input @ui.notes': 'onInputNotes' },
   onInputNotes({ delegateTarget }) {
-    this.getState().set('draft', delegateTarget.value);
+    this.getState().draft = delegateTarget.value;
   },
 });
-Scratchpad.setStateApi(StateApi);
 
 const VictoryBoard = View.extend({
   initialize() {

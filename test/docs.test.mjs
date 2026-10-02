@@ -6,10 +6,31 @@ import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Marked } from 'marked';
-import { readSnapshot, renderMarkdown, markdownUrl, canonicalSourceUrl, deriveMarkdown } from '../scripts/library-docs.mjs';
+import { readSnapshot, renderMarkdown, markdownUrl, canonicalSourceUrl, deriveMarkdown, verifySearchIndex } from '../scripts/library-docs.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const source = resolve(root, 'content/library-docs');
+
+test('search artifact validation accepts a complete isolated index', async t => {
+  const directory = await mkdtemp(resolve(tmpdir(), 'marionette-search-valid-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  await writeFile(resolve(directory, 'pagefind-entry.json'), JSON.stringify({ languages: { en: { hash: 'en_1234', page_count: 3 } } }));
+  await writeFile(resolve(directory, 'pagefind.en_1234.pf_meta'), Buffer.from([1, 2, 3]));
+  await verifySearchIndex(directory, 3);
+});
+
+for (const [name, metadata, content] of [
+  ['malformed JSON', '{', Buffer.from([1])],
+  ['partial page count', JSON.stringify({ languages: { en: { hash: 'en_1234', page_count: 2 } } }), Buffer.from([1])],
+  ['extra pages cannot mask omitted documentation', JSON.stringify({ languages: { en: { hash: 'en_1234', page_count: 4 } } }), Buffer.from([1])],
+  ['empty referenced metadata', JSON.stringify({ languages: { en: { hash: 'en_1234', page_count: 3 } } }), Buffer.alloc(0)],
+]) test(`search artifact validation rejects ${name} in an isolated directory`, async t => {
+  const directory = await mkdtemp(resolve(tmpdir(), 'marionette-search-invalid-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  await writeFile(resolve(directory, 'pagefind-entry.json'), metadata);
+  await writeFile(resolve(directory, 'pagefind.en_1234.pf_meta'), content);
+  await assert.rejects(verifySearchIndex(directory, 3), /Generated documentation search metadata is invalid/);
+});
 
 test('every canonical page publishes its exact Markdown and source identity', async () => {
   const { manifest, pages } = await readSnapshot(source);
@@ -25,6 +46,9 @@ test('every canonical page publishes its exact Markdown and source identity', as
   const llms = await readFile(resolve(root, 'dist/docs/llms.txt'), 'utf8');
   for (const page of pages) assert.ok(llms.includes(markdownUrl(page)));
   assert.ok((await readFile(resolve(root, 'dist/pagefind/pagefind.js'), 'utf8')).length > 100);
+  const search = JSON.parse(await readFile(resolve(root, 'dist/pagefind/pagefind-entry.json'), 'utf8'));
+  assert.ok(search.languages.en.page_count >= pages.length);
+  assert.ok((await readFile(resolve(root, 'dist/pagefind', `pagefind.${search.languages.en.hash}.pf_meta`))).length > 0);
 });
 
 test('import refuses altered content and unsafe paths before replacement', async () => {
@@ -41,20 +65,20 @@ test('import refuses altered content and unsafe paths before replacement', async
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
 
-test('import requires the troubleshooting source used by diagnostic examples', async () => {
+test('import requires the canonical consumer error reference', async () => {
   const directory = await mkdtemp(resolve(tmpdir(), 'marionette-docs-'));
   try {
     await cp(source, directory, { recursive: true });
     const manifest = JSON.parse(await readFile(resolve(directory, 'manifest.json'), 'utf8'));
-    manifest.pages = manifest.pages.filter(page => page.source !== 'docs/troubleshooting.md');
+    manifest.pages = manifest.pages.filter(page => page.source !== 'docs/api/errors.md');
     await writeFile(resolve(directory, 'manifest.json'), JSON.stringify(manifest));
-    await assert.rejects(readSnapshot(directory), /Expected troubleshooting documentation page/);
+    await assert.rejects(readSnapshot(directory), /Expected consumer documentation page/);
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
 
 test('renderer keeps headings linkable and maps canonical cross-page references', () => {
-  const page = { source: 'docs/example.md', markdown: '# Example\n\n## `show(view)`\n\n[Region](marionette.region.md#showing-a-view)\n\n<script>alert(1)</script>\n\n[unsafe](javascript:alert)\n' };
-  const { html } = renderMarkdown(page, [{ source: 'docs/marionette.region.md', route: 'docs/regions' }], { sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) });
+  const page = { source: 'docs/example.md', markdown: '# Example\n\n## `show(view)`\n\n[Region](api/region.md#showing-a-view)\n\n<script>alert(1)</script>\n\n[unsafe](javascript:alert)\n' };
+  const { html } = renderMarkdown(page, [{ source: 'docs/api/region.md', route: 'docs/regions' }], { sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) });
   assert.match(html, /id="showview"/);
   assert.match(html, /href="\/docs\/regions\/#showing-a-view"/);
   assert.ok(!html.includes('<script>'));
@@ -69,6 +93,8 @@ test('diagnostics retain active and retired identities with machine-readable rem
     assert.ok(markdown.includes(`Reported by: ${entry.surfaces.join(', ')}`));
     assert.ok(markdown.includes(entry.remediation));
     const html = await readFile(resolve(root, 'dist/errors', entry.code, 'index.html'), 'utf8');
+    if (entry.objects.includes('Radio')) assert.ok(html.includes('href="/docs/packages/radio/"'), entry.code);
+    if (entry.objects.includes('StateApi')) assert.ok(html.includes('href="/docs/api/providers/data/"'), entry.code);
     assert.ok(html.includes(`type="text/markdown" href="/errors/${entry.code}.md"`));
     assert.ok(markdown.includes('base revision'));
     assert.ok(markdown.includes('[Diagnostic catalog](/errors/index.md)'));
@@ -91,20 +117,20 @@ test('agent Markdown keeps code intact and resolves page links within this snaps
       if (href.startsWith('/') && !href.startsWith('//')) await readFile(resolve(root, 'dist', href.split('#')[0].slice(1)));
     }
   }
-  const sample = { source: 'docs/example.md', route: 'docs/example', title: 'Example', sha256: 'a'.repeat(64), markdown: '# Example\n\n[Region](marionette.region.md)\n\n```md\n[Region](marionette.region.md)\n```\n\n`[Region](marionette.region.md)`\n\n[ref]: marionette.region.md\n' };
+  const sample = { source: 'docs/example.md', route: 'docs/example', title: 'Example', sha256: 'a'.repeat(64), markdown: '# Example\n\n[Region](api/region.md)\n\n```md\n[Region](api/region.md)\n```\n\n`[Region](api/region.md)`\n\n[ref]: api/region.md\n' };
   const derived = deriveMarkdown(sample, pages, manifest);
-  assert.ok(derived.includes('[Region](/docs/region.md)'));
-  assert.ok(derived.includes('```md\n[Region](marionette.region.md)\n```'));
-  assert.ok(derived.includes('`[Region](marionette.region.md)`'));
-  assert.ok(derived.includes('[ref]: /docs/region.md'));
+  assert.ok(derived.includes('[Region](/docs/api/region.md)'));
+  assert.ok(derived.includes('```md\n[Region](api/region.md)\n```'));
+  assert.ok(derived.includes('`[Region](api/region.md)`'));
+  assert.ok(derived.includes('[ref]: /docs/api/region.md'));
 });
 
 test('explicit historical revisions are not rewritten to the current snapshot', () => {
   const revision = 'b'.repeat(40);
   const manifest = { sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) };
-  const page = { source: 'docs/example.md', markdown: `# Example\n\n[Historical](https://github.com/marionettejs/marionette/blob/${revision}/docs/marionette.region.md)\n` };
-  const { html } = renderMarkdown(page, [{ source: 'docs/marionette.region.md', route: 'docs/region' }], manifest);
-  assert.ok(html.includes(`/blob/${revision}/docs/marionette.region.md`));
+  const page = { source: 'docs/example.md', markdown: `# Example\n\n[Historical](https://github.com/marionettejs/marionette/blob/${revision}/docs/api/region.md)\n` };
+  const { html } = renderMarkdown(page, [{ source: 'docs/api/region.md', route: 'docs/api/region' }], manifest);
+  assert.ok(html.includes(`/blob/${revision}/docs/api/region.md`));
 });
 
 test('supporting resources publish exact bytes and resolve from HTML and agent Markdown', async () => {
@@ -113,7 +139,7 @@ test('supporting resources publish exact bytes and resolve from HTML and agent M
   for (const asset of assets) {
     assert.equal(await readFile(resolve(root, 'dist/docs/source', asset.source), 'utf8'), asset.content);
   }
-  const fixture = 'test/fixtures/docs-routing/validate.mjs';
+  const fixture = 'examples/records/src/main.js';
   const page = { source: 'docs/example.md', title: 'Example', sha256: 'a'.repeat(64), markdown: `# Example\n\n[Fixture](https://github.com/marionettejs/marionette/blob/master/${fixture})\n` };
   assert.ok(renderMarkdown(page, pages, manifest).html.includes(`/docs/source/${fixture}`));
   assert.ok(deriveMarkdown(page, pages, manifest).includes(`[Fixture](/docs/source/${fixture})`));
@@ -122,10 +148,10 @@ test('supporting resources publish exact bytes and resolve from HTML and agent M
 });
 
 test('historical Backbone repository links retain their original owner', () => {
-  const href = 'https://github.com/marionettejs/backbone.marionette/blob/master/docs/marionette.region.md';
+  const href = 'https://github.com/marionettejs/backbone.marionette/blob/master/docs/api/region.md';
   const page = { source: 'docs/example.md', markdown: `# Example\n\n[Historical](${href})\n` };
   const manifest = { sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) };
-  assert.ok(renderMarkdown(page, [{ source: 'docs/marionette.region.md', route: 'docs/region' }], manifest).html.includes(href));
+  assert.ok(renderMarkdown(page, [{ source: 'docs/api/region.md', route: 'docs/api/region' }], manifest).html.includes(href));
 });
 
 test('supporting assets reject altered content and traversal', async () => {
@@ -159,23 +185,22 @@ test('supporting assets reject symlink escapes after safe manifest paths', async
   try {
     const snapshot = resolve(directory, 'snapshot');
     await cp(source, snapshot, { recursive: true });
-    const assetDirectory = 'test/fixtures/docs-routing';
+    const assetDirectory = 'examples/records';
     await cp(resolve(snapshot, assetDirectory), resolve(directory, 'outside'), { recursive: true });
     await rm(resolve(snapshot, assetDirectory), { recursive: true });
     await symlink(resolve(directory, 'outside'), resolve(snapshot, assetDirectory), 'junction');
-    await assert.rejects(readSnapshot(snapshot), /Documentation asset escapes snapshot/);
+    await assert.rejects(readSnapshot(snapshot), /Documentation source escapes snapshot/);
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
 
-test('reading copies link diagnostic codes directly and expose class navigation', async () => {
-  const collection = await readFile(resolve(root, 'dist/docs/collection-view/index.html'), 'utf8');
-  assert.match(collection, /href="\/errors\/MN0023\/"/);
-  const classes = await readFile(resolve(root, 'dist/docs/classes/index.html'), 'utf8');
-  assert.match(classes, /<h2 id="marionetteview"/);
-  assert.match(classes, /<a href="#marionetteview">Marionette.View<\/a>/);
+test('reading copies expose modular class navigation and truthful publication provenance', async () => {
+  const application = await readFile(resolve(root, 'dist/docs/api/application/index.html'), 'utf8');
+  assert.match(application, /id="prepare-before-showing-ui"/);
+  assert.match(application, /href="\/docs\/api\/view\/"/);
   const llms = await readFile(resolve(root, 'dist/docs/llms.txt'), 'utf8');
-  const { manifest } = await readSnapshot(source);
-  assert.ok(llms.includes(`Channel: latest\nPublication: release candidate (published on npm)`));
+  const publication = JSON.parse(await readFile(resolve(root, 'content/docs-publication-edits.json'), 'utf8'));
+  assert.ok(llms.includes(`Channel: ${publication.channel}\nPublication: ${publication.status}`));
+  assert.doesNotMatch(application, /npm archive|homepage demo runs this release candidate/i);
 });
 
 test('diagnostic catalog schemas resolve beside all catalog copies with pinned provenance', async () => {
@@ -192,11 +217,11 @@ test('diagnostic catalog schemas resolve beside all catalog copies with pinned p
   }
 });
 
-test('diagnostic link rewrites preserve fenced, indented, and inline code examples', () => {
+test('diagnostic link rewrites preserve fenced, indented, and inline code examples', async () => {
   const link = '[`MN0023`](diagnostic-catalog.md#look-up-a-code)';
-  const code = `\`\`\`md\n${link}\n\`\`\`\n\n    ${link}\n\n\`\`${link}\`\`\n\n\`\`multiline\n${link}\n[ref]: marionette.region.md\n\`\``;
+  const code = `\`\`\`md\n${link}\n\`\`\`\n\n    ${link}\n\n\`\`${link}\`\`\n\n\`\`multiline\n${link}\n[ref]: api/region.md\n\`\``;
   const page = { source: 'docs/example.md', route: 'docs/example', title: 'Example', sha256: 'a'.repeat(64), markdown: `# Example\n\n**${link}**\n\n${code}\n` };
-  const manifest = { packageVersion: '5.0.0-rc.1', sourceRepository: 'https://github.com/marionettejs/marionette', sourceRevision: 'a'.repeat(40) };
+  const { manifest } = await readSnapshot(source);
   const derived = deriveMarkdown(page, [], manifest);
   assert.ok(derived.includes('**[`MN0023`](/errors/MN0023.md)**'));
   assert.ok(derived.includes(code), 'All code examples remain byte-for-byte unchanged');
@@ -207,17 +232,15 @@ test('diagnostic link rewrites preserve fenced, indented, and inline code exampl
 
 test('release-rebased source revisions resolve relative and branch links without rewriting explicit commits', async () => {
   const { manifest, pages } = await readSnapshot(source);
-  const page = pages.find(page => page.source === 'docs/routing.md');
-  const publication = JSON.parse(await readFile(resolve(root, 'content/docs-publication-edits.json'), 'utf8'));
-  const revision = publication.edits.find(edit => edit.source === page.source).sourceRevision;
-  assert.equal(revision, manifest.sourceRevision);
+  const page = pages.find(page => page.source === 'docs/guides/routing.md');
+  const revision = manifest.sourceRevision;
   const base = manifest.sourceRepository + '/blob/';
   const links = [
     [`${base}${manifest.sourceRevision}/test/routing-check.mjs#example`, `${base}${manifest.sourceRevision}/test/routing-check.mjs#example`],
     [`${base}${manifest.sourceRevision}/docs/readme.md`, `${base}${manifest.sourceRevision}/docs/readme.md`],
     [`${base}${'a'.repeat(40)}/test/routing-check.mjs`, `${base}${'a'.repeat(40)}/test/routing-check.mjs`],
     [`${base}master/test/routing-check.mjs`, `${base}${revision}/test/routing-check.mjs`],
-    ['../test/routing-check.mjs', `${base}${revision}/test/routing-check.mjs`],
+    ['../../test/routing-check.mjs', `${base}${revision}/test/routing-check.mjs`],
   ];
   const sample = { ...page, markdown: page.markdown + links.map(([href], index) => `\n[Example ${index}](${href})\n`).join('') };
   const html = renderMarkdown(sample, pages, manifest).html;

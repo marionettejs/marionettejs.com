@@ -112,7 +112,6 @@ const Radio = View.extend({
     };
   },
   releaseWidget() {
-    this.stopListening(this.widget);
     this.widget?.destroy();
   },
   onBeforeDetach() {

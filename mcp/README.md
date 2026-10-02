@@ -6,12 +6,14 @@ Your agent client's own access and model costs are separate.
 
 The hosted Cloudflare Worker and the optional local, read-only stdio server share
 `search_docs`, `get_doc`, `search_sections`, `get_sections`, `get_example`, and `marionette://catalog`. Both serve the
-same verified website corpus and workshop recipes. The current supported package
-is exactly **`marionette@5.0.0-rc.1`**.
+same verified website corpus and packaged records example. This integration
+targets `marionette@5.0.0-rc.2` across docs, browser demos and workshops. Importing or
+building does not update the hosted endpoint: read its catalog before using it.
 
 **Bundled Markdown remains the installed-version reference.** First inspect your
-application's installed package and its `dist/docs/` manifest, using the
-[consumer skill helper](https://marionettejs.com/docs/agent-tools/) if available.
+application's installed package: `docs-manifest.json` is at the package root and
+Markdown is under `docs/`. Use the
+[consumer skill helper](https://marionettejs.com/docs/agents/) if available.
 Compare its version and source revision with the MCP catalog. A custom build with
 the same version label may contain different code. If they do not match, use the
 installed docs; never substitute the hosted snapshot for another version.
@@ -124,26 +126,29 @@ publication provenance.
 
 1. Read `marionette://catalog` for the exact supported package version,
    provenance, document count, and example names.
-2. Call `search_docs` with a short query and your exact installed `version`.
+2. Start with `search_sections` and `get_sections` for the specific API or workflow
+   you need, with your exact installed `version` (and `sourceRevision` for a
+   candidate snapshot). Bound the read with `maxCharacters`. See focused section
+   retrieval below. For whole documents, call `search_docs`.
    Search ranks word matches in titles and Markdown, favors titles and multiple
    matching terms, and ignores common function words. Results report the terms
    that matched; they need not contain every query word. This is lexical search,
    so try an API name if a prose query returns nothing.
-3. Pass a returned `id` to `get_doc` as `path`. Follow `nextOffset` until it is
+3. For whole documents, pass an `id` returned by `search_docs` to `get_doc` as
+   `path`. Section IDs go to `get_sections`. Follow `nextOffset` until it is
    `null` to retrieve the complete contract. Search snippets are incomplete.
 4. Call `get_example` with a catalog example `name`. Concatenate its chunks,
-   then parse the resulting JSON for sourceFiles (ES modules), CSS, related docs,
-   and expected checks. Open that project on the demos page to run and inspect
-   its behavior. main.js is the module entry point; Download project includes
-   every source file and the pinned runtime.
+   then parse the resulting JSON for sourceFiles, sourceHashes and related docs.
+   The packaged README supplies installation and test instructions. This source
+   example is separate from the published browser workshops.
 
 For this snapshot, a search call is:
 
 ```json
-{"query":"Region", "version":"5.0.0-rc.1", "limit":5}
+{"query":"Region", "version":"5.0.0-rc.2", "sourceRevision":"<exact 40-character revision from installed docs>", "limit":5}
 ```
 
-`version` is required for every tool. Unsupported versions, including `latest`
+`version` is required for every tool. Candidate requests also require `sourceRevision` matching both your installed documentation and the catalog. Unsupported versions, including `latest`
 and `next`, return errors instead of silently choosing another release.
 Successful tool results contain snapshot version, revision, original content
 hash, publication edit hash, and generated corpus hash. Document results also
@@ -188,7 +193,8 @@ unavailable. See [Cloudflare limits](https://developers.cloudflare.com/workers/p
 Search uses an index prepared from the verified corpus at build time rather than
 retokenizing every document on each request. Local CPU measurements are estimates;
 Cloudflare's deployed CPU metrics are the evidence for the edge runtime. Maintainers
-must remeasure after corpus or SDK changes and keep deployment manual.
+must remeasure after corpus or SDK changes. Merge reviewed changes to `main` to
+deploy the website and MCP Worker together through the deployment workflow.
 
 ## MCP retrieval and the browser workshop
 
@@ -219,7 +225,8 @@ node scripts/verify-mcp.mjs https://mcp.marionettejs.com/mcp
 
 This performs bounded read-only requests and compares results against the locally
 built snapshot. The maintenance runbook lives in `mcp/DEPLOYMENT.md` in the website
-repository. Builds and CI do not publish anything.
+repository. Local builds and pull-request checks do not publish anything; the
+deployment workflow publishes both services after a reviewed merge to `main`.
 
 Implementation references: [Cloudflare stateless handler](https://developers.cloudflare.com/agents/model-context-protocol/apis/handler-api/),
 [official SDK web-standard HTTP](https://ts.sdk.modelcontextprotocol.io/v2/serving/web-standard.html),
@@ -228,7 +235,15 @@ and [SDK client compatibility](https://ts.sdk.modelcontextprotocol.io/v2/serving
 ## Focused section retrieval
 
 Use `search_sections` with the exact package version to find headings, ancestry,
-source links and sizes. Pass returned IDs to `get_sections` in priority order with
+source links and sizes. It uses the imported consumer skill's lexical ranking:
+identifier components, BM25 body scoring, heading weight and ancestor context.
+Each query returns up to five sections, scored from each heading's own text;
+section reads still include nested subsections. `limit` accepts 1–5 and `offset`
+accepts 0–5, paginating within that query's top five. `total` counts this bounded
+set; `nextOffset` becomes null when it is exhausted. An offset at or beyond
+`total` returns an empty page. Queries with no substantive terms return an empty
+set. `search_docs` separately paginates across all matching documents.
+Pass returned IDs to `get_sections` in priority order with
 `maxCharacters` (default 20,000, maximum 30,000). The budget counts UTF-16 content
 characters, not tokens or response metadata. Sections include their subsections;
 overlapping selections are deduplicated. IDs combine document ID and a rendered heading anchor, or `@intro` for an
