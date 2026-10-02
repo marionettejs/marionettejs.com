@@ -160,7 +160,7 @@ test('routing sync builds and validates independently, rejecting corrupted deliv
   for (const script of ['scripts/build-demo-projects.mjs', 'scripts/build.mjs', 'scripts/build-mcp.mjs']) {
     await run(process.execPath, [script], { cwd: root });
   }
-  await run(process.execPath, ['--test', 'test/docs.test.mjs', 'test/site.test.mjs', 'test/agent-discovery.test.mjs'], { cwd: root });
+  await run(process.execPath, ['--test', 'test/docs.test.mjs', 'test/site.test.mjs', 'test/agent-discovery.test.mjs', 'test/release.test.mjs'], { cwd: root });
   assert.ok((await readFile(join(root, 'dist/docs/guides/routing.md'), 'utf8')).includes(`reading source revision ${revision}`));
   await mkdir(join(root, 'output/docs-sync'));
   await writeFile(join(root, 'output/docs-sync/state.json'), JSON.stringify({ main: git(root, 'rev-parse', 'HEAD'), sha256: hash(content) }));

@@ -97,12 +97,14 @@ export async function verifyMcp(endpoint, expectedRevision) {
     const { loadSnapshot } = await import('../mcp/load.mjs');
     const localExamples = (await loadSnapshot()).examples;
     for (const example of catalog.examples) {
+      const localExample = localExamples.find(item => item.id === example.id);
+      assert.ok(localExample, `Deployed example ${example.id} is absent from the local snapshot.`);
       let text = ''; offset = 0;
       do {
         const page = await call('get_example', { name: example.id, offset, limit: 1000 });
         text += page.content; offset = page.nextOffset;
       } while (offset !== null);
-      assert.deepEqual(JSON.parse(text), JSON.parse(localExamples.find(r => r.id === example.id).text));
+      assert.deepEqual(JSON.parse(text), JSON.parse(localExample.text), `Example content differs: ${example.id}`);
     }
     for (const unsupported of ['latest', 'next', '5', '4.1.3', '5.0.0-beta.1', `${version} `]) {
       for (const [name, args] of [['search_docs', { query: 'Region' }], ['get_doc', { path: corpus.documents[0].id }], ['get_example', { name: catalog.examples[0].id }]]) {

@@ -856,10 +856,10 @@ export function increment() { count += amount; }`,
     assert.equal(spacing.nextTag, 'P');
     assert.ok(spacing.gap >= spacing.paragraphSpacing && spacing.gap > 0,
       `Table-to-paragraph spacing at ${width}px matches paragraph spacing`);
-    assert.equal(spacing.fitsViewport, true, `Routing guide fits ${width}px viewport`);
-    await page.screenshot({ path: `output/playwright/routing-spacing-${width}.png` });
+    assert.equal(spacing.fitsViewport, true, `Application API page fits ${width}px viewport`);
+    await page.screenshot({ path: `output/playwright/application-spacing-${width}.png` });
   }
-  console.log('PASS routing layout: table-to-paragraph spacing at desktop and phone widths');
+  console.log('PASS Application layout: table-to-paragraph spacing at desktop and phone widths');
   assert.deepEqual(pageErrors, []);
 } finally {
   await browser.close();

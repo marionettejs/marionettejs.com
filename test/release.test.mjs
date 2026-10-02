@@ -32,7 +32,6 @@ test('candidate reading copies preserve every imported source without claiming n
   const publication = JSON.parse(await read('dist/docs/publication.json'));
   assert.equal(publication.packageVersion, manifest.packageVersion);
   assert.equal(publication.status, 'development candidate (local source)');
-  assert.deepEqual(publication.edits, []);
   for (const page of manifest.pages) assert.equal(await read(`dist/docs/markdown/${page.source}`), await read(`content/library-docs/${page.source}`));
   const routing = await read('dist/docs/guides/routing.md');
   assert.match(routing, /hashchange/);

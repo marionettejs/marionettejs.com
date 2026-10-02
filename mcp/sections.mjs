@@ -10,9 +10,10 @@ export function indexSections(sections, documents) {
   };
 }
 
-export function searchSections(sections, query, index, lookup = new Map(sections.map(section => [section.id, section]))) {
-  const files = new Map(index.files.map(([source, content]) => [source, { content }]));
-  return rankSections(index.sections, files, query).map(({ id, matchedTerms, score }) => ({
+export function searchSections(sections, query, index, lookup = new Map(sections.map(section => [section.id, section])), preparedSearch) {
+  const ranked = preparedSearch ? preparedSearch(query) :
+    rankSections(index.sections, new Map(index.files.map(([source, content]) => [source, { content }])), query);
+  return ranked.map(({ id, matchedTerms, score }) => ({
     ...lookup.get(id), matchedTerms, score,
   }));
 }

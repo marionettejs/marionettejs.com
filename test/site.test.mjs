@@ -4,6 +4,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { resolve, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import { build } from 'esbuild';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const out=resolve(root,'dist');
@@ -65,12 +66,16 @@ test('published demo runtime and candidate documentation have distinct verified 
   assert.match(provenance.libraryRevision,/^[a-f0-9]{40}$/);
   const hash=createHash('sha256').update(await readFile(resolve(out,'vendor/marionette.js'))).digest('hex');
   assert.equal(hash,provenance.bundleSha256);
+  const runtime = await build({ entryPoints: [resolve(root, 'node_modules/marionette/dist/marionette.js')],
+    bundle: true, format: 'esm', platform: 'browser', target: 'es2022', write: false, legalComments: 'inline' });
+  assert.equal(hash, createHash('sha256').update(runtime.outputFiles[0].contents).digest('hex'),
+    'Delivered runtime matches a bundle of the installed package and its pinned dependencies.');
   assert.equal(provenance.packageVersion, '5.0.0-rc.1');
   const installed = JSON.parse(await readFile(new URL('../node_modules/marionette/dist/docs/manifest.json', import.meta.url), 'utf8'));
   assert.equal(provenance.packageVersion, installed.packageVersion);
   assert.equal(provenance.libraryRevision, installed.sourceRevision);
   assert.equal(manifest.packageVersion, '5.0.0-rc.2');
-  assert.ok(provenance.documentationNote.includes('separate provenance'));
+  assert.equal(manifest.sourceDirty, false);
   assert.match(await readFile(resolve(out,'vendor/MARIONETTE-LICENSE.txt'),'utf8'),/MIT/);
 });
 

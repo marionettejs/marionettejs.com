@@ -2,13 +2,14 @@ import { publishedChannel, publicationStatus } from '../scripts/published-docs.m
 import { indexSections } from './sections.mjs';
 import { documentSections } from './index-sections.mjs';
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { tokenize } from './search.mjs';
 const hash = value => createHash('sha256').update(value).digest('hex');
 const read = path => readFile(new URL(path, import.meta.url), 'utf8');
 export async function loadSnapshot() {
   const { readSnapshot } = await import('../scripts/library-docs.mjs');
-  const { assets } = await readSnapshot(new URL('../content/library-docs/', import.meta.url).pathname);
+  const { assets } = await readSnapshot(fileURLToPath(new URL('../content/library-docs/', import.meta.url)));
   const corpusBytes = await read('../dist/docs/corpus.json');
   const corpus = JSON.parse(corpusBytes);
   const manifest = JSON.parse(await read('../content/library-docs/manifest.json'));

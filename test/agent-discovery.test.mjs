@@ -1,8 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { readFile, mkdtemp, mkdir, cp, writeFile, rm } from 'node:fs/promises';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
+import { tmpdir } from 'node:os';
 import { Marked } from 'marked';
 import { sha256, validateDiscoveryRoutes, bundleGroups } from '../scripts/agent-discovery.mjs';
 import { readSnapshot } from '../scripts/library-docs.mjs';
@@ -135,11 +136,43 @@ test('discovery rejects omitted or multiply assigned sections and missing task r
 test('publication status requires matching clean npm archive evidence', () => {
   const manifest = { packageVersion: '5.0.0-rc.2', channel: 'latest', sourceRevision: 'a'.repeat(40), contentSha256: 'b'.repeat(64), sourceDirty: false };
   const declaration = { packageVersion: manifest.packageVersion, channel: manifest.channel, status: 'release candidate (published on npm)' };
-  const installed = { ...manifest, registryArchive: true, integrity: 'sha512-evidence' };
+  const installed = { ...manifest, registryArchive: true, integrity: 'sha512-' + Buffer.alloc(64, 1).toString('base64') };
   assert.equal(validatePublication(manifest, declaration, installed), 'latest');
   assert.throws(() => validatePublication(manifest, declaration), /npm archive evidence/);
-  for (const change of [{ sourceDirty: true }, { sourceRevision: 'c'.repeat(40) }, { registryArchive: false }, { integrity: null }]) assert.throws(() => validatePublication(manifest, declaration, { ...installed, ...change }), /npm archive evidence/);
+  for (const change of [{ sourceDirty: true }, { sourceDirty: undefined }, { sourceRevision: 'c'.repeat(40) },
+    { packageVersion: '5.0.0-rc.1' }, { contentSha256: 'c'.repeat(64) }, { registryArchive: false },
+    { integrity: null }, { integrity: true }, { integrity: 'sha512-evidence' }]) assert.throws(() => validatePublication(manifest, declaration, { ...installed, ...change }), /npm archive evidence/);
   assert.throws(() => validatePublication({ ...manifest, sourceDirty: true }, declaration, installed), /npm archive evidence/);
+  assert.throws(() => validatePublication({ ...manifest, sourceDirty: undefined }, declaration, installed), /npm archive evidence/);
   assert.throws(() => validatePublication(manifest, { ...declaration, status: 'stable release (published on npm)' }, installed), /npm archive evidence/);
   assert.equal(validatePublication({ ...manifest, sourceDirty: true }, { ...declaration, status: 'development candidate (local source)' }), 'latest');
+  for (const change of [{ packageVersion: '5.0.0-rc.1' }, { channel: 'next' }, { status: 'published' }]) {
+    assert.throws(() => validatePublication(manifest, { ...declaration, ...change }, installed), /Review published documentation channel/);
+  }
+  const stable = { ...manifest, packageVersion: '5.0.0+build-123' };
+  assert.equal(validatePublication(stable, { ...declaration, packageVersion: stable.packageVersion, status: 'stable release (published on npm)' },
+    { ...installed, packageVersion: stable.packageVersion }), 'latest');
+});
+
+test('publication evidence accepts only the exact versioned registry archive', async t => {
+  const fixture = await mkdtemp(resolve(tmpdir(), 'marionette-publication-'));
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  for (const directory of ['scripts', 'content', 'node_modules/marionette']) await mkdir(resolve(fixture, directory), { recursive: true });
+  for (const source of ['scripts/published-docs.mjs', 'scripts/publication-status.mjs']) await cp(resolve(root, source), resolve(fixture, source));
+  const manifest = { packageVersion: '5.0.0-rc.2', channel: 'latest', sourceRevision: 'a'.repeat(40), contentSha256: 'b'.repeat(64), sourceDirty: false };
+  await writeFile(resolve(fixture, 'content/docs-publication-edits.json'), JSON.stringify({ packageVersion: manifest.packageVersion, channel: manifest.channel, status: 'release candidate (published on npm)', edits: [] }));
+  await writeFile(resolve(fixture, 'node_modules/marionette/package.json'), JSON.stringify({ version: manifest.packageVersion }));
+  await writeFile(resolve(fixture, 'node_modules/marionette/docs-manifest.json'), JSON.stringify(manifest));
+  const { publishedChannel } = await import(pathToFileURL(resolve(fixture, 'scripts/published-docs.mjs')));
+  const lock = { version: manifest.packageVersion, resolved: 'https://registry.npmjs.org/marionette/-/marionette-5.0.0-rc.2.tgz',
+    integrity: 'sha512-' + Buffer.alloc(64, 1).toString('base64') };
+  const writeLock = value => writeFile(resolve(fixture, 'package-lock.json'), JSON.stringify({ packages: { 'node_modules/marionette': value } }));
+  await writeLock(lock);
+  assert.equal(publishedChannel(manifest), 'latest');
+  for (const change of [{ resolved: 'https://registry.npmjs.org/marionette/5.0.0-rc.2' },
+    { resolved: 'https://registry.npmjs.org/marionette/-/marionette-5.0.0-rc.1.tgz' },
+    { resolved: lock.resolved + '?other=archive' }, { version: '5.0.0-rc.1' }]) {
+    await writeLock({ ...lock, ...change });
+    assert.throws(() => publishedChannel(manifest), /npm archive evidence/);
+  }
 });

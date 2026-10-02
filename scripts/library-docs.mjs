@@ -149,14 +149,20 @@ export async function buildLibraryDocs({ directory, out, shell }) {
   const catalog = assets.find(asset => asset.source === 'config/diagnostics/catalog.json');
   await buildDiagnostics({ out, shell, manifest, asset: catalog });
   await buildAgentDiscovery({ out, manifest, pages, assets, shell, renderMarkdown });
+  const searchUrls = [...pages.map(page => `/${page.route}/`),
+    ...JSON.parse(catalog.content).diagnostics.map(diagnostic => diagnostic.docsAnchor),
+    '/errors/', '/docs/agent-start/', '/docs/coverage/', '/docs/mcp/'];
   const { index } = await pagefind.createIndex();
   try {
-    const added = await index.addDirectory({ path: out, glob: '{docs,errors}/**/*.html' });
-    if (added.errors?.length) throw new Error(added.errors.join('\n'));
+    for (const url of searchUrls) {
+      const added = await index.addHTMLFile({ url, content: await readFile(resolve(out, '.' + url, 'index.html'), 'utf8') });
+      if (added.errors?.length) throw new Error(added.errors.join('\n'));
+      if (added.file?.url !== url || !added.file.uniqueWords) throw new Error(`Documentation page was not indexed: ${url}`);
+    }
     const written = await index.writeFiles({ outputPath: resolve(out, 'pagefind') });
     if (written.errors?.length) throw new Error(written.errors.join('\n'));
   } finally { await pagefind.close(); }
-  await verifySearchIndex(resolve(out, 'pagefind'), pages.length);
+  await verifySearchIndex(resolve(out, 'pagefind'), searchUrls.length);
   return pages.length + JSON.parse(catalog.content).diagnostics.length + 4;
 }
 
@@ -164,7 +170,7 @@ export async function verifySearchIndex(directory, expectedPages) {
   try {
     const metadata = JSON.parse(await readFile(resolve(directory, 'pagefind-entry.json'), 'utf8'));
     const english = metadata.languages?.en;
-    if (!Number.isInteger(english?.page_count) || english.page_count < expectedPages || !/^en_[a-f0-9]+$/.test(english.hash)) throw new Error('English index omits documentation pages.');
+    if (!Number.isInteger(english?.page_count) || english.page_count !== expectedPages || !/^en_[a-f0-9]+$/.test(english.hash)) throw new Error('English index differs from the expected generated pages.');
     if (!(await readFile(resolve(directory, `pagefind.${english.hash}.pf_meta`))).length) throw new Error('Referenced English metadata is empty.');
   } catch (error) {
     throw new Error('Generated documentation search metadata is invalid.', { cause: error });
@@ -181,10 +187,12 @@ async function buildDiagnostics({ out, shell, manifest, asset }) {
   const provenance = `${manifest.packageVersion} · ${manifest.sourceRevision.slice(0, 8)}${manifest.sourceDirty ? ' + local changes' : ''}`;
   const wrap = (body) => `<div class="docs-layout canonical-docs"><aside class="docs-nav"><a class="docs-home" href="/docs/">DOCUMENTATION ↗</a><div id="docs-search"></div><a href="/errors/">Diagnostic codes</a></aside><article class="prose docs-prose" data-pagefind-body><span hidden data-pagefind-filter="Audience">Consumer</span><p class="docs-version">${escapeHtml(provenance)}</p>${body}</article></div>`;
   let index = '# Diagnostic codes\n\n';
+  const referenceSources = { Radio: 'docs/packages/radio.md', StateApi: 'docs/api/providers/data.md' };
   for (const diagnostic of catalog.diagnostics) {
     if (!/^MN[0-9]{4}$/.test(diagnostic.code) || diagnostic.docsAnchor !== `/errors/${diagnostic.code}/`) throw new Error('Invalid diagnostic route.');
     const title = `${diagnostic.code}: ${diagnostic.slug.replaceAll('-', ' ')}`;
-    const references = diagnostic.objects.map(name => manifest.pages.find(page => page.title === name))
+    const references = diagnostic.objects.map(name => manifest.pages.find(page =>
+      referenceSources[name] ? page.source === referenceSources[name] : page.title === name))
       .filter(Boolean).map(page => `[${page.title}](/${page.route}/)`).join(' · ');
     const markdown = `# ${title}\n\nStatus: ${diagnostic.status}\nReported by: ${diagnostic.surfaces.join(', ')}\nObjects: ${diagnostic.objects.join(', ')}\nCategory: ${diagnostic.category}\nSeverity: ${diagnostic.severity}\n\n## Remediation\n\n${diagnostic.remediation}\n\n${references}\n\n[Check and debug an application](/docs/tooling/)\n\n[Diagnostic catalog](/errors/) · [Source identity](/docs/manifest.json)\n`;
     index += `- [${title}](${diagnostic.docsAnchor}): ${diagnostic.status}\n`;

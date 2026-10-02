@@ -75,10 +75,11 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
     assert.equal(end.total, sectionSearch.total);
     assert.equal(end.nextOffset, null);
   }
+  const canonical = (await import('../content/library-docs/skills/marionette/scripts/search.mjs')).searchSections;
+  const { loadSnapshot } = await import('../mcp/load.mjs');
+  const snapshot = await loadSnapshot();
+  const files = new Map(snapshot.sectionIndex.files.map(([source, content]) => [source, { content }]));
   for (const query of ['the and', 'why', 'by']) {
-    const canonical = (await import('../content/library-docs/skills/marionette/scripts/search.mjs')).searchSections;
-    const snapshot = await (await import('../mcp/load.mjs')).loadSnapshot();
-    const files = new Map(snapshot.sectionIndex.files.map(([source, content]) => [source, { content }]));
     const expected = canonical(snapshot.sectionIndex.sections, files, query);
     const actual = unpack(await client.callTool({ name: 'search_sections', arguments: { sourceRevision: corpus.sourceRevision, query, version } }));
     assert.deepEqual(actual.results.map(result => result.id), expected.map(result => result.id), query);
@@ -140,8 +141,6 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
     exampleJson += page.content; offset = page.nextOffset;
   } while (offset !== null);
   const example = JSON.parse(exampleJson);
-  const { loadSnapshot } = await import('../mcp/load.mjs');
-  const snapshot = await loadSnapshot();
   assert.deepEqual(example, JSON.parse(snapshot.examples[0].text));
   assert.equal(example.runtime.packageVersion, version);
   assert.ok(example.sourceFiles['src/main.js'].length && example.sourceFiles['tests/records.spec.js'].length);
@@ -191,8 +190,18 @@ test('stdio server exits cleanly on EOF without requiring a signal', { timeout: 
   assert.equal(errors, '');
 });
 
+test('local candidate servers reject source changes that a commit revision cannot identify', async () => {
+  const { loadSnapshot } = await import('../mcp/load.mjs');
+  const { createDocsServerFactory } = await import('../mcp/tools.mjs');
+  const snapshot = await loadSnapshot();
+  const provenance = { ...snapshot.provenance, publication: 'development candidate (local source)', sourceDirty: false };
+  assert.equal(typeof createDocsServerFactory({ ...snapshot, provenance }), 'function');
+  for (const sourceDirty of [true, undefined, null]) assert.throws(() =>
+    createDocsServerFactory({ ...snapshot, provenance: { ...provenance, sourceDirty } }), /clean source snapshot/);
+});
+
 test('server refuses stale provenance and tampered Markdown before serving tools', { timeout: 10_000 }, async t => {
-  const fixture = await mkdtemp(join(tmpdir(), 'marionette-mcp-'));
+  const fixture = await mkdtemp(join(tmpdir(), 'marionette mcp '));
   t.after(() => rm(fixture, { recursive: true, force: true }));
   for (const directory of ['mcp', 'scripts', 'content', 'dist/docs']) await mkdir(join(fixture, directory), { recursive: true });
   await cp(new URL('content/library-docs', root), join(fixture, 'content/library-docs'), { recursive: true });

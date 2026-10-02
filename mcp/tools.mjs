@@ -1,5 +1,6 @@
 import { isCandidatePublication } from '../scripts/publication-status.mjs';
 import { searchSections, selectSections, sectionMetadata } from './sections.mjs';
+import { prepareSectionSearch } from '../content/library-docs/skills/marionette/scripts/search.mjs';
 import { McpServer } from '@modelcontextprotocol/server';
 import * as z from 'zod/v4';
 import { tokenize } from './search.mjs';
@@ -22,7 +23,10 @@ const exampleInput = z.object({ name: z.string().min(1).max(100), version: versi
 // Prepare immutable corpus lookups once; each request still owns a fresh MCP server.
 export function createDocsServerFactory(snapshot) {
   const { provenance } = snapshot;
+  if (isCandidatePublication(provenance.publication) && provenance.sourceDirty !== false) throw new Error('Local candidate documentation requires a clean source snapshot; a source revision does not identify uncommitted changes.');
   const sections = new Map(snapshot.sections.map(section => [section.id, section]));
+  const preparedSearch = prepareSectionSearch(snapshot.sectionIndex.sections,
+    new Map(snapshot.sectionIndex.files.map(([source, content]) => [source, { content }])));
   const documents = new Map(snapshot.documents.map(doc => [doc.id, doc]));
   const examples = new Map(snapshot.examples.map(example => [example.id, example]));
   const assertVersion = (version, sourceRevision) => {
@@ -89,7 +93,7 @@ export function createDocsServerFactory(snapshot) {
       description: 'Rank versioned documentation sections with the imported consumer skill: identifier components, BM25 body scoring, heading weight and ancestor context. Returns up to five exact IDs, heading ancestry, source links and character sizes. Search separately for related APIs; results do not establish dependency completeness.',
       inputSchema: sectionSearchInput, annotations,
     }, tool(({ query, offset, limit }) => {
-      const ranked = searchSections(snapshot.sections, query, snapshot.sectionIndex, sections);
+      const ranked = searchSections(snapshot.sections, query, snapshot.sectionIndex, sections, preparedSearch);
       return { results: ranked.slice(offset, offset + limit).map(sectionMetadata), total: ranked.length, offset,
         nextOffset: offset + limit < ranked.length ? offset + limit : null };
     }));

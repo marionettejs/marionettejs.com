@@ -38,7 +38,8 @@ try {
   const search = page.locator('#docs-search input');
   await search.fill('prepareStart');
   await page.locator('.pagefind-ui__result-link').first().waitFor();
-  assert.ok(await page.locator('.pagefind-ui__result-link').count());
+  assert.ok(await page.locator('.pagefind-ui__result-link[href$="/docs/api/application/"]').count(),
+    'Searching prepareStart returns the Application API page.');
   assert.deepEqual(errors, []);
   console.log(`Verified ${manifest.pages.length * 2} documentation page/viewport combinations and rendered search.`);
 } finally {

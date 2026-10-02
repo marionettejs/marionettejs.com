@@ -22,6 +22,7 @@ test('search artifact validation accepts a complete isolated index', async t => 
 for (const [name, metadata, content] of [
   ['malformed JSON', '{', Buffer.from([1])],
   ['partial page count', JSON.stringify({ languages: { en: { hash: 'en_1234', page_count: 2 } } }), Buffer.from([1])],
+  ['extra pages cannot mask omitted documentation', JSON.stringify({ languages: { en: { hash: 'en_1234', page_count: 4 } } }), Buffer.from([1])],
   ['empty referenced metadata', JSON.stringify({ languages: { en: { hash: 'en_1234', page_count: 3 } } }), Buffer.alloc(0)],
 ]) test(`search artifact validation rejects ${name} in an isolated directory`, async t => {
   const directory = await mkdtemp(resolve(tmpdir(), 'marionette-search-invalid-'));
@@ -92,6 +93,8 @@ test('diagnostics retain active and retired identities with machine-readable rem
     assert.ok(markdown.includes(`Reported by: ${entry.surfaces.join(', ')}`));
     assert.ok(markdown.includes(entry.remediation));
     const html = await readFile(resolve(root, 'dist/errors', entry.code, 'index.html'), 'utf8');
+    if (entry.objects.includes('Radio')) assert.ok(html.includes('href="/docs/packages/radio/"'), entry.code);
+    if (entry.objects.includes('StateApi')) assert.ok(html.includes('href="/docs/api/providers/data/"'), entry.code);
     assert.ok(html.includes(`type="text/markdown" href="/errors/${entry.code}.md"`));
     assert.ok(markdown.includes('base revision'));
     assert.ok(markdown.includes('[Diagnostic catalog](/errors/index.md)'));
@@ -229,9 +232,7 @@ test('diagnostic link rewrites preserve fenced, indented, and inline code exampl
 test('release-rebased source revisions resolve relative and branch links without rewriting explicit commits', async () => {
   const { manifest, pages } = await readSnapshot(source);
   const page = pages.find(page => page.source === 'docs/guides/routing.md');
-  const publication = JSON.parse(await readFile(resolve(root, 'content/docs-publication-edits.json'), 'utf8'));
   const revision = manifest.sourceRevision;
-  assert.equal(revision, manifest.sourceRevision);
   const base = manifest.sourceRepository + '/blob/';
   const links = [
     [`${base}${manifest.sourceRevision}/test/routing-check.mjs#example`, `${base}${manifest.sourceRevision}/test/routing-check.mjs#example`],

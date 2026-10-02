@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { documentSections } from '../mcp/index-sections.mjs';
 import { indexSections, searchSections, selectSections } from '../mcp/sections.mjs';
-import { searchSections as canonicalSearch } from '../content/library-docs/skills/marionette/scripts/search.mjs';
+import { searchSections as canonicalSearch, prepareSectionSearch } from '../content/library-docs/skills/marionette/scripts/search.mjs';
 const doc = markdown => ({ id: 'docs/example.md', title: 'Example', markdown, url: 'https://marionettejs.com/docs/example/', sha256: 'fixture' });
 
 test('sections preserve source, ignore fenced headings, and match nested duplicate anchors', () => {
@@ -92,8 +92,11 @@ test('canonical source ranking agrees with the imported consumer skill for publi
   const websiteIndex = indexSections(sections, pages.map(page => ({ id: page.source, markdown: page.markdown })));
   const identity = section => ({ source: section.source ?? section.documentId, start: section.start,
     end: section.end, heading: section.heading, matchedTerms: section.matchedTerms, score: section.score });
+  const preparedSearch = prepareSectionSearch(websiteIndex.sections, files);
   for (const query of ['listenTo', 'retained restart', 'prepareStart', 'detachView', 'bindRequests', 'Model set', 'setFilter', 'Application stop destroy']) {
     assert.deepEqual(searchSections(sections, query, websiteIndex).map(identity), canonicalSearch(index.sections, files, query).map(identity), query);
+    assert.deepEqual(searchSections(sections, query, websiteIndex, undefined, preparedSearch).map(identity),
+      canonicalSearch(index.sections, files, query).map(identity), query);
   }
 });
 

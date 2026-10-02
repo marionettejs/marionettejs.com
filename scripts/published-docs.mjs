@@ -21,11 +21,14 @@ export function validatePublication(manifest, declaration, installed) {
   const published = ['release candidate (published on npm)', 'stable release (published on npm)'].includes(declaration.status);
   if (manifest.packageVersion !== declaration.packageVersion || declaration.channel !== manifest.channel || (!candidate && !published)) throw new Error('Review published documentation channel.');
   if (published) {
-    const prerelease = manifest.packageVersion.includes('-');
-    if (manifest.sourceDirty || prerelease !== (declaration.status === 'release candidate (published on npm)') || !installed ||
+    const prerelease = manifest.packageVersion.split('+')[0].includes('-');
+    const integrity = installed?.integrity;
+    const validIntegrity = typeof integrity === 'string' && /^sha512-[A-Za-z0-9+/]{86}==$/.test(integrity) &&
+      Buffer.from(integrity.slice(7), 'base64').toString('base64') === integrity.slice(7);
+    if (manifest.sourceDirty !== false || prerelease !== (declaration.status === 'release candidate (published on npm)') || !installed ||
         installed.packageVersion !== manifest.packageVersion || installed.sourceRevision !== manifest.sourceRevision ||
-        installed.contentSha256 !== manifest.contentSha256 || installed.sourceDirty ||
-        !installed.registryArchive || !installed.integrity) throw new Error('Published documentation requires matching clean installed npm archive evidence.');
+        installed.contentSha256 !== manifest.contentSha256 || installed.sourceDirty !== false ||
+        !installed.registryArchive || !validIntegrity) throw new Error('Published documentation requires matching clean installed npm archive evidence.');
   }
   return declaration.channel;
 }
@@ -37,7 +40,8 @@ function installedPublicationEvidence() {
   const path = pkg.version === '5.0.0-rc.1' ? 'dist/docs/manifest.json' : 'docs-manifest.json';
   const manifest = JSON.parse(readFileSync(new URL(`../node_modules/marionette/${path}`, import.meta.url), 'utf8'));
   const lock = JSON.parse(readFileSync(new URL('../package-lock.json', import.meta.url), 'utf8')).packages['node_modules/marionette'];
-  return { ...manifest, registryArchive: lock.version === pkg.version && /^https:\/\/registry\.npmjs\.org\/marionette\//.test(lock.resolved), integrity: lock.integrity };
+  return { ...manifest, registryArchive: lock.version === pkg.version &&
+    lock.resolved === `https://registry.npmjs.org/marionette/-/marionette-${pkg.version}.tgz`, integrity: lock.integrity };
 }
 
 export function publishedChannel(manifest) {

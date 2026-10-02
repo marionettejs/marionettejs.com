@@ -35,7 +35,8 @@ merge, npm publication, or deployment is involved.
    Permit the automation account to create/update its non-protected branch
    and PR, without bypassing `main`. Enable automatic deletion of merged PR branches
    or delete the completed sync branch manually. Do not enable auto-merge. Keep
-   Cloudflare Git auto-build/deploy integrations disabled; use manual deployments.
+   Cloudflare Git auto-build/deploy integrations disabled; the shared publish
+   workflow deploys the reviewed site and MCP together after merge.
 
 Permission reference: [GitHub repository dispatch](https://docs.github.com/en/rest/repos/repos#create-a-repository-dispatch-event)
 and [GitHub App permissions](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app).
