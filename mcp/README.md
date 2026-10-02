@@ -134,7 +134,8 @@ publication provenance.
    matching terms, and ignores common function words. Results report the terms
    that matched; they need not contain every query word. This is lexical search,
    so try an API name if a prose query returns nothing.
-3. Pass a returned `id` to `get_doc` as `path`. Follow `nextOffset` until it is
+3. For whole documents, pass an `id` returned by `search_docs` to `get_doc` as
+   `path`. Section IDs go to `get_sections`. Follow `nextOffset` until it is
    `null` to retrieve the complete contract. Search snippets are incomplete.
 4. Call `get_example` with a catalog example `name`. Concatenate its chunks,
    then parse the resulting JSON for sourceFiles, sourceHashes and related docs.

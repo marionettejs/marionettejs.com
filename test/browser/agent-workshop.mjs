@@ -24,6 +24,15 @@ const server = createServer(async (req, res) => {
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const browser = await chromium.launch({ headless: true, args: ['--enable-experimental-web-platform-features'] });
 try {
+  const failedDemo = await browser.newPage();
+  const fallbackErrors = [];
+  failedDemo.on('pageerror', error => fallbackErrors.push(error.message));
+  await failedDemo.route('**/assets/demo.js*', route => route.abort());
+  await failedDemo.goto(`http://127.0.0.1:${server.address().port}/`);
+  await failedDemo.locator('#application-slot').filter({ hasText: 'The application example could not load.' }).waitFor();
+  assert.deepEqual(fallbackErrors, []);
+  await failedDemo.close();
+  console.log('PASS homepage demo failure: readable host fallback without a missing-status error');
   const page = await browser.newPage({ reducedMotion: 'reduce' });
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.message));

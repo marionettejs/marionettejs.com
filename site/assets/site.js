@@ -1,7 +1,6 @@
 if (document.querySelector('#application-slot')) {
   import('./demo.js').catch(() => {
-    document.querySelector('#demo-status').textContent = 'The application example could not load. You can still explore the lifecycle illustration below.';
-    document.querySelector('#application-slot').textContent = 'Read the guide to explore Views and Regions.';
+    document.querySelector('#application-slot').textContent = 'The application example could not load. You can still explore the lifecycle illustration below and read the guide.';
   });
 }
 if (document.querySelector('[data-story]')) {
