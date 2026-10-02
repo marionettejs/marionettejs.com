@@ -126,7 +126,10 @@ publication provenance.
 
 1. Read `marionette://catalog` for the exact supported package version,
    provenance, document count, and example names.
-2. Call `search_docs` with a short query, your exact installed `version`, and the matching `sourceRevision` for a candidate snapshot.
+2. Start with `search_sections` and `get_sections` for the specific API or workflow
+   you need, with your exact installed `version` (and `sourceRevision` for a
+   candidate snapshot). Bound the read with `maxCharacters`. See focused section
+   retrieval below. For whole documents, call `search_docs`.
    Search ranks word matches in titles and Markdown, favors titles and multiple
    matching terms, and ignores common function words. Results report the terms
    that matched; they need not contain every query word. This is lexical search,
@@ -189,7 +192,8 @@ unavailable. See [Cloudflare limits](https://developers.cloudflare.com/workers/p
 Search uses an index prepared from the verified corpus at build time rather than
 retokenizing every document on each request. Local CPU measurements are estimates;
 Cloudflare's deployed CPU metrics are the evidence for the edge runtime. Maintainers
-must remeasure after corpus or SDK changes and keep deployment manual.
+must remeasure after corpus or SDK changes. Merge reviewed changes to `main` to
+deploy the website and MCP Worker together through the deployment workflow.
 
 ## MCP retrieval and the browser workshop
 
@@ -220,7 +224,8 @@ node scripts/verify-mcp.mjs https://mcp.marionettejs.com/mcp
 
 This performs bounded read-only requests and compares results against the locally
 built snapshot. The maintenance runbook lives in `mcp/DEPLOYMENT.md` in the website
-repository. Builds and CI do not publish anything.
+repository. Local builds and pull-request checks do not publish anything; the
+deployment workflow publishes both services after a reviewed merge to `main`.
 
 Implementation references: [Cloudflare stateless handler](https://developers.cloudflare.com/agents/model-context-protocol/apis/handler-api/),
 [official SDK web-standard HTTP](https://ts.sdk.modelcontextprotocol.io/v2/serving/web-standard.html),

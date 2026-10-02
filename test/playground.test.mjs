@@ -24,10 +24,14 @@ test('CodePen export preserves the draft and exact runtime without HTML parser b
   assert.throws(() => codePenData({ ...app, code: '' }, vendor, license));
 });
 
-test('the discoverable brief embeds the exact executable starter', async () => {
+test('the brief delivers runtime and ownership first, with the exact starter available separately', async () => {
   const brief = await readFile(new URL('../dist/agent-prompt.md', import.meta.url), 'utf8');
-  assert.ok(brief.includes(`\`\`\`js\n${starter.code}\n\`\`\``));
-  assert.ok(brief.includes(`\`\`\`css\n${starter.css}\`\`\``));
+  assert.ok(!brief.includes(starter.code), 'Reading the brief must not require the full starter source');
+  assert.ok(brief.length <= 4000, 'The workshop brief should fit on its opening 4,000-character page');
+  const firstPage = brief.slice(0, 4000);
+  for (const contract of [`marionette@${version}`, 'prepareStart(options, { signal })', 'showView', 'setDataApi(DataApi)', 'showChildView']) {
+    assert.ok(firstPage.includes(contract), `Runtime and ownership must be on the opening page: ${contract}`);
+  }
   assert.equal(starter.code, (await readFile(new URL('../site/workshop/app.js', import.meta.url), 'utf8')).trimEnd());
   assert.equal(starter.css, await readFile(new URL('../site/workshop/style.css', import.meta.url), 'utf8'));
   assert.ok(!brief.includes('<!-- playground-starter -->'));

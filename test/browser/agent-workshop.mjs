@@ -44,7 +44,7 @@ try {
     deliveredBrief += briefPage.content;
   }
   assert.equal(deliveredBrief, await readFile(resolve(root, 'agent-prompt.md'), 'utf8'));
-  assert.match(deliveredBrief, /Build beautiful Marionette/);
+  assert.match(deliveredBrief, /Runtime and Marionette patterns/);
   await assert.rejects(api('read', { section: '../private', offset: 0 }), /Expected/);
   await assert.rejects(api('read', { offset: -1 }), /Expected/);
   let editorPage = await api('read', { section: 'code' });
@@ -61,6 +61,34 @@ try {
   assert.equal(await nextSteps.isVisible(), false);
   await api('run', { title: 'Failed first run', code: 'throw new Error("Startup failed");', css: '' });
   assert.equal(await nextSteps.isVisible(), false);
+  await api('run', {
+    title: 'Application root inspection', css: '',
+    code: `const Page = View.extend({ template: () => '<p>Prepared app</p>' });
+const App = Application.extend({
+  async prepareStart() { await Promise.resolve(); },
+  onStart() { this.showView(this.getView() || new Page()); }
+});
+export const region = new Region({ el: '#app' });
+const app = new App();
+await app.start({ region });
+const root = app.getView();
+const element = root.el;
+await app.restart();
+const retained = app.getView() === root && root.el === element && !root.isDestroyed();
+const stopped = app.stop() === true && root.isDestroyed() && !region.currentView;
+await app.start();
+export function inspectRecipe() {
+  return { checks: [
+    { id: 'retained-restart', expected: true, observed: retained },
+    { id: 'synchronous-stop', expected: true, observed: stopped }
+  ], views: [{ name: 'app-root', view: app.getView() }], regions: [{ name: 'root', region }] };
+}`
+  });
+  const appProof = await api('inspect');
+  assert.deepEqual(appProof.preview.errors, []);
+  assert.ok(appProof.preview.recipe.checks.every(check => check.observed));
+  assert.equal(appProof.preview.recipe.checks.length, 2);
+  console.log('PASS exported Application Region: async readiness, retained restart and synchronous stop');
   const personalChecks = await readFile('test/browser/workshop-checks.js', 'utf8');
   await api('run', { ...starter, code: `${starter.code}\n${personalChecks}` });
   await page.frameLocator('.workshop-preview iframe').locator('body').evaluate(() => {
@@ -73,7 +101,7 @@ try {
   console.log('PASS personal starter: 18 data, draft, focus, identity, replacement and cleanup checks');
   const errorsBeforeControls = pageErrors.length;
   // A handler-only update can look correct when clicked while missing external changes.
-  const handlerOnly = starter.code.replace(/  modelEvents: \{[\s\S]*?\n  \},\n/, '')
+  const handlerOnly = starter.code.replace("  modelEvents: { change: 'render' },\n", '')
     .replace("    this.getUI('toggle')[0].focus();", "    this.render();\n    this.getUI('toggle')[0].focus();");
   assert.notEqual(handlerOnly, starter.code);
   await api('run', { ...starter, code: `${handlerOnly}\n${personalChecks}` });
@@ -567,42 +595,52 @@ Victory.prototype.onRender = function () {
         const signal = oldApplication.getState().signal;
         view.render();
         await opening;
-        await oldApplication.destroy();
+        oldApplication.destroy();
         return { aborted: signal.aborted, destroyed: oldApplication.isDestroyed(), phase: view.phase, fresh: view.application !== oldApplication };
       }), { aborted: true, destroyed: true, phase: 'closed', fresh: true }, 'Rerender retires pending Application readiness');
       assert.equal(await penPage.evaluate(async () => {
         const controller = window.demoModule.controller;
         const view = controller.view;
+        const lesson = controller.rootRegion.currentView;
         const retiredRoots = [];
         for (let cycle = 0; cycle < 3; cycle++) {
           const opening = view.onClickOpen();
           for (let step = 0; step < 3; step++) await view.onClickOpen();
           await opening;
-          const listeners = Object.values(controller._rdListeningTo || {});
-          if (listeners.some(listener => retiredRoots.includes(listener.obj))) return false;
-          retiredRoots.push(view.application.getView());
+          const explanation = lesson.getChildView('explanation');
+          for (const retired of retiredRoots) retired.trigger('pause:flight');
+          if (lesson.getChildView('explanation') !== explanation) return false;
+          const root = view.application.getView();
+          root.trigger('pause:flight');
+          const currentExplanation = lesson.getChildView('explanation');
+          if (currentExplanation === explanation || !currentExplanation.el.textContent.includes('Paused is not finished')) return false;
+          retiredRoots.push(root);
           await view.onClickClose();
         }
         return true;
-      }), true, 'Reopening the same Application releases subscriptions to its retired roots');
+      }), true, 'Retired roots cannot update the lesson; each reopened root still can');
 
       for (let step = 0; step < 4; step++) await penPage.locator('#open-station').click();
       await penPage.locator('.flight-chapter').click();
       await penPage.locator('#guided-flight').click();
       await penPage.locator('#cancel-flight').click();
       await penPage.locator('#guided-flight').click();
-      assert.equal(await penPage.evaluate(async () => {
+      assert.equal(await penPage.evaluate(() => {
         const controller = window.demoModule.controller;
         if (!controller.retired) throw new Error('Expected a retired flight before rerender');
         const view = controller.view;
         const app = view.application;
         const deck = app.getView();
-        if (!Object.values(controller._rdListeningTo || {}).some(listener => listener.obj === deck)) throw new Error('Expected controller subscriptions to the flight screen');
+        const lesson = controller.rootRegion.currentView;
+        const explanation = lesson.getChildView('explanation');
+        deck.trigger('pause:flight');
+        if (lesson.getChildView('explanation') === explanation) throw new Error('Expected the current flight screen to update the lesson');
         view.render();
-        await app.destroy();
-        const detached = !Object.values(controller._rdListeningTo || {}).some(listener => listener.obj === deck);
-        return deck.isDestroyed() && view.phase === 'closed' && controller.retired === null && detached;
-      }), true, 'Rerender destroys the prior flight screen');
+        app.destroy();
+        const closedExplanation = lesson.getChildView('explanation');
+        deck.trigger('pause:flight');
+        return deck.isDestroyed() && view.phase === 'closed' && controller.retired === null && lesson.getChildView('explanation') === closedExplanation;
+      }), true, 'Rerender destroys the prior flight screen and its events cannot update the lesson');
     }
     // The app's module is reusable with no teaching controller mounted.
     await penPage.evaluate(async id => {
@@ -620,17 +658,13 @@ Victory.prototype.onRender = function () {
       const { Region } = await import(imports.marionette);
       const module = await import(imports['demo:app.js']);
       const ViewClass = module.Todos || module.RadioStation || module.StationConsole;
-      const options = {};
-      if (id === 'list-detail') {
-        const { TodoCollection } = await import(imports['demo:todo-views.js']);
-        options.collection = new TodoCollection();
-      }
-      new Region({ el: '#app' }).show(new ViewClass(options));
+      new Region({ el: '#app' }).show(new ViewClass());
     }, recipe.id);
     if (recipe.id === 'list-detail') {
       await penPage.locator('#new-todo').fill('No lesson controller needed');
       await penPage.locator('#new-todo').press('Enter');
-      assert.equal(await penPage.locator('.todo-item').count(), 1);
+      assert.equal(await penPage.locator('.todo-item').count(), 2);
+      assert.equal(await penPage.locator('.todo-item').filter({ hasText: 'No lesson controller needed' }).count(), 1);
     } else if (recipe.id === 'owned-widget') {
       await penPage.locator('#replace-widget').click();
       await penPage.locator('#broadcast-radio').click();

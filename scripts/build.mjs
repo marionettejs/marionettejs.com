@@ -11,7 +11,7 @@ import { thanks } from '../content/thanks.mjs';
 import { workshop } from '../content/playground.mjs';
 import { adoptionQuestions, adoptionPrompt } from '../content/adoption.mjs';
 import { buildLibraryDocs } from './library-docs.mjs';
-import { starter, runtime } from '../site/assets/workshop-starter.js';
+import { runtime } from '../site/assets/workshop-starter.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const out = resolve(root, 'dist');
@@ -88,8 +88,7 @@ await cp(resolve(root, 'site'), out, {recursive:true});
 await writeFile(resolve(out, 'assets/site.js'), entryModule);
 for (const [path, source] of Object.entries(modules)) await writeFile(resolve(out, 'assets', path), source);
 const agentBrief = await readFile(resolve(root, 'site/agent-prompt.md'), 'utf8');
-if (agentBrief.split('<!-- playground-starter -->').length !== 2) throw new Error('Expected exactly one playground starter marker in the agent brief.');
-const compiledBrief = agentBrief.replaceAll('{{runtimeVersion}}', runtime.version).replaceAll('{{runtimeRevision}}', runtime.revision).replace('<!-- playground-starter -->', () => `\`\`\`js\n${starter.code}\n\`\`\`\n\n\`\`\`css\n${starter.css}\`\`\``);
+const compiledBrief = agentBrief.replaceAll('{{runtimeVersion}}', runtime.version).replaceAll('{{runtimeRevision}}', runtime.revision);
 if (workshop.split('<!-- workshop-brief -->').length !== 2) throw new Error('Expected exactly one inline workshop brief marker.');
 const renderedWorkshop = workshop.replace('<!-- workshop-brief -->', () => escape(compiledBrief));
 await writeFile(resolve(out, 'agent-prompt.md'), compiledBrief);

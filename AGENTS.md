@@ -22,7 +22,7 @@ a moving local build.
 
 The personal-app brief is `site/agent-prompt.md`. Its executable starter is authored
 in `site/workshop/app.js` and `style.css`; `npm run build` generates the runtime
-strings and embeds both sources in the brief. Runtime version and revision are
+strings and keeps the sources available through the editor and workshop read tools. Runtime version and revision are
 derived from vendor provenance. Edit those sources, not generated
 `site/assets/workshop-starter.js`. Verify the full browser suite and
 `node test/browser/personal-preview.mjs` after changing this path. Fresh-agent
