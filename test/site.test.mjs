@@ -13,6 +13,21 @@ const installedPackage=JSON.parse(await readFile(resolve(root,'node_modules/mari
 const catalog=JSON.parse(await readFile(resolve(out,'docs/diagnostics.json'),'utf8'));
 const routes=['demos/index.html','errors/index.html',...catalog.diagnostics.map(entry=>`errors/${entry.code}/index.html`),'thanks/index.html','index.html','why/index.html','404.html',...manifest.pages.map(page=>`${page.route}/index.html`)];
 
+test('documentation embeds the branded Context7 widget without changing Markdown', async () => {
+  for (const page of manifest.pages) {
+    const html = await readFile(resolve(out, `${page.route}/index.html`), 'utf8');
+    assert.equal((html.match(/src="https:\/\/context7.com\/widget.js"/g) || []).length, 1, page.route);
+    assert.match(html, /<script async src="https:\/\/context7.com\/widget.js"/);
+    assert.match(html, /data-library="\/marionettejs\/marionette"/);
+    assert.match(html, /data-color="#b4232d" data-position="bottom-right"/);
+    assert.match(html, /data-placeholder="Ask about Marionette v5…"/);
+    assert.match(html, /Questions are sent to Context7\./);
+    const markdownPath = page.route === 'docs' ? 'docs/index.md' : `${page.route}.md`;
+    assert.ok(!(await readFile(resolve(out, markdownPath), 'utf8')).includes('context7.com/widget.js'));
+  }
+  assert.ok(!(await readFile(resolve(out, 'index.html'), 'utf8')).includes('context7.com/widget.js'));
+});
+
 test('every built page has valid local links, fragments, and asset references',async()=>{
   let checked=0;
   for(const route of routes){
