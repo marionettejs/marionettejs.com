@@ -35,7 +35,7 @@
     "marked": "18.0.12",
     "pagefind": "1.5.2",
     "playwright": "1.63.0",
-    "wrangler": "4.130.0",
+    "wrangler": "4.147.0",
     "zod": "4.5.4"
   },
   "overrides": {
