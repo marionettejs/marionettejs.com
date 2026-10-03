@@ -63,9 +63,20 @@ export async function buildAgentDiscovery({ out, manifest, pages, assets, shell,
     artifacts.push({ path, bytes: Buffer.byteLength(content), sha256: sha256(content) });
   }
   async function page(path, title, markdown) {
-    const { html } = renderMarkdown({ source: `website${path}.md`, title, markdown }, [], manifest);
+    // Browser readers get compact identity details; agent Markdown retains its exact preamble.
+    const isEntrypoint = path === '/docs/agent-start';
+    const introduction = `Your agent has some reading to do. You have an application to build.
+
+Give your agent [this page as Markdown](/docs/agent-start.md) or [connect the documentation MCP](/docs/mcp/). It can follow the task guides and API contracts while you direct the work and read the result.
+
+`;
+    let browserMarkdown = markdown.replace(`${version}\n\n`, isEntrypoint ? introduction : '');
+    if (isEntrypoint) browserMarkdown = browserMarkdown.replace(`${guidance}\n\n`, '');
+    for (const item of pages) browserMarkdown = browserMarkdown.replaceAll(`](${origin}${mdPath(item)})`, `](/${item.route}/)`);
+    const { html } = renderMarkdown({ source: `website${path}.md`, title, markdown: browserMarkdown }, [], manifest);
+    const identityHtml = new Marked().parse(version + (isEntrypoint ? `\n\n${guidance}` : ''));
     await emit(`${path}.md`, markdown);
-    await emit(`${path}/index.html`, shell({ title, description: `${title}. Marionette ${manifest.packageVersion}.`, active: 'docs', route: `${path}/`, markdown: `${path}.md`, body: `<div class="docs-layout canonical-docs"><aside class="docs-nav"><a class="docs-home" href="/docs/">DOCUMENTATION ↗</a><div id="docs-search"></div><a href="/docs/agent-start/">Agent entrypoint</a><br><a href="/docs/coverage/">Coverage and integrity</a></aside><article class="prose docs-prose" data-pagefind-body><span hidden data-pagefind-filter="Audience">Consumer</span><div class="docs-tools" data-pagefind-ignore><a href="${path}.md">Read Markdown</a><button type="button" data-copy-markdown="${path}.md">Copy Markdown</button><span class="copy-status" role="status"></span></div>${html}</article></div>` }));
+    await emit(`${path}/index.html`, shell({ title, description: `${title}. Marionette ${manifest.packageVersion}.`, active: 'docs', route: `${path}/`, markdown: `${path}.md`, body: `<div class="docs-layout canonical-docs"><aside class="docs-nav"><a class="docs-home" href="/docs/">DOCUMENTATION ↗</a><div id="docs-search"></div><details class="docs-menu"><summary>Browse documentation</summary><nav class="docs-shortcuts" aria-label="Documentation navigation"><a href="/docs/agent-start/">Develop with an agent</a><a href="/docs/mcp/">Connect the docs MCP</a><a href="/docs/">All guides and APIs</a><a href="/docs/coverage/">Coverage and integrity</a></nav></details></aside><article class="prose docs-prose" data-pagefind-body><span hidden data-pagefind-filter="Audience">Consumer</span><header class="docs-page-meta" data-pagefind-ignore><span class="docs-breadcrumb">Agent resources</span><span class="docs-release">v${manifest.packageVersion}</span></header><details class="docs-source" data-pagefind-ignore><summary>Markdown &amp; source details</summary><div class="docs-tools"><a href="${path}.md">Read Markdown</a><button type="button" data-copy-markdown="${path}.md">Copy Markdown</button><a href="/docs/manifest.json">Snapshot manifest</a><span class="copy-status" role="status"></span></div><div class="docs-version">${identityHtml}</div></details>${html}</article></div>` }));
   }
   await emit('/llms.txt', rootIndex);
   await emit('/docs/llms.txt', docsIndex);

@@ -33,6 +33,14 @@ try {
       assert.equal(await page.locator('.docs-prose h1').count(), 1, item.source);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, `${item.source} at ${width}px`);
       assert.equal(await page.locator('.docs-version').textContent().then(text => text.includes(manifest.packageVersion)), true);
+      if (width === 375) {
+        const heading = await page.locator('.docs-prose h1').boundingBox();
+        assert.ok(heading.y + heading.height < 900, `${item.source}: article title fits the first mobile screen`);
+        assert.equal(await page.locator('.docs-menu').getAttribute('open'), null);
+      } else {
+        assert.equal(await page.locator('.docs-menu').getAttribute('open'), '', 'Desktop navigation opens when JavaScript is available');
+      }
+      if (item.source === 'docs/api/application.md') await page.screenshot({ path: `output/playwright/docs-first-screen-${width}.png` });
       if (['docs/api/application.md', 'docs/guides/production.md'].includes(item.source)) await page.screenshot({ path: `output/playwright/${item.source.replaceAll('/', '-').replace('.md', '')}-${width}.png`, fullPage: true });
     }
   }
@@ -42,6 +50,31 @@ try {
   await page.locator('.pagefind-ui__result-link').first().waitFor();
   assert.ok(await page.locator('.pagefind-ui__result-link[href$="/docs/api/application/"]').count(),
     'Searching prepareStart returns the Application API page.');
+  // Native disclosures keep reading, navigation and provenance usable without scripts.
+  const staticPage = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+  for (const route of ['/docs/api/region/', '/docs/agent-start/']) {
+    await staticPage.goto(`http://127.0.0.1:${server.address().port}${route}`);
+    const heading = await staticPage.locator('.docs-prose h1').boundingBox();
+    assert.ok(heading.y + heading.height < 844, `${route}: no-script mobile title fits the first screen`);
+    assert.equal(await staticPage.locator('.docs-release').isVisible(), true);
+    await staticPage.locator('.docs-source>summary').click();
+    assert.equal(await staticPage.getByRole('link', { name: 'Read Markdown', exact: true }).isVisible(), true);
+    assert.ok((await staticPage.locator('.docs-version').textContent()).includes(manifest.sourceRevision));
+    await staticPage.locator('.docs-menu>summary').click();
+    assert.equal(await staticPage.locator('.docs-shortcuts').isVisible(), true);
+  }
+  await staticPage.goto(`http://127.0.0.1:${server.address().port}/docs/api/region/`);
+  await staticPage.locator('.docs-page-index>summary').click();
+  const section = staticPage.locator('.docs-page-index a').first();
+  const fragment = await section.getAttribute('href');
+  await section.click();
+  assert.equal(new URL(staticPage.url()).hash, fragment);
+  await staticPage.setViewportSize({ width: 1280, height: 900 });
+  await staticPage.goto(`http://127.0.0.1:${server.address().port}/docs/api/region/`);
+  assert.equal(await staticPage.locator('.docs-menu').getAttribute('open'), null);
+  await staticPage.locator('.docs-menu>summary').click();
+  assert.equal(await staticPage.locator('.docs-shortcuts').isVisible(), true, 'Desktop navigation opens without JavaScript');
+  await staticPage.close();
   assert.deepEqual(errors, []);
   console.log(`Verified ${manifest.pages.length * 2} documentation page/viewport combinations and rendered search.`);
 } finally {
