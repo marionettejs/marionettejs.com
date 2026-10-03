@@ -19,9 +19,11 @@ test('standard SDK retains attribution, geography and replay CSS', () => {
   assert.equal(options.disable_session_recording, false);
   assert.equal(options.session_recording.maskAllInputs, false);
   assert.equal(options.session_recording.maskInputOptions.password, true);
-  const event = { event: '$autocapture', properties: { $referrer: 'https://example.com/', utm_source: 'test', $browser: 'Chrome', $snapshot_data: [{ data: { _cssText: 'body{color:red}' } }] } };
+  const event = { event: '$autocapture', properties: { $pathname: '/docs/', $referrer: 'https://example.com/', utm_source: 'test', $browser: 'Chrome', $snapshot_data: [{ data: { _cssText: 'body{color:red}' } }] } };
   assert.equal(options.before_send(event), event);
   assert.equal(event.properties.$referrer, 'https://example.com/');
+  assert.equal(event.properties.path, '/docs/');
+  assert.equal(event.properties.page, 'docs');
   assert.equal(event.properties.$snapshot_data[0].data._cssText, 'body{color:red}');
   assert.equal(event.properties.analytics_test, false);
   globalThis.__MARIONETTE_ANALYTICS_TEST__ = true;
@@ -40,4 +42,19 @@ test('invalid project and development host cannot initialize', () => {
   globalThis.location = { hostname: 'localhost', pathname: '/' };
   try { assert.equal(initializePostHog({ projectKey: 'phc_synthetic' }, sdk), false); }
   finally { delete globalThis.location; }
+});
+
+test('report aliases preserve existing business values and use the current path only when absent', () => {
+  const before = postHogOptions().before_send;
+  for (const [path, page] of [['/business/', 'business'], [null, null]]) {
+    const event = before({ event: 'workshop_run', properties: { path, page, $pathname: '/docs/' } });
+    assert.equal(event.properties.path, path);
+    assert.equal(event.properties.page, page);
+  }
+  globalThis.location = { pathname: '/thanks/' };
+  try {
+    const event = before({ event: '$pageview', properties: {} });
+    assert.equal(event.properties.path, '/thanks/');
+    assert.equal(event.properties.page, 'thanks');
+  } finally { delete globalThis.location; }
 });
