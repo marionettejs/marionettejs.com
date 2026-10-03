@@ -69,6 +69,8 @@ try {
   const view = events.find(event => event.event === '$pageview');
   assert.equal(view.properties.$referrer, 'https://example.com/referral');
   assert.equal(view.properties.utm_source, 'synthetic');
+  assert.equal(view.properties.path, '/');
+  assert.equal(view.properties.page, 'home');
   assert.ok(view.properties.$browser);
   assert.ok(view.properties.$browser_language);
   assert.ok(view.properties.$device_type);
