@@ -1,16 +1,27 @@
-import { track, analyticsAllowed, setAnalyticsOptOut } from './analytics.js';
-import { analyticsConfig } from './analytics-config.js';
-
-if (analyticsConfig.projectKey && analyticsConfig.cookielessServerHashConfirmed && analyticsAllowed()) {
-  import('./analytics-posthog.js').then(({ initializePostHog }) => {
-    if (initializePostHog(analyticsConfig)) track('page_view');
-  }).catch(() => { /* Optional analytics must never delay website controls. */ });
+let track = () => false;
+Promise.all([import('./analytics.js'), import('./analytics-config.js')]).then(([tracker, { analyticsConfig }]) => {
+  track = tracker.track;
+  if (analyticsConfig.projectKey && analyticsConfig.cookielessServerHashConfirmed && tracker.analyticsAllowed()) {
+    import('./analytics-posthog.js').then(({ initializePostHog }) => {
+      if (initializePostHog(analyticsConfig)) track('page_view');
+    }).catch(() => {});
+  }
+}).catch(() => {});
+// Privacy controls work even if optional analytics modules fail to load.
+function setAnalyticsOptOut(value) {
+  try {
+    if (value) {
+      localStorage.setItem('marionette-analytics-opt-out', '1');
+      dispatchEvent(new Event('marionette-analytics-opt-out'));
+    } else localStorage.removeItem('marionette-analytics-opt-out');
+    return true;
+  } catch { return false; }
 }
 for (const button of document.querySelectorAll('[data-analytics-opt-out]')) {
   button.addEventListener('click', () => {
     const optingOut = button.dataset.analyticsOptOut === 'true';
     const saved = setAnalyticsOptOut(optingOut);
-    document.querySelector('#analytics-choice-status').textContent = saved ? (optingOut ? 'Preference saved. PostHog analytics is off for this browser.' : 'Preference saved. Reload pages to allow PostHog analytics when configured; browser privacy signals are still respected.') : 'This browser could not save the preference. DNT and Global Privacy Control are also respected.';
+    document.querySelector('#analytics-choice-status').textContent = saved ? (optingOut ? 'Preference saved. PostHog analytics is off in this browser for this website address.' : 'Preference saved. Reload pages to allow PostHog analytics when configured; browser privacy signals are still respected.') : 'This browser could not save the preference. DNT and Global Privacy Control are also respected.';
   });
 }
 

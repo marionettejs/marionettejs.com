@@ -131,7 +131,7 @@ test('published pages keep a validator and the sitemap dates every entry', async
   const entries = [...sitemap.matchAll(/<url>(.*?)<\/url>/g)].map(([, entry]) => entry);
   const manifest = JSON.parse(await read('content/library-docs/manifest.json'));
   const catalog = JSON.parse(await read('dist/docs/diagnostics.json'));
-  assert.equal(entries.length, manifest.pages.length + catalog.diagnostics.length + 8);
+  assert.equal(entries.length, manifest.pages.length + catalog.diagnostics.length + 9);
   const dates = new Set();
   for (const entry of entries) {
     const [, date] = entry.match(/<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/) ?? [];

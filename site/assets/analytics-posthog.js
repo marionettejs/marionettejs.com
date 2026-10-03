@@ -1,6 +1,7 @@
 import posthog from 'posthog-js/no-external';
 import { analyticsAllowed, configureAnalytics, allowedEvent, pagePath, pageCategory } from './analytics.js';
 
+let initialized;
 const canonicalHost = 'marionettejs.com';
 export function sanitizePostHogEvent(event, projectKey) {
   if (!event || !allowedEvent(event.event) || !analyticsAllowed()) return null;
@@ -62,8 +63,7 @@ export function postHogOptions(projectKey, send) {
     disable_compression: true,
     before_send: event => {
       const clean = sanitizePostHogEvent(event, projectKey);
-      if (!send) return clean;
-      if (clean) send(clean);
+      if (clean && send) send(clean);
       // Own immediate transport has no batching or retries that could survive opt-out.
       return null;
     }
@@ -72,6 +72,11 @@ export function postHogOptions(projectKey, send) {
 export function initializePostHog(config, sdk = posthog) {
   if (!config?.cookielessServerHashConfirmed || !/^phc_[A-Za-z0-9]+$/.test(config.projectKey || '') || !analyticsAllowed()) return false;
   if (!['marionettejs.com', 'www.marionettejs.com', 'v5.marionettejs.com'].includes(globalThis.location?.hostname)) return false;
+  if (initialized) {
+    if (initialized.projectKey !== config.projectKey || initialized.sdk !== sdk) return false;
+    configureAnalytics((name, properties) => sdk.capture(name, properties));
+    return true;
+  }
   const pending = new Set();
   const stop = () => {
     if (analyticsAllowed()) return;
@@ -91,6 +96,7 @@ export function initializePostHog(config, sdk = posthog) {
       referrerPolicy: 'no-referrer', keepalive: true, signal: controller.signal
     }).catch(() => {}).finally(() => pending.delete(controller));
   }));
+  initialized = { projectKey: config.projectKey, sdk };
   configureAnalytics((name, properties) => sdk.capture(name, properties));
   return true;
 }

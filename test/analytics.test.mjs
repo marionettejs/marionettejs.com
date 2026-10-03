@@ -61,10 +61,13 @@ test('browser privacy signals prevent delivery', () => {
 
 test('built tracker preserves only published docs routes', async () => {
   const { readFile } = await import('node:fs/promises');
-  const { pathToFileURL } = await import('node:url');
-  const built = await import(pathToFileURL(new URL('../dist/assets/analytics.js', import.meta.url).pathname));
+  const built = await import(new URL('../dist/assets/analytics.js', import.meta.url));
   const manifest = JSON.parse(await readFile(new URL('../dist/docs/manifest.json', import.meta.url), 'utf8'));
   for (const page of manifest.pages) assert.equal(built.pagePath(`/${page.route}/?private#private`), `/${page.route}/`);
+  assert.equal(built.pagePath('/privacy/'), '/privacy/');
+  assert.equal(built.pageCategory('/privacy/'), 'privacy');
+  assert.equal(built.pagePath('/errors/MN0001/'), '/errors/MN0001/');
+  assert.equal(built.pagePath('/errors/private/'), null);
   assert.equal(built.pagePath('/docs/private-person/'), null);
   assert.equal(built.pagePath('/docs/api/region/extra/'), null);
 });

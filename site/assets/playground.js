@@ -1,4 +1,5 @@
-import { track } from './analytics.js';
+let track = () => false;
+import('./analytics.js').then(module => { track = module.track; }).catch(() => {});
 import { backstageURL, backstageText, codePenData } from './playground-export.js';
 import { starter, version, revision, validateApp, validateAction, runnerDocument, standaloneDocument } from './playground-runtime.js';
 

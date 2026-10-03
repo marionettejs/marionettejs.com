@@ -1,4 +1,5 @@
-import { track } from './analytics.js';
+let track = () => false;
+import('./analytics.js').then(module => { track = module.track; }).catch(() => {});
 import { Application, View, CollectionView } from '../vendor/marionette.js';
 
 // Static example content; each screen owns its selection and lifecycle state.

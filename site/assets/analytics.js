@@ -33,7 +33,7 @@ export function pageCategory(pathname) {
   if (path === '/') return 'home';
   if (/^\/docs(?:\/|$)/.test(path)) return 'docs';
   if (/^\/errors(?:\/|$)/.test(path)) return 'errors';
-  return ({ '/demos/': 'demos', '/why/': 'why', '/thanks/': 'thanks' })[path] || 'other';
+  return ({ '/demos/': 'demos', '/why/': 'why', '/thanks/': 'thanks', '/privacy/': 'privacy' })[path] || 'other';
 }
 export function pagePath(pathname) {
   const path = String(pathname || '').split(/[?#]/, 1)[0];

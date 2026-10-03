@@ -47,14 +47,11 @@ Set and verify a free usage cap, region and retention in the account; do not
 assume an SDK option changes server-side project settings. Test outgoing payloads
 with synthetic actions before enabling visitors. The SDK's own transport is rejected by its public before-send hook. A cancellable immediate fetch to `https://eu.i.posthog.com/i/v0/e/` owns delivery, with credentials omitted and no referrer, batching, offline persistence or retries. Opting out cancels pending requests and stops new events in the current and other open tabs via storage events. Already delivered requests cannot be recalled. A failed delivery is dropped. The build-derived public route allowlist preserves documentation page journeys; arbitrary URL capture is never necessary.
 
-## Account completion checklist
+## Setup and deployment status
 
-1. Complete the chosen email account login/signup in PostHog EU; obtain explicit approval of any new terms and let the owner enter a new password/passkey. Account signup and verification are now complete.
-2. Create/select the Marionette project with the owner's approval of any persistent project credentials. No personal or administrative token belongs in website code.
-3. Enable **Cookieless server hash mode** under Project Settings → Web analytics. Verify the free tier has no paid subscription/card, its event cap stops ingestion at the free allocation, and the event retention setting matches the owner's choice. Record verified settings, not assumptions.
-4. Put only the project's public `phc_` ingestion key in `site/assets/analytics-config.js` and set `cookielessServerHashConfirmed: true` after verification. The EU endpoint is fixed.
-5. Run `npm run check`, `node test/browser/analytics.mjs`, and the repository browser suites. The synthetic SDK test intercepts all requests and proves allowed wire fields, no visitor ID storage, and opt-out control behavior. Verify one synthetic event appears in the real project when that verification is authorized.
-6. Review/merge through the existing deployment workflow only with deployment approval. Confirm events arrive after deployment; implementation and build success alone do not prove live collection. Configure the workshop/examples/docs funnels listed above in the dashboard after account setup.
+Account signup, EU project selection, Free plan, server cookieless setting, public ingestion configuration and one synthetic ingestion check are complete. No duplicate setup is needed. The saved [Marionette behavior dashboard](https://eu.posthog.com/project/292567/dashboard/994181) has workshop, examples and site-visit-to-documentation-copy funnels. These use named events; generic starter/Web Analytics reports expect automatic `$pageview` events and are not the configured reporting surface. One synthetic setup page view remains in initial counts until it ages out.
+
+Before deployment, require passing `npm run check`, intercepted analytics/browser suites, hosted CI and resolved review findings. Merge through the existing deployment workflow only with owner approval. After deployment verify the served revision and a small live test journey in project Activity. Daily cookieless identifiers limit cross-day journeys even with a longer funnel query window. Opt-out is stored per origin; save it separately for alternate website addresses.
 
 Official references: [cookieless measurement](https://posthog.com/tutorials/cookieless-tracking), [JavaScript configuration](https://posthog.com/docs/libraries/js/config), [terms](https://posthog.com/terms), [privacy](https://posthog.com/privacy).
 

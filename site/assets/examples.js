@@ -1,4 +1,5 @@
-import { track } from './analytics.js';
+let track = () => false;
+import('./analytics.js').then(module => { track = module.track; }).catch(() => {});
 import { getRecipe, listRecipes, recipeRuntime } from './playground-recipes.js';
 import { runnerDocument, validateAction } from './playground-runtime.js';
 import { compileProject, projectArchive, projectPen } from './demo-project-tools.js';
@@ -77,8 +78,8 @@ function present(value) {
   if (Number.isFinite(value.contentHeight)) active.frame.style.height = `${Math.max(500, Math.min(2800, value.contentHeight))}px`;
 }
 async function run() {
-  track('example_run');
   const { app, project } = compileProject(draft());
+  track('example_run');
   stop();
   sourceRequest = undefined;
   const id = generation;

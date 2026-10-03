@@ -30,3 +30,7 @@ test('SDK own transport is suppressed when an immediate sender owns delivery', (
   assert.equal(options.before_send({ event: 'workshop_run', properties: { path: '/' } }), null);
   assert.equal(sent.length, 1);
 });
+
+test('SDK transport is suppressed without an owned sender', () => {
+  assert.equal(postHogOptions('phc_synthetic').before_send({ event: 'page_view', properties: { path: '/' } }), null);
+});

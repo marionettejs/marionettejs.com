@@ -3,16 +3,22 @@ import assert from 'node:assert/strict';
 import { readFile, mkdir } from 'node:fs/promises';
 import { resolve, extname } from 'node:path';
 import { chromium } from 'playwright';
+async function bounded(promise, label) {
+  let timer;
+  try { return await Promise.race([promise, new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(`Timed out: ${label}`)), 5000); })]); }
+  finally { clearTimeout(timer); }
+}
 const browser = await chromium.launch({ headless: true });
 try {
   const context = await browser.newContext({ userAgent: 'Mozilla/5.0 Chrome/130.0.0.0 Safari/537.36' });
   await context.addInitScript(() => { Object.defineProperty(navigator, 'webdriver', { get: () => false }); Object.defineProperty(navigator, 'userAgentData', { get: () => undefined }); });
+  await context.addCookies([{ name: 'analytics_test_cookie', value: 'PRIVATE', domain: 'eu.i.posthog.com', path: '/', secure: true, sameSite: 'None' }]);
   const requests = [];
   const errors = [];
   await context.route('**/*', async route => {
     const url = new URL(route.request().url());
     if (url.hostname === 'eu.i.posthog.com') {
-      requests.push({ path: url.pathname, body: route.request().postData() });
+      requests.push({ path: url.pathname, body: route.request().postData(), headers: await route.request().allHeaders() });
       return route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: '{"status":1}' });
     }
     if (url.hostname === 'context7.com') return route.abort();
@@ -49,7 +55,9 @@ try {
     $current_url: 'https://marionettejs.com/docs/api/region/', $pathname: '/docs/api/region/',
     path: '/docs/api/region/', page: 'docs'
   });
-  assert.deepEqual(await context.cookies(), []);
+  assert.equal(requests[0].headers.referer, undefined);
+  assert.equal(requests[0].headers.cookie, undefined);
+  assert.deepEqual(await context.cookies('https://marionettejs.com'), []);
   assert.deepEqual(await page.evaluate(() => Object.keys(localStorage)), []);
   assert.deepEqual(await page.evaluate(() => Object.keys(sessionStorage)), []);
   await page.evaluate(() => {
@@ -96,6 +104,25 @@ try {
   await slow.close();
   console.log('PASS stalled analytics module: opt-out and real homepage demo work immediately');
 
+  // Missing optional boundary/config modules must not disable core UI.
+  const unavailable = await browser.newContext();
+  await unavailable.route('**/*', async route => {
+    const url = new URL(route.request().url());
+    if (url.hostname !== 'marionettejs.com' || /\/analytics(?:-config)?\.js$/.test(url.pathname)) return route.abort();
+    const file = url.pathname.endsWith('/') ? url.pathname + 'index.html' : url.pathname;
+    try { return route.fulfill({ contentType: ({ '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' })[extname(file)] || 'application/octet-stream', body: await readFile(resolve('dist', '.' + file)) }); }
+    catch { return route.abort(); }
+  });
+  const independent = await unavailable.newPage();
+  await independent.goto('https://marionettejs.com/privacy/');
+  await independent.getByRole('button', { name: 'Turn off PostHog analytics' }).click();
+  assert.equal(await independent.evaluate(() => localStorage.getItem('marionette-analytics-opt-out')), '1');
+  await independent.goto('https://marionettejs.com/');
+  await independent.locator('#application-slot button').first().waitFor();
+  await independent.locator('#application-slot button').last().click();
+  await unavailable.close();
+  console.log('PASS missing analytics boundary/config: privacy controls and homepage demo remain available');
+
   const transport = await browser.newContext({ userAgent: 'Mozilla/5.0 Chrome/130.0.0.0 Safari/537.36' });
   await transport.addInitScript(() => { Object.defineProperty(navigator, 'webdriver', { get: () => false }); Object.defineProperty(navigator, 'userAgentData', { get: () => undefined }); });
   let resolvePending, resolveAborted, resolveFailed;
@@ -128,11 +155,11 @@ try {
     adapter.initializePostHog({ projectKey: 'phc_synthetic', cookielessServerHashConfirmed: true });
     tracker.track('workshop_run');
   });
-  await pendingObserved;
+  await bounded(pendingObserved, 'pending capture');
   const otherTab = await transport.newPage();
   await otherTab.goto('https://marionettejs.com/');
   await otherTab.evaluate(() => localStorage.setItem('marionette-analytics-opt-out', '1'));
-  await abortedObserved;
+  await bounded(abortedObserved, 'opt-out cancellation');
   assert.equal(await sending.evaluate(() => fixture.tracker.track('workshop_download')), false);
   assert.deepEqual(deliveries, ['workshop_run']);
   // Reload is required to allow capture after clearing an opt-out.
@@ -141,7 +168,7 @@ try {
     fixture.adapter.initializePostHog({ projectKey: 'phc_synthetic', cookielessServerHashConfirmed: true });
     fixture.tracker.track('workshop_download');
   });
-  await failedObserved;
+  await bounded(failedObserved, 'failed delivery');
   await new Promise(resolve => setTimeout(resolve, 6500));
   assert.deepEqual(deliveries, ['workshop_run', 'workshop_download'], 'Failed delivery must not retry');
   await transport.close();

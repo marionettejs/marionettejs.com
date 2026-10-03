@@ -1,4 +1,5 @@
-import { track } from './analytics.js';
+let track = () => false;
+import('./analytics.js').then(module => { track = module.track; }).catch(() => {});
 const search = new window.PagefindUI({ element: '#docs-search', showSubResults: true, showImages: false, bundlePath: '/pagefind/' });
 search.triggerFilters({ Audience: ['Consumer'] });
 
