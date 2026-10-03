@@ -12,12 +12,12 @@ const browser = await chromium.launch({ headless: true });
 try {
   const context = await browser.newContext({ userAgent: 'Mozilla/5.0 Chrome/130.0.0.0 Safari/537.36' });
   await context.addInitScript(() => { Object.defineProperty(navigator, 'webdriver', { get: () => false }); Object.defineProperty(navigator, 'userAgentData', { get: () => undefined }); });
-  await context.addCookies([{ name: 'analytics_test_cookie', value: 'PRIVATE', domain: 'eu.i.posthog.com', path: '/', secure: true, sameSite: 'None' }]);
+  await context.addCookies([{ name: 'analytics_test_cookie', value: 'PRIVATE', domain: 'e.marionettejs.com', path: '/', secure: true, sameSite: 'None' }]);
   const requests = [];
   const errors = [];
   await context.route('**/*', async route => {
     const url = new URL(route.request().url());
-    if (url.hostname === 'eu.i.posthog.com') {
+    if (url.hostname === 'e.marionettejs.com') {
       requests.push({ path: url.pathname, body: route.request().postData(), headers: await route.request().allHeaders() });
       return route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: '{"status":1}' });
     }
@@ -79,7 +79,32 @@ try {
   assert.equal(await page.evaluate(() => localStorage.getItem('marionette-analytics-opt-out')), null);
   assert.equal(requests.length, 1, 'Disabled fixture config must not send analytics');
   await context.close();
-  console.log('PASS real PostHog SDK: EU-only request, cookieless sentinel, public path only, no identity storage, no private content, opt-out stops capture');
+  console.log('PASS real PostHog SDK: EU managed-proxy request, cookieless sentinel, public path only, no identity storage, no private content, opt-out stops capture');
+  // Privacy signals must stop the real adapter before any proxy request.
+  for (const signal of ['globalPrivacyControl', 'doNotTrack']) {
+    const privacyContext = await browser.newContext();
+    await privacyContext.addInitScript(signal => {
+      Object.defineProperty(navigator, signal, { get: () => signal === 'globalPrivacyControl' ? true : '1' });
+    }, signal);
+    let proxyRequests = 0;
+    await privacyContext.route('**/*', async route => {
+      const url = new URL(route.request().url());
+      if (url.hostname === 'e.marionettejs.com') { proxyRequests++; return route.abort(); }
+      assert.equal(url.hostname, 'marionettejs.com');
+      if (url.pathname.startsWith('/assets/')) return route.fulfill({ contentType: 'text/javascript', body: await readFile(resolve('dist', '.' + url.pathname)) });
+      return route.fulfill({ contentType: 'text/html', body: '<html><body>Privacy signal fixture</body></html>' });
+    });
+    const privacyPage = await privacyContext.newPage();
+    await privacyPage.goto('https://marionettejs.com/');
+    assert.equal(await privacyPage.evaluate(async () => {
+      const adapter = await import('/assets/analytics-posthog.js');
+      return adapter.initializePostHog({ projectKey: 'phc_synthetic', cookielessServerHashConfirmed: true });
+    }), false);
+    assert.equal(proxyRequests, 0, `${signal} must prevent proxy delivery`);
+    assert.deepEqual(await privacyContext.cookies(), []);
+    await privacyContext.close();
+  }
+  console.log('PASS GPC and DNT prevent managed-proxy initialization and delivery');
   // Regression: an indefinitely stalled analytics module must not block controls.
   const slow = await browser.newContext();
   let pendingAdapter, resolveAdapter;
@@ -134,7 +159,7 @@ try {
   const deliveries = [];
   await transport.route('**/*', async route => {
     const url = new URL(route.request().url());
-    if (url.hostname === 'eu.i.posthog.com') {
+    if (url.hostname === 'e.marionettejs.com') {
       const event = JSON.parse(route.request().postData());
       deliveries.push(event.event);
       if (event.event === 'workshop_run') { resolvePending(); return; }
@@ -146,7 +171,7 @@ try {
     return route.fulfill({ contentType: 'text/html', body: '<html><body>Synthetic transport fixture</body></html>' });
   });
   const sending = await transport.newPage();
-  sending.on('requestfailed', request => { if (request.url().includes('eu.i.posthog.com')) resolveAborted(); });
+  sending.on('requestfailed', request => { if (request.url().includes('e.marionettejs.com')) resolveAborted(); });
   await sending.goto('https://marionettejs.com/demos/');
   await sending.evaluate(async () => {
     const source = await (await fetch('/assets/analytics-posthog.js')).text();
