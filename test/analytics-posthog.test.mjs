@@ -20,7 +20,9 @@ test('invalid destination or nonpublic page never initializes PostHog', () => {
   const sdk = { init() { assert.fail('SDK must not initialize'); } };
   assert.equal(initializePostHog({ projectKey: 'phc_synthetic' }, sdk), false);
   assert.equal(initializePostHog({ projectKey: 'phx_secret' }, sdk), false);
-  assert.equal(initializePostHog({ projectKey: 'phc_synthetic' }, sdk), false); // No approved production hostname.
+  globalThis.location = { hostname: 'localhost', pathname: '/' };
+  try { assert.equal(initializePostHog({ projectKey: 'phc_synthetic' }, sdk), false); }
+  finally { delete globalThis.location; }
 });
 
 test('SDK own transport is suppressed when an immediate sender owns delivery', () => {
@@ -83,7 +85,7 @@ test('replay preserves approved demo contents but removes page URL metadata and 
   try {
     const snapshot = sanitizeReplayEvent({ event: '$snapshot', properties: { distinct_id: id, $session_id: id, $window_id: id,
       email: 'PRIVATE', $snapshot_bytes: 12, $snapshot_data: [{ type: 4, data: { href: 'https://marionettejs.com/?PRIVATE#PRIVATE' } },
-        { type: 2, data: { node: { attributes: { href: '/docs/api/region/?PRIVATE', srcdoc: 'PRIVATE' }, childNodes: [{ textContent: 'Public demo text' }] } } }]
+        { type: 2, data: { node: { attributes: { href: '/docs/api/region/?PRIVATE', srcdoc: 'PRIVATE', srcset: '/assets/mark.svg?PRIVATE 1x', style: 'background:url(/assets/mark.svg?PRIVATE)', _cssText: 'body{background:url(/assets/mark.svg?PRIVATE)}' }, childNodes: [{ textContent: 'Public demo text' }] } } }]
     } }, 'phc_synthetic');
     assert.equal(snapshot.properties.distinct_id, id);
     assert.equal(snapshot.properties.$snapshot_data[0].data.href, 'https://marionettejs.com/');

@@ -59,7 +59,8 @@ try {
   assert.equal(requests[0].headers.referer, undefined);
   assert.equal(requests[0].headers.cookie, undefined);
   assert.equal((await context.cookies('https://marionettejs.com')).length, 1);
-  assert.ok((await context.cookies('https://marionettejs.com'))[0].expires - Date.now() / 1000 < 86410);
+  const expiresIn = (await context.cookies('https://marionettejs.com'))[0].expires - Date.now() / 1000;
+  assert.ok(expiresIn > 86000 && expiresIn < 86410);
   assert.deepEqual(await page.evaluate(() => Object.keys(localStorage)), []);
   assert.ok((await page.evaluate(() => Object.keys(sessionStorage))).every(key => key.startsWith('ph_')));
   await page.evaluate(() => {

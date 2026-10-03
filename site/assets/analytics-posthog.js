@@ -68,8 +68,8 @@ export function postHogOptions(projectKey, send, replay = false) {
     enable_recording_console_log: false,
     get_current_url: () => { const path = pagePath(globalThis.location?.pathname); return path ? `https://${canonicalHost}${path}` : `https://${canonicalHost}/`; },
     session_recording: {
-      maskAllInputs: false, maskInputOptions: { password: true, search: true },
-      blockSelector: 'iframe, body > :not(header):not(main):not(footer):not(#playground)',
+      maskAllInputs: false, maskInputFn: (text, element) => element?.matches?.('.pagefind-ui__search-input, input[type="password"], input[type="search"]') ? '*'.repeat(text.length) : text, maskInputOptions: { password: true, search: true, text: true },
+      blockSelector: 'iframe, #workshop-notes, body > :not(header):not(main):not(footer):not(#playground)',
       recordCrossOriginIframes: false, recordHeaders: false, recordBody: false,
       captureCanvas: { enabled: false }, compress_events: false,
       // SDK also calls this hook with only `name` for rrweb page metadata.
@@ -160,7 +160,7 @@ function scrubReplay(value) {
   if (!value || typeof value !== 'object') return value;
   const clean = {};
   for (const [key, item] of Object.entries(value)) {
-    if (['srcdoc', 'action', 'formaction', 'data', 'integrity'].includes(key) && typeof item === 'string') continue;
+    if (['srcdoc', 'action', 'formaction', 'data', 'integrity', 'srcset', 'style', '_cssText'].includes(key) && typeof item === 'string') continue;
     if (['href', 'src', 'url'].includes(key) && typeof item === 'string') clean[key] = safeReplayUrl(item);
     else clean[key] = scrubReplay(item);
   }

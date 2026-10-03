@@ -27,7 +27,7 @@ const externalLinks = new Map([
 ]);
 export function publicClick(element) {
   if (!element?.closest || element.closest('form, [contenteditable], #docs-chat, [data-ph-no-autocapture], .ph-no-autocapture')) return null;
-  if (!element.closest('main, .site-header, .site-footer, .workshop-header, .workshop-export')) return null;
+  if (!element.closest('main, .site-header, .site-footer, #playground, .workshop-header, .workshop-export')) return null;
   const placement = element.closest('.site-header') ? 'header' : element.closest('.site-footer') ? 'footer' : element.closest('.docs-menu') ? 'docs-sidebar' : 'content';
   for (const [selector, target] of controls) if (element.matches(selector)) return { target, placement };
   if (element.matches('summary')) return { target: 'details.toggle', placement };

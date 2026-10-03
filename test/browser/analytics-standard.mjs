@@ -11,18 +11,19 @@ try {
     Object.defineProperty(navigator, 'userAgentData', { get: () => undefined });
     window.__MARIONETTE_ANALYTICS_TEST__ = true;
   });
-  const requests = [], errors = [];
+  const requests = [], errors = [], proxyHeaders = [];
   await context.addCookies([{ name: 'parent_cookie', value: 'PRIVATE_COOKIE', domain: '.marionettejs.com', path: '/', secure: true, sameSite: 'None' }]);
   await context.route('**/*', async route => {
     const request = route.request(), url = new URL(request.url());
     if (url.hostname === 'e.marionettejs.com') {
+      proxyHeaders.push({ path: url.pathname, headers: await request.allHeaders() });
       if (url.pathname.startsWith('/array/')) return route.fulfill({ contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify({ sessionRecording: { endpoint: '/s/', sampleRate: 1, minimumDurationMilliseconds: 0, consoleLogRecordingEnabled: false } }) });
       requests.push({ path: url.pathname, data: JSON.parse(request.postData()), headers: await request.allHeaders() });
       return route.fulfill({ contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: '{"status":1}' });
     }
     assert.equal(url.hostname, 'marionettejs.com');
     if (url.pathname.startsWith('/assets/')) return route.fulfill({ contentType: extname(url.pathname) === '.js' ? 'text/javascript' : 'text/css', body: await readFile(resolve('dist', '.' + url.pathname)) });
-    return route.fulfill({ contentType: 'text/html', body: `<html><body><header class="site-header"><a href="/docs/api/region/?PRIVATE_QUERY#PRIVATE_FRAGMENT">Arbitrary link text</a></header><main><button data-workshop-stop>Arbitrary button text</button><textarea id="app-code">Public demo source</textarea><input id="demo-value" value="Public demo input"><input type="password" id="password"><a href="/private/PERSON">Private link</a><button id="unknown">Unknown</button></main><aside id="chat">UNRELATED_CHAT</aside><iframe sandbox="allow-scripts" srcdoc="UNRELATED_PREVIEW"></iframe><footer class="site-footer"></footer></body></html>` });
+    return route.fulfill({ contentType: 'text/html', body: `<html><body><header class="site-header"><a href="/docs/api/region/?PRIVATE_QUERY#PRIVATE_FRAGMENT">Arbitrary link text</a></header><main><textarea id="app-code">Public demo source</textarea><input id="demo-value" value="Public demo input"><input type="password" id="password"><a href="/private/PERSON">Private link</a><button id="unknown">Unknown</button></main><dialog id="playground" open><button data-workshop-stop>Arbitrary button text</button><input class="pagefind-ui__search-input" type="text"><div id="workshop-notes">PRIVATE_AGENT_LOG</div></dialog><aside id="chat">UNRELATED_CHAT</aside><iframe sandbox="allow-scripts" srcdoc="UNRELATED_PREVIEW"></iframe><footer class="site-footer"></footer></body></html>` });
   });
   const page = await context.newPage();
   page.on('pageerror', error => errors.push(error.message));
@@ -42,6 +43,7 @@ try {
   await page.waitForTimeout(1200);
   await page.locator('#demo-value').fill('Visible demo input');
   await page.locator('#password').fill('PRIVATE_PASSWORD');
+  await page.locator('.pagefind-ui__search-input').fill('PRIVATE_SEARCH');
   await page.locator('#app-code').fill('Visible demo source');
   await page.locator('[data-workshop-stop]').click();
   await page.locator('header a').click();
@@ -61,7 +63,7 @@ try {
   assert.ok(events.every(event => event.properties.analytics_test === true));
   assert.ok(events.every(event => event.distinct_id === events[0].distinct_id));
   assert.ok(events.some(event => event.properties.$prev_pageview_duration > 0));
-  assert.ok(requests.every(request => request.headers.cookie === undefined && request.headers.referer === undefined));
+  assert.ok(proxyHeaders.every(({path, headers}) => headers.cookie === undefined && (path.startsWith('/array/') ? headers.referer === 'https://marionettejs.com/' : headers.referer === undefined)));
   assert.ok(!JSON.stringify(events).includes('PRIVATE_'));
   const replay = requests.filter(request => request.path === '/s/');
   assert.ok(replay.length > 0, 'real bundled recorder must produce replay');
@@ -71,7 +73,7 @@ try {
   const recordings = JSON.stringify(replay.map(request => request.data));
   assert.ok(recordings.includes('Visible demo input'));
   assert.ok(recordings.includes('Visible demo source'));
-  for (const value of ['PRIVATE_PASSWORD', 'PRIVATE_QUERY', 'PRIVATE_FRAGMENT', 'UNRELATED_CHAT', 'UNRELATED_PREVIEW']) assert.ok(!recordings.includes(value), value);
+  for (const value of ['PRIVATE_PASSWORD', 'PRIVATE_SEARCH', 'PRIVATE_AGENT_LOG', 'PRIVATE_QUERY', 'PRIVATE_FRAGMENT', 'UNRELATED_CHAT', 'UNRELATED_PREVIEW']) assert.ok(!recordings.includes(value), value);
   const count = requests.length;
   await page.evaluate(() => { fixture.tracker.setAnalyticsOptOut(true); document.querySelector('#demo-value').value = 'AFTER_OPT_OUT'; });
   await page.waitForTimeout(2500);
