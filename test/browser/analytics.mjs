@@ -18,6 +18,7 @@ try {
   await context.route('**/*', async route => {
     const url = new URL(route.request().url());
     if (url.hostname === 'e.marionettejs.com') {
+      requests.push(route.request().url());
       return route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: '{"status":1}' });
     }
     if (url.hostname === 'context7.com') return route.abort();

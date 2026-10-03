@@ -22,12 +22,11 @@ try {
     Object.defineProperty(navigator, 'userAgentData', { get: () => undefined });
     window.__MARIONETTE_ANALYTICS_TEST__ = true;
   });
-  const requests = [], errors = [], proxyHeaders = [];
+  const requests = [], errors = [];
   await context.addCookies([{ name: 'parent_cookie', value: 'PRIVATE_COOKIE', domain: '.marionettejs.com', path: '/', secure: true, sameSite: 'None' }]);
   await context.route('**/*', async route => {
     const request = route.request(), url = new URL(request.url());
     if (url.hostname === 'e.marionettejs.com') {
-      proxyHeaders.push({ path: url.pathname, headers: await request.allHeaders() });
       if (url.pathname.startsWith('/array/')) return route.fulfill({ contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify({ autocapture_opt_out: false, sessionRecording: { endpoint: '/s/', sampleRate: 1, minimumDurationMilliseconds: 0, consoleLogRecordingEnabled: false } }) });
       requests.push({ path: url.pathname, data: decode(request), headers: await request.allHeaders() });
       return route.fulfill({ contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: '{"status":1}' });
@@ -45,7 +44,6 @@ try {
     const tracker = await import('/assets/' + dependency.slice(2));
     const adapter = await import('/assets/analytics-posthog.js');
     window.fixture = { tracker, adapter };
-    const clickSource = await (await fetch('/assets/analytics-clicks.js')).text();
     const clicks = await import('/assets/analytics-clicks.js');
     clicks.installPublicClicks();
     document.querySelector('a').addEventListener('click', event => event.preventDefault());
@@ -75,6 +73,7 @@ try {
   assert.ok(view.properties.$browser);
   assert.ok(view.properties.$browser_language);
   assert.ok(view.properties.$device_type);
+  assert.ok(view.properties.$timezone);
   assert.notEqual(view.properties.$geoip_disable, true);
   const replay = requests.filter(request => request.path === '/s/');
   assert.ok(replay.length > 0, 'real bundled recorder must produce replay');
@@ -88,7 +87,7 @@ try {
   assert.ok(snapshots.some(event => event.type === 4), 'player needs page metadata');
   assert.ok(snapshots.some(event => event.type === 2 && event.data.node), 'player needs initial full snapshot');
   const recordings = JSON.stringify(snapshots);
-  assert.ok( /rgb\(12,\s*34,\s*56\)/.test(recordings), 'replay CSS must retain visual styling');
+  assert.ok(/rgb\(12,\s*34,\s*56\)/.test(recordings), 'replay CSS must retain visual styling');
   assert.ok(recordings.includes('Visible demo input'));
   assert.ok(recordings.includes('Visible demo source'));
   assert.ok(!recordings.includes('PRIVATE_PASSWORD'), 'built-in password protections');
