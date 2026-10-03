@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { initializePostHog, postHogOptions, sanitizePostHogEvent } from '../dist/assets/analytics-posthog.js';
 
+globalThis.localStorage = { getItem() { return null; }, setItem() {}, removeItem() {} };
+
 test('PostHog enrichment and identification are replaced by the approved wire fields', () => {
   const result = sanitizePostHogEvent({ event: 'workshop_run', uuid: 'synthetic', timestamp: new Date(0), $set: { email: 'PRIVATE' }, properties: { path: '/demos/?PRIVATE#PRIVATE', code: 'PRIVATE', $current_url: 'PRIVATE', $referrer: 'PRIVATE', distinct_id: 'PRIVATE', $device_id: 'PRIVATE', $session_id: 'PRIVATE' } }, 'phc_synthetic');
   assert.equal(result.properties.path, '/demos/');

@@ -13,12 +13,14 @@ let sender;
 export const allowedEvent = name => events.has(name);
 export function analyticsAllowed() {
   try {
+    if (!globalThis.localStorage) return false;
     return !globalThis.navigator?.globalPrivacyControl && globalThis.navigator?.doNotTrack !== '1' &&
       globalThis.localStorage?.getItem('marionette-analytics-opt-out') !== '1';
   } catch { return false; }
 }
 export function setAnalyticsOptOut(value) {
   try {
+    if (!globalThis.localStorage) return false;
     if (value) {
       globalThis.localStorage?.setItem('marionette-analytics-opt-out', '1');
       globalThis.dispatchEvent?.(new Event('marionette-analytics-opt-out'));

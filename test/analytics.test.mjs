@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { configureAnalytics, pageCategory, pagePath, track } from '../site/assets/analytics.js';
+import { analyticsAllowed, setAnalyticsOptOut, configureAnalytics, pageCategory, pagePath, track } from '../site/assets/analytics.js';
+
+globalThis.localStorage = { getItem() { return null; }, setItem() {}, removeItem() {} };
 
 test('analytics is inert until configured and only accepts named events', () => {
   assert.equal(track('workshop_run'), false);
@@ -70,4 +72,14 @@ test('built tracker preserves only published docs routes', async () => {
   assert.equal(built.pagePath('/errors/private/'), null);
   assert.equal(built.pagePath('/docs/private-person/'), null);
   assert.equal(built.pagePath('/docs/api/region/extra/'), null);
+});
+
+test('absent storage fails closed and cannot claim an opt-out was saved', () => {
+  const storage = globalThis.localStorage;
+  try {
+    delete globalThis.localStorage;
+    assert.equal(analyticsAllowed(), false);
+    assert.equal(setAnalyticsOptOut(true), false);
+    assert.equal(setAnalyticsOptOut(false), false);
+  } finally { globalThis.localStorage = storage; }
 });
