@@ -71,4 +71,79 @@ try {
   assert.equal(requests.length, 1, 'Disabled published config must not send analytics');
   await context.close();
   console.log('PASS real PostHog SDK: EU-only request, cookieless sentinel, public path only, no identity storage, no private content, opt-out stops capture');
+  // Regression: an indefinitely stalled analytics module must not block controls.
+  const slow = await browser.newContext();
+  let pendingAdapter;
+  await slow.route('**/*', async route => {
+    const url = new URL(route.request().url());
+    if (url.hostname !== 'marionettejs.com') return route.abort();
+    if (url.pathname === '/assets/analytics-config.js') return route.fulfill({ contentType: 'text/javascript', body: 'export const analyticsConfig={projectKey:"phc_synthetic",cookielessServerHashConfirmed:true};' });
+    if (url.pathname === '/assets/analytics-posthog.js') { pendingAdapter = route; return; }
+    const file = url.pathname.endsWith('/') ? url.pathname + 'index.html' : url.pathname;
+    try { return route.fulfill({ contentType: ({ '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' })[extname(file)] || 'application/octet-stream', body: await readFile(resolve('dist', '.' + file)) }); }
+    catch { return route.abort(); }
+  });
+  const control = await slow.newPage();
+  await control.goto('https://marionettejs.com/privacy/', { waitUntil: 'domcontentloaded' });
+  await control.getByRole('button', { name: 'Turn off PostHog analytics' }).click({ timeout: 3000 });
+  assert.equal(await control.evaluate(() => localStorage.getItem('marionette-analytics-opt-out')), '1');
+  assert.ok(pendingAdapter, 'Configured adapter should remain pending');
+  await control.evaluate(() => localStorage.removeItem('marionette-analytics-opt-out'));
+  const demo = await slow.newPage();
+  await demo.goto('https://marionettejs.com/', { waitUntil: 'domcontentloaded' });
+  await demo.locator('#application-slot button').first().waitFor({ timeout: 3000 });
+  await slow.close();
+  console.log('PASS stalled analytics module: opt-out and real homepage demo work immediately');
+
+  const transport = await browser.newContext({ userAgent: 'Mozilla/5.0 Chrome/130.0.0.0 Safari/537.36' });
+  await transport.addInitScript(() => { Object.defineProperty(navigator, 'webdriver', { get: () => false }); Object.defineProperty(navigator, 'userAgentData', { get: () => undefined }); });
+  let resolvePending, resolveAborted, resolveFailed;
+  const pendingObserved = new Promise(resolve => { resolvePending = resolve; });
+  const abortedObserved = new Promise(resolve => { resolveAborted = resolve; });
+  const failedObserved = new Promise(resolve => { resolveFailed = resolve; });
+  const deliveries = [];
+  await transport.route('**/*', async route => {
+    const url = new URL(route.request().url());
+    if (url.hostname === 'eu.i.posthog.com') {
+      const event = JSON.parse(route.request().postData());
+      deliveries.push(event.event);
+      if (event.event === 'workshop_run') { resolvePending(); return; }
+      resolveFailed();
+      return route.abort('failed');
+    }
+    assert.equal(url.hostname, 'marionettejs.com');
+    if (url.pathname.startsWith('/assets/')) return route.fulfill({ contentType: 'text/javascript', body: await readFile(resolve('dist', '.' + url.pathname)) });
+    return route.fulfill({ contentType: 'text/html', body: '<html><body>Synthetic transport fixture</body></html>' });
+  });
+  const sending = await transport.newPage();
+  sending.on('requestfailed', request => { if (request.url().includes('eu.i.posthog.com')) resolveAborted(); });
+  await sending.goto('https://marionettejs.com/demos/');
+  await sending.evaluate(async () => {
+    const source = await (await fetch('/assets/analytics-posthog.js')).text();
+    const dependency = /from\s*["'](\.\/analytics\.js\?v=[a-f0-9]+)["']/.exec(source)[1];
+    const tracker = await import('/assets/' + dependency.slice(2));
+    const adapter = await import('/assets/analytics-posthog.js');
+    window.fixture = { tracker, adapter };
+    adapter.initializePostHog({ projectKey: 'phc_synthetic', cookielessServerHashConfirmed: true });
+    tracker.track('workshop_run');
+  });
+  await pendingObserved;
+  const otherTab = await transport.newPage();
+  await otherTab.goto('https://marionettejs.com/');
+  await otherTab.evaluate(() => localStorage.setItem('marionette-analytics-opt-out', '1'));
+  await abortedObserved;
+  assert.equal(await sending.evaluate(() => fixture.tracker.track('workshop_download')), false);
+  assert.deepEqual(deliveries, ['workshop_run']);
+  // Reload is required to allow capture after clearing an opt-out.
+  await otherTab.evaluate(() => localStorage.removeItem('marionette-analytics-opt-out'));
+  await sending.evaluate(() => {
+    fixture.adapter.initializePostHog({ projectKey: 'phc_synthetic', cookielessServerHashConfirmed: true });
+    fixture.tracker.track('workshop_download');
+  });
+  await failedObserved;
+  await new Promise(resolve => setTimeout(resolve, 6500));
+  assert.deepEqual(deliveries, ['workshop_run', 'workshop_download'], 'Failed delivery must not retry');
+  await transport.close();
+  console.log('PASS pending transport: cross-tab opt-out aborts in-flight capture, stops new events; failures have no retry');
+
 } finally { await browser.close(); }
