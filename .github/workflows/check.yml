@@ -28,7 +28,7 @@ jobs:
         run: npx --no-install playwright install --with-deps chromium
       - name: Verify real workshop behavior
         run: npm run test:browser
-      - name: Verify synthetic analytics privacy boundary
+      - name: Verify standard analytics and visitor opt-outs
         run: |
           node test/browser/analytics.mjs
           node test/browser/analytics-standard.mjs
