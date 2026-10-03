@@ -65,6 +65,9 @@ try {
   assert.ok(!JSON.stringify(events).includes('PRIVATE_'));
   const replay = requests.filter(request => request.path === '/s/');
   assert.ok(replay.length > 0, 'real bundled recorder must produce replay');
+  const snapshots = replay.flatMap(request => request.data.properties.$snapshot_data);
+  assert.ok(snapshots.some(event => event.type === 4 && event.data.href === 'https://marionettejs.com/'), 'player needs public page metadata');
+  assert.ok(snapshots.some(event => event.type === 2 && event.data.node), 'player needs initial full snapshot');
   const recordings = JSON.stringify(replay.map(request => request.data));
   assert.ok(recordings.includes('Visible demo input'));
   assert.ok(recordings.includes('Visible demo source'));

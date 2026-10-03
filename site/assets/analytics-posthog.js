@@ -72,7 +72,13 @@ export function postHogOptions(projectKey, send, replay = false) {
       blockSelector: 'iframe, body > :not(header):not(main):not(footer):not(#playground)',
       recordCrossOriginIframes: false, recordHeaders: false, recordBody: false,
       captureCanvas: { enabled: false }, compress_events: false,
-      maskCapturedNetworkRequestFn: () => null
+      // SDK also calls this hook with only `name` for rrweb page metadata.
+      // Preserve its reduced public URL; drop actual network timing/body records.
+      maskCapturedNetworkRequestFn: request => {
+        if (Object.keys(request).length !== 1 || typeof request.name !== 'string') return null;
+        const name = safeReplayUrl(request.name);
+        return name ? { name } : null;
+      }
     },
     disable_surveys: true,
     disable_product_tours: true,

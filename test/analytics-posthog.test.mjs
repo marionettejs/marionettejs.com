@@ -91,3 +91,10 @@ test('replay preserves approved demo contents but removes page URL metadata and 
     assert.equal(JSON.stringify(snapshot).includes('Public demo text'), true);
   } finally { delete globalThis.location; }
 });
+
+test('recorder URL hook retains public page metadata without recording network requests', () => {
+  const mask = postHogOptions('phc_synthetic', undefined, true).session_recording.maskCapturedNetworkRequestFn;
+  assert.deepEqual(mask({ name: 'https://marionettejs.com/?PRIVATE#PRIVATE' }), { name: 'https://marionettejs.com/' });
+  assert.equal(mask({ name: 'https://marionettejs.com/private/PERSON' }), null);
+  assert.equal(mask({ name: 'https://marionettejs.com/', entryType: 'resource', requestBody: 'PRIVATE' }), null);
+});
