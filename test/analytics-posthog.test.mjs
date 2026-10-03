@@ -43,3 +43,18 @@ test('invalid project and development host cannot initialize', () => {
   try { assert.equal(initializePostHog({ projectKey: 'phc_synthetic' }, sdk), false); }
   finally { delete globalThis.location; }
 });
+
+test('report aliases preserve existing business values and use the current path only when absent', () => {
+  const before = postHogOptions().before_send;
+  for (const [path, page] of [['/business/', 'business'], [null, null]]) {
+    const event = before({ event: 'workshop_run', properties: { path, page, $pathname: '/docs/' } });
+    assert.equal(event.properties.path, path);
+    assert.equal(event.properties.page, page);
+  }
+  globalThis.location = { pathname: '/thanks/' };
+  try {
+    const event = before({ event: '$pageview', properties: {} });
+    assert.equal(event.properties.path, '/thanks/');
+    assert.equal(event.properties.page, 'thanks');
+  } finally { delete globalThis.location; }
+});

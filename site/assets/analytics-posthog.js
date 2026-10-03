@@ -27,8 +27,8 @@ export function postHogOptions(replay = false) {
     disable_web_experiments: true,
     before_send: event => {
       if (!event || !analyticsAllowed()) return null;
-      const path = event.properties?.path ?? event.properties?.$pathname ?? globalThis.location?.pathname;
-      event.properties = { ...event.properties, path, page: event.properties?.page ?? pageCategory(path), analytics_test: analyticsTestMode() };
+      const path = event.properties?.path !== undefined ? event.properties.path : event.properties?.$pathname ?? globalThis.location?.pathname;
+      event.properties = { ...event.properties, path, page: event.properties?.page !== undefined ? event.properties.page : pageCategory(path), analytics_test: analyticsTestMode() };
       return event;
     }
   };
