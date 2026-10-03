@@ -4,7 +4,7 @@ PostHog EU project **292567** is the approved destination. The owner's Chrome bi
 
 ## Collection and reports
 
-The locally bundled PostHog SDK uses its normal transport, compression, batching, attribution and enrichment. Standard pageviews/pageleaves and autocapture retain referral sources, campaigns, browser, device, language, timezone and normal page URLs. GeoIP enrichment is enabled in the SDK; approximate country/region/city depend on server enrichment and proxy client-IP handling, and are distinct from browser language. No precise geolocation permission is requested. Historical stripped data cannot be recovered retroactively.
+The locally bundled PostHog SDK uses its normal transport, compression, batching, attribution and enrichment. Standard pageviews/pageleaves and autocapture retain referral sources, campaigns, browser, device, language, timezone and full page URLs, including query strings and fragments. GeoIP enrichment is enabled in the SDK; approximate country/region/city depend on server enrichment and proxy client-IP handling, and are distinct from browser language. No precise geolocation permission is requested. Historical stripped data cannot be recovered retroactively.
 
 Existing named business events and fixed `site_click` classifications remain for the saved funnels/dashboard. They coexist with normal autocapture rather than limiting SDK collection. No identify calls or person profiles are added. Anonymous cookie lifetime remains one day.
 
@@ -22,7 +22,7 @@ The [Marionette behavior dashboard](https://eu.posthog.com/project/292567/dashbo
 
 ## Privacy, transport and rollout
 
-GPC, DNT and the existing per-origin opt-out apply before SDK initialization. Inaccessible preference storage fails closed. An opt-out calls the SDK's supported `opt_out_capturing()` and stops replay, including notifications from another tab. Already delivered requests cannot be recalled. No banner or new callout is added; `/privacy/` describes standard analytics accurately.
+GPC, DNT and the existing per-origin opt-out apply before SDK initialization. Inaccessible preference storage fails closed. An opt-out calls the SDK's supported `opt_out_capturing()` and stops replay, including notifications from another tab. The standard SDK stops new capture; requests already captured/queued or in flight may finish. It does not promise cancellation or recall of prior collection. No banner or new callout is added; `/privacy/` describes standard analytics accurately.
 
 The SDK owns transport and replay compression. Its `before_send` only honors current opt-outs and stamps the explicit test flag; it does not remove event types, enrichment or CSS. Unrelated product UI features remain disabled. SDK loading is asynchronous and cannot hold up website controls.
 

@@ -4,6 +4,14 @@ import { initializePostHog, postHogOptions } from '../dist/assets/analytics-post
 globalThis.localStorage = { getItem() { return null; } };
 test('standard SDK retains attribution, geography and replay CSS', () => {
   const options = postHogOptions(true);
+  assert.equal(options.persistence, 'cookie');
+  assert.equal(options.cookie_expiration, 1);
+  assert.equal(options.capture_pageview, 'history_change');
+  assert.equal(options.capture_pageleave, true);
+  assert.equal(options.person_profiles, 'never');
+  assert.equal(options.cross_subdomain_cookie, false);
+  assert.equal(options.secure_cookie, true);
+  assert.equal(options.respect_dnt, true);
   assert.equal(options.autocapture, true);
   assert.equal(options.ip, true);
   assert.equal(options.save_referrer, undefined);
