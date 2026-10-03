@@ -174,7 +174,7 @@ Victory.prototype.onRender = function () {
   const galleryPage = await browser.newPage({ reducedMotion: 'reduce' });
   await galleryPage.goto(`http://127.0.0.1:${server.address().port}/`);
   assert.equal(await galleryPage.locator('.home-demo-cards a').count(), 3);
-  assert.equal(await galleryPage.locator('.home-demo-cards a[href="/demos/#mission-control"] strong').innerText(), 'Cheese Patrol');
+  assert.equal(await galleryPage.locator('.home-demo-cards a[href="/demos/#mission-control"] strong').innerText(), 'CHEESE PATROL');
   assert.equal(await galleryPage.evaluate(() => document.querySelector('.night-closing').nextElementSibling.id === 'demos' && document.querySelector('#demos').nextElementSibling.classList.contains('home-support')), true);
   await galleryPage.locator('.home-demo-cards a[href="/demos/#list-detail"]').click();
   await galleryPage.waitForFunction(() => window.MarionetteExamples);
