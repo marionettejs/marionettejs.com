@@ -82,18 +82,20 @@ try {
   console.log('PASS real PostHog SDK: EU-only request, cookieless sentinel, public path only, no identity storage, no private content, opt-out stops capture');
   // Regression: an indefinitely stalled analytics module must not block controls.
   const slow = await browser.newContext();
-  let pendingAdapter;
+  let pendingAdapter, resolveAdapter;
+  const adapterObserved = new Promise(resolve => { resolveAdapter = resolve; });
   await slow.route('**/*', async route => {
     const url = new URL(route.request().url());
     if (url.hostname !== 'marionettejs.com') return route.abort();
     if (url.pathname === '/assets/analytics-config.js') return route.fulfill({ contentType: 'text/javascript', body: 'export const analyticsConfig={projectKey:"phc_synthetic",cookielessServerHashConfirmed:true};' });
-    if (url.pathname === '/assets/analytics-posthog.js') { pendingAdapter = route; return; }
+    if (url.pathname === '/assets/analytics-posthog.js') { pendingAdapter = route; resolveAdapter(); return; }
     const file = url.pathname.endsWith('/') ? url.pathname + 'index.html' : url.pathname;
     try { return route.fulfill({ contentType: ({ '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' })[extname(file)] || 'application/octet-stream', body: await readFile(resolve('dist', '.' + file)) }); }
     catch { return route.abort(); }
   });
   const control = await slow.newPage();
   await control.goto('https://marionettejs.com/privacy/', { waitUntil: 'domcontentloaded' });
+  await bounded(adapterObserved, 'stalled SDK request');
   await control.getByRole('button', { name: 'Turn off PostHog analytics' }).click({ timeout: 3000 });
   assert.equal(await control.evaluate(() => localStorage.getItem('marionette-analytics-opt-out')), '1');
   assert.ok(pendingAdapter, 'Configured adapter should remain pending');
