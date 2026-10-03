@@ -10,6 +10,23 @@ const events = new Set([
 // Build replaces this marker with exact public documentation routes.
 const publicRoutes = new Set(/* PUBLIC_ANALYTICS_ROUTES */ ['/', '/why/', '/demos/', '/thanks/']);
 let sender;
+export const allowedEvent = name => events.has(name);
+export function analyticsAllowed() {
+  try {
+    return !globalThis.navigator?.globalPrivacyControl && globalThis.navigator?.doNotTrack !== '1' &&
+      globalThis.localStorage?.getItem('marionette-analytics-opt-out') !== '1';
+  } catch { return false; }
+}
+export function setAnalyticsOptOut(value) {
+  try {
+    if (value) {
+      globalThis.localStorage?.setItem('marionette-analytics-opt-out', '1');
+      globalThis.dispatchEvent?.(new Event('marionette-analytics-opt-out'));
+    }
+    else globalThis.localStorage?.removeItem('marionette-analytics-opt-out');
+    return true;
+  } catch { return false; }
+}
 export function pageCategory(pathname) {
   // Deliberately discard query strings, fragments and all arbitrary path parts.
   const path = String(pathname || '').split(/[?#]/, 1)[0];
@@ -28,8 +45,7 @@ export function configureAnalytics(send) {
 export function track(name) {
   if (!sender || !events.has(name)) return false;
   try {
-    if (globalThis.navigator?.globalPrivacyControl || globalThis.navigator?.doNotTrack === '1' ||
-        globalThis.localStorage?.getItem('marionette-analytics-opt-out') === '1') return false;
+    if (!analyticsAllowed()) return false;
     // No caller-supplied properties are accepted, even for allowed events.
     const pathname = globalThis.location?.pathname;
     sender(name, { page: pageCategory(pathname), path: pagePath(pathname) });

@@ -1,4 +1,16 @@
-import { track } from './analytics.js';
+import { track, analyticsAllowed, setAnalyticsOptOut } from './analytics.js';
+import { analyticsConfig } from './analytics-config.js';
+
+if (analyticsConfig.projectKey && analyticsConfig.cookielessServerHashConfirmed && analyticsAllowed()) {
+  try { (await import('./analytics-posthog.js')).initializePostHog(analyticsConfig); } catch { /* Optional analytics. */ }
+}
+for (const button of document.querySelectorAll('[data-analytics-opt-out]')) {
+  button.addEventListener('click', () => {
+    const optingOut = button.dataset.analyticsOptOut === 'true';
+    const saved = setAnalyticsOptOut(optingOut);
+    document.querySelector('#analytics-choice-status').textContent = saved ? (optingOut ? 'Preference saved. PostHog analytics is off for this browser.' : 'Preference saved. Reload pages to allow PostHog analytics when configured; browser privacy signals are still respected.') : 'This browser could not save the preference. DNT and Global Privacy Control are also respected.';
+  });
+}
 track('page_view');
 
 if (document.querySelector('#application-slot')) {

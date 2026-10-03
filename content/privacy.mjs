@@ -1,0 +1,12 @@
+export const privacy = ({ enabled = false } = {}) => ({
+  title: 'Privacy & analytics — Marionette',
+  description: 'What Marionette website analytics measures and how to opt out.',
+  active: 'privacy',
+  body: `<section class="article-heading"><p class="eyebrow">PRIVACY</p><h1>Privacy &amp;<br>analytics.</h1></section><article class="prose privacy-copy">
+<h2>Website analytics</h2><p>${enabled ? 'We use PostHog to measure' : 'Our PostHog integration is prepared but is not enabled yet. When configured, it will measure'} public page paths and named actions, such as opening a workshop, running a demo, copying documentation, or starting an export, using PostHog's EU service. It excludes query strings, URL fragments, private paths, prompts, chat messages, generated code, app titles, form contents, and search terms. Session replay and automatic click capture are disabled.</p>
+<p>Cookieless measurement uses a daily hash that PostHog calculates from the request's IP address, browser user agent, site hostname, and a rotating salt. It does not store an analytics visitor identifier in your browser. This still involves processing IP addresses and user agents; it cannot reliably connect returning visitors across days. People sharing a network and browser type may also be counted together.</p>
+<p>The integration respects Global Privacy Control and Do Not Track. You can also save a choice below. Only this opt-out preference is stored locally. <a href="https://posthog.com/privacy">PostHog privacy policy ↗</a></p>
+<button type="button" class="button" data-analytics-opt-out="true">Turn off PostHog analytics</button> <button type="button" class="button" data-analytics-opt-out="false">Clear my PostHog opt-out</button><p id="analytics-choice-status" role="status">Your choice applies to this browser.</p>
+<h2>Existing services</h2><p>Cloudflare provides hosting and its own traffic and performance analytics. Context7 Docs7 analytics is included on site pages. The optional documentation chat sends messages you submit to Context7 to answer your questions; these messages are separate from PostHog analytics. The controls above apply to PostHog only.</p><p><a href="https://www.cloudflare.com/privacypolicy/">Cloudflare privacy policy ↗</a> · <a href="https://context7.com/privacy">Context7 privacy policy ↗</a></p>
+</article>`
+});
