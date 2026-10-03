@@ -19,9 +19,11 @@ test('standard SDK retains attribution, geography and replay CSS', () => {
   assert.equal(options.disable_session_recording, false);
   assert.equal(options.session_recording.maskAllInputs, false);
   assert.equal(options.session_recording.maskInputOptions.password, true);
-  const event = { event: '$autocapture', properties: { $referrer: 'https://example.com/', utm_source: 'test', $browser: 'Chrome', $snapshot_data: [{ data: { _cssText: 'body{color:red}' } }] } };
+  const event = { event: '$autocapture', properties: { $pathname: '/docs/', $referrer: 'https://example.com/', utm_source: 'test', $browser: 'Chrome', $snapshot_data: [{ data: { _cssText: 'body{color:red}' } }] } };
   assert.equal(options.before_send(event), event);
   assert.equal(event.properties.$referrer, 'https://example.com/');
+  assert.equal(event.properties.path, '/docs/');
+  assert.equal(event.properties.page, 'docs');
   assert.equal(event.properties.$snapshot_data[0].data._cssText, 'body{color:red}');
   assert.equal(event.properties.analytics_test, false);
   globalThis.__MARIONETTE_ANALYTICS_TEST__ = true;
