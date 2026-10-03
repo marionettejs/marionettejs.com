@@ -30,7 +30,7 @@ export function sanitizePostHogEvent(event, projectKey) {
 }
 export function postHogOptions(projectKey, send) {
   return {
-    api_host: 'https://eu.i.posthog.com',
+    api_host: 'https://e.marionettejs.com',
     ui_host: 'https://eu.posthog.com',
     cookieless_mode: 'always',
     person_profiles: 'never',
@@ -90,7 +90,7 @@ export function initializePostHog(config, sdk = posthog) {
     if (!analyticsAllowed()) return;
     const controller = new AbortController();
     pending.add(controller);
-    void fetch('https://eu.i.posthog.com/i/v0/e/', {
+    void fetch('https://e.marionettejs.com/i/v0/e/', {
       method: 'POST', body: JSON.stringify(event),
       headers: { 'Content-Type': 'text/plain' }, credentials: 'omit',
       referrerPolicy: 'no-referrer', keepalive: true, signal: controller.signal

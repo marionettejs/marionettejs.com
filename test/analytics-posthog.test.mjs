@@ -25,6 +25,8 @@ test('unverified configuration never initializes PostHog', () => {
 test('SDK own transport is suppressed when an immediate sender owns delivery', () => {
   const sent = [];
   const options = postHogOptions('phc_synthetic', event => sent.push(event));
+  assert.equal(options.api_host, 'https://e.marionettejs.com');
+  assert.equal(options.ui_host, 'https://eu.posthog.com');
   assert.equal(options.cookieless_mode, 'always');
   assert.equal(options.person_profiles, 'never');
   assert.equal(options.autocapture, false);
