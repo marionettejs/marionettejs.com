@@ -1,6 +1,7 @@
 let track = () => false;
 Promise.all([import('./analytics.js'), import('./analytics-config.js')]).then(([tracker, { analyticsConfig }]) => {
   track = tracker.track;
+  setAnalyticsOptOut = tracker.setAnalyticsOptOut;
   if (analyticsConfig.projectKey && analyticsConfig.cookielessServerHashConfirmed && tracker.analyticsAllowed()) {
     import('./analytics-posthog.js').then(({ initializePostHog }) => {
       if (initializePostHog(analyticsConfig)) track('page_view');
