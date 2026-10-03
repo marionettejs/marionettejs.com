@@ -35,6 +35,7 @@
     "marked": "18.0.12",
     "pagefind": "1.5.2",
     "playwright": "1.63.0",
+    "posthog-js": "1.435.8",
     "wrangler": "4.147.0",
     "zod": "4.5.4"
   },

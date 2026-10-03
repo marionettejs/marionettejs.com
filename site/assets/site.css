@@ -658,3 +658,6 @@ blockquote {
     white-space:pre-wrap;
   }
 }
+
+.privacy-copy { max-width:900px; margin:auto; padding:55px 7% 85px; }
+.privacy-copy .button { margin:0 8px 8px 0; }

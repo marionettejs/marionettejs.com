@@ -106,13 +106,13 @@ test('entry, workshop and nested runtime imports use content versions to invalid
   const html = await readFile(resolve(out, 'index.html'), 'utf8');
   assert.ok(html.includes(`src="/assets/site.js?v=${version(entry)}"`));
   const imports = [...entry.matchAll(/import\('(.+?)\?v=([a-f0-9]+)'\)/g)];
-  assert.equal(imports.length, 4);
+  assert.equal(imports.length, 7);
   for (const [, path, hash] of imports) {
     assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
   }
   const workshop = await readFile(resolve(out, 'assets/playground.js'), 'utf8');
-  const dependencies = [...workshop.matchAll(/from '(\.\/[^']+\.js)\?v=([a-f0-9]+)'/g)];
-  assert.deepEqual(dependencies.map(([, path]) => path).sort(), ['./playground-export.js', './playground-runtime.js']);
+  const dependencies = [...workshop.matchAll(/(?:from |import\()'(\.\/[^']+\.js)\?v=([a-f0-9]+)'/g)];
+  assert.deepEqual(dependencies.map(([, path]) => path).sort(), ['./analytics.js', './playground-export.js', './playground-runtime.js']);
   for (const [, path, hash] of dependencies) {
     assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
   }

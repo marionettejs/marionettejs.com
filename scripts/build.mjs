@@ -5,6 +5,9 @@ import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { utcDate } from './build-date.mjs';
+import { analyticsConfig } from '../site/assets/analytics-config.js';
+import { privacy } from '../content/privacy.mjs';
+import { build as bundle } from 'esbuild';
 import { home, why } from '../content/pages.mjs';
 import { examples } from '../content/examples.mjs';
 import { thanks } from '../content/thanks.mjs';
@@ -28,13 +31,21 @@ const vendorVersions = Object.fromEntries(await Promise.all(['marionette', 'demo
   [name, digest(await readFile(resolve(root, `site/vendor/${name}.js`)))])));
 const versionVendor = module => module.replace(/(['"])((?:\.\.)?\/vendor\/(marionette|demos)\.js)(?:\?v=[^'"]*)?\1/g,
   (whole, quote, path, name) => `${quote}${path}?v=${vendorVersions[name]}${quote}`);
-const readModule = async path => versionVendor(await readFile(resolve(root, 'site/assets', path), 'utf8'));
+const analyticsManifest = JSON.parse(await readFile(resolve(root, 'content/library-docs/manifest.json'), 'utf8'));
+const analyticsDiagnostics = JSON.parse(await readFile(resolve(root, 'content/library-docs/config/diagnostics/catalog.json'), 'utf8'));
+const analyticsRoutes = ['/errors/', ...analyticsDiagnostics.diagnostics.map(entry => entry.docsAnchor), '/', '/why/', '/thanks/', '/demos/', '/privacy/', '/docs/agent-start/', '/docs/coverage/', '/docs/mcp/', ...analyticsManifest.pages.map(page => `/${page.route}/`)];
+const analyticsSource = (await readFile(resolve(root, 'site/assets/analytics.js'), 'utf8')).replace(/\/\* PUBLIC_ANALYTICS_ROUTES \*\/ \[[^\]]*\]/, JSON.stringify(analyticsRoutes));
+const readModule = async path => path === './analytics.js' || path === 'analytics.js' ? analyticsSource : versionVendor(await readFile(resolve(root, 'site/assets', path), 'utf8'));
 // Version the workshop's static imports before hashing the module that loads it.
 // Otherwise returning browsers can combine new tools with a cached old runner.
 async function versionImports(module, built = {}) {
-  for (const [expression, path] of module.matchAll(/from '(\.\/[^']+\.js)'/g)) {
+  for (const [expression, quote, path] of module.matchAll(/from\s*(['"])(\.\/[^'"]+\.js)\1/g)) {
     const source = built[path] ?? await readModule(path);
-    module = module.replace(expression, `from '${path}?v=${digest(source)}'`);
+    module = module.replace(expression, `from ${quote}${path}?v=${digest(source)}${quote}`);
+  }
+  for (const [expression, quote, path] of module.matchAll(/import\((['"])(\.\/[^'"]+\.js)\1\)/g)) {
+    const source = built[path] ?? await readModule(path);
+    module = module.replace(expression, `import(${quote}${path}?v=${digest(source)}${quote})`);
   }
   return module;
 }
@@ -45,8 +56,12 @@ const recipeModule = await versionImports(await readModule('playground-recipes.j
 const sourceEditorModule = await versionImports(await readModule('source-editor.js'));
 const examplesModule = await versionImports(await readModule('examples.js'), { ...runtimeDependency, './playground-export.js': exportModule, './playground-recipes.js': recipeModule, './source-editor.js': sourceEditorModule });
 const workshopModule = await versionImports(await readModule('playground.js'), { ...runtimeDependency, './playground-export.js': exportModule, './playground-recipes.js': recipeModule });
-const modules = { './playground-runtime.js': runtimeModule, './playground-export.js': exportModule, './playground-recipes.js': recipeModule, './source-editor.js': sourceEditorModule, './examples.js': examplesModule, './playground.js': workshopModule };
-let entryModule = await readModule('site.js');
+const demoModule = await versionImports(await readModule('demo.js'));
+const docsModule = await versionImports(await readModule('docs.js'));
+const posthogBundle = await bundle({ entryPoints: [resolve(root, 'site/assets/analytics-posthog.js')], bundle: true, format: 'esm', minify: true, write: false, external: ['./analytics.js'], legalComments: 'inline' });
+const posthogModule = await versionImports(posthogBundle.outputFiles[0].text);
+const modules = { './motion.js': await readModule('motion.js'), './analytics-posthog.js': posthogModule, './analytics-config.js': await readModule('analytics-config.js'), './analytics.js': analyticsSource, './demo.js': demoModule, './docs.js': docsModule, './playground-runtime.js': runtimeModule, './playground-export.js': exportModule, './playground-recipes.js': recipeModule, './source-editor.js': sourceEditorModule, './examples.js': examplesModule, './playground.js': workshopModule };
+let entryModule = await versionImports(await readModule('site.js'), modules);
 for (const [expression, path] of entryModule.matchAll(/import\('(\.\/[^']+\.js)'\)/g)) {
   const source = modules[path] ??= await readModule(path);
   entryModule = entryModule.replace(expression, `import('${path}?v=${digest(source)}')`);
@@ -79,9 +94,9 @@ ${route === undefined ? '' : `<link rel="canonical" href="${siteOrigin}${route}"
 const context7Widget = '<script async src="https://context7.com/widget.js" data-library="/marionettejs/marionette" data-color="#b4232d" data-position="bottom-right" data-placeholder="Ask about Marionette v5…" data-welcome-message="A little structure goes a long way. Ask about Marionette v5 APIs, examples, or building your app. Questions are sent to Context7."></script>';
 const shell = ({title, description, active, body, route, markdown}) => `<!doctype html>
 <html lang="en"><head><meta name="site-revision" content="${siteRevision}"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="index, follow"><meta name="description" content="${escape(description)}"><title>${escape(title)}</title>${socialMetadata({title, description, route})}<link rel="describedby" href="/llms.txt"><link rel="icon" href="/assets/mark.svg" type="image/svg+xml"><link rel="stylesheet" href="${stylesheetUrls.site}"><link rel="stylesheet" href="${stylesheetUrls.night}">${markdown ? `<link rel="alternate" type="text/markdown" href="${markdown}"><link rel="describedby" href="/docs/llms.txt"><link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="${stylesheetUrls.docs}"><script src="/pagefind/pagefind-ui.js"></script><script type="module" src="/assets/docs.js"></script>` : active === 'why' ? '<link rel="alternate" type="text/markdown" title="Project-fit review brief for agents" href="/adoption-review.md">' : '<link rel="alternate" type="text/markdown" title="Optional agent interaction" href="/agent-prompt.md">'}<link rel="stylesheet" href="${stylesheetUrls.playground}">${active === 'examples' ? `<link rel="stylesheet" href="${stylesheetUrls.examples}">` : ''}<script type="module" src="${entryUrl}"></script><script defer src="https://context7.com/docs7-analytics.js" data-site="b83657b2-fde7-4916-a683-2d3ba41f185b"></script></head>
-<body><a class="skip-link" href="#main">Skip to content</a><header class="site-header"><a class="brand" href="/" aria-label="Marionette home"><img src="/assets/mark.svg" width="38" height="40" alt=""><span>Marionette<span class="brand-version">v5</span></span></a>${navigation(active)}</header><main id="main">${body}</main><footer class="site-footer"><a class="footer-brand" href="/"><img src="/assets/mark.svg" width="36" height="38" alt="">Marionette</a><p>A little structure goes a long way.</p><div class="footer-links"><a href="/why/">The idea</a><a href="/docs/">The details</a><a href="/docs/agent-start/">For agents</a><a href="/thanks/">Thanks &amp; support</a><a href="https://v4.marionettejs.com/docs/current/">v4 docs ↗</a><a href="https://github.com/sponsors/paulfalgout">Sponsor ↗</a><a href="https://store.marionettejs.com/">Merch ↗</a><a href="https://github.com/marionettejs/marionette">GitHub ↗</a><a href="https://www.npmjs.com/package/marionette/v/${runtime.version}">npm ↗</a></div><div class="footer-meta"><small>Demo runtime: Marionette ${runtime.version} · <a href="/reference/provenance.json">Source notes</a></small>${active === 'home' ? '<button class="motion-toggle" type="button" aria-pressed="false" title="Reduce scroll, pointer, and transition effects" hidden>Reduce motion</button>' : ''}</div></footer>${active === 'home' ? renderedWorkshop : ''}${active === 'docs' ? context7Widget : ''}</body></html>`;
+<body><a class="skip-link" href="#main">Skip to content</a><header class="site-header"><a class="brand" href="/" aria-label="Marionette home"><img src="/assets/mark.svg" width="38" height="40" alt=""><span>Marionette<span class="brand-version">v5</span></span></a>${navigation(active)}</header><main id="main">${body}</main><footer class="site-footer"><a class="footer-brand" href="/"><img src="/assets/mark.svg" width="36" height="38" alt="">Marionette</a><p>A little structure goes a long way.</p><div class="footer-links"><a href="/why/">The idea</a><a href="/docs/">The details</a><a href="/docs/agent-start/">For agents</a><a href="/thanks/">Thanks &amp; support</a><a href="/privacy/">Privacy &amp; analytics</a><a href="https://v4.marionettejs.com/docs/current/">v4 docs ↗</a><a href="https://github.com/sponsors/paulfalgout">Sponsor ↗</a><a href="https://store.marionettejs.com/">Merch ↗</a><a href="https://github.com/marionettejs/marionette">GitHub ↗</a><a href="https://www.npmjs.com/package/marionette/v/${runtime.version}">npm ↗</a></div><div class="footer-meta"><small>Demo runtime: Marionette ${runtime.version} · <a href="/reference/provenance.json">Source notes</a></small>${active === 'home' ? '<button class="motion-toggle" type="button" aria-pressed="false" title="Reduce scroll, pointer, and transition effects" hidden>Reduce motion</button>' : ''}</div></footer>${active === 'home' ? renderedWorkshop : ''}${active === 'docs' ? context7Widget : ''}</body></html>`;
 
-const pages = [['', home], ['why', why], ['thanks', thanks], ['demos', examples]];
+const pages = [['', home], ['why', why], ['thanks', thanks], ['demos', examples], ['privacy', privacy({ enabled: Boolean(analyticsConfig.projectKey && analyticsConfig.cookielessServerHashConfirmed) })]];
 
 await rm(out, {recursive:true, force:true});
 await mkdir(out, {recursive:true});
@@ -110,6 +125,6 @@ await writeFile(resolve(out,'404.html'),shell({title:'Page not found — Marione
 const docsCount = await buildLibraryDocs({ directory: resolve(root, 'content/library-docs'), out, shell });
 const docsManifest = JSON.parse(await readFile(resolve(out, 'docs/manifest.json'), 'utf8'));
 const diagnostics = JSON.parse(await readFile(resolve(out, 'docs/diagnostics.json'), 'utf8'));
-const sitemapRoutes = ['/', '/why/', '/thanks/', '/demos/', '/errors/', '/docs/agent-start/', '/docs/coverage/', '/docs/mcp/', ...diagnostics.diagnostics.map(entry => entry.docsAnchor), ...docsManifest.pages.map(page => `/${page.route}/`)];
+const sitemapRoutes = ['/privacy/', '/', '/why/', '/thanks/', '/demos/', '/errors/', '/docs/agent-start/', '/docs/coverage/', '/docs/mcp/', ...diagnostics.diagnostics.map(entry => entry.docsAnchor), ...docsManifest.pages.map(page => `/${page.route}/`)];
 await writeFile(resolve(out, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemapRoutes.map(route => `<url><loc>${siteOrigin}${route}</loc><lastmod>${revision}</lastmod></url>`).join('')}</urlset>`);
-console.log(`Built ${docsCount + 4} pages, static documentation search, and live Marionette examples.`);
+console.log(`Built ${docsCount + pages.length} pages, static documentation search, and live Marionette examples.`);
