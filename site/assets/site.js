@@ -2,9 +2,10 @@ let track = () => false;
 Promise.all([import('./analytics.js'), import('./analytics-config.js')]).then(([tracker, { analyticsConfig }]) => {
   track = tracker.track;
   setAnalyticsOptOut = tracker.setAnalyticsOptOut;
-  if (analyticsConfig.projectKey && analyticsConfig.cookielessServerHashConfirmed && tracker.analyticsAllowed()) {
+  import('./analytics-clicks.js').then(module => module.installPublicClicks()).catch(() => {});
+  if (analyticsConfig.projectKey && tracker.analyticsAllowed()) {
     import('./analytics-posthog.js').then(({ initializePostHog }) => {
-      if (initializePostHog(analyticsConfig)) track('page_view');
+      initializePostHog(analyticsConfig);
     }).catch(() => {});
   }
 }).catch(() => {});

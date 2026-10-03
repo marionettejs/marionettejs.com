@@ -18,6 +18,7 @@ try {
   await context.route('**/*', async route => {
     const url = new URL(route.request().url());
     if (url.hostname === 'e.marionettejs.com') {
+      if (['$pageview', '$pageleave'].includes(JSON.parse(route.request().postData()).event)) return route.fulfill({ status: 200, headers: { 'access-control-allow-origin': '*' }, body: '{}' });
       requests.push({ path: url.pathname, body: route.request().postData(), headers: await route.request().allHeaders() });
       return route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: '{"status":1}' });
     }
@@ -37,7 +38,7 @@ try {
     const tracker = await import('/assets/' + dependency.slice(2));
     const adapter = await import('/assets/analytics-posthog.js');
     window.fixture = { tracker, adapter };
-    if (!adapter.initializePostHog({ projectKey: 'phc_synthetic', cookielessServerHashConfirmed: true })) throw new Error('Not initialized');
+    if (!adapter.initializePostHog({ projectKey: 'phc_synthetic', replayFreeCapConfirmed: false })) throw new Error('Not initialized');
     if (!tracker.track('workshop_run', { code: 'PRIVATE', prompt: 'PRIVATE' })) throw new Error('Not tracked');
   });
   await new Promise(resolve => setTimeout(resolve, 1000));
@@ -48,18 +49,19 @@ try {
   const event = Array.isArray(raw) ? raw[0] : raw;
   assert.equal(event.event, 'workshop_run');
   assert.equal(event.api_key, 'phc_synthetic');
-  assert.equal(event.distinct_id, '$posthog_cookieless');
+  assert.match(event.distinct_id, /^[a-f0-9-]{36}$/);
   assert.deepEqual(event.properties, {
-    token: 'phc_synthetic', distinct_id: '$posthog_cookieless', $cookieless_mode: true,
-    $process_person_profile: false, $geoip_disable: true, $host: 'marionettejs.com', $raw_user_agent: 'Mozilla/5.0 Chrome/130.0.0.0 Safari/537.36',
+    token: 'phc_synthetic', distinct_id: event.distinct_id,
+    $process_person_profile: false, $geoip_disable: true, analytics_test: false, $host: 'marionettejs.com', $session_id: event.properties.$session_id, $window_id: event.properties.$window_id,
     $current_url: 'https://marionettejs.com/docs/api/region/', $pathname: '/docs/api/region/',
     path: '/docs/api/region/', page: 'docs'
   });
   assert.equal(requests[0].headers.referer, undefined);
   assert.equal(requests[0].headers.cookie, undefined);
-  assert.deepEqual(await context.cookies('https://marionettejs.com'), []);
+  assert.equal((await context.cookies('https://marionettejs.com')).length, 1);
+  assert.ok((await context.cookies('https://marionettejs.com'))[0].expires - Date.now() / 1000 < 86410);
   assert.deepEqual(await page.evaluate(() => Object.keys(localStorage)), []);
-  assert.deepEqual(await page.evaluate(() => Object.keys(sessionStorage)), []);
+  assert.ok((await page.evaluate(() => Object.keys(sessionStorage))).every(key => key.startsWith('ph_')));
   await page.evaluate(() => {
     fixture.tracker.setAnalyticsOptOut(true);
     fixture.tracker.track('workshop_download');
@@ -79,7 +81,7 @@ try {
   assert.equal(await page.evaluate(() => localStorage.getItem('marionette-analytics-opt-out')), null);
   assert.equal(requests.length, 1, 'Disabled fixture config must not send analytics');
   await context.close();
-  console.log('PASS real PostHog SDK: EU managed-proxy request, cookieless sentinel, public path only, no identity storage, no private content, opt-out stops capture');
+  console.log('PASS real PostHog SDK: EU managed-proxy request, anonymous session IDs, public path only, one-day cookie, no private content, opt-out stops capture');
   // Privacy signals must stop the real adapter before any proxy request.
   for (const signal of ['globalPrivacyControl', 'doNotTrack']) {
     const privacyContext = await browser.newContext();
@@ -98,7 +100,7 @@ try {
     await privacyPage.goto('https://marionettejs.com/');
     assert.equal(await privacyPage.evaluate(async () => {
       const adapter = await import('/assets/analytics-posthog.js');
-      return adapter.initializePostHog({ projectKey: 'phc_synthetic', cookielessServerHashConfirmed: true });
+      return adapter.initializePostHog({ projectKey: 'phc_synthetic', replayFreeCapConfirmed: false });
     }), false);
     assert.equal(proxyRequests, 0, `${signal} must prevent proxy delivery`);
     assert.deepEqual(await privacyContext.cookies(), []);
@@ -161,6 +163,7 @@ try {
     const url = new URL(route.request().url());
     if (url.hostname === 'e.marionettejs.com') {
       const event = JSON.parse(route.request().postData());
+      if (['$pageview', '$pageleave'].includes(event.event)) return route.fulfill({ status: 200, headers: { 'access-control-allow-origin': '*' }, body: '{}' });
       deliveries.push(event.event);
       if (event.event === 'workshop_run') { resolvePending(); return; }
       resolveFailed();
@@ -179,7 +182,7 @@ try {
     const tracker = await import('/assets/' + dependency.slice(2));
     const adapter = await import('/assets/analytics-posthog.js');
     window.fixture = { tracker, adapter };
-    adapter.initializePostHog({ projectKey: 'phc_synthetic', cookielessServerHashConfirmed: true });
+    adapter.initializePostHog({ projectKey: 'phc_synthetic', replayFreeCapConfirmed: false });
     tracker.track('workshop_run');
   });
   await bounded(pendingObserved, 'pending capture');
@@ -192,7 +195,7 @@ try {
   // Reload is required to allow capture after clearing an opt-out.
   await otherTab.evaluate(() => localStorage.removeItem('marionette-analytics-opt-out'));
   await sending.evaluate(() => {
-    fixture.adapter.initializePostHog({ projectKey: 'phc_synthetic', cookielessServerHashConfirmed: true });
+    fixture.adapter.initializePostHog({ projectKey: 'phc_synthetic', replayFreeCapConfirmed: false });
     fixture.tracker.track('workshop_download');
   });
   await bounded(failedObserved, 'failed delivery');

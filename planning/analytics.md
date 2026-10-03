@@ -1,66 +1,33 @@
-# Website analytics event plan
+# Website analytics
 
-PostHog EU is the approved provider. Project **292567** was configured on 2026-10-03 through the owner's Chrome session: Free plan (no card, capped 1 million events/month, one project, one-year retention), cookieless server hash enabled and verified after reload, discard-IP enabled, and canonical domain `https://marionettejs.com` authorized. Autocapture, heatmaps, web vitals and Session Replay were disabled during onboarding. Only the public write-only ingestion token is in website configuration; no administrative/personal API key, OAuth grant or external data connection was created. The initial integration was deployed on 2026-10-03 at revision 40815b0. Context7 Docs7 analytics and its intentional chat submission flow remain separate services.
+PostHog EU project **292567** is the approved destination. The owner's Chrome billing page on 2026-10-03 showed the Free plan, a 1 million product-event monthly limit and a 5,000 web-recording monthly allowance. No card, paid subscription, personal API key or OAuth grant was added. Session recording was enabled in the account after the owner approved replay within the free cap. Keep the account without a card; review its limits before any future billing change.
 
-The current boundary accepts event names only and adds a coarse page category:
-`home`, `docs`, `errors`, `demos`, `why`, `thanks`, `privacy`, or `other`. It also includes an exact public page path from the build-derived documentation route allowlist, or null for unrecognized paths. It drops arbitrary
-path components, query strings and fragments. No prompt, chat, source code,
-app title, form value, search query, exception text, DOM snapshot, visitor ID or
-referrer is passed to the sender. A provider adapter must preserve this boundary
-and disable automatic collection, replay and enrichment that reintroduces these
-fields. The sandboxed preview keeps `connect-src 'none'`.
+## Collection and reports
 
-## Funnels
+The SDK emits standard `$pageview` and `$pageleave` events with anonymous session/window/page-view identifiers and bounded previous-page duration. Web Analytics can use these for page views, sessions, entry pages, bounce and session duration. Paths come from the build-derived public route allowlist; query strings and fragments are removed. Geography, referrers and campaign attribution are omitted, so those breakdowns are not available.
 
-- Workshop: `page_view` → `workshop_open` → `workshop_run` →
-  `workshop_ready` → `workshop_download` or `workshop_codepen`.
-- Examples: `example_select` → `example_run` → `example_ready` →
-  `example_download` or `example_codepen`.
-- Documentation: docs `page_view` → `docs_search` or `docs_copy_markdown`.
-- Adoption: why `page_view` → `adoption_copy`.
+`site_click` records a fixed public link/button/control target, placement and public destination path. It excludes arbitrary element text, unknown controls, form fields, chat widgets and private URLs. Named events retain the existing boundary: workshop open/run/ready/failed/download/CodePen, example select/run/ready/failed/download/CodePen, docs search/copy, adoption/invitation copy and ownership selection. Events never include prompt, chat, generated source, app title, form values, search terms or exception text. Successful clipboard writes generate copy events; downloads and CodePen events describe initiation, not completed saves. Ready means runtime startup, not correctness. Initial example selections and agent-driven actions mean counts are not necessarily human engagement.
 
-`workshop_failed` and `example_failed` describe the first failed startup snapshot
-without its contents. Ready means the runtime reported startup readiness, not
-that an app is correct. Example selection currently also occurs on initial page
-load, and runs may be requested by the browser agent tools. Counts do not prove
-human engagement. Download events describe browser download initiation; CodePen
-events describe submission initiation, not a verified save in CodePen.
-`docs_search` is emitted once per document after a nonempty query is entered;
-its text and results are excluded. Copy events record successful clipboard writes.
-`ownership_select` records a changed selection in the homepage ownership example.
+Replay is a separate, explicitly approved scope: public-page content, interactions and demo input/editor values are visible. Passwords remain protected; search input is masked. Context7 chat, opaque sandbox previews, console logs, network bodies/headers and canvas capture are excluded. Replay URL metadata is reduced to public paths/assets without queries or fragments. The preview sandbox and its `connect-src 'none'` are unchanged.
 
-## Activation decisions
+The exact locally bundled `posthog-js` 1.435.8 full/no-external entry includes the recorder without external script loading. Conventional anonymous SDK identifiers use a secure first-party cookie with a one-day expiration and browser session/window storage. There is no `identify` call or person profile processing. This supersedes the initial daily cookieless implementation, which cannot run replay in this SDK. Historical cookieless events remain separate identities; do not infer unique-human counts from either identity model.
 
-PostHog cookieless daily hashing requires the matching project setting and
-`cookieless_mode: 'always'` in the client. It uses request IP/user-agent/site for its
-server hash; it is not zero personal-data processing. A daily hash limits return
-journeys across days. Persistent identity/session storage needs a separate consent
-and retention decision. The exact PostHog SDK 1.435.8 is bundled locally from its no-external entry. It runs only on main/www/v5 production hosts when configuration and privacy controls permit it. No SDK download, initialization or request occurs for opted-out visitors or unconfigured projects.
+## Test exclusion
 
-The adapter honors GPC, DNT and the local opt-out before initialization and capture. It disables SDK automatic events, replay, surveys, feature flags, remote config and external scripts. The before-send boundary replaces all SDK enrichment with fixed cookieless protocol fields, the browser user agent required for the server hash, public canonical URL/path and page category; person processing is disabled. The
-boundary suppresses events when storage access throws, and catches sender errors
-so analytics cannot break website actions. The linked `/privacy/` page explains collection and offers a local opt-out; its enabled/prepared wording follows build configuration. Do not expose an
-administrative API key. A browser project ingestion key is intentionally public,
-but still requires an approved project destination.
+Isolated synthetic browser contexts set `window.__MARIONETTE_ANALYTICS_TEST__ = true` before loading modules. Every event and replay delivery then has `analytics_test: true`; ordinary traffic has false. The flag is memory-only and introduces no visitor controls or banners. All further live QA must use this explicit context, never unmarked traffic from the owner's everyday browser.
 
-Set and verify a free usage cap, region and retention in the account; do not
-assume an SDK option changes server-side project settings. Test outgoing payloads
-with synthetic actions before enabling visitors. The SDK's own transport is rejected by its public before-send hook. A cancellable immediate fetch to `https://e.marionettejs.com/i/v0/e/` owns delivery, with credentials omitted and no referrer, batching, offline persistence or retries. Opting out cancels pending requests and stops new events in the current and other open tabs via storage events. Already delivered requests cannot be recalled. A failed delivery is dropped. The build-derived public route allowlist preserves documentation page journeys; arbitrary URL capture is never necessary.
+Configure the project internal/test filter with event property `analytics_test is not true`, preserving the existing Internal / Test users cohort condition. Negative filtering retains historical events with no marker. Enable the filter for new and relevant existing insights, and verify Web Analytics/dashboard overrides. Filtering hides test traffic from reports, it does not delete events or exempt test recordings from usage. Account configuration and backend replay playback must be independently verified; a passing local intercepted recorder test is not proof of backend reporting.
 
-## Setup and deployment status
+The [Marionette behavior dashboard](https://eu.posthog.com/project/292567/dashboard/994181) contains workshop and example funnels and a site-to-docs-copy funnel. Its legacy `page_view` first step must be updated to `$pageview` for future traffic (or combined with the historical event to retain history). Public clicks can be broken down by target/placement, and session-linked public pageviews support path exploration.
 
-Account signup, EU project selection, Free plan, server cookieless setting, public ingestion configuration and one synthetic ingestion check are complete. No duplicate setup is needed. The saved [Marionette behavior dashboard](https://eu.posthog.com/project/292567/dashboard/994181) has workshop, examples and site-visit-to-documentation-copy funnels. These use named events; generic starter/Web Analytics reports expect automatic `$pageview` events and are not the configured reporting surface. One synthetic setup page view remains in initial counts until it ages out.
+## Privacy, transport and rollout
 
-Before deployment, require passing `npm run check`, intercepted analytics/browser suites, hosted CI and resolved review findings. Merge through the existing deployment workflow only with owner approval. After deployment verify the served revision and a small live test journey in project Activity. Daily cookieless identifiers limit cross-day journeys even with a longer funnel query window. Opt-out is stored per origin; save it separately for alternate website addresses.
+GPC, DNT and the existing per-origin opt-out apply before SDK initialization. Inaccessible preference storage fails closed. Opt-out aborts pending event/replay requests and stops the recorder in the current tab and other tabs through storage notifications. Already delivered requests cannot be recalled. No consent banner or additional analytics callout is added; the existing `/privacy/` page is updated factually.
 
-Official references: [cookieless measurement](https://posthog.com/tutorials/cookieless-tracking), [JavaScript configuration](https://posthog.com/docs/libraries/js/config), [terms](https://posthog.com/terms), [privacy](https://posthog.com/privacy).
+A cancellable immediate transport sends events to `https://e.marionettejs.com/i/v0/e/` and replay to `/s/`, with credentials omitted and no referrer, retry, offline persistence or batching. Large replay bodies avoid the browser's 64 KiB keepalive limit. SDK enrichment is replaced with fixed supported protocol properties. Recorder configuration is fetched through the proxy; surveys, feature flags, heatmaps, errors and other product collection are disabled. SDK loading is asynchronous and cannot hold up website controls.
 
-Protocol verification: [capture API](https://posthog.com/docs/api/capture) supports the `/i/v0/e/` endpoint and top-level project key/distinct ID. [Cookieless ingestion source](https://github.com/PostHog/posthog/blob/master/nodejs/src/ingestion/common/cookieless/cookieless-manager.ts) verifies the sentinel, cookieless flag, required raw user agent/host, daily salt and server session assignment. Request IP is supplied by ingestion, not discovered or stored by the browser code. The SDK before-send hook is retained to preserve the supported cookieless client configuration and SDK bot filtering/event timestamps/UUIDs. The bundled adapter is about 359 kB uncompressed (loaded only for configured, eligible visitors); a synthetic `page_view` for `/privacy/` was accepted by the EU ingestion endpoint and visibly appeared in project Activity with a server-generated cookieless distinct ID on 2026-10-03. This verifies ingestion, not deployed visitor collection.
+The free PostHog managed proxy is live and already deployed at revision `4c2edf0`. Its sole dedicated DNS-only CNAME is `e.marionettejs.com` → `2d1c5fd40dc6477608cb.cf-prod-eu-proxy.europehog.com`. The owner approved its terms and distributed Cloudflare processing separately. Cloudflare edge processing is geographically distributed; PostHog storage is EU. No automatic DNS integration, Worker or paid commitment was used. A proxy does not guarantee complete blocker coverage. Existing Context7/Docs7 and Cloudflare services remain separate.
 
-Performance and opt-out verification: SDK loading is asynchronous and never delays website controls or app startup. Events before analytics initialization are dropped rather than queued. The browser regression holds the SDK module indefinitely while operating the real homepage demo and privacy buttons, then verifies cross-tab opt-out aborts an intercepted pending request and a failed event is not retried.
+The standard analytics/replay expansion requires its own approved merge. Validate `npm run check`, intercepted event/privacy/replay browser regressions, workshop/docs/personal-preview behavior and hosted CI. Then verify the deployed revision and a small explicitly tagged live journey, including backend playback and exclusions. Roll back through a normal revert PR and deployment workflow; no migration is required.
 
-## Managed proxy
-
-The owner approved PostHog managed-proxy terms and distributed Cloudflare processing on 2026-10-03, conditional on free service. [Official guidance](https://posthog.com/docs/advanced/proxy) confirms this is free for all PostHog Cloud users. Only a dedicated DNS-only CNAME was added: `e.marionettejs.com` → `2d1c5fd40dc6477608cb.cf-prod-eu-proxy.europehog.com`. The EU ingestion destination, capped Free plan and event boundary are unchanged. No account API token, automatic DNS integration, custom Worker or paid commitment was needed. Cloudflare edge termination is not guaranteed to stay in the EU; PostHog storage remains EU. Credentials remain omitted, including parent-domain cookies, and opt-out/GPC/DNT still stop delivery. A reverse proxy does not guarantee coverage of all blockers. This code switch requires a separately approved merge/deployment.
-
-Verification on 2026-10-03: PostHog proxy status is Live; its DNS target and HTTPS certificate resolve correctly. Two synthetic built-adapter events (`page_view` and `invitation_copy`, `/thanks/`) returned HTTP 200 through the proxy and visibly appeared in project Activity with the same server-generated daily cookieless identifier as direct-EU public docs/privacy test views. This establishes proxy hashing continuity for this synthetic browser, not unique-human accuracy or complete blocker coverage. The proxy code is not deployed yet. Intercepted real-SDK browser tests verify no cookies/referrer/identity storage, public path only, GPC/DNT suppression, local/cross-tab opt-out cancellation, and no retries.
+References: [JavaScript configuration](https://posthog.com/docs/libraries/js/config), [session replay](https://posthog.com/docs/session-replay), [internal/test filtering](https://posthog.com/docs/data/test-accounts), [managed proxy](https://posthog.com/docs/advanced/proxy), [capture protocol](https://posthog.com/docs/api/capture), [privacy](https://posthog.com/privacy).
