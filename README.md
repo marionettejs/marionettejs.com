@@ -97,7 +97,7 @@ All HTML pages include the deferred Docs7 analytics script for connected site
 key. Analytics appears in that site's Docs7 dashboard after deployment; embedding
 the script alone does not establish that visits have been recorded.
 
-PostHog EU event tracking is configured for the Marionette EU project on the capped Free plan. The initial integration is deployed; the managed-proxy transport switch requires its own approved deployment. The public ingestion token and verified cookieless server setting are recorded in `site/assets/analytics-config.js`. See [the event and setup plan](planning/analytics.md). The `/privacy/` page explains its data scope and offers a PostHog opt-out; this control is separate from existing Context7 and Cloudflare services.
+PostHog EU is configured on its capped Free plan through the free managed proxy. Standard page views, sessions, navigation duration, public control clicks, named product events and public-page replay use anonymous SDK identifiers. See [the event and setup plan](planning/analytics.md). The `/privacy/` page explains collection and offers an opt-out; this control is separate from Context7 and Cloudflare services.
 
 Publishing needs the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`
 secrets in the `production` environment. The token needs Pages Edit for the

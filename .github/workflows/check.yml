@@ -29,7 +29,9 @@ jobs:
       - name: Verify real workshop behavior
         run: npm run test:browser
       - name: Verify synthetic analytics privacy boundary
-        run: node test/browser/analytics.mjs
+        run: |
+          node test/browser/analytics.mjs
+          node test/browser/analytics-standard.mjs
       - name: Verify documentation layout and search
         run: npm run test:docs:browser
       - name: Verify personal app export and form boundary
