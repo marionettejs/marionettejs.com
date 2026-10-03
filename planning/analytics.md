@@ -6,7 +6,7 @@ PostHog EU project **292567** is the approved destination. The owner's Chrome bi
 
 The locally bundled PostHog SDK uses its normal transport, compression, batching, attribution and enrichment. Standard pageviews/pageleaves and autocapture retain referral sources, campaigns, browser, device, language, timezone and full page URLs, including query strings and fragments. GeoIP enrichment is enabled in the SDK; approximate country/region/city depend on server enrichment and proxy client-IP handling, and are distinct from browser language. No precise geolocation permission is requested. Historical stripped data cannot be recovered retroactively.
 
-Existing named business events and fixed `site_click` classifications remain for the saved funnels/dashboard. They coexist with normal autocapture rather than limiting SDK collection. No identify calls or person profiles are added. Anonymous cookie lifetime remains one day.
+Existing named business events and fixed `site_click` classifications remain for the saved funnels/dashboard. They coexist with normal autocapture rather than limiting SDK collection. No identify calls or person profiles are added. Anonymous cookie lifetime remains one day. Historical cookieless events remain separate identities; neither identity model establishes unique-human counts.
 
 Replay uses the supported bundled recorder, retains CSS, URLs, public input/editor content and normal supported recording capabilities. Built-in password protections remain. Cross-origin sandboxed previews cannot be assumed recordable; their sandbox architecture remains intact. No extra masking, custom DOM scrubber or custom network transport is applied.
 
@@ -24,7 +24,7 @@ The [Marionette behavior dashboard](https://eu.posthog.com/project/292567/dashbo
 
 GPC, DNT and the existing per-origin opt-out apply before SDK initialization. Inaccessible preference storage fails closed. An opt-out calls the SDK's supported `opt_out_capturing()` and stops replay, including notifications from another tab. The standard SDK stops new capture; requests already captured/queued or in flight may finish. It does not promise cancellation or recall of prior collection. No banner or new callout is added; `/privacy/` describes standard analytics accurately.
 
-The SDK owns transport and replay compression. Its `before_send` only honors current opt-outs and stamps the explicit test flag; it does not remove event types, enrichment or CSS. Unrelated product UI features remain disabled. SDK loading is asynchronous and cannot hold up website controls.
+The SDK owns transport and replay compression. Browser-managed configuration/unload requests can carry cookies scoped to the same-site proxy; this adapter does not copy cookie values into analytics properties. Its `before_send` only honors current opt-outs and stamps the explicit test flag; it does not remove event types, enrichment or CSS. Unrelated product UI features remain disabled. SDK loading is asynchronous and cannot hold up website controls.
 
 The free PostHog managed proxy is live and already deployed at revision `4c2edf0`. Its sole dedicated DNS-only CNAME is `e.marionettejs.com` → `2d1c5fd40dc6477608cb.cf-prod-eu-proxy.europehog.com`. The owner approved its terms and distributed Cloudflare processing separately. Cloudflare edge processing is geographically distributed; PostHog storage is EU. No automatic DNS integration, Worker or paid commitment was used. A proxy does not guarantee complete blocker coverage. Existing Context7/Docs7 and Cloudflare services remain separate.
 

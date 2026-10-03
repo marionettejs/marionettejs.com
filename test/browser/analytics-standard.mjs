@@ -23,7 +23,6 @@ try {
     window.__MARIONETTE_ANALYTICS_TEST__ = true;
   });
   const requests = [], errors = [];
-  await context.addCookies([{ name: 'parent_cookie', value: 'PRIVATE_COOKIE', domain: '.marionettejs.com', path: '/', secure: true, sameSite: 'None' }]);
   await context.route('**/*', async route => {
     const request = route.request(), url = new URL(request.url());
     if (url.hostname === 'e.marionettejs.com') {
@@ -91,8 +90,15 @@ try {
   assert.ok(recordings.includes('Visible demo input'));
   assert.ok(recordings.includes('Visible demo source'));
   assert.ok(!recordings.includes('PRIVATE_PASSWORD'), 'built-in password protections');
+  assert.ok(replay.flatMap(request => Array.isArray(request.data) ? request.data : [request.data]).every(event => event.properties.analytics_test === true));
   const count = requests.length;
-  await page.evaluate(() => { fixture.tracker.setAnalyticsOptOut(true); document.querySelector('#demo-value').value = 'AFTER_OPT_OUT'; });
+  const otherTab = await context.newPage();
+  await otherTab.goto('https://marionettejs.com/');
+  await otherTab.evaluate(() => localStorage.setItem('marionette-analytics-opt-out', '1'));
+  await page.waitForTimeout(100);
+  assert.equal(await page.evaluate(() => fixture.tracker.track('workshop_run')), false, 'cross-tab preference stops named events');
+  await page.locator('#unknown').click();
+  await page.locator('#demo-value').fill('AFTER_OPT_OUT');
   await page.waitForTimeout(2500);
   assert.equal(requests.length, count, 'opt-out must stop event and replay delivery');
   assert.deepEqual(errors, []);
