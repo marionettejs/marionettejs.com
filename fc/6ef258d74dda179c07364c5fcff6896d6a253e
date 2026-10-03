@@ -1,0 +1,42 @@
+content/adoption.mjs
+  s_9dea3911e10146::t_f5de3f1aa75d58 6,10,18,34,44
+planning/agent-led-site.md
+  s_9dea3911e10146::t_19f8723d3d2e78 1-56
+  s_9dea3911e10146::t_1f83b839f275d1 57-69
+content/why.mjs
+  s_9dea3911e10146::t_f5de3f1aa75d58 1-24
+content/examples.mjs
+  s_9dea3911e10146::t_363478ee8fb43d 3-5,9,12-14,19,24-25,32
+content/pages.mjs
+  s_9dea3911e10146::t_2e0cb122c4bddb 3,14,17,29,38,54-55
+content/playground.mjs
+  s_9dea3911e10146::t_9d72342ae53893 4,13
+scripts/agent-discovery.mjs
+  s_9dea3911e10146::t_4b08f1231baab6 66-77,79
+scripts/library-docs.mjs
+  s_9dea3911e10146::t_279ee97855ab1c 109,126-127
+site/assets/docs.css
+  s_9dea3911e10146::t_cf9422237995d2 10,25-38,43-45,47
+site/assets/examples.css
+  s_9dea3911e10146::t_3f3f5a58447d55 2,5,32-52,57,59
+site/assets/night.css
+  s_9dea3911e10146::t_2566e1b03cc40d 20,26-27,59,155-164,177,235,237,241,244,361-369,371-386
+test/browser/docs-candidate.mjs
+  s_9dea3911e10146::t_dae70831c6047c 36-43,53-77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "fc6ef258d74dda179c07364c5fcff6896d6a253e",
+  "prompts": {},
+  "sessions": {
+    "s_9dea3911e10146": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10108-938b-7422-a1b1-4fafba03c2ff",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
