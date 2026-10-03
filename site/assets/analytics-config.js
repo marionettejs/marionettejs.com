@@ -1,6 +1,6 @@
 // Public project ingestion key only; never put a personal/administrative API key here.
-// Leave disabled until EU project settings and the free usage cap are verified.
+// EU project 292567: Free capped plan and cookieless server hash verified 2026-10-03.
 export const analyticsConfig = Object.freeze({
-  projectKey: '',
-  cookielessServerHashConfirmed: false
+  projectKey: 'phc_tWm2htDNFsr7B94KukyDprmCDVMEfzV6ZCABQinSFqFb',
+  cookielessServerHashConfirmed: true
 });

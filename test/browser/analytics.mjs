@@ -16,6 +16,7 @@ try {
       return route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: '{"status":1}' });
     }
     if (url.hostname === 'context7.com') return route.abort();
+    if (url.pathname === '/assets/analytics-config.js') return route.fulfill({ contentType: 'text/javascript', body: 'export const analyticsConfig={projectKey:"",cookielessServerHashConfirmed:false};' });
     assert.equal(url.hostname, 'marionettejs.com', 'Unexpected external request');
     if (url.pathname.startsWith('/assets/')) return route.fulfill({ contentType: ({ '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' })[extname(url.pathname)] || 'application/octet-stream', body: await readFile(resolve('dist', '.' + url.pathname)) });
     if (url.pathname === '/privacy/') return route.fulfill({ contentType: 'text/html', body: await readFile('dist/privacy/index.html') });
@@ -68,7 +69,7 @@ try {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   await page.getByRole('button', { name: 'Clear my PostHog opt-out' }).click();
   assert.equal(await page.evaluate(() => localStorage.getItem('marionette-analytics-opt-out')), null);
-  assert.equal(requests.length, 1, 'Disabled published config must not send analytics');
+  assert.equal(requests.length, 1, 'Disabled fixture config must not send analytics');
   await context.close();
   console.log('PASS real PostHog SDK: EU-only request, cookieless sentinel, public path only, no identity storage, no private content, opt-out stops capture');
   // Regression: an indefinitely stalled analytics module must not block controls.
