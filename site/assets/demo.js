@@ -1,3 +1,4 @@
+import { track } from './analytics.js';
 import { Application, View, CollectionView } from '../vendor/marionette.js';
 
 // Static example content; each screen owns its selection and lifecycle state.
@@ -42,6 +43,7 @@ const Screen = View.extend({
     const previous = this.getChildView('detail');
     this.showChildView('detail', new Detail({ model:item }));
     state.selectedId = item.id;
+    track('ownership_select');
     state.replacements++;
     state.previousDetailDestroyed = previous.isDestroyed();
     this.showChildView('status', new Status({ model:{ message:'Detail replaced and cleaned up. Screen and list stayed put.' } }));

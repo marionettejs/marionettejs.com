@@ -1,3 +1,4 @@
+import { track } from './analytics.js';
 import { getRecipe, listRecipes, recipeRuntime } from './playground-recipes.js';
 import { runnerDocument, validateAction } from './playground-runtime.js';
 import { compileProject, projectArchive, projectPen } from './demo-project-tools.js';
@@ -76,6 +77,7 @@ function present(value) {
   if (Number.isFinite(value.contentHeight)) active.frame.style.height = `${Math.max(500, Math.min(2800, value.contentHeight))}px`;
 }
 async function run() {
+  track('example_run');
   const { app, project } = compileProject(draft());
   stop();
   sourceRequest = undefined;
@@ -116,6 +118,7 @@ addEventListener('message', event => {
       present(data.snapshot);
       if (snapshot?.ready || snapshot?.errors.length) {
         clearTimeout(session.timeout);
+        if (session.resolve) track(snapshot.errors.length ? 'example_failed' : 'example_ready');
         session.resolve?.(state());
         session.resolve = null;
       }
@@ -139,6 +142,7 @@ function query(type, action) {
 }
 async function select(input) {
   selected = getRecipe(input);
+  track('example_select');
   title.textContent = selected.title;
   code.value = selected.sourceFiles['app.js'];
   lesson.value = selected.sourceFiles['lesson.js'];
@@ -243,6 +247,7 @@ codepen.addEventListener('submit', event => {
     pen.description = `A Marionette example: https://marionettejs.com/demos/#${selected.id}\nRuntime: ${recipeRuntime.version}`;
     codepen.elements.data.value = JSON.stringify(pen);
     codepen.submit();
+    track('example_codepen');
   } catch (error) { report(error); }
 });
 page.querySelector('[data-example-download]').addEventListener('click', async () => {
@@ -250,6 +255,7 @@ page.querySelector('[data-example-download]').addEventListener('click', async ()
     const app = draft(), { vendor, license } = await loadAssets();
     const url = URL.createObjectURL(projectArchive(app, vendor, license));
     const link = document.createElement('a'); link.href = url; link.download = selected.id + '.zip'; link.click();
+    track('example_download');
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   } catch (error) { report(error); }
 });

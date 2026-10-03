@@ -1,3 +1,6 @@
+import { track } from './analytics.js';
+track('page_view');
+
 if (document.querySelector('#application-slot')) {
   import('./demo.js').catch(() => {
     document.querySelector('#application-slot').textContent = 'The application example could not load. You can still explore the lifecycle illustration below and read the guide.';
@@ -24,6 +27,7 @@ if (adoptionPrompt) {
   copy.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(adoptionPrompt.value);
+      track('adoption_copy');
       status.textContent = 'Copied. Give it to the agent that knows your project.';
     } catch {
       document.querySelector('#adoption-prompt-details').open = true;

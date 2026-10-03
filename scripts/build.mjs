@@ -28,7 +28,10 @@ const vendorVersions = Object.fromEntries(await Promise.all(['marionette', 'demo
   [name, digest(await readFile(resolve(root, `site/vendor/${name}.js`)))])));
 const versionVendor = module => module.replace(/(['"])((?:\.\.)?\/vendor\/(marionette|demos)\.js)(?:\?v=[^'"]*)?\1/g,
   (whole, quote, path, name) => `${quote}${path}?v=${vendorVersions[name]}${quote}`);
-const readModule = async path => versionVendor(await readFile(resolve(root, 'site/assets', path), 'utf8'));
+const analyticsManifest = JSON.parse(await readFile(resolve(root, 'content/library-docs/manifest.json'), 'utf8'));
+const analyticsRoutes = ['/', '/why/', '/thanks/', '/demos/', '/docs/agent-start/', '/docs/coverage/', '/docs/mcp/', ...analyticsManifest.pages.map(page => `/${page.route}/`)];
+const analyticsSource = (await readFile(resolve(root, 'site/assets/analytics.js'), 'utf8')).replace(/\/\* PUBLIC_ANALYTICS_ROUTES \*\/ \[[^\]]*\]/, JSON.stringify(analyticsRoutes));
+const readModule = async path => path === './analytics.js' || path === 'analytics.js' ? analyticsSource : versionVendor(await readFile(resolve(root, 'site/assets', path), 'utf8'));
 // Version the workshop's static imports before hashing the module that loads it.
 // Otherwise returning browsers can combine new tools with a cached old runner.
 async function versionImports(module, built = {}) {
@@ -45,8 +48,10 @@ const recipeModule = await versionImports(await readModule('playground-recipes.j
 const sourceEditorModule = await versionImports(await readModule('source-editor.js'));
 const examplesModule = await versionImports(await readModule('examples.js'), { ...runtimeDependency, './playground-export.js': exportModule, './playground-recipes.js': recipeModule, './source-editor.js': sourceEditorModule });
 const workshopModule = await versionImports(await readModule('playground.js'), { ...runtimeDependency, './playground-export.js': exportModule, './playground-recipes.js': recipeModule });
-const modules = { './playground-runtime.js': runtimeModule, './playground-export.js': exportModule, './playground-recipes.js': recipeModule, './source-editor.js': sourceEditorModule, './examples.js': examplesModule, './playground.js': workshopModule };
-let entryModule = await readModule('site.js');
+const demoModule = await versionImports(await readModule('demo.js'));
+const docsModule = await versionImports(await readModule('docs.js'));
+const modules = { './analytics.js': analyticsSource, './demo.js': demoModule, './docs.js': docsModule, './playground-runtime.js': runtimeModule, './playground-export.js': exportModule, './playground-recipes.js': recipeModule, './source-editor.js': sourceEditorModule, './examples.js': examplesModule, './playground.js': workshopModule };
+let entryModule = await versionImports(await readModule('site.js'), modules);
 for (const [expression, path] of entryModule.matchAll(/import\('(\.\/[^']+\.js)'\)/g)) {
   const source = modules[path] ??= await readModule(path);
   entryModule = entryModule.replace(expression, `import('${path}?v=${digest(source)}')`);

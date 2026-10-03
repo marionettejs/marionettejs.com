@@ -1,3 +1,4 @@
+import { track } from './analytics.js';
 const search = new window.PagefindUI({ element: '#docs-search', showSubResults: true, showImages: false, bundlePath: '/pagefind/' });
 search.triggerFilters({ Audience: ['Consumer'] });
 
@@ -8,6 +9,7 @@ for (const button of document.querySelectorAll('[data-copy-markdown]')) {
       const response = await fetch(button.dataset.copyMarkdown);
       if (!response.ok) throw new Error('Markdown unavailable');
       await navigator.clipboard.writeText(await response.text());
+      track('docs_copy_markdown');
       status.textContent = 'Markdown copied.';
     } catch {
       status.textContent = 'Copy unavailable. Use Read Markdown to select the text.';
@@ -45,6 +47,10 @@ window.addEventListener('resize', sizeSearch, { passive: true });
 window.addEventListener('scroll', sizeSearch, { passive: true, capture: true });
 window.visualViewport?.addEventListener('resize', sizeSearch, { passive: true });
 window.visualViewport?.addEventListener('scroll', sizeSearch, { passive: true });
+let searched = false;
+searchInput.addEventListener('input', () => {
+  if (!searched && searchInput.value.trim()) { searched = true; track('docs_search'); }
+});
 searchInput.addEventListener('input', revealSearch);
 searchInput.addEventListener('focus', revealSearch);
 searchInput.addEventListener('click', revealSearch);

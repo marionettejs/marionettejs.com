@@ -1,3 +1,4 @@
+import { track } from './analytics.js';
 import { backstageURL, backstageText, codePenData } from './playground-export.js';
 import { starter, version, revision, validateApp, validateAction, runnerDocument, standaloneDocument } from './playground-runtime.js';
 
@@ -128,6 +129,7 @@ async function run(input, { signal } = {}) {
   if (signal?.aborted) return { status: 'cancelled' };
   const app = validateApp(input);
   if (!dialog.open) throw new Error('Open the playground before submitting an app.');
+  track('workshop_run');
   dialog.dataset.started = 'true';
   stop('Replaced by a new run.');
   const id = generation;
@@ -187,6 +189,7 @@ addEventListener('message', event => {
     if (snapshot.ready || snapshot.errors.length) {
       clearTimeout(session.timeout);
       runButton.disabled = false;
+      if (session.resolve) track(snapshot.errors.length ? 'workshop_failed' : 'workshop_ready');
       session.resolve?.(state());
       session.resolve = null;
     }
@@ -234,6 +237,7 @@ async function open(audience = 'agent') {
   returnFocus = document.activeElement;
   oldHash = location.hash === '#playground' ? '' : location.hash;
   dialog.showModal();
+  track('workshop_open');
   document.documentElement.classList.add('workshop-open');
   history.replaceState(null, '', `${location.pathname}${location.search}#playground`);
   dialog.querySelector('[data-workshop-close]').focus({ preventScroll: true });
@@ -259,6 +263,7 @@ async function download() {
     a.href = url;
     a.download = `${app.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 60) || 'marionette-app'}.html`;
     a.click();
+    track('workshop_download');
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     setStatus('Downloaded this draft. Open the HTML file in a browser.');
   } catch (error) { report(error); }
@@ -274,6 +279,7 @@ codePenForm.addEventListener('submit', event => {
     // Assets are loaded before submission, preserving the click's user activation.
     codePenForm.elements.data.value = JSON.stringify(codePenData(currentApp(), codePenAssets.vendor, codePenAssets.license));
     codePenForm.submit();
+    track('workshop_codepen');
     setStatus('Sent this draft to CodePen. Save it there to get a shareable app link.');
   } catch (error) { report(error); }
 });
@@ -330,7 +336,7 @@ const promptText = document.querySelector('#agent-invitation-prompt');
 promptText.value = copyPrompt;
 copyButton.disabled = false;
 copyButton.addEventListener('click', async () => {
-  try { await navigator.clipboard.writeText(copyPrompt); invitationStatus.textContent = 'Copied. Paste it into your agent’s chat.'; }
+  try { await navigator.clipboard.writeText(copyPrompt); track('invitation_copy'); invitationStatus.textContent = 'Copied. Paste it into your agent’s chat.'; }
   catch { document.querySelector('#prompt-details').open = true; promptText.focus(); promptText.select(); invitationStatus.textContent = 'Select and copy the prompt below.'; }
 });
 const instructions = dialog.querySelector('#workshop-instructions');
