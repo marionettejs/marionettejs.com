@@ -36,7 +36,7 @@ test('every built page has valid local links, fragments, and asset references',a
     assert.match(html,/<html lang="en">/);
     assert.equal((html.match(/src="https:\/\/context7.com\/docs7-analytics.js"/g) || []).length, 1, route);
     assert.ok(html.includes('<script defer src="https://context7.com/docs7-analytics.js" data-site="b83657b2-fde7-4916-a683-2d3ba41f185b"></script>'), route);
-    for (const link of ['/thanks/', 'https://github.com/sponsors/paulfalgout', 'https://store.marionettejs.com/', `https://www.npmjs.com/package/marionette/v/${installedPackage.version}`]) {
+    for (const link of ['/thanks/', 'https://github.com/sponsors/paulfalgout', 'https://store.marionettejs.com/', 'https://x.com/marionettejs', `https://www.npmjs.com/package/marionette/v/${installedPackage.version}`]) {
       assert.ok(html.includes(`href="${link}"`), `${route}: missing shared footer link ${link}`);
     }
     assert.ok(!html.includes('https://www.patreon.com/marionettejs'), `${route}: obsolete Patreon link`);
