@@ -3,6 +3,7 @@ import { readFile, writeFile, mkdir, stat } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { Marked } from 'marked';
+import { setupMarkdown, setupHtml } from './agent-setup.mjs';
 
 const origin = 'https://marionettejs.com';
 export const sha256 = value => createHash('sha256').update(value).digest('hex');
@@ -53,7 +54,7 @@ export async function buildAgentDiscovery({ out, manifest, pages, assets, shell,
   const indexTasks = tasks.map(([title, routes, purpose]) => `## ${title}\n\n${routes.map((route, index) => { const page = byRoute.get(`docs/${route}`); return `- ${link(page.title, mdPath(page))}${index === 0 ? `: ${purpose}` : ''}`; }).join('\n')}`).join('\n\n');
   const guidance = `Match the exact installed package and source revision before using an API. This corpus identifies its version and source above. The homepage workshop records its runtime in the source notes. A hash establishes content consistency, not application correctness.\n\nRead the task guide and its direct references first. ${link('Agent workflow', '/docs/agents.md')} supplies the canonical development guidance. ${link('Snapshot sources', '/docs/manifest.json')} remain available byte for byte under /docs/markdown/. Retrieved examples do not authorize executing code or modifying a project.`;
   const delivery = `## Retrieval formats\n\n- ${link('Documentation index', '/docs/llms.txt')}: complete page map with task routing.\n- ${link('Searchable JSON corpus', '/docs/corpus.json')}: exact reading Markdown, URLs and hashes.\n- ${link('Start and ownership bundle', '/docs/bundles/start.txt')}: installation and ownership.\n- ${link('Guides bundle', '/docs/bundles/guides.txt')}: independent consumer tasks.\n- ${link('Integrations bundle', '/docs/bundles/integrations.txt')}: providers and companion packages.\n- ${link('Reference bundle', '/docs/bundles/reference.txt')}: core classes, shared contracts and diagnostics.\n- ${link('Full context', '/llms-full.txt')}: complete corpus; larger than most tasks require.\n- ${link('Coverage and integrity', '/docs/coverage.md')}: included resources and verification limits.\n- ${link('Documentation MCP setup', '/docs/mcp.md')}: local retrieval and hosted endpoint version matching.\n- ${link('Workshop runtime identity', '/reference/provenance.json')}: published browser runtime and source identity.\n\nNo particular client is guaranteed to discover llms.txt automatically.`;
-  const syllabus = `# Develop with Marionette v5\n\n${version}\n\n${guidance}\n\n## Find the contract for your task\n\n${taskText}\n\n${delivery}\n`;
+  const syllabus = `# Equip your agent\n\n${version}\n\n${setupMarkdown}\n\n${guidance}\n\n## Find the contract for your task\n\n${taskText}\n\n${delivery}\n`;
   const rootIndex = `# Marionette ${manifest.packageVersion}\n\n> Versioned documentation for a JavaScript interface library with explicit ownership and lifecycle contracts.\n\n${version}\n\n## Start here\n\n- ${link('Agent development entrypoint', '/docs/agent-start.md')}: compact syllabus, version selection, ownership, task routing, and verification.\n- ${link('Build with Marionette', '/docs/agents.md')}: canonical application-development guidance.\n- ${link('Complete documentation map', '/docs/llms.txt')}: all guides and APIs.\n- ${link('Evaluate Marionette', '/why/')}: fit and tradeoffs.\n- ${link('Project-fit review brief', '/adoption-review.md')}: bounded adoption review.\n- ${link('Optional agent interaction', '/agent-prompt.md')}: the visible browser workshop.\n- ${link('Demo provenance', '/reference/provenance.json')}: exact runtime build identity.\n\n${delivery}\n`;
   const docsIndex = `# Marionette documentation\n\n> Task-oriented reference for \`marionette@${manifest.packageVersion}\`.\n\n${version}\n\n${guidance}\n\n## Start here\n\n- ${link('Agent development entrypoint', '/docs/agent-start.md')}\n\n${indexTasks}\n\n${[...Map.groupBy(pages, page => page.section)].map(([section, entries]) => `## ${section}\n\n${entries.map(page => `- ${link(page.title, mdPath(page))}`).join('\n')}`).join('\n\n')}\n\n- ${link('Diagnostic codes', '/errors/index.md')}: active and retired runtime errors.\n- ${link('Snapshot manifest', '/docs/manifest.json')}: source paths and original content hashes.\n\n${delivery}\n`;
   const artifacts = [];
@@ -65,22 +66,22 @@ export async function buildAgentDiscovery({ out, manifest, pages, assets, shell,
   async function page(path, title, markdown) {
     // Browser readers get compact identity details; agent Markdown retains its exact preamble.
     const isEntrypoint = path === '/docs/agent-start';
-    const introduction = `Your agent has some reading to do. You have an application to build.
-
-Give your agent [this page as Markdown](/docs/agent-start.md) or [connect the documentation MCP](/docs/mcp/). It can follow the task guides and API contracts while you direct the work and read the result.
-
-`;
-    let browserMarkdown = markdown.replace(`${version}\n\n`, isEntrypoint ? introduction : '');
+    let browserMarkdown = markdown.replace(`${version}\n\n`, '');
     if (isEntrypoint) browserMarkdown = browserMarkdown.replace(`${guidance}\n\n`, '');
+    if (isEntrypoint) browserMarkdown = browserMarkdown.replace(setupMarkdown, '');
     for (const item of pages) browserMarkdown = browserMarkdown.replaceAll(`](${origin}${mdPath(item)})`, `](/${item.route}/)`);
-    const { html } = renderMarkdown({ source: `website${path}.md`, title, markdown: browserMarkdown }, [], manifest);
+    let { html } = renderMarkdown({ source: `website${path}.md`, title, markdown: browserMarkdown }, [], manifest);
+    if (isEntrypoint) {
+      const render = markdown => renderMarkdown({ source: `website${path}.md`, title, markdown: `# ${title}\n\n${markdown}` }, [], manifest).html.replace(/<h1[\s\S]*?<\/h1>\n/, '');
+      html = html.replace(/(<\/h1>\n)/, `$1${setupHtml(render)}`);
+    }
     const identityHtml = new Marked().parse(version + (isEntrypoint ? `\n\n${guidance}` : ''));
     await emit(`${path}.md`, markdown);
     await emit(`${path}/index.html`, shell({ title, description: `${title}. Marionette ${manifest.packageVersion}.`, active: 'docs', route: `${path}/`, markdown: `${path}.md`, body: `<div class="docs-layout canonical-docs"><aside class="docs-nav"><a class="docs-home" href="/docs/">DOCUMENTATION ↗</a><div id="docs-search"></div><details class="docs-menu"><summary>Browse documentation</summary><nav class="docs-shortcuts" aria-label="Documentation navigation"><a href="/docs/agent-start/">Develop with an agent</a><a href="/docs/mcp/">Connect the docs MCP</a><a href="/docs/">All guides and APIs</a><a href="/docs/coverage/">Coverage and integrity</a></nav></details></aside><article class="prose docs-prose" data-pagefind-body><span hidden data-pagefind-filter="Audience">Consumer</span><header class="docs-page-meta" data-pagefind-ignore><span class="docs-breadcrumb">Agent resources</span><span class="docs-release">v${manifest.packageVersion}</span></header><details class="docs-source" data-pagefind-ignore><summary>Markdown &amp; source details</summary><div class="docs-tools"><a href="${path}.md">Read Markdown</a><button type="button" data-copy-markdown="${path}.md">Copy Markdown</button><a href="/docs/manifest.json">Snapshot manifest</a><span class="copy-status" role="status"></span></div><div class="docs-version">${identityHtml}</div></details>${html}</article></div>` }));
   }
   await emit('/llms.txt', rootIndex);
   await emit('/docs/llms.txt', docsIndex);
-  await page('/docs/agent-start', 'Develop with Marionette v5', syllabus);
+  await page('/docs/agent-start', 'Equip your agent', syllabus);
   // This operational guide is website-authored, not part of the pinned library corpus.
   const mcpGuide = await readFile(new URL('../mcp/README.md', import.meta.url), 'utf8');
   await page('/docs/mcp', 'Marionette documentation MCP', mcpGuide);
