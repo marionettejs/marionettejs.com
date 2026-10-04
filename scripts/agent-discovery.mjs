@@ -33,6 +33,7 @@ export function validateDiscoveryRoutes(pages, groups = bundleGroups) {
 
 export async function buildAgentDiscovery({ out, manifest, pages, assets, shell, renderMarkdown }) {
   validateDiscoveryRoutes(pages);
+  const setupModuleUrl = `/assets/agent-setup.js?v=${sha256(await readFile(resolve(out, 'assets/agent-setup.js'))).slice(0, 12)}`;
   const publication = await readFile(resolve(out, 'docs/publication.json'));
   const identity = {
     packageName: manifest.packageName, packageVersion: manifest.packageVersion,
@@ -73,11 +74,11 @@ export async function buildAgentDiscovery({ out, manifest, pages, assets, shell,
     let { html } = renderMarkdown({ source: `website${path}.md`, title, markdown: browserMarkdown }, [], manifest);
     if (isEntrypoint) {
       const render = markdown => renderMarkdown({ source: `website${path}.md`, title, markdown: `# ${title}\n\n${markdown}` }, [], manifest).html.replace(/<h1[\s\S]*?<\/h1>\n/, '');
-      html = html.replace(/(<\/h1>\n)/, `$1${setupHtml(render)}`);
+      html = html.replace(/(<\/h1>\n)/, `$1${setupHtml(render, setupModuleUrl)}`);
     }
     const identityHtml = new Marked().parse(version + (isEntrypoint ? `\n\n${guidance}` : ''));
     await emit(`${path}.md`, markdown);
-    await emit(`${path}/index.html`, shell({ title, description: `${title}. Marionette ${manifest.packageVersion}.`, active: 'docs', route: `${path}/`, markdown: `${path}.md`, body: `<div class="docs-layout canonical-docs"><aside class="docs-nav"><a class="docs-home" href="/docs/">DOCUMENTATION ↗</a><div id="docs-search"></div><details class="docs-menu"><summary>Browse documentation</summary><nav class="docs-shortcuts" aria-label="Documentation navigation"><a href="/docs/agent-start/">Develop with an agent</a><a href="/docs/mcp/">Connect the docs MCP</a><a href="/docs/">All guides and APIs</a><a href="/docs/coverage/">Coverage and integrity</a></nav></details></aside><article class="prose docs-prose" data-pagefind-body><span hidden data-pagefind-filter="Audience">Consumer</span><header class="docs-page-meta" data-pagefind-ignore><span class="docs-breadcrumb">Agent resources</span><span class="docs-release">v${manifest.packageVersion}</span></header><details class="docs-source" data-pagefind-ignore><summary>Markdown &amp; source details</summary><div class="docs-tools"><a href="${path}.md">Read Markdown</a><button type="button" data-copy-markdown="${path}.md">Copy Markdown</button><a href="/docs/manifest.json">Snapshot manifest</a><span class="copy-status" role="status"></span></div><div class="docs-version">${identityHtml}</div></details>${html}</article></div>` }));
+    await emit(`${path}/index.html`, shell({ title, description: `${title}. Marionette ${manifest.packageVersion}.`, active: 'docs', route: `${path}/`, markdown: `${path}.md`, body: `<div class="docs-layout canonical-docs"><aside class="docs-nav"><a class="docs-home" href="/docs/">DOCUMENTATION ↗</a><div id="docs-search"></div><details class="docs-menu"><summary>Browse documentation</summary><nav class="docs-shortcuts" aria-label="Documentation navigation"><a href="/docs/agent-start/">Equip your agent</a><a href="/docs/mcp/">Connect the docs MCP</a><a href="/docs/">All guides and APIs</a><a href="/docs/coverage/">Coverage and integrity</a></nav></details></aside><article class="prose docs-prose" data-pagefind-body><span hidden data-pagefind-filter="Audience">Consumer</span><header class="docs-page-meta" data-pagefind-ignore><span class="docs-breadcrumb">Agent resources</span><span class="docs-release">v${manifest.packageVersion}</span></header><details class="docs-source" data-pagefind-ignore><summary>Markdown &amp; source details</summary><div class="docs-tools"><a href="${path}.md">Read Markdown</a><button type="button" data-copy-markdown="${path}.md">Copy Markdown</button><a href="/docs/manifest.json">Snapshot manifest</a><span class="copy-status" role="status"></span></div><div class="docs-version">${identityHtml}</div></details>${html}</article></div>` }));
   }
   await emit('/llms.txt', rootIndex);
   await emit('/docs/llms.txt', docsIndex);

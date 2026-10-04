@@ -36,6 +36,7 @@ try {
     assert.equal(await selector.inputValue(), 'claude', 'Native selector works from keyboard');
     for (const id of ['codex', 'claude', 'copilot', 'cursor', 'other']) {
       await selector.selectOption(id);
+      assert.match(await page.locator('#agent-selection-status').textContent(), /setup instructions shown below/);
       const section = page.locator(`[data-agent-client="${id}"]`);
       assert.equal(await section.isVisible(), true);
       assert.equal(await page.locator('[data-agent-client]:visible').count(), 1);
@@ -75,7 +76,7 @@ try {
   assert.match((await download).suggestedFilename(), /\.html$/);
   const next = page.locator('.workshop-next-steps');
   assert.equal(await next.isVisible(), true);
-  assert.equal(await next.getByRole('link', { name: 'equip your agent', exact: true }).getAttribute('href'), '/docs/agent-start/');
+  assert.equal(await next.getByRole('link', { name: 'Equip your agent', exact: true }).getAttribute('href'), '/docs/agent-start/');
   assert.deepEqual(errors, []);
   console.log('PASS 5 clients at 1440/390/320px, keyboard selection and copying, clipboard denial, no-JS reading, workshop download → setup.');
 } finally {

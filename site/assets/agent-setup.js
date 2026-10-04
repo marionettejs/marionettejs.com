@@ -1,10 +1,12 @@
 const selector = document.querySelector('#agent-client');
 if (selector) {
   const sections = document.querySelectorAll('[data-agent-client]');
-  const selectClient = () => {
+  const status = document.querySelector('#agent-selection-status');
+  const selectClient = (announce = false) => {
     for (const section of sections) section.hidden = section.dataset.agentClient !== selector.value;
+    if (announce) status.textContent = `${selector.selectedOptions[0].textContent} setup instructions shown below.`;
   };
-  selector.addEventListener('change', selectClient);
+  selector.addEventListener('change', () => selectClient(true));
   selectClient();
   selector.parentElement.hidden = false;
 

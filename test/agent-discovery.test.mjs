@@ -56,7 +56,8 @@ test('root index and task syllabus lead to resolvable version-matched resources'
     const urls = [];
     parser.walkTokens(parser.lexer(markdown), token => { if (token.type === 'link') urls.push(new URL(token.href)); });
     for (const url of urls) {
-      if (['https://learn.chatgpt.com/docs/build-skills', 'https://code.claude.com/docs/en/discover-plugins', 'https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing', 'https://cursor.com/docs/skills', 'https://mcp.marionettejs.com/mcp'].includes(url.href)) continue; // Protocol endpoint, verified with an MCP client.
+      if (['https://learn.chatgpt.com/docs/build-skills', 'https://code.claude.com/docs/en/discover-plugins', 'https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing', 'https://cursor.com/docs/skills'].includes(url.href)) continue; // External client setup pages are not verified by this local-link test.
+      if (url.href === 'https://mcp.marionettejs.com/mcp') continue; // Protocol endpoint, verified with an MCP client.
       assert.equal(url.origin, 'https://marionettejs.com');
       await read(url.pathname + (url.pathname.endsWith('/') ? 'index.html' : ''));
     }

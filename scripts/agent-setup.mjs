@@ -6,11 +6,13 @@ const copySkill = directory => fence(`node -e "
 const fs = require('node:fs');
 const path = require('node:path');
 const root = path.dirname(require.resolve('marionette/package.json'));
-fs.cpSync(path.join(root, 'skills/marionette'),
-  '${directory}/marionette',
+const destination = '${directory}/marionette';
+if (fs.lstatSync(destination, { throwIfNoEntry: false }))
+  throw new Error('Skill folder already exists: ' + destination);
+fs.cpSync(path.join(root, 'skills/marionette'), destination,
   { recursive: true, force: false, errorOnExist: true });
 "`);
-const checkout = `git clone --depth 1 --branch v${release} https://github.com/marionettejs/marionette.git .marionette-plugin\ngit -C .marionette-plugin checkout --detach ${revision}`;
+const checkout = `git clone --no-checkout --depth 1 https://github.com/marionettejs/marionette.git .marionette-plugin &&\ngit -C .marionette-plugin fetch --depth 1 origin ${revision} &&\ngit -C .marionette-plugin checkout --detach ${revision}`;
 
 export const setupIntro = `Your agent learns the patterns. You get on with the application.
 
@@ -23,7 +25,7 @@ export const setupPrerequisites = `For a new application, run this in its projec
 
 ${fence(`npm install marionette@${release}`)}
 
-Already using Marionette v5? Keep your installed version and copy its complete skill folder, including the lookup scripts. These commands use Node.js and work in macOS, Linux, or PowerShell. They stop if a skill file already exists; review an existing installation before replacing it.
+Already using Marionette v5? Keep your installed version and copy its complete skill folder, including the lookup scripts. The copy commands use Node.js on macOS, Linux, or PowerShell. Plugin commands use Bash, zsh, or PowerShell 7+ and stop on failure. Copying stops if the skill folder already exists; review an existing installation before replacing it.
 `;
 
 export const clients = [
@@ -43,7 +45,7 @@ OpenAI directory publication is not complete. Use this project skill for now. [C
 
 Install the repository plugin from the verified RC2 source revision. Run in your terminal with Git and Claude Code installed. Keep this checkout while using the plugin:
 
-${fence(`${checkout}\nclaude plugin marketplace add ./.marionette-plugin\nclaude plugin install marionette@marionettejs\nclaude plugin list`)}
+${fence(`${checkout} &&\nclaude plugin marketplace add ./.marionette-plugin &&\nclaude plugin install marionette@marionettejs &&\nclaude plugin list`)}
 
 Start a new Claude Code session in your application. Look for \`/marionette:marionette\` in the skill menu, then use it with your request.
 
@@ -53,11 +55,11 @@ This repository marketplace is separate from the Claude web directory. Installat
 
 The repository marketplace commands installed ${release} and one bundled skill:
 
-${fence('copilot plugin marketplace add marionettejs/marionette\ncopilot plugin install marionette@marionettejs\ncopilot plugin list')}
+${fence('copilot plugin marketplace add marionettejs/marionette &&\ncopilot plugin install marionette@marionettejs &&\ncopilot plugin list')}
 
 These commands follow the repository's current marketplace, which may change. To hold the plugin at RC2, use a local checkout of the verified release instead, before installing:
 
-${fence(`${checkout}\ncopilot plugin marketplace add ./.marionette-plugin\ncopilot plugin install marionette@marionettejs\ncopilot plugin list`)}
+${fence(`${checkout} &&\ncopilot plugin marketplace add ./.marionette-plugin &&\ncopilot plugin install marionette@marionettejs &&\ncopilot plugin list`)}
 
 Choose one marketplace source. Keep the local checkout while using the pinned installation. Run \`copilot skill list\` to confirm Marionette is available. Start Copilot in your application, then ask it to use the Marionette skill for your feature. Live MCP use has not been verified. [Copilot CLI plugin setup](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing).
 ` },
@@ -90,8 +92,8 @@ export const setupOutro = `### Prefer just the docs connection?
 [Standalone MCP setup](https://marionettejs.com/docs/mcp/) remains available. Before using the plugin's hosted docs, confirm that **both version and source revision match** your installed package. If they differ, use the installed Markdown and lookup scripts. Copying the skill does not require MCP.
 `;
 
-export const setupMarkdown = `${setupIntro}\n## Choose your coding agent\n\n${setupPrerequisites}\n${clients.map(client => client.markdown).join('\n')}\n${setupOutro}`;
+export const setupMarkdown = `${setupIntro}\n${setupPrerequisites}\n## Choose your coding agent\n\n${clients.map(client => client.markdown).join('\n')}\n${setupOutro}`;
 
-export function setupHtml(render) {
-  return `<div class="agent-setup">${render(setupIntro)}<div class="agent-selector" hidden><label for="agent-client">Your coding agent</label><select id="agent-client" aria-controls="agent-instructions">${clients.map(client => `<option value="${client.id}">${client.name}</option>`).join('')}</select></div>${render(setupPrerequisites)}<noscript><p>All client instructions are shown below. Select and copy commands directly.</p></noscript><div id="agent-instructions">${clients.map(client => `<section data-agent-client="${client.id}" aria-label="${client.name} setup">${render(client.markdown)}</section>`).join('')}</div>${render(setupOutro)}</div><script type="module" src="/assets/agent-setup.js"></script>`;
+export function setupHtml(render, moduleUrl) {
+  return `<div class="agent-setup">${render(setupIntro)}${render(setupPrerequisites)}${render("## Choose your coding agent")}<div class="agent-selector" hidden><label for="agent-client">Your coding agent</label><select id="agent-client" aria-controls="agent-instructions">${clients.map(client => `<option value="${client.id}">${client.name}</option>`).join('')}</select><p id="agent-selection-status" class="sr-only" role="status"></p></div><noscript><p>All client instructions are shown below. Select and copy commands directly.</p></noscript><div id="agent-instructions">${clients.map(client => `<section data-agent-client="${client.id}" aria-label="${client.name} setup">${render(client.markdown)}</section>`).join('')}</div>${render(setupOutro)}</div><script type="module" src="${moduleUrl}"></script>`;
 }
