@@ -1,0 +1,50 @@
+scripts/agent-discovery.mjs
+  s_e04f4a475d624c::t_1bcd0bcc680ffd 77
+  s_9dea3911e10146::t_4b08f1231baab6 81
+  s_e04f4a475d624c::t_19d5bba157f29b 36
+scripts/library-docs.mjs
+  s_9dea3911e10146::t_279ee97855ab1c 109
+content/playground.mjs
+  s_e04f4a475d624c::t_5f4d8d2ed3a28c 22
+test/browser/agent-setup.mjs
+  s_e04f4a475d624c::t_2b11f984a8958d 79
+  s_e04f4a475d624c::t_165cbd46a34b71 39
+site/assets/agent-setup.js
+  s_e04f4a475d624c::t_ef4cff823e9f10 4-5,7,9
+scripts/agent-setup.mjs
+  s_e04f4a475d624c::t_fa6daafc734970 95,98
+  s_e04f4a475d624c::t_a2372219eeb43f 12,15,28,48,58,62,97
+  s_e04f4a475d624c::t_0d64000d45f70d 9-11
+test/agent-discovery.test.mjs
+  s_e04f4a475d624c::t_dba64fc5f2b3e7 59-60
+site/assets/docs.css
+  s_e04f4a475d624c::t_601a510e951325 90
+test/agent-setup-install.test.mjs
+  s_e04f4a475d624c::t_9be960da6c5811 1-59
+test/site.test.mjs
+  s_e04f4a475d624c::t_25d8eb7698c4c6 108-110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "6fa8d9e1983aa9b6105c6d91f2cc5798c3e48cf1",
+  "prompts": {},
+  "sessions": {
+    "s_9dea3911e10146": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10108-938b-7422-a1b1-4fafba03c2ff",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_e04f4a475d624c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10816-1fe4-71d2-af4c-a7ec26c4a1fb",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": null
+    }
+  }
+}
