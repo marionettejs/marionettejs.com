@@ -1,0 +1,151 @@
+{
+  "revision": "00dc2c8e469f3d62470b1a63a66ff9892eb3fdff",
+  "run": "2026-10-04T15:01:32.910Z",
+  "rows": [
+    {
+      "key": "marionette",
+      "name": "Marionette",
+      "files": 29,
+      "lines": 2497,
+      "initialKiB": 55.5556640625,
+      "desktop": {
+        "readyMs": 141.35000002384186,
+        "scriptCpuMs": 9.0115,
+        "taskCpuMs": 63.6415,
+        "articleMs": 73.30000007152557,
+        "homeMs": 80.20000004768372
+      },
+      "mobile": {
+        "readyMs": 792.9500000476837,
+        "scriptCpuMs": 41.7805,
+        "taskCpuMs": 290.392,
+        "articleMs": 174.5,
+        "homeMs": 143.34999990463257
+      },
+      "mobileRange": [
+        765.5,
+        900.1999998092651
+      ],
+      "baselineMiB": 3.2165260314941406,
+      "endMiB": 4.090610504150391,
+      "growthKiB": 895.0625,
+      "lateGrowthKiB": 53.30859375
+    },
+    {
+      "key": "vue",
+      "name": "Vue",
+      "files": 32,
+      "lines": 1913,
+      "initialKiB": 49.326171875,
+      "desktop": {
+        "readyMs": 140.89999997615814,
+        "scriptCpuMs": 8.361,
+        "taskCpuMs": 55.036500000000004,
+        "articleMs": 82.85000002384186,
+        "homeMs": 76.94999992847443
+      },
+      "mobile": {
+        "readyMs": 832.2500001192093,
+        "scriptCpuMs": 38.9015,
+        "taskCpuMs": 249.6195,
+        "articleMs": 425.15000009536743,
+        "homeMs": 140.19999992847443
+      },
+      "mobileRange": [
+        818.0999999046326,
+        842.5999999046326
+      ],
+      "baselineMiB": 4.469474792480469,
+      "endMiB": 5.346946716308594,
+      "growthKiB": 898.53125,
+      "lateGrowthKiB": 51.32421875
+    },
+    {
+      "key": "react",
+      "name": "React FSD",
+      "files": 63,
+      "lines": 2633,
+      "initialKiB": 111.1103515625,
+      "desktop": {
+        "readyMs": 408.4499999284744,
+        "scriptCpuMs": 29.88,
+        "taskCpuMs": 86.61449999999999,
+        "articleMs": 335.10000002384186,
+        "homeMs": 330.9499999284744
+      },
+      "mobile": {
+        "readyMs": 1404.0500000715256,
+        "scriptCpuMs": 130.83350000000002,
+        "taskCpuMs": 372.5485,
+        "articleMs": 458.0499999523163,
+        "homeMs": 344.75
+      },
+      "mobileRange": [
+        1386.5999999046326,
+        1457.3999998569489
+      ],
+      "baselineMiB": 4.186161041259766,
+      "endMiB": 5.312835693359375,
+      "growthKiB": 1153.33203125,
+      "lateGrowthKiB": 107.8671875
+    },
+    {
+      "key": "angular",
+      "name": "Angular",
+      "files": 53,
+      "lines": 2210,
+      "initialKiB": 98.42578125,
+      "desktop": {
+        "readyMs": 175.85000002384186,
+        "scriptCpuMs": 19.5845,
+        "taskCpuMs": 74.98150000000001,
+        "articleMs": 100.85000002384186,
+        "homeMs": 80
+      },
+      "mobile": {
+        "readyMs": 1292.2999999523163,
+        "scriptCpuMs": 95.5285,
+        "taskCpuMs": 356.81949999999995,
+        "articleMs": 637.2500001192093,
+        "homeMs": 163.05000007152557
+      },
+      "mobileRange": [
+        1251.7999999523163,
+        1313.6000001430511
+      ],
+      "baselineMiB": 5.9113616943359375,
+      "endMiB": 7.163516998291016,
+      "growthKiB": 1281.6875,
+      "lateGrowthKiB": 191.015625
+    },
+    {
+      "key": "svelte",
+      "name": "SvelteKit",
+      "files": 41,
+      "lines": 1153,
+      "initialKiB": 43.98046875,
+      "desktop": {
+        "readyMs": 139.20000004768372,
+        "scriptCpuMs": 3.4595,
+        "taskCpuMs": 51.9525,
+        "articleMs": 78.94999992847443,
+        "homeMs": 81.25
+      },
+      "mobile": {
+        "readyMs": 589.9500000476837,
+        "scriptCpuMs": 17.133,
+        "taskCpuMs": 234.4905,
+        "articleMs": 158.29999995231628,
+        "homeMs": 135.64999997615814
+      },
+      "mobileRange": [
+        561.2000000476837,
+        804.4000000953674
+      ],
+      "baselineMiB": 2.5892105102539062,
+      "endMiB": 3.4074020385742188,
+      "growthKiB": 837.875,
+      "lateGrowthKiB": 54.03515625
+    }
+  ]
+}

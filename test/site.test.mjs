@@ -11,7 +11,7 @@ const out=resolve(root,'dist');
 const manifest=JSON.parse(await readFile(resolve(out,'docs/manifest.json'),'utf8'));
 const installedPackage=JSON.parse(await readFile(resolve(root,'node_modules/marionette/package.json'),'utf8'));
 const catalog=JSON.parse(await readFile(resolve(out,'docs/diagnostics.json'),'utf8'));
-const routes=['demos/index.html','errors/index.html',...catalog.diagnostics.map(entry=>`errors/${entry.code}/index.html`),'thanks/index.html','index.html','why/index.html','404.html',...manifest.pages.map(page=>`${page.route}/index.html`)];
+const routes=['case-studies/index.html','case-studies/realworld/index.html','demos/index.html','errors/index.html',...catalog.diagnostics.map(entry=>`errors/${entry.code}/index.html`),'thanks/index.html','index.html','why/index.html','404.html',...manifest.pages.map(page=>`${page.route}/index.html`)];
 
 test('documentation embeds the branded Context7 widget without changing Markdown', async () => {
   for (const page of manifest.pages) {
@@ -67,7 +67,7 @@ test('every built page has valid local links, fragments, and asset references',a
 });
 
 test('all local JavaScript imports and CSS imports resolve in the built output',async()=>{
-  for(const file of ['assets/site.js','assets/demo.js','assets/motion.js','assets/playground.js','assets/examples.js','assets/playground-runtime.js','assets/playground.css','assets/site.css','assets/night.css','assets/docs.js','assets/docs.css']){
+  for(const file of ['assets/site.js','assets/demo.js','assets/motion.js','assets/playground.js','assets/examples.js','assets/playground-runtime.js','assets/playground.css','assets/site.css','assets/night.css','assets/docs.js','assets/docs.css','assets/case-studies.css']){
     const body=await readFile(resolve(out,file),'utf8');
     for(const match of body.matchAll(/(?:from\s*|import\(|@import url\()['"]([^'"]+)['"]/g)){
       const target=resolve(dirname(resolve(out,file)),match[1].split('?')[0]);

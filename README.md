@@ -370,3 +370,19 @@ reading-copy sync and reviewed PR path. It preserves the imported archive and
 rejects navigation changes. Changes to the canonical corpus require an explicit
 complete snapshot import and website review. Neither import nor build authorizes
 publication.
+
+## Case studies
+
+`/case-studies/` lists studies from `content/case-studies.mjs`. Each article supplies
+metadata, a conclusion, sections, disclosures, and methodology to the shared static
+article layout. Add a study to that list to generate its route and index card.
+
+The first article, `/case-studies/realworld/`, uses only the final five-app run at
+`00dc2c8e469f3d62470b1a63a66ff9892eb3fdff`. Its compact metric data records that pin;
+permanent links point to the raw evidence. Development prompts are transcribed from
+the original chat, separately from repository evidence. The supplied brief is kept
+verbatim in `content/case-studies/realworld-brief.txt` and displayed in a native,
+closed-by-default disclosure. The original 1721 × 914 editorial illustration serves
+as both hero and social image at its full aspect ratio; no crop or padding is needed.
+Copied screenshots retain their source dimensions and link to their original captures.
+Social metadata uses the canonical public paths; the loopback preview sends a noindex header.

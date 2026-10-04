@@ -1,0 +1,94 @@
+Build a Case Studies area for the Marionette website and complete its first article in one task. Follow the website’s existing design and conventions, make routine decisions independently, and preserve unrelated work.
+
+Create /case-studies/ and /case-studies/realworld/. Add appropriate navigation, an index card, and a simple reusable article structure for future studies.
+
+The first article explores:
+
+“What did it take to build a RealWorld application with an AI coding agent and Marionette v5, and how does the finished application compare?”
+
+Write for developers deciding whether to try Marionette. Be concise, concrete, and objective. Lead with the answer. Let the evidence determine the assessment.
+
+Sources
+
+Repository:
+https://github.com/marionettejs/marionette-realworld-example-app
+
+Use the benchmarks branch pinned to:
+00dc2c8e469f3d62470b1a63a66ff9892eb3fdff
+
+Pinned source:
+https://github.com/marionettejs/marionette-realworld-example-app/tree/00dc2c8e469f3d62470b1a63a66ff9892eb3fdff
+
+Inspect it read-only. Start with docs/metrics/README.md, which identifies the final comparison, historical evidence, and verified source mappings. Read the development journal, architecture guide, metrics and benchmark reports, source/visual/loading reviews, and benchmark instructions. Check supporting raw results and manifests where needed.
+
+Use the latest complete five-application comparison in docs/metrics/full-final-run. Do not mix historical measurements into its results. Cite permanent GitHub links near substantive claims.
+
+The three application-development commits are:
+- 7ebb8da — implementation
+- bbac29f — correctness and ownership refinement
+- 48b910a — loading and presentation refinement
+
+Recover the three main development prompts from available records where possible. Label exact quotations and summaries accurately. Do not invent prompt wording, model settings, elapsed time, costs, or intervention counts.
+
+Editorial direction
+
+Aim for 700–900 words of visible article prose, excluding tables, collapsed prompts, and methodology. Every section should answer a useful reader question. Prefer short paragraphs, concrete examples, and descriptive headings.
+
+Use a direct title that identifies the subject. Avoid audit-report language, lengthy process narration, repeated disclaimers, and discussion of private conversations about how this article was commissioned.
+
+Present the development as three stages. Explain what each requested, produced, and improved. Do not imply three uninterrupted model responses or use commit count as an effort measurement. Mention follow-up work briefly if needed for accuracy; do not make history editing a central story.
+
+Distinguish changes in requested scope from implementation defects where relevant. Avoid assigning blame or defending either the human or agent.
+
+Article structure
+
+1. Opening conclusion
+Give readers the practical finding in the first paragraph: what was built, how the resulting application compares, and what this suggests about trying Marionette. Include the central limitation that this was not a matched agent-development experiment across frameworks.
+
+2. Three development stages
+Briefly explain implementation, correctness/ownership refinement, and loading/presentation refinement. Use two or three concrete examples such as retaining drafts, rejecting obsolete session responses, and overlapping independent requests.
+
+Include the original development prompts in collapsed disclosures where recoverable. Keep their supporting detail out of the main narrative.
+
+3. The finished application
+Show selected existing desktop/mobile application screenshots. Use them to demonstrate the result or explain a meaningful refinement. Preserve their aspect ratios and identify the represented state.
+
+4. Measured comparison
+Use compact tables or charts comparing Marionette, Vue, React FSD, Angular, and SvelteKit. Cover authored source size, initial JavaScript gzip, feed/navigation readiness, and bounded memory behavior.
+
+Prioritize the metrics that help a developer make a decision. State units and sample counts. Include variability where useful without overwhelming the main tables.
+
+Explain the findings in plain language. Give alternatives’ favorable results equal clarity. Avoid a composite score or universal winner.
+
+Keep relevant qualifications beside the affected comparison: these are selected implementations with incomplete parity checks; SvelteKit uses SSR with different network topology; timings came from sequential runs on a shared machine. Do not repeat those qualifications throughout the article.
+
+Distinguish initial payload from total output, content readiness from interactivity, and heap growth from evidence of a leak. Distinguish unique test cases from executions across browsers.
+
+5. Assessment
+Give a conditional recommendation grounded in this project. Discuss where Marionette’s explicit ownership, retained state, and lifecycle conventions may be useful, along with responsibilities the application still has to manage.
+
+Separate measured results from source observations and hypotheses. Do not claim that runtime performance proves agent-development superiority. Briefly identify what a matched development experiment would need to measure.
+
+6. Evidence and methodology
+Put detailed source identity, environment, workload, reproduction links, verification boundaries, and remaining unknowns in a compact collapsed section. Use the repository’s evidence guide for snapshot provenance rather than reconstructing it in the main article.
+
+Disclose that the Marionette project publishes this study. Preserve evidence accuracy without turning the article into a provenance report.
+
+Images and prompt disclosure
+
+Use this existing image for the hero and social/share image:
+ /Users/paulfalgout/Documents/Marionette Marketing/marionette-development-progression.png
+
+Copy it into website assets. Preserve its full composition and readable labels; use padding where share-image dimensions require adaptation. Add appropriate alt text and metadata.
+
+Treat the image as an editorial illustration. Do not infer financial savings from it or add a conspicuous disclaimer about its dollar signs.
+
+At the top of the article, add a disclosure collapsed by default titled “The prompt behind this case study,” matching existing website disclosures. Include this entire prompt verbatim. No copy button is needed.
+
+Completion
+
+Finish the index, article, screenshots, hero/share assets, navigation, and metadata in this task.
+
+Verify applicable website checks, source links, keyboard-accessible disclosures, and desktop/mobile presentation. Review the finished article for repetition, unsupported claims, and whether a reader can reach the conclusion quickly.
+
+Report what changed, what checks actually ran, and any material evidence gaps. Leave the completed changes ready for review; do not deploy.

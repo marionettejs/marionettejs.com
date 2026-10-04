@@ -35,6 +35,7 @@ export function pageCategory(pathname) {
   if (path === '/') return 'home';
   if (/^\/docs(?:\/|$)/.test(path)) return 'docs';
   if (/^\/errors(?:\/|$)/.test(path)) return 'errors';
+  if (/^\/case-studies(?:\/|$)/.test(path)) return 'case-studies';
   return ({ '/demos/': 'demos', '/why/': 'why', '/thanks/': 'thanks', '/privacy/': 'privacy' })[path] || 'other';
 }
 export function pagePath(pathname) {
