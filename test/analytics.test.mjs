@@ -18,6 +18,8 @@ test('analytics is inert until configured and only accepts named events', () => 
 test('page categories never contain arbitrary paths, queries or fragments', () => {
   for (const path of ['/docs/api/view/?prompt=secret#secret', '/docs/private/name']) assert.equal(pageCategory(path), 'docs');
   assert.equal(pageCategory('/demos/?token=secret#private'), 'demos');
+  for (const path of ['/case-studies/', '/case-studies/realworld/?token=secret#private']) assert.equal(pageCategory(path), 'case-studies');
+  assert.equal(pageCategory('/case-studies-private/'), 'other');
   assert.equal(pageCategory('/private/person@example.com'), 'other');
   assert.equal(pageCategory('/?secret'), 'home');
   assert.equal(pagePath('/demos/?secret#private'), '/demos/');
