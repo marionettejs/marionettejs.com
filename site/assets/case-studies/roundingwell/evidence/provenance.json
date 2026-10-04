@@ -1,0 +1,25 @@
+{
+  "recordedDate": "2026-09-23",
+  "timeZone": "Asia/Seoul",
+  "articleSnapshotDate": "2026-10-05",
+  "repository": "https://github.com/RoundingWell/app-frontend",
+  "baseline": {
+    "revision": "90eb2f87f9b9327a571d5e9cc323de3815a183b7",
+    "runtime": "Backbone.Marionette 4.1.3"
+  },
+  "migrationBenchmark": {
+    "revision": "72a566965629adcf55e8f62f8e0d6dc7cc6a2e01",
+    "runtime": "Marionette 5.0.0-beta.6"
+  },
+  "mergedMigrationSource": "9004d769beb0394581a1ccaa5dd6f7176e71f23e",
+  "rc2FollowUp": {
+    "revision": "870da88e24b7b14bf2563b3325199a4534c45aee",
+    "statusAtInspection": "open"
+  },
+  "sha256": {
+    "results.json": "b1393900540c07199bf9ca6fea23fd18289fc05889939a82d6894455b200766b",
+    "results-5000.json": "131978568efba3b3612898792245edacb54d8bf073ed4dc4445915c1e604544a",
+    "summary.csv": "e0be1e4bf79ebe4238f09d46845e205b3702d1d3f086451fdf419063f985487a",
+    "../worklist-benchmark.png": "29b60852804639ebea5c10ce3e51081a0419456d01593fd0c91a2d7f2d96301e"
+  }
+}

@@ -1,5 +1,5 @@
 /* Static, reusable case-study reading surface. */
-.study-index { max-width:1400px; margin:auto; padding:55px 7% 90px; }
+.study-index { display:grid; gap:30px; max-width:1400px; margin:auto; padding:55px 7% 90px; }
 .study-card { display:grid; grid-template-columns:1.15fr 1fr; gap:42px; align-items:center; padding:30px; border:1px solid var(--line); background:#191a1e; }
 .study-card img { display:block; width:100%; height:auto; }
 .study-card h2 { font-size:clamp(1.8rem,3vw,2.8rem); line-height:1.15; margin:15px 0 22px; }
@@ -10,7 +10,7 @@
 .study-back { font-size:.85rem; }
 .study-heading h1 { max-width:1100px; font-size:clamp(2.6rem,5.8vw,5rem); line-height:1.06; letter-spacing:-.045em; }
 .study-heading>p.study-conclusion { max-width:900px; text-wrap:pretty; line-height:1.7; }
-.study-heading>p.study-byline { font-size:.8rem; color:var(--muted); }
+.study-heading>p.study-byline { margin-top:18px; font-size:.8rem; color:var(--muted); }
 .study-hero { max-width:1204px; width:86%; margin:0 auto; }
 .study-hero img { display:block; width:100%; height:auto; background:white; }
 .study figcaption { color:var(--muted); font-size:.75rem; line-height:1.6; margin-top:10px; }
@@ -27,6 +27,8 @@
 .study-screenshots { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,210px); align-items:start; gap:22px; margin:28px 0; }
 .study-screenshots figure { margin:0; }
 .study-screenshots img { display:block; width:100%; height:auto; border:1px solid var(--line); }
+.study-capture { margin:28px 0; }
+.study-capture img { display:block; width:100%; height:auto; border:1px solid var(--line); }
 .study-table-scroll { overflow-x:auto; margin:26px 0 18px; }
 .study-table-scroll:focus-visible,.study-prompt:focus-visible { outline:2px solid var(--red); outline-offset:4px; }
 .study table { width:100%; border-collapse:collapse; font-size:.85rem; font-variant-numeric:tabular-nums; }

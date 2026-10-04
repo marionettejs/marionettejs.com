@@ -1,7 +1,8 @@
 // Shared static structure: add future studies to this list and their sections below.
 import { realworld } from './case-studies/realworld.mjs';
+import { roundingwell } from './case-studies/roundingwell.mjs';
 
-export const studies = [realworld];
+export const studies = [realworld, roundingwell];
 const escape = text => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 
 export const caseStudies = {
@@ -26,7 +27,7 @@ export function studyPage(study) {
         <p class="study-conclusion">${study.conclusion}</p>
         <p class="study-byline">Published by the Marionette project · <time datetime="${study.date}">${study.dateLabel}</time></p>
       </header>
-      <figure class="study-hero"><a href="${study.image.src}" aria-label="Open the full editorial illustration"><img src="${study.image.src}" width="${study.image.width}" height="${study.image.height}" alt="${escape(study.image.alt)}"></a><figcaption>Editorial illustration · <a href="${study.image.src}">View full size</a></figcaption></figure>
+      <figure class="study-hero"><a href="${study.image.src}" aria-label="Open the full hero image"><img src="${study.image.src}" width="${study.image.width}" height="${study.image.height}" alt="${escape(study.image.alt)}"></a><figcaption>${escape(study.image.caption)} · <a href="${study.image.src}">View full size</a></figcaption></figure>
       <div class="article-layout study-layout"><nav class="article-nav" aria-label="On this page"><p class="eyebrow">IN THIS STUDY</p>${study.sections.map(section => `<a href="#${section.id}">${section.label}</a>`).join('')}<a href="#methodology">Evidence &amp; methodology</a></nav>
         <div class="prose study-prose">${study.sections.map(section => `<section id="${section.id}"><h2>${section.title}</h2>${section.body}</section>`).join('')}${study.methodology}</div>
       </div>

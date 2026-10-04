@@ -386,3 +386,13 @@ closed-by-default disclosure. The original 1721 × 914 editorial illustration se
 as both hero and social image at its full aspect ratio; no crop or padding is needed.
 Copied screenshots retain their source dimensions and link to their original captures.
 Social metadata uses the canonical public paths; the loopback preview sends a noindex header.
+
+The second article, `/case-studies/roundingwell/`, describes the migration through
+RC2 and is drafted for publication after that application change merges. Its historical
+beta.6 benchmark table reads the preserved CSV in
+`site/assets/case-studies/roundingwell/evidence/`; that directory includes raw
+samples, source pins, file hashes, and methodology. The worklist capture uses
+synthetic data. The 1729 × 910 hero pairs the existing RoundingWell and Marionette
+vector logos in blue and red panels. Its editable source is
+`site/assets/case-studies/roundingwell/brand-panels.svg`; the PNG export is shared
+by the article and social metadata without cropping.

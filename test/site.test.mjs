@@ -11,7 +11,7 @@ const out=resolve(root,'dist');
 const manifest=JSON.parse(await readFile(resolve(out,'docs/manifest.json'),'utf8'));
 const installedPackage=JSON.parse(await readFile(resolve(root,'node_modules/marionette/package.json'),'utf8'));
 const catalog=JSON.parse(await readFile(resolve(out,'docs/diagnostics.json'),'utf8'));
-const routes=['case-studies/index.html','case-studies/realworld/index.html','demos/index.html','errors/index.html',...catalog.diagnostics.map(entry=>`errors/${entry.code}/index.html`),'thanks/index.html','index.html','why/index.html','404.html',...manifest.pages.map(page=>`${page.route}/index.html`)];
+const routes=['case-studies/index.html','case-studies/realworld/index.html','case-studies/roundingwell/index.html','demos/index.html','errors/index.html',...catalog.diagnostics.map(entry=>`errors/${entry.code}/index.html`),'thanks/index.html','index.html','why/index.html','404.html',...manifest.pages.map(page=>`${page.route}/index.html`)];
 
 test('documentation embeds the branded Context7 widget without changing Markdown', async () => {
   for (const page of manifest.pages) {
