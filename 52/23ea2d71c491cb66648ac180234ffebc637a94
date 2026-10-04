@@ -1,0 +1,19 @@
+test/site.test.mjs
+  s_9ab0ca69bfc0a0::t_da720db396dc72 39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5223ea2d71c491cb66648ac180234ffebc637a94",
+  "prompts": {},
+  "sessions": {
+    "s_9ab0ca69bfc0a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1087d-216b-7872-bd9d-74a63a6fb844",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
