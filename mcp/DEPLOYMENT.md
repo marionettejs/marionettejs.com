@@ -114,3 +114,18 @@ References checked September 9, 2026:
 The Miniflare-only `sharp` override pins 0.35.4 for GHSA-rgj7-g3m4-5g8c.
 Remove the override once Wrangler/Miniflare pins a patched version upstream.
 It is local development tooling and is not included in the deployed Worker.
+## Registry metadata
+
+The repository-root `server.json` describes the public hosted server for the
+[official MCP Registry](https://github.com/modelcontextprotocol/registry/blob/main/docs/modelcontextprotocol-io/remote-servers.mdx).
+It declares only the Streamable HTTP endpoint; the Marionette runtime npm package
+is not an installable MCP server. Its version matches MCP `serverInfo.version`,
+which is independent of the documentation corpus's Marionette package version.
+Consumers still compare the `marionette://catalog` provenance with their installed
+package before reading documentation.
+
+Validate from the repository root with `mcp-publisher validate server.json`.
+Publication is a separate authorized action: after authenticating with the
+official publisher, run `mcp-publisher publish server.json` and verify the returned
+name and version in the Registry API. A committed file or passing validation does
+not establish a published listing.

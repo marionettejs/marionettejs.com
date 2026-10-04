@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.marionettejs/marionette-docs",
+  "title": "Marionette Documentation",
+  "description": "Read and search version-matched Marionette documentation, API contracts, and examples.",
+  "version": "1.0.0",
+  "repository": {
+    "url": "https://github.com/marionettejs/marionettejs.com",
+    "source": "github"
+  },
+  "websiteUrl": "https://marionettejs.com/docs/agents/",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.marionettejs.com/mcp"
+    }
+  ]
+}
