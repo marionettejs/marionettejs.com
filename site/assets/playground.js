@@ -267,6 +267,7 @@ async function download() {
     track('workshop_download');
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     setStatus('Downloaded this draft. Open the HTML file in a browser.');
+    nextSteps.hidden = false;
   } catch (error) { report(error); }
 }
 const codePenForm = dialog.querySelector('[data-codepen-form]');

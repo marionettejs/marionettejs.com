@@ -75,3 +75,16 @@
 .docs-adjacent a { max-width: 48%; }
 .docs-adjacent a[rel="next"] { margin-left: auto; text-align: right; }
 .docs-adjacent span { display: block; color: var(--muted); font: .75rem/1.8 var(--mono); }
+
+/* Setup is readable in full before its client selector is enhanced. */
+.agent-selector { margin: 24px 0; }
+.agent-selector label { display: block; margin-bottom: 8px; }
+.agent-selector select { width: 100%; max-width: 320px; min-height: 44px; padding: 10px; background: var(--paper); color: var(--ink); border: 1px solid var(--line); font: inherit; }
+.agent-setup [hidden] { display: none; }
+.agent-copy-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+.agent-copy-controls button { min-height: 44px; padding: 8px 16px; background: transparent; color: var(--ink); border: 1px solid var(--line); cursor: pointer; font: inherit; }
+.agent-copy-controls [role="status"] { font-size: .85rem; }
+.agent-copy-controls + pre { margin-top: 8px; }
+.agent-setup :is(select,button):focus-visible { outline: 2px solid var(--red); outline-offset: 4px; }
+@media print { .agent-selector,.agent-copy-controls { display: none; } .agent-setup [data-agent-client][hidden] { display: block; } }
+.agent-selector .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
