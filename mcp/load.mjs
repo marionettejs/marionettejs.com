@@ -1,4 +1,4 @@
-import { publishedChannel, publicationStatus } from '../scripts/published-docs.mjs';
+import { publishedChannel, publicationStatus, readingRevision } from '../scripts/published-docs.mjs';
 import { indexSections } from './sections.mjs';
 import { documentSections } from './index-sections.mjs';
 import { readFile } from 'node:fs/promises';
@@ -8,8 +8,10 @@ import { tokenize } from './search.mjs';
 const hash = value => createHash('sha256').update(value).digest('hex');
 const read = path => readFile(new URL(path, import.meta.url), 'utf8');
 export async function loadSnapshot() {
-  const { readSnapshot } = await import('../scripts/library-docs.mjs');
-  const { assets } = await readSnapshot(fileURLToPath(new URL('../content/library-docs/', import.meta.url)));
+  const { readSnapshot, readSupplementalPages, supplementalManifestBytes } = await import('../scripts/library-docs.mjs');
+  const { assets, pages } = await readSnapshot(fileURLToPath(new URL('../content/library-docs/', import.meta.url)));
+  const supplementalPages = await readSupplementalPages(fileURLToPath(new URL('../content/supplemental-docs/', import.meta.url)), pages);
+  const supplementalManifestSha256 = hash(supplementalManifestBytes(supplementalPages));
   const corpusBytes = await read('../dist/docs/corpus.json');
   const corpus = JSON.parse(corpusBytes);
   const manifest = JSON.parse(await read('../content/library-docs/manifest.json'));
@@ -17,7 +19,7 @@ export async function loadSnapshot() {
   if (corpus.schemaVersion !== 1 || !Array.isArray(corpus.documents) || !corpus.documents.length ||
       corpus.packageVersion !== manifest.packageVersion || corpus.channel !== publishedChannel(manifest) || corpus.publication !== publicationStatus(manifest) || corpus.sourceRevision !== manifest.sourceRevision ||
       corpus.sourceContentSha256 !== manifest.contentSha256 || corpus.publicationEditsSha256 !== publicationEditsSha256 ||
-      corpus.sourceDirty !== manifest.sourceDirty || corpus.sourceRepository !== manifest.sourceRepository) {
+      corpus.supplementalManifestSha256 !== supplementalManifestSha256 || corpus.sourceDirty !== manifest.sourceDirty || corpus.sourceRepository !== manifest.sourceRepository) {
     throw new Error('Documentation or example provenance differs from the snapshot. Run npm run build.');
   }
   const documents = new Map();
@@ -26,11 +28,15 @@ export async function loadSnapshot() {
         hash(document.markdown) !== document.sha256) throw new Error('Invalid documentation corpus. Run npm run build.');
     documents.set(document.id, { ...document, searchText: document.markdown.toLocaleLowerCase('en') });
   }
+  for (const page of supplementalPages) {
+    const document = documents.get(page.source);
+    if (!document || document.sourceRevision !== readingRevision(page, manifest) || document.sourceSha256 !== page.sha256) throw new Error('Supplemental documentation provenance differs. Run npm run build.');
+  }
   const provenance = {
     packageVersion: corpus.packageVersion, channel: corpus.channel, publication: corpus.publication,
     sourceRepository: corpus.sourceRepository, sourceRevision: corpus.sourceRevision, sourceDirty: corpus.sourceDirty,
     sourceContentSha256: corpus.sourceContentSha256, publicationEditsSha256,
-    corpusSha256: hash(corpusBytes),
+    corpusSha256: hash(corpusBytes), supplementalManifestSha256,
   };
   const index = Object.create(null);
   for (const [id, document] of documents) {

@@ -136,6 +136,8 @@ test('routing sync builds and validates independently, rejecting corrupted deliv
   const publicationPath = join(root, 'content/docs-publication-edits.json');
   const publication = JSON.parse(await readFile(publicationPath, 'utf8'));
   publication.status = 'development candidate (local source)';
+  // This isolated repository contains only the routing source under test.
+  publication.edits = [];
   const archive = JSON.parse(await readFile(join(root, 'content/library-docs/manifest.json'), 'utf8'));
   const routing = archive.pages.find(page => page.source === 'docs/guides/routing.md');
   const original = await readFile(join(root, 'content/library-docs', routing.source), 'utf8');
@@ -166,7 +168,7 @@ test('routing sync builds and validates independently, rejecting corrupted deliv
   await mkdir(join(root, 'output/docs-sync'));
   await writeFile(join(root, 'output/docs-sync/state.json'), JSON.stringify({ main: git(root, 'rev-parse', 'HEAD'), sha256: hash(content) }));
   await validateSync(root);
-  for (const path of ['dist/docs/markdown/docs/agents.md', 'dist/docs/publication.json', 'dist/docs/agents.md', 'output/mcp/snapshot.json']) {
+  for (const path of ['dist/docs/markdown/docs/agents.md', 'dist/docs/publication.json', 'dist/docs/agents.md', 'dist/docs/markdown/docs/guides/framework-migration.md', 'dist/docs/supplemental-manifest.json', 'output/mcp/snapshot.json']) {
     const original = await readFile(join(root, path));
     await writeFile(join(root, path), '{}');
     await assert.rejects(validateSync(root), { code: 'ERR_ASSERTION' }, path);

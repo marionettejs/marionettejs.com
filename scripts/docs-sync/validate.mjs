@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { readFile, writeFile, rm } from 'node:fs/promises';
 import { git, hash, publicationPath } from './prepare.mjs';
-import { readSnapshot } from '../library-docs.mjs';
+import { readSnapshot, readSupplementalPages } from '../library-docs.mjs';
 
 export async function validateSync(root) {
   const read = path => readFile(resolve(root, path));
@@ -16,12 +16,16 @@ export async function validateSync(root) {
     const path = item.markdown === undefined ? `dist/docs/source/${item.source}` : `dist/docs/markdown/${item.source}`;
     assert.equal(hash(await read(path)), item.sha256, `Archived output changed: ${item.source}`);
   }
+  const supplemental = await readSupplementalPages(resolve(root, 'content/supplemental-docs'), pages);
+  for (const page of supplemental) assert.equal(hash(await read(`dist/docs/markdown/${page.source}`)), page.sha256, page.source);
+  assert.deepEqual(JSON.parse(await read('dist/docs/supplemental-manifest.json')), { schemaVersion: 1, pages: supplemental.map(({ markdown, ...page }) => page) });
   assert.deepEqual(JSON.parse(await read('dist/docs/manifest.json')), manifest);
   const publication = await read(publicationPath);
   assert.equal(hash(publication), state.sha256);
   assert.equal(hash(await read('dist/docs/publication.json')), state.sha256);
   const corpus = JSON.parse(await read('dist/docs/corpus.json'));
   assert.equal(corpus.publicationEditsSha256, state.sha256);
+  assert.equal(corpus.supplementalManifestSha256, hash(await read('dist/docs/supplemental-manifest.json')));
   for (const document of corpus.documents) {
     const path = new URL(document.markdownUrl).pathname;
     assert.equal(hash(await read(`dist${path}`)), document.sha256, document.id);

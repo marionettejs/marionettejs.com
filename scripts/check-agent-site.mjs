@@ -55,14 +55,15 @@ export async function stopPreview(child) {
 
 export async function auditSite(base) {
   const manifest = JSON.parse(await readFile(resolve(root, 'dist/docs/manifest.json'), 'utf8'));
+  const supplemental = JSON.parse(await readFile(resolve(root, 'dist/docs/supplemental-manifest.json'), 'utf8'));
   const diagnostics = JSON.parse(await readFile(resolve(root, 'dist/docs/diagnostics.json'), 'utf8'));
   const artifacts = JSON.parse(await readFile(resolve(root, 'dist/docs/artifacts.json'), 'utf8'));
   const mime = path => path.endsWith('.md') ? 'text/markdown' : path.endsWith('.json') ? 'application/json' : 'text/plain';
   const entries = new Map([
     ['/llms.txt', 'text/plain'], ['/docs/llms.txt', 'text/plain'],
-    ['/docs/manifest.json', 'application/json'], ['/reference/provenance.json', 'application/json'],
+    ['/docs/manifest.json', 'application/json'], ['/docs/supplemental-manifest.json', 'application/json'], ['/reference/provenance.json', 'application/json'],
     ['/docs/diagnostics.json', 'application/json'], ['/errors/index.md', 'text/markdown'],
-    ...manifest.pages.map(page => [page.route === 'docs' ? '/docs/index.md' : `/${page.route}.md`, 'text/markdown']),
+    ...[...manifest.pages, ...supplemental.pages].map(page => [page.route === 'docs' ? '/docs/index.md' : `/${page.route}.md`, 'text/markdown']),
     ...diagnostics.diagnostics.map(item => [`/errors/${item.code}.md`, 'text/markdown']),
     ['/docs/artifacts.json', 'application/json'],
     ...artifacts.artifacts.filter(item => /\.(md|json|txt)$/.test(item.path)).map(item => [item.path, mime(item.path)])
