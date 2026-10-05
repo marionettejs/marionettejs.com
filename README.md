@@ -382,7 +382,7 @@ The first article, `/case-studies/realworld/`, uses only the final five-app run 
 permanent links point to the raw evidence. Development prompts are transcribed from
 the original chat, separately from repository evidence. The supplied brief is kept
 verbatim in `content/case-studies/realworld-brief.txt` and displayed in a native,
-closed-by-default disclosure. The original 1721 × 914 editorial illustration serves
+closed-by-default disclosure. The rebalanced 1800 × 960 editorial illustration serves
 as both hero and social image at its full aspect ratio; no crop or padding is needed.
 Copied screenshots retain their source dimensions and link to their original captures.
 Social metadata uses the canonical public paths; the loopback preview sends a noindex header.
