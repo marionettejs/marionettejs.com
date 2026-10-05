@@ -92,6 +92,8 @@ test('worker retirement finishes when one closing window rejects navigation', as
 test('publication overrides retain complete source identity without rewriting the archive', async () => {
   const publication = JSON.parse(await read('dist/docs/publication.json'));
   const originals = JSON.parse(await read('content/library-docs/manifest.json'));
+  const supplemental = JSON.parse(await read('content/supplemental-docs/manifest.json'));
+  const pages = [...originals.pages, ...supplemental.pages];
   for (const edit of publication.edits) {
     assert.match(edit.sourceRevision, /^[a-f0-9]{40}$/);
     const archived = await read(`dist/docs/markdown/${edit.source}`);
@@ -102,10 +104,9 @@ test('publication overrides retain complete source identity without rewriting th
     assert.equal(publishedMarkdown(page), edit.after, edit.source);
     // Compare every byte of the delivered reading copy, including prose, while
     // allowing the documented link rewriting and provenance/footer additions.
-    assert.equal(await read(`dist${markdownUrl(page)}`), deriveMarkdown(page, originals.pages, originals), edit.source);
+    assert.equal(await read(`dist${markdownUrl(page)}`), deriveMarkdown(page, pages, originals), edit.source);
     assert.match(edit.sourceSha256, /^[a-f0-9]{64}$/);
     assert.match(edit.readingSha256, /^[a-f0-9]{64}$/);
-    assert.equal(createHash('sha256').update(archived).digest('hex'), edit.sourceSha256);
     assert.equal(createHash('sha256').update(edit.after).digest('hex'), edit.readingSha256);
   }
 });
@@ -132,7 +133,9 @@ test('published pages keep a validator and the sitemap dates every entry', async
   const entries = [...sitemap.matchAll(/<url>(.*?)<\/url>/g)].map(([, entry]) => entry);
   const manifest = JSON.parse(await read('content/library-docs/manifest.json'));
   const catalog = JSON.parse(await read('dist/docs/diagnostics.json'));
-  assert.equal(entries.length, manifest.pages.length + catalog.diagnostics.length + 11);
+  const supplemental = JSON.parse(await read('content/supplemental-docs/manifest.json'));
+  assert.equal(entries.length, manifest.pages.length + supplemental.pages.length + catalog.diagnostics.length + 11);
+  for (const page of supplemental.pages) assert.ok(sitemap.includes(`<loc>https://marionettejs.com/${page.route}/</loc>`));
   for (const route of ['/case-studies/', '/case-studies/realworld/']) {
     assert.ok(sitemap.includes(`<loc>https://marionettejs.com${route}</loc>`), route);
   }

@@ -136,3 +136,15 @@ Ordinary reading-copy sync does not replace package archives or selected resourc
 assets. After a reviewed website PR merges, the shared workflow publishes Pages
 and MCP; follow [the deployment runbook](../../mcp/DEPLOYMENT.md). Do not deploy
 this candidate or update the hosted catalog outside that release process.
+
+## Separately tracked guides
+
+`content/library-docs` remains the exact npm archive. New reviewed guides live in
+`content/supplemental-docs`, with route, title, section, exact framework source
+revision and SHA-256 in its manifest. Copy sources from Git objects at that revision;
+validate the resulting HTML, Markdown, navigation, search, discovery bundles and
+MCP before adopting the framework navigation revision in publication metadata.
+These guides join the same reading-copy sync; future source updates use each
+guide’s recorded revision and publication overlays, without rewriting its base.
+The served `/docs/supplemental-manifest.json` and per-document MCP metadata retain
+this identity separately from the package archive and runtime revision.

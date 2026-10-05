@@ -47,8 +47,8 @@ export function createDocsServerFactory(snapshot) {
     const end = Math.min(offset + limit, text.length);
     return { content: text.slice(offset, end), offset, nextOffset: end < text.length ? end : null, totalCharacters: text.length };
   };
-  const metadata = ({ id, title, section, kind, url, markdownUrl, sourceUrl, sourceSha256, sha256, sourceSupplements }) =>
-    ({ id, title, section, kind, url, markdownUrl, sourceUrl, sourceSha256, sha256, sourceSupplements });
+  const metadata = ({ id, title, section, kind, url, markdownUrl, sourceUrl, sourceSha256, sha256, sourceRevision, sourceSupplements }) =>
+    ({ id, title, section, kind, url, markdownUrl, sourceUrl, sourceSha256, sha256, sourceRevision, sourceSupplements });
   const catalog = JSON.stringify({ provenance, documentCount: documents.size,
     examples: snapshot.examples.map(({ id, title, summary }) => ({ id, title, summary })),
     search: 'search_docs ranks matching words in titles and Markdown, ignoring common function words. Its results report matchedTerms and are paginated across all matching documents.',

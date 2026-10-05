@@ -208,6 +208,8 @@ test('server refuses stale provenance and tampered Markdown before serving tools
   const fixture = await mkdtemp(join(tmpdir(), 'marionette mcp '));
   t.after(() => rm(fixture, { recursive: true, force: true }));
   for (const directory of ['mcp', 'scripts', 'content', 'dist/docs']) await mkdir(join(fixture, directory), { recursive: true });
+  await cp(new URL('content/supplemental-docs', root), join(fixture, 'content/supplemental-docs'), { recursive: true });
+  await cp(new URL('dist/docs/supplemental-manifest.json', root), join(fixture, 'dist/docs/supplemental-manifest.json'));
   await cp(new URL('content/library-docs', root), join(fixture, 'content/library-docs'), { recursive: true });
   for (const path of ['package-lock.json', 'scripts/heading-ids.mjs', 'mcp/index-sections.mjs', 'mcp/sections.mjs', 'mcp/server.mjs', 'mcp/load.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'content/docs-publication-edits.json', 'scripts/library-docs.mjs', 'scripts/published-docs.mjs', 'scripts/publication-status.mjs', 'scripts/agent-discovery.mjs', 'scripts/agent-setup.mjs']) {
     await cp(new URL(path, root), join(fixture, path));
@@ -217,6 +219,15 @@ test('server refuses stale provenance and tampered Markdown before serving tools
   await writeFile(join(fixture, 'dist/docs/corpus.json'), JSON.stringify(corpus));
   const loader = await import(new URL('mcp/load.mjs', new URL(`file://${fixture}/`)));
   assert.equal((await loader.loadSnapshot()).documents.length, corpus.documents.length);
+  const supplementalPath = join(fixture, 'content/supplemental-docs/manifest.json');
+  const supplementalBytes = await readFile(supplementalPath, 'utf8');
+  for (const change of [{ title: 'Stale title' }, { route: 'docs/guides/stale-route' }, { section: 'Stale section' }]) {
+    const changed = JSON.parse(supplementalBytes);
+    Object.assign(changed.pages[0], change);
+    await writeFile(supplementalPath, JSON.stringify(changed));
+    await assert.rejects(loader.loadSnapshot(), /provenance differs/);
+  }
+  await writeFile(supplementalPath, supplementalBytes);
   const stale = structuredClone(corpus); stale.sourceRevision = '0'.repeat(40);
   const tampered = structuredClone(corpus); tampered.documents[0].markdown += '\nUnverified replacement';
   const publication = structuredClone(corpus); publication.publication = corpus.publication.endsWith('(published on npm)')
