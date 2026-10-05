@@ -219,6 +219,15 @@ test('server refuses stale provenance and tampered Markdown before serving tools
   await writeFile(join(fixture, 'dist/docs/corpus.json'), JSON.stringify(corpus));
   const loader = await import(new URL('mcp/load.mjs', new URL(`file://${fixture}/`)));
   assert.equal((await loader.loadSnapshot()).documents.length, corpus.documents.length);
+  const supplementalPath = join(fixture, 'content/supplemental-docs/manifest.json');
+  const supplementalBytes = await readFile(supplementalPath, 'utf8');
+  for (const change of [{ title: 'Stale title' }, { route: 'docs/guides/stale-route' }, { section: 'Stale section' }]) {
+    const changed = JSON.parse(supplementalBytes);
+    Object.assign(changed.pages[0], change);
+    await writeFile(supplementalPath, JSON.stringify(changed));
+    await assert.rejects(loader.loadSnapshot(), /provenance differs/);
+  }
+  await writeFile(supplementalPath, supplementalBytes);
   const stale = structuredClone(corpus); stale.sourceRevision = '0'.repeat(40);
   const tampered = structuredClone(corpus); tampered.documents[0].markdown += '\nUnverified replacement';
   const publication = structuredClone(corpus); publication.publication = corpus.publication.endsWith('(published on npm)')

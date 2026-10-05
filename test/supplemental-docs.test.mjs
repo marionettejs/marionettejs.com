@@ -22,6 +22,8 @@ test('migration guide is separately pinned and published in every reading surfac
   const html = await read('dist/docs/guides/framework-migration/index.html');
   assert.ok(html.includes('Migrate from another UI framework'));
   assert.ok(html.includes(revision));
+  assert.ok(html.includes('href="/docs/supplemental-manifest.json">Snapshot manifest'));
+  assert.ok((await read('dist/docs/guides/framework-migration.md')).includes(`base revision ${revision};`));
   assert.ok(html.includes('href="/docs/guides/framework-migration/"'));
   for (const path of ['dist/docs/guides/framework-migration.md', 'dist/llms-full.txt', 'dist/docs/bundles/guides.txt']) {
     const text = await read(path);

@@ -8,10 +8,10 @@ import { tokenize } from './search.mjs';
 const hash = value => createHash('sha256').update(value).digest('hex');
 const read = path => readFile(new URL(path, import.meta.url), 'utf8');
 export async function loadSnapshot() {
-  const { readSnapshot, readSupplementalPages } = await import('../scripts/library-docs.mjs');
+  const { readSnapshot, readSupplementalPages, supplementalManifestBytes } = await import('../scripts/library-docs.mjs');
   const { assets, pages } = await readSnapshot(fileURLToPath(new URL('../content/library-docs/', import.meta.url)));
   const supplementalPages = await readSupplementalPages(fileURLToPath(new URL('../content/supplemental-docs/', import.meta.url)), pages);
-  const supplementalManifestSha256 = hash(await read('../dist/docs/supplemental-manifest.json'));
+  const supplementalManifestSha256 = hash(supplementalManifestBytes(supplementalPages));
   const corpusBytes = await read('../dist/docs/corpus.json');
   const corpus = JSON.parse(corpusBytes);
   const manifest = JSON.parse(await read('../content/library-docs/manifest.json'));
