@@ -1,4 +1,4 @@
-import { publishedChannel, publicationStatus } from './published-docs.mjs';
+import { publishedChannel, publicationStatus, readingRevision } from './published-docs.mjs';
 import { readFile, writeFile, mkdir, stat } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -17,7 +17,7 @@ const tasks = [
   ['Own a feature and its navigation', ['api/application', 'guides/routing', 'guides/existing-ui'], 'Connect readiness, child ownership and host cleanup.'],
   ['Wire interactions and controls', ['api/view', 'api/shared/events', 'guides/widgets', 'guides/accessibility-rendering'], 'Keep DOM and resource lifetimes with their owner.'],
   ['Validate and deploy', ['tooling', 'guides/testing', 'guides/typescript', 'guides/production'], 'Check the installed contract and observable behavior.'],
-  ['Migrate an existing application', ['guides/migration', 'api'], 'Read migration contracts and the modular API references.'],
+  ['Migrate an existing application', ['guides/framework-migration', 'guides/migration', 'api'], 'Read migration contracts and the modular API references.'],
 ];
 
 export const bundleGroups = { start: ['Start here'], guides: ['Guides', 'Development tools'], integrations: ['Integration guides', 'Runtime configuration', 'Provider interfaces', 'Companion packages'], reference: ['Core classes', 'Shared class contracts', 'Diagnostics'] };
@@ -41,6 +41,7 @@ export async function buildAgentDiscovery({ out, manifest, pages, assets, shell,
     sourceRepository: manifest.sourceRepository, sourceRevision: manifest.sourceRevision,
     sourceDirty: manifest.sourceDirty, sourceContentSha256: manifest.contentSha256,
     publicationEditsSha256: sha256(publication),
+    supplementalManifestSha256: sha256(await readFile(resolve(out, 'docs/supplemental-manifest.json'))),
   };
   const version = `Version: ${identity.packageVersion}\nChannel: ${identity.channel}\nPublication: ${identity.publication}\nSource revision: ${identity.sourceRevision}\nLocal changes: ${identity.sourceDirty}\nContent SHA-256: ${identity.sourceContentSha256}`;
   const byRoute = new Map(pages.map(page => [page.route, page]));
@@ -87,11 +88,11 @@ export async function buildAgentDiscovery({ out, manifest, pages, assets, shell,
   const mcpGuide = await readFile(new URL('../mcp/README.md', import.meta.url), 'utf8');
   await page('/docs/mcp', 'Marionette documentation MCP', mcpGuide);
   const documents = [];
-  async function addDocument({ id, title, section, kind, path, url, sourceUrl, sourceSha256, sourceSupplements }) {
+  async function addDocument({ id, title, section, kind, path, url, sourceUrl, sourceSha256, sourceRevision, sourceSupplements }) {
     const markdown = await readFile(resolve(out, path.slice(1)), 'utf8');
-    documents.push({ id, title, section, kind, url: origin + url, markdownUrl: origin + path, sourceUrl, sourceSha256, ...(sourceSupplements ? { sourceSupplements } : {}), sha256: sha256(markdown), markdown });
+    documents.push({ id, title, section, kind, url: origin + url, markdownUrl: origin + path, sourceUrl, sourceSha256, ...(sourceRevision ? { sourceRevision } : {}), ...(sourceSupplements ? { sourceSupplements } : {}), sha256: sha256(markdown), markdown });
   }
-  for (const item of pages) await addDocument({ id: item.source, title: item.title, section: item.section, kind: 'guide', path: mdPath(item), url: `/${item.route}/`, sourceUrl: `${origin}/docs/markdown/${item.source}`, sourceSha256: item.sha256 });
+  for (const item of pages) await addDocument({ id: item.source, title: item.title, section: item.section, kind: 'guide', path: mdPath(item), url: `/${item.route}/`, sourceUrl: `${origin}/docs/markdown/${item.source}`, sourceSha256: item.sha256, sourceRevision: readingRevision(item, manifest) });
   const catalog = JSON.parse(await readFile(resolve(out, 'docs/diagnostics.json'), 'utf8'));
   const catalogAsset = assets.find(asset => asset.source === 'config/diagnostics/catalog.json');
   for (const entry of catalog.diagnostics) await addDocument({ id: `errors/${entry.code}`, title: `${entry.code}: ${entry.slug.replaceAll('-', ' ')}`, section: 'Diagnostics', kind: 'diagnostic', path: `/errors/${entry.code}.md`, url: entry.docsAnchor, sourceUrl: `${origin}/docs/source/${catalogAsset.source}`, sourceSha256: catalogAsset.sha256 });
@@ -116,9 +117,9 @@ export async function buildAgentDiscovery({ out, manifest, pages, assets, shell,
       if (!(await stat(file).catch(() => null))?.isFile()) unresolvedLinks.push({ document: doc.id, href });
     }
   }
-  const coverage = { schemaVersion: 1, ...identity, snapshotPages: pages.length, publishedPages: documents.filter(doc => doc.kind === 'guide').length, diagnostics: catalog.diagnostics.length, corpusDocuments: documents.length, sourceAssets: assets.length, checkedLocalLinks: checkedLinks, unresolvedLinks, limitations: ['Coverage counts imported snapshot pages, not every API or application scenario.', 'Local link checks verify file destinations; they do not check fragments or external URLs.', 'The corpus contains imported candidate guides and diagnostics; the website-authored MCP setup guide, source fixtures, and consumer skill remain linked resources.', 'Website delivery has not been deployed or verified by this build.'] };
+  const coverage = { schemaVersion: 1, ...identity, snapshotPages: manifest.pages.length, supplementalPages: pages.length - manifest.pages.length, publishedPages: documents.filter(doc => doc.kind === 'guide').length, diagnostics: catalog.diagnostics.length, corpusDocuments: documents.length, sourceAssets: assets.length, checkedLocalLinks: checkedLinks, unresolvedLinks, limitations: ['Coverage counts archived and separately tracked guides, not every API or application scenario.', 'Local link checks verify file destinations; they do not check fragments or external URLs.', 'The corpus contains archived and separately tracked guides and diagnostics; the website-authored MCP setup guide, source fixtures, and consumer skill remain linked resources.', 'Website delivery has not been deployed or verified by this build.'] };
   await emit('/docs/coverage.json', json(coverage));
-  const coverageMarkdown = `# Documentation coverage and integrity\n\n${version}\n\n## Included in this build\n\n| Resource | Count |\n| --- | ---: |\n| Snapshot pages published as HTML, Markdown, and corpus documents | ${pages.length} |\n| Diagnostic entries (active and retired) | ${catalog.diagnostics.length} |\n| Corpus documents (includes diagnostic index) | ${documents.length} |\n| Exact supporting source assets | ${assets.length} |\n| Local reading-copy link destinations checked | ${checkedLinks} |\n| Unresolved local destinations | ${unresolvedLinks.length} |\n\n## Inspect or verify\n\n- ${link('Coverage report', '/docs/coverage.json')}: counts, unresolved destinations, and limitations.\n- ${link('Generated artifact manifest', '/docs/artifacts.json')}: SHA-256 hashes and UTF-8 byte lengths for generated discovery resources and all reading copies.\n- ${link('Snapshot manifest', '/docs/manifest.json')}: original source hashes and revision.\n- ${link('Publication edits', '/docs/publication.json')}: reviewed differences applied before rendering both HTML and Markdown.\n- ${link('JSON corpus', '/docs/corpus.json')}: exact reading Markdown, individual hashes, and separate source hashes.\n\nTo verify a download, hash its exact bytes with SHA-256 and compare the matching manifest path. The artifact manifest does not hash itself. These unsigned hashes detect inconsistency; they do not authenticate the publisher.\n\n## Limits\n\n${coverage.limitations.map(value => `- ${value}`).join('\n')}\n`;
+  const coverageMarkdown = `# Documentation coverage and integrity\n\n${version}\n\n## Included in this build\n\n| Resource | Count |\n| --- | ---: |\n| Archive pages published as HTML, Markdown, and corpus documents | ${manifest.pages.length} |\n| Separately tracked guides | ${pages.length - manifest.pages.length} |\n| Diagnostic entries (active and retired) | ${catalog.diagnostics.length} |\n| Corpus documents (includes diagnostic index) | ${documents.length} |\n| Exact supporting source assets | ${assets.length} |\n| Local reading-copy link destinations checked | ${checkedLinks} |\n| Unresolved local destinations | ${unresolvedLinks.length} |\n\n## Inspect or verify\n\n- ${link('Coverage report', '/docs/coverage.json')}: counts, unresolved destinations, and limitations.\n- ${link('Generated artifact manifest', '/docs/artifacts.json')}: SHA-256 hashes and UTF-8 byte lengths for generated discovery resources and all reading copies.\n- ${link('Snapshot manifest', '/docs/manifest.json')}: original source hashes and revision.\n- ${link('Supplemental manifest', '/docs/supplemental-manifest.json')}: separately tracked guide source hashes and revisions.\n- ${link('Publication edits', '/docs/publication.json')}: reviewed differences applied before rendering both HTML and Markdown.\n- ${link('JSON corpus', '/docs/corpus.json')}: exact reading Markdown, individual hashes, and separate source hashes.\n\nTo verify a download, hash its exact bytes with SHA-256 and compare the matching manifest path. The artifact manifest does not hash itself. These unsigned hashes detect inconsistency; they do not authenticate the publisher.\n\n## Limits\n\n${coverage.limitations.map(value => `- ${value}`).join('\n')}\n`;
   await page('/docs/coverage', 'Documentation coverage and integrity', coverageMarkdown);
   // Include all reading copies and their HTML, separately from immutable source hashes.
   for (const doc of documents) for (const url of [doc.markdownUrl, doc.url]) {

@@ -41,7 +41,7 @@ export async function syncPublication({ repository, revision, manifest, pages, p
     const edits = result.edits.filter(edit => edit.source === page.source);
     const revisions = [...new Set(edits.map(edit => edit.sourceRevision).filter(Boolean))];
     if (revisions.length > 1) throw new Error(`DOCS_SYNC_PROVENANCE: Multiple revisions for ${page.source}.`);
-    const previousRevision = revisions[0] || manifest.sourceRevision;
+    const previousRevision = revisions[0] || page.sourceRevision || manifest.sourceRevision;
     if (!/^[a-f0-9]{40}$/.test(previousRevision) || spawnSync('git', ['merge-base', '--is-ancestor', previousRevision, revision], { cwd: repository }).status !== 0) throw new Error(`DOCS_SYNC_HISTORY: ${page.source} is not based on an ancestor of the requested source.`);
     const base = sourceAt(repository, previousRevision, page.source);
     const incoming = sourceAt(repository, revision, page.source);
@@ -67,8 +67,9 @@ export function checkNavigation(previous, incoming) {
 }
 
 export async function prepare({ root, repository }) {
-  const { readSnapshot } = await import('../library-docs.mjs');
-  const { manifest, pages } = await readSnapshot(resolve(root, 'content/library-docs'));
+  const { readSnapshot, readSupplementalPages } = await import('../library-docs.mjs');
+  const { manifest, pages: archivedPages } = await readSnapshot(resolve(root, 'content/library-docs'));
+  const pages = [...archivedPages, ...await readSupplementalPages(resolve(root, 'content/supplemental-docs'), archivedPages)];
   const revision = git(repository, 'rev-parse', 'HEAD');
   // Route additions/removals need website presentation review, never an implicit npm import.
   const initialPublication = JSON.parse(await readFile(resolve(root, publicationPath), 'utf8'));
