@@ -6,6 +6,7 @@ import { resolve, extname, sep } from 'node:path';
 import { chromium } from 'playwright';
 const root = resolve('dist');
 const manifest = JSON.parse(await readFile(resolve(root, 'docs/manifest.json'), 'utf8'));
+const supplemental = JSON.parse(await readFile(resolve(root, 'docs/supplemental-manifest.json'), 'utf8'));
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.png': 'image/png' };
 const server = createServer(async (request, response) => {
   try {
@@ -27,7 +28,7 @@ try {
   await mkdir('output/playwright', { recursive: true });
   for (const width of [1280, 375]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const item of manifest.pages) {
+    for (const item of [...manifest.pages, ...supplemental.pages]) {
       const response = await page.goto(`http://127.0.0.1:${server.address().port}/${item.route}/`);
       assert.equal(response.status(), 200, item.source);
       assert.equal(await page.locator('.docs-prose h1').count(), 1, item.source);
@@ -50,6 +51,8 @@ try {
   await page.locator('.pagefind-ui__result-link').first().waitFor();
   assert.ok(await page.locator('.pagefind-ui__result-link[href$="/docs/api/application/"]').count(),
     'Searching prepareStart returns the Application API page.');
+  await search.fill('Migrate from another UI framework');
+  await page.locator('.pagefind-ui__result-link[href$="/docs/guides/framework-migration/"]').first().waitFor();
   // Native disclosures keep reading, navigation and provenance usable without scripts.
   const staticPage = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   for (const route of ['/docs/api/region/', '/docs/agent-start/']) {
@@ -76,7 +79,7 @@ try {
   assert.equal(await staticPage.locator('.docs-shortcuts').isVisible(), true, 'Desktop navigation opens without JavaScript');
   await staticPage.close();
   assert.deepEqual(errors, []);
-  console.log(`Verified ${manifest.pages.length * 2} documentation page/viewport combinations and rendered search.`);
+  console.log(`Verified ${(manifest.pages.length + supplemental.pages.length) * 2} documentation page/viewport combinations and rendered search.`);
 } finally {
   await browser.close();
   await new Promise(resolve => server.close(resolve));

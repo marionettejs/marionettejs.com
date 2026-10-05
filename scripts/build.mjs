@@ -33,9 +33,10 @@ const vendorVersions = Object.fromEntries(await Promise.all(['marionette', 'demo
 const versionVendor = module => module.replace(/(['"])((?:\.\.)?\/vendor\/(marionette|demos)\.js)(?:\?v=[^'"]*)?\1/g,
   (whole, quote, path, name) => `${quote}${path}?v=${vendorVersions[name]}${quote}`);
 const analyticsManifest = JSON.parse(await readFile(resolve(root, 'content/library-docs/manifest.json'), 'utf8'));
+const supplementalManifest = JSON.parse(await readFile(resolve(root, 'content/supplemental-docs/manifest.json'), 'utf8'));
 const analyticsDiagnostics = JSON.parse(await readFile(resolve(root, 'content/library-docs/config/diagnostics/catalog.json'), 'utf8'));
 const caseStudyRoutes = ['/case-studies/', ...studies.map(study => study.path)];
-const analyticsRoutes = ['/errors/', ...analyticsDiagnostics.diagnostics.map(entry => entry.docsAnchor), '/', '/why/', '/thanks/', '/demos/', '/privacy/', ...caseStudyRoutes, '/docs/agent-start/', '/docs/coverage/', '/docs/mcp/', ...analyticsManifest.pages.map(page => `/${page.route}/`)];
+const analyticsRoutes = ['/errors/', ...analyticsDiagnostics.diagnostics.map(entry => entry.docsAnchor), '/', '/why/', '/thanks/', '/demos/', '/privacy/', ...caseStudyRoutes, '/docs/agent-start/', '/docs/coverage/', '/docs/mcp/', ...[...analyticsManifest.pages, ...supplementalManifest.pages].map(page => `/${page.route}/`)];
 const analyticsSource = (await readFile(resolve(root, 'site/assets/analytics.js'), 'utf8')).replace(/\/\* PUBLIC_ANALYTICS_ROUTES \*\/ \[[^\]]*\]/, JSON.stringify(analyticsRoutes));
 const readModule = async path => path === './analytics.js' || path === 'analytics.js' ? analyticsSource : versionVendor(await readFile(resolve(root, 'site/assets', path), 'utf8'));
 // Version the workshop's static imports before hashing the module that loads it.
@@ -128,6 +129,6 @@ await writeFile(resolve(out,'404.html'),shell({title:'Page not found — Marione
 const docsCount = await buildLibraryDocs({ directory: resolve(root, 'content/library-docs'), out, shell });
 const docsManifest = JSON.parse(await readFile(resolve(out, 'docs/manifest.json'), 'utf8'));
 const diagnostics = JSON.parse(await readFile(resolve(out, 'docs/diagnostics.json'), 'utf8'));
-const sitemapRoutes = [...caseStudyRoutes, '/privacy/', '/', '/why/', '/thanks/', '/demos/', '/errors/', '/docs/agent-start/', '/docs/coverage/', '/docs/mcp/', ...diagnostics.diagnostics.map(entry => entry.docsAnchor), ...docsManifest.pages.map(page => `/${page.route}/`)];
+const sitemapRoutes = [...caseStudyRoutes, '/privacy/', '/', '/why/', '/thanks/', '/demos/', '/errors/', '/docs/agent-start/', '/docs/coverage/', '/docs/mcp/', ...diagnostics.diagnostics.map(entry => entry.docsAnchor), ...[...docsManifest.pages, ...supplementalManifest.pages].map(page => `/${page.route}/`)];
 await writeFile(resolve(out, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemapRoutes.map(route => `<url><loc>${siteOrigin}${route}</loc><lastmod>${revision}</lastmod></url>`).join('')}</urlset>`);
 console.log(`Built ${docsCount + pages.length} pages, static documentation search, and live Marionette examples.`);

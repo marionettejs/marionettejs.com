@@ -4,6 +4,7 @@ import { publishedMarkdown, publishedChannel, publicationStatus, readingRevision
 import { readFile, mkdir, writeFile, realpath } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { resolve, dirname, posix, relative, isAbsolute, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Marked, Renderer, Lexer } from 'marked';
 import * as pagefind from 'pagefind';
 
@@ -50,6 +51,29 @@ export async function readSnapshot(directory) {
   if (digest !== manifest.contentSha256) throw new Error('Documentation snapshot digest mismatch.');
   if (!routes.has('docs')) throw new Error('Documentation snapshot has no landing page.');
   return { manifest, pages, assets };
+}
+
+// Additional reviewed guides are independent of the immutable npm archive.
+export async function readSupplementalPages(directory, archivedPages) {
+  const manifest = JSON.parse(await readFile(resolve(directory, 'manifest.json'), 'utf8'));
+  if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.pages)) throw new Error('Unsupported supplemental documentation manifest.');
+  const routes = new Set(archivedPages.map(page => page.route));
+  const sources = new Set(archivedPages.map(page => page.source));
+  const base = await realpath(directory);
+  const pages = [];
+  for (const page of manifest.pages) {
+    if (!safePath(page.source) || !page.source.startsWith('docs/') || !page.source.endsWith('.md') ||
+        !safePath(page.route) || !page.route.startsWith('docs/') || sources.has(page.source) || routes.has(page.route) ||
+        typeof page.title !== 'string' || typeof page.section !== 'string' || !/^[a-f0-9]{40}$/.test(page.sourceRevision)) throw new Error('Invalid supplemental documentation page.');
+    const path = await realpath(resolve(base, page.source));
+    const local = relative(base, path);
+    if (local.startsWith(`..${sep}`) || local === '..' || isAbsolute(local)) throw new Error('Supplemental source escapes snapshot.');
+    const markdown = await readFile(path, 'utf8');
+    if (hash(markdown) !== page.sha256) throw new Error(`Supplemental documentation hash mismatch: ${page.source}`);
+    pages.push({ ...page, markdown });
+    routes.add(page.route); sources.add(page.source);
+  }
+  return pages;
 }
 
 export const canonicalSourceUrl = page => `/docs/markdown/${page.source}`;
@@ -119,7 +143,9 @@ function adjacentPages(page, pages) {
 }
 
 export async function buildLibraryDocs({ directory, out, shell }) {
-  const { manifest, pages, assets } = await readSnapshot(directory);
+  const { manifest, pages: archivedPages, assets } = await readSnapshot(directory);
+  const supplementalPages = await readSupplementalPages(fileURLToPath(new URL('../content/supplemental-docs/', import.meta.url)), archivedPages);
+  const pages = [...archivedPages, ...supplementalPages];
   for (const page of pages) {
     const { html, headings } = renderMarkdown(page, pages, manifest);
     const provenance = `${manifest.packageVersion} · ${publicationStatus(manifest)} · ${manifest.sourceRevision.slice(0, 8)}${manifest.sourceDirty ? ' + local changes' : ''}`;
@@ -133,6 +159,7 @@ export async function buildLibraryDocs({ directory, out, shell }) {
     await writeFile(resolve(out, markdownUrl(page).slice(1)), deriveMarkdown(page, pages, manifest));
   }
   await writeFile(resolve(out, 'docs/publication.json'), await readFile(new URL('../content/docs-publication-edits.json', import.meta.url)));
+  await writeFile(resolve(out, 'docs/supplemental-manifest.json'), `${JSON.stringify({ schemaVersion: 1, pages: supplementalPages.map(({ markdown, ...page }) => page) }, null, 2)}\n`);
   await writeFile(resolve(out, 'docs/manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   for (const asset of assets) {
     const destination = resolve(out, 'docs/source', asset.source);
@@ -227,7 +254,7 @@ function rewriteInlineLinks(tokens, rewrite) {
   }).join('');
 }
 
-export function deriveMarkdown(page, pages, manifest, { sourceUrl = canonicalSourceUrl(page), manifestUrl = '/docs/manifest.json' } = {}) {
+export function deriveMarkdown(page, pages, manifest, { sourceUrl = canonicalSourceUrl(page), manifestUrl = page.sourceRevision ? '/docs/supplemental-manifest.json' : '/docs/manifest.json' } = {}) {
   const rewrite = linkResolver(page, pages, manifest, 'markdown');
   let fence;
   let pending = [];

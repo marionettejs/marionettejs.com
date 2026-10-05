@@ -132,7 +132,9 @@ test('published pages keep a validator and the sitemap dates every entry', async
   const entries = [...sitemap.matchAll(/<url>(.*?)<\/url>/g)].map(([, entry]) => entry);
   const manifest = JSON.parse(await read('content/library-docs/manifest.json'));
   const catalog = JSON.parse(await read('dist/docs/diagnostics.json'));
-  assert.equal(entries.length, manifest.pages.length + catalog.diagnostics.length + 11);
+  const supplemental = JSON.parse(await read('content/supplemental-docs/manifest.json'));
+  assert.equal(entries.length, manifest.pages.length + supplemental.pages.length + catalog.diagnostics.length + 11);
+  for (const page of supplemental.pages) assert.ok(sitemap.includes(`<loc>https://marionettejs.com/${page.route}/</loc>`));
   for (const route of ['/case-studies/', '/case-studies/realworld/']) {
     assert.ok(sitemap.includes(`<loc>https://marionettejs.com${route}</loc>`), route);
   }

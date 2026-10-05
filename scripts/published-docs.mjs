@@ -47,7 +47,7 @@ export function publishedChannel(manifest) {
 }
 
 export function readingRevision(page, manifest) {
-  return publication.edits.find(edit => edit.source === page.source && edit.sourceRevision)?.sourceRevision || manifest.sourceRevision;
+  return publication.edits.find(edit => edit.source === page.source && edit.sourceRevision)?.sourceRevision || page.sourceRevision || manifest.sourceRevision;
 }
 
 export function publicationStatus(manifest) {
