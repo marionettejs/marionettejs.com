@@ -20,7 +20,7 @@ export const realworld = {
   label: '01 / REALWORLD',
   date: '2026-10-05',
   dateLabel: 'October 5, 2026',
-  image: { src: `${assets}/development-progression.png`, width: 1721, height: 914, alt: 'Editorial illustration comparing Waterfall, Agile, AI, and Marionette development through successive vehicle designs.' },
+  image: { src: `${assets}/development-progression-v2.png`, width: 1800, height: 960, alt: 'Editorial illustration comparing Waterfall, Agile, AI, and Marionette development through successive vehicle designs.' },
   disclosure: disclosure('The prompt behind this case study', `<pre class="study-prompt" tabindex="0" aria-label="Prompt text">${escape(read('./realworld-brief.txt'))}</pre>`),
   conclusion: `An AI coding agent built a Conduit frontend with Marionette v5 RC2, covering authentication, feeds, articles, comments, profiles, and editing. After correctness and presentation refinements, it was competitive with the selected client applications in the measured payload and navigation workloads; SvelteKit was smaller and faster to show the feed. This makes Marionette worth trying on a representative feature, but this was not a matched agent-development experiment across frameworks. ${link('docs/benchmark-comparison.md', 'See the measured comparison.')} <a href="${repo}">View the example repository.</a> `,
   sections: [
