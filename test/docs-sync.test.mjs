@@ -138,6 +138,7 @@ test('routing sync builds and validates independently, rejecting corrupted deliv
   publication.status = 'development candidate (local source)';
   // This isolated repository contains only the routing source under test.
   publication.edits = [];
+  publication.titles = [];
   const archive = JSON.parse(await readFile(join(root, 'content/library-docs/manifest.json'), 'utf8'));
   const routing = archive.pages.find(page => page.source === 'docs/guides/routing.md');
   const original = await readFile(join(root, 'content/library-docs', routing.source), 'utf8');
