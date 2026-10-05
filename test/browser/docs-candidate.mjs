@@ -42,11 +42,11 @@ try {
         assert.equal(await page.locator('.docs-menu').getAttribute('open'), '', 'Desktop navigation opens when JavaScript is available');
       }
       if (item.source === 'docs/api/application.md') await page.screenshot({ path: `output/playwright/docs-first-screen-${width}.png` });
-      if (['docs/api/application.md', 'docs/guides/production.md'].includes(item.source)) await page.screenshot({ path: `output/playwright/${item.source.replaceAll('/', '-').replace('.md', '')}-${width}.png`, fullPage: true });
+      if (['docs/api/application.md', 'docs/guides/production.md', 'docs/guides/framework-migration.md'].includes(item.source)) await page.screenshot({ path: `output/playwright/${item.source.replaceAll('/', '-').replace('.md', '')}-${width}.png`, fullPage: true });
     }
   }
   await page.goto(`http://127.0.0.1:${server.address().port}/docs/`);
-  const search = page.locator('#docs-search input');
+  const search = page.getByRole('textbox', { name: 'Search', exact: true });
   await search.fill('prepareStart');
   await page.locator('.pagefind-ui__result-link').first().waitFor();
   assert.ok(await page.locator('.pagefind-ui__result-link[href$="/docs/api/application/"]').count(),

@@ -29,7 +29,7 @@ jobs:
           if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ] || [ "$BEFORE_SHA" = 0000000000000000000000000000000000000000 ]; then
             echo 'changed=true' >> "$GITHUB_OUTPUT"
           else
-            changes=$(git diff --name-only "$BEFORE_SHA" "$GITHUB_SHA" -- content/library-docs/manifest.json content/docs-publication-edits.json)
+            changes=$(git diff --name-only "$BEFORE_SHA" "$GITHUB_SHA" -- content/library-docs/manifest.json content/docs-publication-edits.json content/supplemental-docs)
             if [ -n "$changes" ]; then
               echo 'changed=true' >> "$GITHUB_OUTPUT"
             else
