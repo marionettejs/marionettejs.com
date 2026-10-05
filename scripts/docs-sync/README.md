@@ -148,3 +148,9 @@ These guides join the same reading-copy sync; future source updates use each
 guide’s recorded revision and publication overlays, without rewriting its base.
 The served `/docs/supplemental-manifest.json` and per-document MCP metadata retain
 this identity separately from the package archive and runtime revision.
+
+Website-only title edits live in `content/docs-publication-edits.json` under
+`titles`, with source, original title, and published title. They are applied to
+HTML/navigation/discovery metadata without changing the archive manifest. Source
+text synchronization preserves this separate field; an upstream heading conflict
+stops the text merge for review instead of silently restoring the old heading.

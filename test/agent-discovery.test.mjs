@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, mkdtemp, mkdir, cp, writeFile, rm } from 'node:fs/promises';
+import { readFile, mkdtemp, mkdir, cp, writeFile, rm, symlink } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -167,6 +167,7 @@ test('publication evidence accepts only the exact versioned registry archive', a
   await writeFile(resolve(fixture, 'content/docs-publication-edits.json'), JSON.stringify({ packageVersion: manifest.packageVersion, channel: manifest.channel, status: 'release candidate (published on npm)', edits: [] }));
   await writeFile(resolve(fixture, 'node_modules/marionette/package.json'), JSON.stringify({ version: manifest.packageVersion }));
   await writeFile(resolve(fixture, 'node_modules/marionette/docs-manifest.json'), JSON.stringify(manifest));
+  await symlink(resolve(root, 'node_modules/marked'), resolve(fixture, 'node_modules/marked'), 'dir');
   const { publishedChannel } = await import(pathToFileURL(resolve(fixture, 'scripts/published-docs.mjs')));
   const lock = { version: manifest.packageVersion, resolved: 'https://registry.npmjs.org/marionette/-/marionette-5.0.0-rc.2.tgz',
     integrity: 'sha512-' + Buffer.alloc(64, 1).toString('base64') };

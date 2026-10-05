@@ -1,3 +1,4 @@
+import { Lexer } from 'marked';
 import { isCandidatePublication } from './publication-status.mjs';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
@@ -13,6 +14,20 @@ export function publishedMarkdown(page) {
     markdown = markdown.replace(before, () => after);
   }
   return markdown;
+}
+
+// Website title edits stay separate from the immutable archive and source-text sync.
+export function publishedTitles(pages) {
+  const titles = new Map();
+  for (const edit of publication.titles || []) {
+    const page = pages.find(page => page.source === edit.source);
+    if (!page || titles.has(edit.source) || edit.before !== page.title ||
+        typeof edit.after !== 'string' || !edit.after.trim()) throw new Error(`Review publication title for ${edit.source}`);
+    const headings = Lexer.lex(publishedMarkdown(page)).filter(token => token.type === 'heading' && token.depth === 1);
+    if (headings.length !== 1 || headings[0].text !== edit.after) throw new Error(`Review publication heading for ${edit.source}`);
+    titles.set(edit.source, edit.after);
+  }
+  return pages.map(page => ({ ...page, title: titles.get(page.source) || page.title }));
 }
 
 // A dist-tag is a routing label; publication needs independent package evidence.
