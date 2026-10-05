@@ -1,6 +1,6 @@
 import { headingId } from './heading-ids.mjs';
 import { buildAgentDiscovery } from './agent-discovery.mjs';
-import { publishedMarkdown, publishedChannel, publicationStatus, readingRevision } from './published-docs.mjs';
+import { publishedMarkdown, publishedTitles, publishedChannel, publicationStatus, readingRevision } from './published-docs.mjs';
 import { readFile, mkdir, writeFile, realpath } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { resolve, dirname, posix, relative, isAbsolute, sep } from 'node:path';
@@ -148,7 +148,7 @@ function adjacentPages(page, pages) {
 export async function buildLibraryDocs({ directory, out, shell }) {
   const { manifest, pages: archivedPages, assets } = await readSnapshot(directory);
   const supplementalPages = await readSupplementalPages(fileURLToPath(new URL('../content/supplemental-docs/', import.meta.url)), archivedPages);
-  const pages = [...archivedPages, ...supplementalPages];
+  const pages = publishedTitles([...archivedPages, ...supplementalPages]);
   for (const page of pages) {
     const { html, headings } = renderMarkdown(page, pages, manifest);
     const provenance = `${manifest.packageVersion} · ${publicationStatus(manifest)} · ${manifest.sourceRevision.slice(0, 8)}${manifest.sourceDirty ? ' + local changes' : ''}`;

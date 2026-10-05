@@ -15,6 +15,18 @@ export function publishedMarkdown(page) {
   return markdown;
 }
 
+// Website title edits stay separate from the immutable archive and source-text sync.
+export function publishedTitles(pages) {
+  const titles = new Map();
+  for (const edit of publication.titles || []) {
+    const page = pages.find(page => page.source === edit.source);
+    if (!page || titles.has(edit.source) || edit.before !== page.title ||
+        typeof edit.after !== 'string' || !edit.after.trim()) throw new Error(`Review publication title for ${edit.source}`);
+    titles.set(edit.source, edit.after);
+  }
+  return pages.map(page => ({ ...page, title: titles.get(page.source) || page.title }));
+}
+
 // A dist-tag is a routing label; publication needs independent package evidence.
 export function validatePublication(manifest, declaration, installed) {
   const candidate = isCandidatePublication(declaration.status);
