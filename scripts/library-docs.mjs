@@ -56,7 +56,7 @@ export async function readSnapshot(directory) {
 // Additional reviewed guides are independent of the immutable npm archive.
 export async function readSupplementalPages(directory, archivedPages) {
   const manifest = JSON.parse(await readFile(resolve(directory, 'manifest.json'), 'utf8'));
-  if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.pages)) throw new Error('Unsupported supplemental documentation manifest.');
+  if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.pages) || !manifest.pages.length) throw new Error('Unsupported supplemental documentation manifest.');
   const routes = new Set(archivedPages.map(page => page.route));
   const sources = new Set(archivedPages.map(page => page.source));
   const base = await realpath(directory);

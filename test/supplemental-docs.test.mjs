@@ -56,6 +56,12 @@ test('supplemental sources reject corrupt bytes and archive route collisions', a
   await cp('content/supplemental-docs', directory, { recursive: true });
   const [guide] = await readSupplementalPages(directory, []);
   await assert.rejects(readSupplementalPages(directory, [guide]), /Invalid supplemental/);
+  await assert.rejects(readSupplementalPages(directory, [{ source: 'docs/other.md', route: guide.route }]), /Invalid supplemental/);
+  const manifestPath = join(directory, 'manifest.json');
+  const manifest = await readFile(manifestPath, 'utf8');
+  await writeFile(manifestPath, JSON.stringify({ schemaVersion: 1, pages: [] }));
+  await assert.rejects(readSupplementalPages(directory, []), /Unsupported supplemental/);
+  await writeFile(manifestPath, manifest);
   await writeFile(join(directory, source), '# Changed content\n');
   await assert.rejects(readSupplementalPages(directory, []), /hash mismatch/);
 });
