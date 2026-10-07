@@ -17,14 +17,13 @@ export const caseStudies = {
 };
 
 export function studyPage(study) {
-  if (study.body) return { ...study, active: 'case-studies' };
   return {
     ...study,
     active: 'case-studies',
     body: `<article class="study">
       <header class="article-heading study-heading">
         <a class="study-back" href="/case-studies/">← Case studies</a>
-        ${study.disclosure}
+        ${study.disclosure || ''}
         <p class="eyebrow">${study.label}</p><h1>${study.title}</h1>
         <p class="study-conclusion">${study.conclusion}</p>
         <p class="study-byline">Published by the Marionette project · <time datetime="${study.date}">${study.dateLabel}</time></p>

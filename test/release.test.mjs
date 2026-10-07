@@ -9,7 +9,7 @@ import { runInNewContext } from 'node:vm';
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('public release-candidate pages are canonical and indexable while mirrors stay noindexed', async () => {
-  for (const path of ['index.html', 'why/index.html', 'case-studies/index.html', 'case-studies/realworld/index.html', 'case-studies/roundingwell/index.html','case-studies/vikunja/index.html', 'docs/index.html', 'docs/quick-start/index.html']) {
+  for (const path of ['index.html', 'why/index.html', 'case-studies/index.html', 'case-studies/realworld/index.html', 'case-studies/roundingwell/index.html', 'case-studies/vikunja/index.html', 'docs/index.html', 'docs/quick-start/index.html']) {
     const html = await read(`dist/${path}`);
     const canonical = `https://marionettejs.com/${path.replace(/index\.html$/, '')}`;
     assert.equal(html.match(/rel="canonical" href="([^"]+)"/)?.[1], canonical);
