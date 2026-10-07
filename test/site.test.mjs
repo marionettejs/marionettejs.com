@@ -109,7 +109,7 @@ test('entry, workshop and nested runtime imports use content versions to invalid
   const setupModule = await readFile(resolve(out, 'assets/agent-setup.js'), 'utf8');
   assert.ok(setup.includes(`src="/assets/agent-setup.js?v=${version(setupModule)}"`));
   const imports = [...entry.matchAll(/import\('(.+?)\?v=([a-f0-9]+)'\)/g)];
-  assert.equal(imports.length, 9);
+  assert.equal(imports.length, 8);
   for (const [, path, hash] of imports) {
     assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
   }

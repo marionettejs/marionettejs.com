@@ -34,7 +34,7 @@ jobs:
           node test/browser/analytics-standard.mjs
       - name: Verify documentation layout and search
         run: npm run test:docs:browser
-      - name: Verify case-study comparison interaction
+      - name: Verify case-study images and chart
         run: node test/browser/case-studies.mjs
       - name: Verify agent setup and copy controls
         run: node test/browser/agent-setup.mjs
