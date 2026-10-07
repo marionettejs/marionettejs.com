@@ -8,6 +8,11 @@
 .study-card p:not(.eyebrow) { color:#c5c5cb; margin-bottom:22px; }
 .study-heading { max-width:1400px; margin:auto; padding-bottom:38px; border:0; }
 .study-back { font-size:.85rem; }
+.study-tldr { max-width:900px; margin-top:28px; padding:22px 26px; border-left:3px solid var(--red); background:#1b1c21; }
+.study-tldr h2 { margin:0 0 12px; font-size:1rem; letter-spacing:.04em; }
+.study-tldr ul { margin:0; padding-left:1.2em; color:#c5c5cb; }
+.study-tldr li { padding-left:5px; line-height:1.7; }
+.study-tldr li+li { margin-top:10px; }
 .study-heading h1 { max-width:1100px; font-size:clamp(2.6rem,5.8vw,5rem); line-height:1.06; letter-spacing:-.045em; }
 .study-heading>p.study-conclusion { max-width:900px; text-wrap:pretty; line-height:1.7; }
 .study-heading>p.study-byline { margin-top:18px; font-size:.8rem; color:var(--muted); }
