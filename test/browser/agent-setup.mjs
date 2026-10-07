@@ -1,21 +1,11 @@
 import assert from 'node:assert/strict';
-import { createServer } from 'node:http';
-import { readFile, stat, mkdir } from 'node:fs/promises';
-import { resolve, extname, sep } from 'node:path';
+import { staticServer } from './static-server.mjs';
+import { mkdir } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { chromium } from 'playwright';
 const root = resolve('dist');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.wasm': 'application/wasm', '.svg': 'image/svg+xml' };
-const server = createServer(async (request, response) => {
-  try {
-    let file = resolve(root, '.' + new URL(request.url, 'http://localhost').pathname);
-    if (file !== root && !file.startsWith(root + sep)) throw Error('Invalid path');
-    if ((await stat(file)).isDirectory()) file = resolve(file, 'index.html');
-    response.setHeader('Content-Type', types[extname(file)] || 'text/plain');
-    response.end(await readFile(file));
-  } catch { response.writeHead(404); response.end(); }
-});
-await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-const base = `http://127.0.0.1:${server.address().port}`;
+const { base, close } = await staticServer({ root, types, fallbackType: 'text/plain' });
 const browser = await chromium.launch({ headless: true });
 await mkdir('output/playwright', { recursive: true });
 try {
@@ -81,5 +71,5 @@ try {
   console.log('PASS 5 clients at 1440/390/320px, keyboard selection and copying, clipboard denial, no-JS reading, workshop download → setup.');
 } finally {
   await browser.close();
-  server.close();
+  await close();
 }

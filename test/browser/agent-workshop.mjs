@@ -1,9 +1,9 @@
 // Real Chromium, pinned browser library, static built artifact, and opaque-origin
 // preview. Run npm run build before this command. No production host is involved.
 import assert from 'node:assert/strict';
-import { createServer } from 'node:http';
-import { readFile, stat, mkdir } from 'node:fs/promises';
-import { resolve, extname, sep } from 'node:path';
+import { staticServer } from './static-server.mjs';
+import { readFile, mkdir } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { chromium } from 'playwright';
 import { recipes, recipeRuntime } from '../../site/assets/playground-recipes.js';
@@ -12,23 +12,14 @@ import { runnerDocument } from '../../site/assets/playground-runtime.js';
 import { compileProject } from '../../tools/demo-project.js';
 const root = resolve('dist');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.md': 'text/plain', '.svg': 'image/svg+xml' };
-const server = createServer(async (req, res) => {
-  try {
-    let file = resolve(root, '.' + new URL(req.url, 'http://localhost').pathname);
-    if (file !== root && !file.startsWith(root + sep)) throw Error('Invalid path');
-    if ((await stat(file)).isDirectory()) file = resolve(file, 'index.html');
-    res.setHeader('Content-Type', types[extname(file)] || 'application/octet-stream');
-    res.end(await readFile(file));
-  } catch { res.writeHead(404); res.end(); }
-});
-await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+const { base, close } = await staticServer({ root, types });
 const browser = await chromium.launch({ headless: true, args: ['--enable-experimental-web-platform-features'] });
 try {
   const failedDemo = await browser.newPage();
   const fallbackErrors = [];
   failedDemo.on('pageerror', error => fallbackErrors.push(error.message));
   await failedDemo.route('**/assets/demo.js*', route => route.abort());
-  await failedDemo.goto(`http://127.0.0.1:${server.address().port}/`);
+  await failedDemo.goto(`${base}/`);
   await failedDemo.locator('#application-slot').filter({ hasText: 'The application example could not load.' }).waitFor();
   assert.deepEqual(fallbackErrors, []);
   await failedDemo.close();
@@ -36,7 +27,7 @@ try {
   const page = await browser.newPage({ reducedMotion: 'reduce' });
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.message));
-  await page.goto(`http://127.0.0.1:${server.address().port}/#playground`);
+  await page.goto(`${base}/#playground`);
   await page.waitForFunction(() => window.MarionettePlayground && document.querySelector('#playground').open);
   const api = async (method, input) => page.evaluate(({ method, input }) => window.MarionettePlayground[method](input), { method, input });
   await api('close');
@@ -142,7 +133,7 @@ Victory.prototype.onRender = function () {
 
   execFileSync(process.execPath, ['test/browser/playground-ownership.mjs']);
   const ownershipPage = await browser.newPage();
-  await ownershipPage.goto(`http://127.0.0.1:${server.address().port}/_ownership-check.html`);
+  await ownershipPage.goto(`${base}/_ownership-check.html`);
   await ownershipPage.frameLocator('iframe').locator('#run-ownership-checks').click();
   await ownershipPage.frameLocator('iframe').locator('#ownership-result').filter({ hasText: '18 BROWSER CHECKS PASSED' }).waitFor({ timeout: 10000 }).catch(async error => {
     throw new Error(await ownershipPage.frameLocator('iframe').locator('body').innerText(), { cause: error });
@@ -172,7 +163,7 @@ Victory.prototype.onRender = function () {
   console.log('PASS Backstage: personal app only, successful-run exports, mobile layout');
 
   const galleryPage = await browser.newPage({ reducedMotion: 'reduce' });
-  await galleryPage.goto(`http://127.0.0.1:${server.address().port}/`);
+  await galleryPage.goto(`${base}/`);
   assert.equal(await galleryPage.locator('.home-demo-cards a').count(), 3);
   assert.equal(await galleryPage.locator('.home-demo-cards a[href="/demos/#mission-control"] strong').innerText(), 'CHEESE PATROL');
   assert.equal(await galleryPage.evaluate(() => document.querySelector('.night-closing').nextElementSibling.id === 'demos' && document.querySelector('#demos').nextElementSibling.classList.contains('home-support')), true);
@@ -431,7 +422,7 @@ Victory.prototype.onRender = function () {
   execFileSync('unzip', ['-oq', await download.path(), '-d', exportDirectory]);
   assert.match(await readFile(resolve(exportDirectory, 'app.js'), 'utf8'), /import \{ Radio \} from '\.\/radio-view.js'/);
   const exported = await browser.newPage();
-  await exported.goto(`http://127.0.0.1:${server.address().port}/downloaded-project/`);
+  await exported.goto(`${base}/downloaded-project/`);
   await exported.locator('#replace-widget').click();
   await exported.locator('#broadcast-radio').click();
   assert.match(await exported.locator('#experiment .widget').innerText(), /Broadcasts heard: 1/);
@@ -861,7 +852,7 @@ export function increment() { count += amount; }`,
     licenseRequests++;
     return licenseRequests === 1 ? route.fulfill({ status: 503, body: 'Temporary failure' }) : route.continue();
   });
-  await page.goto(`http://127.0.0.1:${server.address().port}/`);
+  await page.goto(`${base}/`);
   await page.waitForFunction(() => document.querySelector('#codepen-help').textContent.includes('could not load') && window.MarionettePlayground);
   assert.equal(await page.locator('[data-workshop-codepen]').isDisabled(), true);
   await api('open');
@@ -870,13 +861,13 @@ export function increment() { count += amount; }`,
   assert.match(await page.locator('#codepen-help').innerText(), /Free Pens are public/);
   await page.unroute('**/vendor/DEMOS-LICENSE.txt');
   console.log('PASS CodePen recovery: transient preload failure, workshop retry, enabled export and restored help');
-  await page.goto(`http://127.0.0.1:${server.address().port}/docs/quick-start/`);
+  await page.goto(`${base}/docs/quick-start/`);
   await page.locator('h1').waitFor();
   assert.match(await page.locator('h1').innerText(), /Install and render/);
   await page.screenshot({ path: 'output/playwright/development-guide.png', fullPage: true });
   await page.setViewportSize({ width: 375, height: 812 });
   for (const route of ['/docs/quick-start/', '/docs/tooling/', '/errors/MN0020/']) {
-    await page.goto(`http://127.0.0.1:${server.address().port}${route}`);
+    await page.goto(`${base}${route}`);
     assert.equal(await page.locator('h1').count(), 1);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, `${route} fits a phone viewport`);
   }
@@ -884,7 +875,7 @@ export function increment() { count += amount; }`,
   console.log('PASS development reading path: desktop guide and three phone-width pages');
   for (const width of [1280, 375]) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto(`http://127.0.0.1:${server.address().port}/docs/api/application/`);
+    await page.goto(`${base}/docs/api/application/`);
     const table = page.locator('.docs-prose table').first();
     await table.scrollIntoViewIfNeeded();
     const spacing = await table.evaluate(element => {
@@ -906,5 +897,5 @@ export function increment() { count += amount; }`,
   assert.deepEqual(pageErrors, []);
 } finally {
   await browser.close();
-  await new Promise(resolve => server.close(resolve));
+  await close();
 }
