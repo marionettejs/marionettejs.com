@@ -28,11 +28,7 @@ export const roundingwell = {
   label: '02 / ROUNDINGWELL',
   date: '2026-10-05',
   dateLabel: 'October 5, 2026',
-  tldr: [
-    'A complex production application moved from Backbone.Marionette to v5 while retaining Backbone data and routing, Handlebars templates, and its service layer.',
-    'Separate page, results, and sidebar owners plus retained restart give worklist refresh and cancellation a standard lifecycle while preserving surrounding context.',
-    'Against the v4 branch, a historical v5 beta benchmark with 500 synthetic rows measured about 24% less editable action-card rendering time and 85% less filtering time. These isolated results include application changes; the final migration was not rebenchmarked.',
-  ],
+  tldr: 'A complex production application moved from Backbone.Marionette to v5 while retaining its data, templates, and services, gaining clearer refresh and cancellation lifecycles plus faster isolated worklist operations in a historical beta benchmark.',
   image: { src: `${assets}/brand-panels.png`, width: 1729, height: 910, caption: 'RoundingWell × Marionette', alt: 'RoundingWell’s white symbol and wordmark in a blue rounded panel beside Marionette’s white symbol and wordmark in a red rounded panel. An established product. A new chapter.' },
   disclosure: '<details class="study-disclosure"><summary>About this account</summary><div class="study-disclosure-body"><p>Published by the Marionette project. The migration combined human direction and agent assistance as the framework and its guidance evolved. It was not a controlled agent-development experiment.</p></div></details>',
   conclusion: 'RoundingWell migrated from Backbone.Marionette to v5 while preserving its care-team workflows. Clearer application boundaries and faster measured worklist operations provide a foundation for continued development.',
