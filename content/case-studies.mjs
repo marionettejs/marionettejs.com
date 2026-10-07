@@ -1,8 +1,9 @@
 // Shared static structure: add future studies to this list and their sections below.
 import { realworld } from './case-studies/realworld.mjs';
 import { roundingwell } from './case-studies/roundingwell.mjs';
+import { vikunja } from './case-studies/vikunja.mjs';
 
-export const studies = [realworld, roundingwell];
+export const studies = [realworld, roundingwell, vikunja];
 const escape = text => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 
 export const caseStudies = {
@@ -22,7 +23,7 @@ export function studyPage(study) {
     body: `<article class="study">
       <header class="article-heading study-heading">
         <a class="study-back" href="/case-studies/">← Case studies</a>
-        ${study.disclosure}
+        ${study.disclosure || ''}
         <p class="eyebrow">${study.label}</p><h1>${study.title}</h1>
         <p class="study-conclusion">${study.conclusion}</p>
         <p class="study-byline">Published by the Marionette project · <time datetime="${study.date}">${study.dateLabel}</time></p>

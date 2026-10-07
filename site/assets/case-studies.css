@@ -64,3 +64,5 @@
  .study-hero { width:75%; }
  .study table,.study-screenshots figure { break-inside:avoid; }
 }
+.study .study-comparison { table-layout:fixed; }
+.study .study-comparison th,.study .study-comparison td { text-align:left; white-space:normal; overflow-wrap:anywhere; }
