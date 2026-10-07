@@ -69,3 +69,7 @@ if (document.querySelector('#examples')) {
     document.querySelector('#example-status').textContent = 'Examples could not load. The documentation links are still available.';
   });
 }
+
+if (document.querySelector('[data-image-comparison]')) {
+  import('./image-comparison.js').then(({ installImageComparisons }) => installImageComparisons()).catch(() => {});
+}
