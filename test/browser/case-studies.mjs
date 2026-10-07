@@ -1,22 +1,12 @@
 import assert from 'node:assert/strict';
-import { createServer } from 'node:http';
-import { readFile, stat, mkdir } from 'node:fs/promises';
-import { resolve, extname, sep } from 'node:path';
+import { staticServer } from './static-server.mjs';
+import { mkdir } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { chromium } from 'playwright';
 
 const root = resolve('dist');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml' };
-const server = createServer(async (request, response) => {
-  try {
-    let file = resolve(root, '.' + new URL(request.url, 'http://localhost').pathname);
-    if (file !== root && !file.startsWith(root + sep)) throw Error('Invalid path');
-    if ((await stat(file)).isDirectory()) file = resolve(file, 'index.html');
-    response.setHeader('Content-Type', types[extname(file)] || 'application/octet-stream');
-    response.end(await readFile(file));
-  } catch { response.writeHead(404); response.end(); }
-});
-await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-const base = `http://127.0.0.1:${server.address().port}`;
+const { base, close } = await staticServer({ root, types });
 const browser = await chromium.launch({ headless: true });
 const evidence = 'output/playwright/case-studies';
 await mkdir(evidence, { recursive: true });
@@ -94,5 +84,5 @@ try {
   console.log('PASS focused case-study check: original full-resolution static hero, desktop keyboard and mobile full-size link, responsive chart/navigation, accessible 0–4-second scale, no-JS rendering.');
 } finally {
   await browser.close();
-  server.close();
+  await close();
 }

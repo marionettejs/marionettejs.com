@@ -78,6 +78,6 @@
 .study-chart-vue { background:#777e8b; }
 .study-chart-marionette { background:var(--red); }
 .study-chart-axis { position:relative; height:1.6em; color:var(--muted); font-size:.8rem; }
-.study-chart-axis span { position:absolute; left:calc(var(--tick) * 25%); transform:translateX(-50%); }
+.study-chart-axis span { position:absolute; left:var(--tick); transform:translateX(-50%); }
 .study-chart-axis span:first-child { transform:none; }
 .study-chart-axis span:last-child { transform:translateX(-100%); }
