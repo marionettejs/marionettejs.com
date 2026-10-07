@@ -22,15 +22,14 @@ export function studyPage(study) {
     body: `<article class="study">
       <header class="article-heading study-heading">
         <a class="study-back" href="/case-studies/">← Case studies</a>
-        ${study.disclosure}
+        ${study.tldr ? `<section class="study-tldr" aria-labelledby="tldr-title"><h2 id="tldr-title">TL;DR</h2><p>${escape(study.tldr)}</p></section>` : ''}
         <p class="eyebrow">${study.label}</p><h1>${study.title}</h1>
         <p class="study-conclusion">${study.conclusion}</p>
         <p class="study-byline">Published by the Marionette project · <time datetime="${study.date}">${study.dateLabel}</time></p>
-        ${study.tldr ? `<section class="study-tldr" aria-labelledby="tldr-title"><h2 id="tldr-title">TL;DR</h2><p>${escape(study.tldr)}</p></section>` : ''}
       </header>
       <figure class="study-hero"><a href="${study.image.src}" aria-label="Open the full hero image"><img src="${study.image.src}" width="${study.image.width}" height="${study.image.height}" alt="${escape(study.image.alt)}"></a><figcaption>${escape(study.image.caption)} · <a href="${study.image.src}">View full size</a></figcaption></figure>
       <div class="article-layout study-layout"><nav class="article-nav" aria-label="On this page"><p class="eyebrow">IN THIS STUDY</p>${study.sections.map(section => `<a href="#${section.id}">${section.label}</a>`).join('')}<a href="#methodology">Evidence &amp; methodology</a></nav>
-        <div class="prose study-prose">${study.sections.map(section => `<section id="${section.id}"><h2>${section.title}</h2>${section.body}</section>`).join('')}${study.methodology}</div>
+        <div class="prose study-prose">${study.disclosure}${study.sections.map(section => `<section id="${section.id}"><h2>${section.title}</h2>${section.body}</section>`).join('')}${study.methodology}</div>
       </div>
     </article>`
   };
