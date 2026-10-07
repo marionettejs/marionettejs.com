@@ -12,7 +12,7 @@ const revision = 'a84a53ec799aa424900d08883ee5d3ad8d0873de';
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const read = path => readFile(new URL('../' + path, import.meta.url), 'utf8');
 
-test('migration guide is separately pinned and published in every reading surface', async () => {
+test('migration guide is separately pinned and published on the website but excluded from package-specific MCP', async () => {
   const { manifest, pages } = await readSnapshot('content/library-docs');
   assert.equal(pages.length, 38);
   assert.ok(!pages.some(page => page.source === source));
@@ -39,14 +39,11 @@ test('migration guide is separately pinned and published in every reading surfac
   const client = new Client({ name: 'guide-publication-test', version: '1.0.0' });
   await client.connect(new StdioClientTransport({ command: process.execPath, args: ['mcp/server.mjs'] }));
   try {
-    const response = await client.callTool({ name: 'get_doc', arguments: { path: source, version: manifest.packageVersion, limit: 12000 } });
-    assert.notEqual(response.isError, true, JSON.stringify(response));
-    const result = JSON.parse(response.content[0].text);
-    assert.equal(result.document.sourceRevision, revision);
-    assert.equal(result.document.sourceSha256, guide.sha256);
-    assert.ok(result.content.includes('Inventory behavior before implementation'));
-    const search = await client.callTool({ name: 'search_docs', arguments: { query: 'Migrate framework', version: manifest.packageVersion } });
-    assert.ok(JSON.stringify(search).includes(source));
+    const response = await client.callTool({ name: 'get_doc', arguments: { path: source, sourceRevision: manifest.sourceRevision, version: manifest.packageVersion, limit: 12000 } });
+    assert.equal(response.isError, true, 'Website-only guides are not packaged rc.2 contracts');
+    const search = await client.callTool({ name: 'search_docs', arguments: { query: 'Migrate framework', sourceRevision: manifest.sourceRevision, version: manifest.packageVersion } });
+    assert.notEqual(search.isError, true, JSON.stringify(search.content));
+    assert.ok(!JSON.stringify(search).includes(source));
   } finally { await client.close(); }
 });
 

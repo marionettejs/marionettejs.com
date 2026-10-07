@@ -21,6 +21,9 @@ const cases = [
   ['document', tool('get_doc', { path: snapshot.documents.reduce((a,b) => a.markdown.length > b.markdown.length ? a : b).id, limit: 12000 })],
   ['section-search', tool('search_sections', { query: 'destroy before:destroy', limit: 5 })],
   ['section-read', tool('get_sections', { ids: snapshot.sections.slice(0, 10).map(section => section.id), maxCharacters: 20_000 })],
+  ['symbol', tool('get_symbol', { name: 'View', limit: 5 })],
+  ['symbol-member', tool('get_symbol', { name: 'destroy', limit: 5 })],
+  ['diagnostic', tool('get_diagnostic', { code: 'MN0004' })],
   ['example', tool('get_example', { name: snapshot.examples[0].id, limit: 12000 })],
   ...['Region', 'preserve draft while another list row changes', 'zzzznosuchcontract', 'x'.repeat(200),
     'view region state data collection events render template lifecycle model application destroy '.repeat(2)]

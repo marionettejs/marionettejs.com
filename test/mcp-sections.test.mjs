@@ -100,18 +100,20 @@ test('canonical source ranking agrees with the imported consumer skill for publi
   }
 });
 
-// Renderer and indexer parse heading input differently: this integration check proves parity.
-test('every indexed canonical section link resolves to a rendered page and anchor', async () => {
+test('indexed sections resolve inside the immutable package corpus', async () => {
   const { loadSnapshot } = await import('../mcp/load.mjs');
-  const { readFile } = await import('node:fs/promises');
   const snapshot = await loadSnapshot();
-  const rankingFiles = new Map(snapshot.sectionIndex.files);
-  for (const document of snapshot.documents) assert.equal(rankingFiles.get(document.id), document.markdown, document.id);
-  const pages = new Map();
-  for (const section of snapshot.sections) {
-    const url = new URL(section.url);
-    if (!pages.has(url.pathname)) pages.set(url.pathname, await readFile(new URL(`../dist${url.pathname}index.html`, import.meta.url), 'utf8').catch(error => { throw new Error('Built HTML is required; run npm run build.', { cause: error }); }));
-    if (url.hash) assert.ok(pages.get(url.pathname).includes(`id="${url.hash.slice(1)}"`), section.url);
+  const documents = new Map(snapshot.documents.map(document => [document.id, document]));
+  const served = new Map(snapshot.sections.map(section => [section.id, section]));
+  for (const archived of snapshot.lookupSections) {
+    const document = documents.get(archived.source);
+    const section = served.get(archived.id);
+    assert.ok(document, `Missing archived document: ${archived.source}`);
+    assert.ok(section, `Missing packaged section: ${archived.id}`);
+    assert.equal(section.documentId, archived.source, archived.id);
+    assert.equal(section.start, archived.start, archived.id);
+    assert.equal(section.end, archived.end, archived.id);
+    assert.equal(section.content, document.markdown.slice(archived.start, archived.end), archived.id);
   }
 });
 

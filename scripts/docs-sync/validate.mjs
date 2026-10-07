@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import assert from 'node:assert/strict';
 import { readFile, writeFile, rm } from 'node:fs/promises';
 import { git, hash, publicationPath } from './prepare.mjs';
@@ -32,9 +32,12 @@ export async function validateSync(root) {
   }
   const mcp = JSON.parse(await read('output/mcp/snapshot.json'));
   assert.ok(mcp.provenance, 'MCP snapshot is missing provenance');
-  assert.equal(mcp.provenance.corpusSha256, hash(await read('dist/docs/corpus.json')));
+  const { loadSnapshot } = await import(pathToFileURL(resolve(root, 'mcp/load.mjs')));
+  const { deploymentRevision, ...artifact } = mcp;
+  assert.match(deploymentRevision, /^[a-f0-9]{40}$/);
+  assert.deepEqual(artifact, JSON.parse(JSON.stringify(await loadSnapshot())), 'MCP differs from the immutable package artifact');
   await writeFile(resolve(root, 'output/docs-sync/validated.json'), JSON.stringify({ ...state, corpusSha256: mcp.provenance.corpusSha256 }));
-  console.log('Validated archive bytes, publication hash, and website/MCP parity.');
+  console.log('Validated archive bytes, publication hash, and website delivery and immutable MCP artifact.');
 
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

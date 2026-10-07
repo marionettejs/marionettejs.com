@@ -1,12 +1,14 @@
 import { isCandidatePublication } from './publication-status.mjs';
 import assert from 'node:assert/strict';
-import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 
 export async function verifyMcp(endpoint, expectedRevision) {
-  const corpus = JSON.parse(await readFile(new URL('../dist/docs/corpus.json', import.meta.url), 'utf8'));
+  const { loadSnapshot } = await import('../mcp/load.mjs');
+  const snapshot = await loadSnapshot();
+  const corpus = { ...snapshot.provenance, documents: snapshot.documents };
   const version = corpus.packageVersion;
   const clients = [new Client({ name: 'marionette-http-verification', version: '1.0.0' }), new Client({ name: 'marionette-stdio-verification', version: '1.0.0' })];
   const responses = [];
@@ -29,7 +31,7 @@ export async function verifyMcp(endpoint, expectedRevision) {
     assert.deepEqual(clients[0].getServerVersion(), clients[1].getServerVersion());
     const tools = await clients[0].listTools();
     assert.deepEqual(tools, await clients[1].listTools());
-    assert.deepEqual(tools.tools.map(t => t.name).sort(), ['get_doc', 'get_example', 'get_sections', 'search_docs', 'search_sections']);
+    assert.deepEqual(tools.tools.map(t => t.name).sort(), ['get_diagnostic', 'get_doc', 'get_example', 'get_sections', 'get_symbol', 'search_docs', 'search_sections']);
     assert.ok(tools.tools.every(t => t.annotations.readOnlyHint && !t.annotations.openWorldHint));
     assert.deepEqual(await clients[0].listResources(), await clients[1].listResources());
     const catalogs = await Promise.all(clients.map(c => c.readResource({ uri: 'marionette://catalog' })));
@@ -52,6 +54,14 @@ export async function verifyMcp(endpoint, expectedRevision) {
     for (const query of ['Region', 'safely textContent', 'preserve draft while another list row changes', 'cancellation async startup', 'how do I diagnose MN0023?', 'zzzznosuchcontract', '__proto__', 'constructor', 'a'.repeat(200), 'View Region state data collection events render template lifecycle model application destroy '.repeat(2)]) {
       await call('search_docs', { query, limit: 10 });
     }
+    const symbol = await call('get_symbol', { name: 'Region.show' });
+    assert.equal(symbol.matches[0].member, 'show');
+    const diagnostic = await call('get_diagnostic', { code: 'MN0004' });
+    assert.equal(diagnostic.diagnostic.code, 'MN0004');
+    await call('get_doc', { path: diagnostic.documentId });
+    await call('get_symbol', { name: 'destroy', limit: 1, offset: 1 });
+    await call('get_symbol', { name: '../secret' }, true);
+    await call('get_diagnostic', { code: 'MN9999' }, true);
     const sections = await call('search_sections', { query: 'detachView', limit: 5 });
     const section = sections.results.find(item => item.characters <= 30_000);
     assert.ok(section);
@@ -94,8 +104,7 @@ export async function verifyMcp(endpoint, expectedRevision) {
       } while (offset !== null);
       assert.equal(text, doc.markdown);
     }
-    const { loadSnapshot } = await import('../mcp/load.mjs');
-    const localExamples = (await loadSnapshot()).examples;
+    const localExamples = snapshot.examples;
     for (const example of catalog.examples) {
       const localExample = localExamples.find(item => item.id === example.id);
       assert.ok(localExample, `Deployed example ${example.id} is absent from the local snapshot.`);
