@@ -6,12 +6,13 @@ Pages project: `marionette-v5`, production branch `main`.
 
 ## Architecture and Free limits
 
-`load.mjs` verifies the generated corpus, individual Markdown hashes, publication
-edits, and recipe runtime against the pinned manifest. It prepares the lexical
+`load.mjs` verifies archived Markdown, lookup assets, and recipe hashes against
+the pinned package manifest. Website reading-copy edits and supplements do not
+enter the MCP corpus. It prepares the lexical
 index and recipe hashes once. `tools.mjs` registers the shared tools and catalog.
 `server.mjs` serves stdio; `worker.mjs` uses `createMcpHandler` from
 `agents/mcp/server` with a fresh server per HTTP request. `npm run build` creates
-the same website and verified Worker snapshot. No runtime filesystem, outbound
+the website and its separately verified package-specific Worker snapshot. No runtime filesystem, outbound
 fetch, AI, database, Durable Object, persistent session, or secret binding exists.
 
 Cloudflare's stateless adapter also accepts the 2025 initialization protocol,

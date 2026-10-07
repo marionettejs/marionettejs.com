@@ -2,7 +2,7 @@ import { searchSections as rankSections } from '../content/library-docs/skills/m
 
 export function indexSections(sections, documents) {
   // Plain entries survive the JSON snapshot used by the HTTP Worker. Ranking
-  // uses the imported skill's implementation against website reading copies.
+  // uses the imported skill's implementation against exact artifact text.
   return {
     sections: sections.map(section => ({ id: section.id, source: section.documentId,
       start: section.start, end: section.end, heading: section.heading, ancestors: section.breadcrumbs })),

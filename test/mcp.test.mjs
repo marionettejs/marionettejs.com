@@ -11,7 +11,10 @@ import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 
 const root = new URL('../', import.meta.url);
 const command = fileURLToPath(new URL('../mcp/server.mjs', import.meta.url));
-const corpus = JSON.parse(await readFile(new URL('../dist/docs/corpus.json', import.meta.url), 'utf8'));
+const { loadSnapshot } = await import('../mcp/load.mjs');
+const { validateDiagnostics } = await import('../scripts/library-docs.mjs');
+const artifact = await loadSnapshot();
+const corpus = { ...artifact.provenance, documents: artifact.documents };
 const version = corpus.packageVersion;
 const unpack = response => {
   assert.notEqual(response.isError, true, JSON.stringify(response.content));
@@ -34,7 +37,7 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
   const pid = transport.pid;
   assert.equal(client.getServerVersion().name, 'marionette-docs');
   const { tools } = await client.listTools();
-  assert.deepEqual(tools.map(tool => tool.name).sort(), ['get_doc', 'get_example', 'get_sections', 'search_docs', 'search_sections']);
+  assert.deepEqual(tools.map(tool => tool.name).sort(), ['get_diagnostic', 'get_doc', 'get_example', 'get_sections', 'get_symbol', 'search_docs', 'search_sections']);
   assert.ok(tools.every(tool => tool.annotations.readOnlyHint && !tool.annotations.openWorldHint));
   const { resources } = await client.listResources();
   assert.deepEqual(resources.map(resource => resource.uri), ['marionette://catalog']);
@@ -53,6 +56,30 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
       }
     }
   }
+  assert.equal(catalog.provenance.corpusKind, 'package-artifact');
+  assert.equal(catalog.provenance.publicationEditsSha256, undefined);
+  const symbol = unpack(await client.callTool({ name: 'get_symbol', arguments: { sourceRevision: corpus.sourceRevision, name: 'Region.show', version } }));
+  assert.equal(symbol.matches[0].member, 'show');
+  for (const section of symbol.contracts.region.sections) {
+    const read = unpack(await client.callTool({ name: 'get_sections', arguments: { sourceRevision: corpus.sourceRevision, ids: [section], version } }));
+    assert.equal(read.sections[0].id, section);
+  }
+  const diagnostic = unpack(await client.callTool({ name: 'get_diagnostic', arguments: { sourceRevision: corpus.sourceRevision, code: 'MN0004', version } }));
+  assert.equal(diagnostic.diagnostic.code, 'MN0004');
+  const explanation = unpack(await client.callTool({ name: 'get_doc', arguments: { sourceRevision: corpus.sourceRevision, path: diagnostic.documentId, version } }));
+  assert.ok(explanation.content.includes(diagnostic.diagnostic.remediation));
+  assert.ok(diagnostic.relatedSections.length);
+  assert.equal(unpack(await client.callTool({ name: 'get_diagnostic', arguments: { sourceRevision: corpus.sourceRevision, code: 'MN0001', version } })).diagnostic.status, 'retired');
+  for (const [name, args] of [['get_symbol', { name: '../secret' }], ['get_symbol', { name: 'View', limit: 6 }],
+    ['get_symbol', { name: 'View', version: '4.1.3' }], ['get_diagnostic', { code: 'MN9999' }],
+    ['get_diagnostic', { code: 'mn0004' }], ['get_diagnostic', { code: 'MN0004', sourceRevision: '0'.repeat(40) }]]) {
+    assert.equal((await client.callTool({ name, arguments: { sourceRevision: corpus.sourceRevision, version, ...args } })).isError, true);
+  }
+  const firstMatch = unpack(await client.callTool({ name: 'get_symbol', arguments: { sourceRevision: corpus.sourceRevision, name: 'destroy', version, limit: 1 } }));
+  assert.equal(firstMatch.matches.length, 1);
+  assert.equal(firstMatch.nextOffset, 1);
+  const secondMatch = unpack(await client.callTool({ name: 'get_symbol', arguments: { sourceRevision: corpus.sourceRevision, name: 'destroy', version, limit: 1, offset: 1 } }));
+  assert.notEqual(secondMatch.matches[0].name, firstMatch.matches[0].name);
   const sectionSearch = unpack(await client.callTool({ name: 'search_sections', arguments: { sourceRevision: corpus.sourceRevision, query: 'detachView', version, limit: 5 } }));
   assert.ok(sectionSearch.results.length);
   assert.ok(sectionSearch.total <= 5);
@@ -124,7 +151,7 @@ test('official MCP client initializes a subprocess, retrieves exact contracts an
   assert.equal(search.results.length, 2);
   assert.ok(search.total > 2);
   assert.equal(search.nextOffset, 2);
-  assert.ok(search.results.every(result => result.snippet.length <= 600 && result.url.startsWith('https://marionettejs.com/')));
+  assert.ok(search.results.every(result => result.snippet.length <= 600 && result.url.startsWith('https://github.com/marionettejs/marionette/blob/')));
   const nextSearch = unpack(await client.callTool({ name: 'search_docs', arguments: { sourceRevision: corpus.sourceRevision, query: 'Region', version, offset: search.nextOffset, limit: 2 } }));
   assert.ok(nextSearch.results.every(result => !search.results.some(previous => previous.id === result.id)));
   const expected = corpus.documents.find(document => document.id === search.results[0].id);
@@ -219,31 +246,84 @@ test('server refuses stale provenance and tampered Markdown before serving tools
   await writeFile(join(fixture, 'dist/docs/corpus.json'), JSON.stringify(corpus));
   const loader = await import(new URL('mcp/load.mjs', new URL(`file://${fixture}/`)));
   assert.equal((await loader.loadSnapshot()).documents.length, corpus.documents.length);
-  const supplementalPath = join(fixture, 'content/supplemental-docs/manifest.json');
-  const supplementalBytes = await readFile(supplementalPath, 'utf8');
-  for (const change of [{ title: 'Stale title' }, { route: 'docs/guides/stale-route' }, { section: 'Stale section' }]) {
-    const changed = JSON.parse(supplementalBytes);
-    Object.assign(changed.pages[0], change);
-    await writeFile(supplementalPath, JSON.stringify(changed));
-    await assert.rejects(loader.loadSnapshot(), /provenance differs/);
+  // Website edits and supplements are not an input to the artifact corpus.
+  assert.equal((await loader.loadSnapshot()).documents.some(doc => doc.id === 'docs/guides/framework-migration.md'), false);
+  const manifestPath = join(fixture, 'content/library-docs/manifest.json');
+  const manifestBytes = await readFile(manifestPath, 'utf8');
+  const original = JSON.parse(manifestBytes);
+  const stale = structuredClone(original); stale.sourceRevision = '0'.repeat(40);
+  const digest = structuredClone(original); digest.contentSha256 = '0'.repeat(64);
+  for (const invalid of [digest, ...(corpus.publication.endsWith('(published on npm)') ? [stale] : [])]) {
+    await writeFile(manifestPath, JSON.stringify(invalid));
+    await assert.rejects(loader.loadSnapshot());
   }
-  await writeFile(supplementalPath, supplementalBytes);
-  const stale = structuredClone(corpus); stale.sourceRevision = '0'.repeat(40);
-  const tampered = structuredClone(corpus); tampered.documents[0].markdown += '\nUnverified replacement';
-  const publication = structuredClone(corpus); publication.publication = corpus.publication.endsWith('(published on npm)')
-    ? 'development candidate (local source)' : 'release candidate (published on npm)';
-  const missingReference = structuredClone(corpus); missingReference.documents = missingReference.documents.filter(doc => doc.id !== 'docs/architecture.md');
-  for (const invalid of [stale, tampered, publication, missingReference]) {
-    await writeFile(join(fixture, 'dist/docs/corpus.json'), JSON.stringify(invalid));
-    const child = spawn(process.execPath, [join(fixture, 'mcp/server.mjs')], { stdio: ['pipe', 'pipe', 'pipe'] });
-    let output = '', errors = '';
-    child.stdout.on('data', data => { output += data; });
-    child.stderr.on('data', data => { errors += data; });
-    const exit = once(child, 'exit'); child.stdin.end();
-    const [code] = await exit;
-    assert.equal(code, 1);
-    assert.equal(output, '');
-    assert.match(errors, /Unable to load Marionette documentation/);
-    assert.ok(!errors.includes(fixture), 'Startup errors must not expose local paths');
+  await writeFile(manifestPath, manifestBytes);
+  const source = join(fixture, 'content/library-docs', original.pages[0].source);
+  await writeFile(source, (await readFile(source, 'utf8')) + '\nUnverified replacement');
+  const child = spawn(process.execPath, [join(fixture, 'mcp/server.mjs')], { stdio: ['pipe', 'pipe', 'pipe'] });
+  let output = '', errors = '';
+  child.stdout.on('data', data => { output += data; });
+  child.stderr.on('data', data => { errors += data; });
+  const exit = once(child, 'exit'); child.stdin.end();
+  const [code] = await exit;
+  assert.equal(code, 1);
+  assert.equal(output, '');
+  assert.match(errors, /Unable to load Marionette documentation/);
+  assert.ok(!errors.includes(fixture), 'Startup errors must not expose local paths');
+});
+
+test('MCP contract text is byte-identical to the archived package, excluding website reading copies', async () => {
+  const manifest = JSON.parse(await readFile(new URL('../content/library-docs/manifest.json', import.meta.url), 'utf8'));
+  for (const page of manifest.pages) {
+    const content = await readFile(new URL(`../content/library-docs/${page.source}`, import.meta.url), 'utf8');
+    const document = artifact.documents.find(doc => doc.id === page.source);
+    assert.ok(document, `Missing archived page: ${page.source}`);
+    assert.equal(document.markdown, content, page.source);
+    assert.equal(document.sourceSha256, document.sha256);
+    assert.equal(document.sourceRevision, manifest.sourceRevision);
+  }
+  assert.equal(artifact.documents.some(doc => doc.id === 'docs/guides/framework-migration.md'), false);
+});
+
+
+test('diagnostic document inputs reject missing text, unsupported catalogs, and duplicate codes', async () => {
+  const schema2 = JSON.parse(await readFile(new URL('../content/library-docs/config/diagnostics/catalog.schema.json', import.meta.url), 'utf8'));
+  const schema3 = structuredClone(schema2);
+  schema3.properties.schemaVersion.const = 3;
+  schema3.definitions.diagnostic.required.push('docsSection');
+  schema3.definitions.diagnostic.properties.docsSection = { type: 'string', pattern: '^docs/api/errors\\.md#mn[0-9]{4}$' };
+  const validate = (catalog, sections) => validateDiagnostics(catalog, catalog?.schemaVersion === 3 ? schema3 : schema2, sections);
+  const diagnostic = { code: 'MN0004', slug: 'region-el-required', status: 'active', remediation: 'Supply an element.',
+    category: 'ownership', severity: 'error', benchmarkCategory: 'ownership', objects: ['Region'], surfaces: ['runtime'], docsAnchor: '/errors/MN0004/' };
+  const catalog = { $schema: './catalog.schema.json', schemaVersion: 2, diagnostics: [diagnostic] };
+  assert.deepEqual(validate(catalog), [diagnostic]);
+  const nextDiagnostic = { ...diagnostic, docsSection: 'docs/api/errors.md#mn0004' };
+  const sections = new Set([nextDiagnostic.docsSection]);
+  assert.deepEqual(validate({ ...catalog, schemaVersion: 3, diagnostics: [nextDiagnostic] }, sections), [nextDiagnostic]);
+  assert.throws(() => validate({ ...catalog, schemaVersion: 3, diagnostics: [nextDiagnostic] }, new Set()), /Invalid packaged diagnostic section/);
+  assert.throws(() => validate({ ...catalog, schemaVersion: 3,
+    diagnostics: [{ ...nextDiagnostic, docsSection: 'docs/api/errors.md#mn0005' }] }, sections), /Invalid packaged diagnostic section/);
+  for (const value of [null, {}, { ...catalog, schemaVersion: 99 }, { ...catalog, diagnostics: [] }]) {
+    assert.throws(() => validate(value), /Unsupported or incomplete diagnostic catalog/);
+  }
+  for (const change of [{ slug: undefined }, { slug: ' ' }, { remediation: undefined }, { remediation: 4 },
+    { remediation: '' }, { status: undefined }, { status: 'unknown' }, { code: 'bad' }, { code: ['MN0004'] },
+    { objects: undefined }, { objects: [] }, { surfaces: [null] }, { category: undefined }, { severity: undefined },
+    { docsAnchor: '/errors/MN0005/' }, { slug: 'Invalid_slug' }, { category: 'other' }, { severity: 'fatal' },
+    { benchmarkCategory: 'other' }, { objects: ['Unknown'] }, { surfaces: ['other'] },
+    { objects: ['Region', 'Region'] }, { surfaces: ['runtime', 'runtime'] }, { extra: true }, { status: 'deprecated' }, { status: 'deprecated', replacementCode: ['MN0005'] },
+    { replacementCode: 'MN0005' }]) {
+    for (const schemaVersion of [2, 3]) {
+      const entry = schemaVersion === 3 ? nextDiagnostic : diagnostic;
+      assert.throws(() => validate({ ...catalog, schemaVersion, diagnostics: [{ ...entry, ...change }] }, sections), /Invalid diagnostic catalog/);
+    }
+  }
+  assert.throws(() => validate({ ...catalog, diagnostics: [diagnostic, diagnostic] }), /Invalid diagnostic catalog/);
+  assert.throws(() => validate({ ...catalog, diagnostics: [{ ...diagnostic, code: 'MN0005', docsAnchor: '/errors/MN0005/' }, diagnostic] }), /Invalid diagnostic catalog/);
+  assert.throws(() => validate({ ...catalog, schemaVersion: 3, diagnostics: [diagnostic] }, sections), /Invalid diagnostic catalog/);
+  const deprecated = { ...diagnostic, code: 'MN0003', slug: 'old-region', docsAnchor: '/errors/MN0003/', status: 'deprecated', replacementCode: diagnostic.code };
+  assert.deepEqual(validate({ ...catalog, diagnostics: [deprecated, diagnostic] }), [deprecated, diagnostic]);
+  for (const replacementCode of ['MN0003', 'MN9999']) {
+    assert.throws(() => validate({ ...catalog, diagnostics: [{ ...deprecated, replacementCode }, diagnostic] }), /Invalid diagnostic replacement/);
   }
 });

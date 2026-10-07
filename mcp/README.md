@@ -5,8 +5,8 @@ retrieval. No server login, API key, subscription, or model inference is require
 Your agent client's own access and model costs are separate.
 
 The hosted Cloudflare Worker and the optional local, read-only stdio server share
-`search_docs`, `get_doc`, `search_sections`, `get_sections`, `get_example`, and `marionette://catalog`. Both serve the
-same verified website corpus and packaged records example. This integration
+`search_docs`, `get_doc`, `search_sections`, `get_sections`, `get_symbol`, `get_diagnostic`, `get_example`, and `marionette://catalog`. Both serve the
+same verified package artifact and packaged records example. Website reading-copy edits and supplemental guides are excluded from MCP contracts. Links identify the immutable source revision. This integration
 targets `marionette@5.0.0-rc.2` across docs, browser demos and workshops. Importing or
 building does not update the hosted endpoint: read its catalog before using it.
 
@@ -14,6 +14,8 @@ building does not update the hosted endpoint: read its catalog before using it.
 application's installed package: `docs-manifest.json` is at the package root and
 Markdown is under `docs/`. Use the
 [consumer skill helper](https://marionettejs.com/docs/agents/) if available.
+Use `get_symbol` for exact API signatures and contract section IDs, and `get_diagnostic` for an MN code’s remediation and retrievable document ID. Ambiguous symbol names support bounded pagination.
+
 Compare its version and source revision with the MCP catalog. A custom build with
 the same version label may contain different code. If they do not match, use the
 installed docs; never substitute the hosted snapshot for another version.
@@ -84,7 +86,7 @@ Report the provenance and explain the contract. Do not modify the application.
 ## Optional local stdio server
 
 Use Node.js 24 or newer. Clone and review the website source, then install its
-locked dependencies and build the same corpus the website serves:
+locked dependencies and build the package-specific MCP corpus:
 
 ```sh
 git clone https://github.com/marionettejs/marionettejs.com.git

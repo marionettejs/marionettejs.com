@@ -1,3 +1,4 @@
+import Ajv from 'ajv';
 import { headingId } from './heading-ids.mjs';
 import { buildAgentDiscovery } from './agent-discovery.mjs';
 import { publishedMarkdown, publishedTitles, publishedChannel, publicationStatus, readingRevision } from './published-docs.mjs';
@@ -178,7 +179,9 @@ export async function buildLibraryDocs({ directory, out, shell }) {
   }
   await writeFile(resolve(out, 'docs/schema-provenance.json'), `${JSON.stringify(schemaSource, null, 2)}\n`);
   const catalog = assets.find(asset => asset.source === 'config/diagnostics/catalog.json');
-  await buildDiagnostics({ out, shell, manifest, asset: catalog });
+  await buildDiagnostics({ out, shell, manifest, asset: catalog,
+    schema: JSON.parse(assets.find(asset => asset.source === 'config/diagnostics/catalog.schema.json').content),
+    sectionIds: new Set(JSON.parse(assets.find(asset => asset.source === 'docs-sections.json').content).sections.map(section => section.id)) });
   await buildAgentDiscovery({ out, manifest, pages, assets, shell, renderMarkdown });
   const searchUrls = [...pages.map(page => `/${page.route}/`),
     ...JSON.parse(catalog.content).diagnostics.map(diagnostic => diagnostic.docsAnchor),
@@ -208,9 +211,38 @@ export async function verifySearchIndex(directory, expectedPages) {
   }
 }
 
-async function buildDiagnostics({ out, shell, manifest, asset }) {
+// Schema 2 belongs to the currently served rc.2 archive; keep it until that archive is retired.
+export function validateDiagnostics(catalog, schema, sectionIds = new Set()) {
+  if (![2, 3].includes(catalog?.schemaVersion) || !Array.isArray(catalog.diagnostics) || !catalog.diagnostics.length) {
+    throw new Error('Unsupported or incomplete diagnostic catalog.');
+  }
+  const ajv = new Ajv({ allErrors: true });
+  const validate = ajv.compile(schema);
+  if (!validate(catalog)) throw new Error(`Invalid diagnostic catalog: ${ajv.errorsText(validate.errors)}`);
+  const codes = new Set();
+  const slugs = new Set();
+  for (const diagnostic of catalog.diagnostics) {
+    if (codes.has(diagnostic.code) || slugs.has(diagnostic.slug) || diagnostic.docsAnchor !== `/errors/${diagnostic.code}/`) {
+      throw new Error('Invalid diagnostic catalog: duplicate identity or mismatched route.');
+    }
+    if (catalog.schemaVersion === 3 && (diagnostic.docsSection !== `docs/api/errors.md#${diagnostic.code.toLowerCase()}` ||
+        !sectionIds.has(diagnostic.docsSection))) {
+      throw new Error('Invalid packaged diagnostic section.');
+    }
+    codes.add(diagnostic.code);
+    slugs.add(diagnostic.slug);
+  }
+  for (const diagnostic of catalog.diagnostics) {
+    if (diagnostic.status === 'deprecated' && (diagnostic.replacementCode === diagnostic.code || !codes.has(diagnostic.replacementCode))) {
+      throw new Error('Invalid diagnostic replacement code.');
+    }
+  }
+  return catalog.diagnostics;
+}
+
+async function buildDiagnostics({ out, shell, manifest, asset, schema, sectionIds }) {
   const catalog = JSON.parse(asset.content);
-  if (catalog.schemaVersion !== 2 || !Array.isArray(catalog.diagnostics)) throw new Error('Unsupported diagnostic catalog.');
+  validateDiagnostics(catalog, schema, sectionIds);
   await mkdir(resolve(out, 'errors'), { recursive: true });
   await writeFile(resolve(out, 'docs/diagnostics.json'), asset.content);
   await mkdir(resolve(out, 'docs/markdown', posix.dirname(asset.source)), { recursive: true });
@@ -220,7 +252,6 @@ async function buildDiagnostics({ out, shell, manifest, asset }) {
   let index = '# Diagnostic codes\n\n';
   const referenceSources = { Radio: 'docs/packages/radio.md', StateApi: 'docs/api/providers/data.md' };
   for (const diagnostic of catalog.diagnostics) {
-    if (!/^MN[0-9]{4}$/.test(diagnostic.code) || diagnostic.docsAnchor !== `/errors/${diagnostic.code}/`) throw new Error('Invalid diagnostic route.');
     const title = `${diagnostic.code}: ${diagnostic.slug.replaceAll('-', ' ')}`;
     const references = diagnostic.objects.map(name => manifest.pages.find(page =>
       referenceSources[name] ? page.source === referenceSources[name] : page.title === name))
