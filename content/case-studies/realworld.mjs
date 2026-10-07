@@ -22,7 +22,7 @@ export const realworld = {
   dateLabel: 'October 5, 2026',
   image: { caption: 'Editorial illustration', src: `${assets}/development-progression-v2.png`, width: 1800, height: 960, alt: 'Editorial illustration comparing Waterfall, Agile, AI, and Marionette development through successive vehicle designs.' },
   disclosure: '',
-  conclusion: `An agent built a RealWorld frontend with Marionette v5 RC2, with payload size and navigation performance competitive with the ${link('docs/benchmark-comparison.md', 'selected client-side implementations measured here')}. The study follows three development stages and compares Vue, React FSD, Angular, and SvelteKit.`,
+  conclusion: `An agent built a RealWorld frontend with Marionette v5 RC2, with payload size and navigation performance competitive with the Vue, React FSD, and Angular client apps measured here. The study follows three development stages, with a ${link('docs/benchmark-comparison.md', 'measured comparison')} that also includes SvelteKit with SSR.`,
   sections: [
     {
       id: 'development', label: 'Three development stages', title: 'What did the agent need to do?',
@@ -64,7 +64,7 @@ export const realworld = {
       <p>The application still defines credential authority, read/write ordering, draft comparisons, and cleanup for its own resources. Lifecycle conventions give those decisions a home. Runtime results do not prove superior agent development: a matched experiment would need equal requirements, agent settings and budgets, repeated runs, and measurements of time, interventions, defects, and maintenance effort.</p>`
     }
   ],
-  methodology: `<details id="methodology" class="study-disclosure study-methodology"><summary>Evidence and methodology</summary><div class="study-disclosure-body">
+  methodology: `<details id="methodology" class="study-disclosure study-methodology"><summary>Evidence and methodology</summary><div class="study-disclosure-body"><p>This was not a matched agent-development experiment across frameworks; runtime measurements do not measure agent productivity.</p>
     ${disclosure('The prompt behind this case study', `<p>Commissioning request transcribed below; its local asset directory is redacted.</p><pre class="study-prompt" tabindex="0" aria-label="Prompt text">${escape(read('./realworld-brief.txt'))}</pre>`)}
     <p>This study is published by the Marionette project. All comparison measurements come from <code>docs/metrics/full-final-run</code>, recorded ${metrics.run} (October 5, 2026, 00:01 Asia/Seoul), at ${link('docs/metrics/README.md', 'evidence snapshot 00dc2c8')}. The evidence guide maps recorded source snapshots to the three application commits; it establishes source equivalence, not rebuilt artifact identity.</p>
     <p>Marionette and companion packages: 5.0.0-rc.2, with Lit rendering. ${link('docs/metrics/full-final-run/build.json', 'Final build/source manifest')} and ${link('docs/metrics/reference-run/builds.json', 'reference revisions, runtime versions and source counts')} preserve exact identities. Reference artifacts were reused, not rebuilt for the final run. The saved npm locks and patches describe preparation; a second clean installation replay remains unverified.</p>
