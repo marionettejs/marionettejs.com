@@ -46,7 +46,7 @@ export const roundingwell = {
     },
     {
       id: 'behavior', label: 'Regression coverage', title: 'Protect the workflow.',
-      body: `<p>Existing browser journeys protect care-team workflows. Added scenarios check that cards remain during refresh, failed loads can be retried, and sidebar navigation stays available while data loads.</p>
+      body: `<p>The application has an established browser-test suite for care-team workflows. The linked refinement scenarios check that cards remain during refresh, failed loads can be retried, and sidebar navigation stays available while data loads.</p>
       <p>Those user-visible contracts give future changes something concrete to preserve. ${source(refinedRevision, `${worklist}worklist-loading.e2e.cy.js`, 'Read the loading scenarios')} · <a href="${repo}/pull/1825">Verification record</a></p>`
     },
     {
@@ -63,7 +63,7 @@ export const roundingwell = {
     },
   ],
   methodology: `<details id="methodology" class="study-disclosure study-methodology"><summary>Evidence and methodology</summary><div class="study-disclosure-body">
-    <p>Published by the Marionette project. Source links pin the <a href="${repo}/pull/1815">initial migration</a> and <a href="${repo}/pull/1825">lifecycle refinement</a> separately; loading scenarios use <code>${refinedRevision}</code>. The owner confirms v5 is effectively deployed in production. Verification history is linked, not rerun for this article.</p>
+    <p>Published by the Marionette project. The migration combined human direction and agent assistance; it was not a controlled agent-development experiment. Source links pin the <a href="${repo}/pull/1815">initial migration</a> and <a href="${repo}/pull/1825">lifecycle refinement</a> separately; loading scenarios use <code>${refinedRevision}</code>. Paul Falgout, who also maintains Marionette, confirms that the v5 upgrade is deployed in production. Verification history is linked, not rerun for this article.</p>
     <p>Benchmark: September 23, 2026 (Asia/Seoul), Apple M2 Pro, 16 GiB RAM, headless Chrome 153.0.8010.53, 1440 × 1000, unthrottled, warm caches. <a href="${assets}/evidence/provenance.json">Exact package versions, source pins, and file hashes</a> identify both benchmark builds.</p>
     <p>Each configuration used 15 alternating branch pairs after two discarded warmups, with no outliers removed. The preserved data contains 360 measured sequences and 2,760 operation timings. Recorded assertions cover list behavior and teardown. An earlier run missing global design tokens was excluded. Exploratory bootstrap ranges describe local variation; cold startup, full navigation, mobile use, live APIs, paint timing, and memory retention were not measured. At 5,000 rows, rendering still took seconds on both branches.</p>
     <p><a href="${assets}/evidence/README.md">Full method and limits</a> · <a href="${assets}/evidence/summary.csv">Complete summary</a> · <a href="${assets}/evidence/results.json">Raw 100–1,000-row samples</a> · <a href="${assets}/evidence/results-5000.json">Raw 5,000-row samples</a>. The table reads the preserved CSV directly. The hero pairs the RoundingWell and Marionette vector logos; the worklist image is a browser capture with synthetic data.</p>
