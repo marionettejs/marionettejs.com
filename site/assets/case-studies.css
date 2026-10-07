@@ -8,9 +8,6 @@
 .study-card p:not(.eyebrow) { color:#c5c5cb; margin-bottom:22px; }
 .study-heading { max-width:1400px; margin:auto; padding-bottom:38px; border:0; }
 .study-back { font-size:.85rem; }
-.study-tldr { max-width:900px; margin-top:28px; padding:22px 26px; border-left:3px solid var(--red); background:#1b1c21; }
-.study-tldr h2 { margin:0 0 12px; font-size:1rem; letter-spacing:.04em; color:#f1f0ed; }
-.study-tldr p { margin:0; color:#c5c5cb; line-height:1.7; }
 .study-heading h1 { max-width:1100px; font-size:clamp(2.6rem,5.8vw,5rem); line-height:1.06; letter-spacing:-.045em; }
 .study-heading>p.study-conclusion { max-width:900px; text-wrap:pretty; line-height:1.7; }
 .study-heading>p.study-byline { margin-top:18px; font-size:.8rem; color:var(--muted); }
@@ -62,8 +59,6 @@
  .study-disclosure-body { padding-inline:12px; }
 }
 @media print {
- .study-tldr { background:transparent; }
- .study-tldr h2,.study-tldr p { color:#17191e; }
  .study-card,.study-disclosure,.study tbody tr:first-child,.study thead th { background:transparent; }
  .study-table-scroll { overflow:visible; }
  .study-hero { width:75%; }

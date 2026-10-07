@@ -20,10 +20,9 @@ export const realworld = {
   label: '01 / REALWORLD',
   date: '2026-10-05',
   dateLabel: 'October 5, 2026',
-  tldr: 'An agent built a full Conduit frontend with Marionette v5 RC2 through review and refinement, with measured payload and navigation results competitive with selected client frameworks; SSR SvelteKit remained smaller and faster to show the feed.',
   image: { caption: 'Editorial illustration', src: `${assets}/development-progression-v2.png`, width: 1800, height: 960, alt: 'Editorial illustration comparing Waterfall, Agile, AI, and Marionette development through successive vehicle designs.' },
   disclosure: disclosure('The prompt behind this case study', `<pre class="study-prompt" tabindex="0" aria-label="Prompt text">${escape(read('./realworld-brief.txt'))}</pre>`),
-  conclusion: `RealWorld’s Conduit specification calls for authentication, feeds, articles, comments, profiles, and editing. This study follows three stages of agent development, then compares the resulting frontend with selected Vue, React FSD, Angular, and SvelteKit implementations. ${link('docs/benchmark-comparison.md', 'Read the comparison.')} <a href="${repo}">Explore the example.</a>`,
+  conclusion: 'An agent built a Conduit frontend with Marionette v5 RC2. Its measured payload and navigation results were competitive with selected client implementations, while SSR SvelteKit was smaller and faster to show the feed.',
   sections: [
     {
       id: 'development', label: 'Three development stages', title: 'What did the agent need to do?',

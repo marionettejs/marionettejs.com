@@ -22,7 +22,6 @@ export function studyPage(study) {
     body: `<article class="study">
       <header class="article-heading study-heading">
         <a class="study-back" href="/case-studies/">← Case studies</a>
-        ${study.tldr ? `<section class="study-tldr" aria-labelledby="tldr-title"><h2 id="tldr-title">TL;DR</h2><p>${escape(study.tldr)}</p></section>` : ''}
         <p class="eyebrow">${study.label}</p><h1>${study.title}</h1>
         <p class="study-conclusion">${study.conclusion}</p>
         <p class="study-byline">Published by the Marionette project · <time datetime="${study.date}">${study.dateLabel}</time></p>
