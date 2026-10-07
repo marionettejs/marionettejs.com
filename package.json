@@ -27,7 +27,7 @@
   "devDependencies": {
     "@babel/parser": "8.0.4",
     "@mnjs/data": "5.0.0-rc.2",
-    "@modelcontextprotocol/client": "2.0.0",
+    "@modelcontextprotocol/client": "2.2.0",
     "@modelcontextprotocol/server": "2.0.0",
     "agents": "0.22.0",
     "ajv": "8.20.0",
