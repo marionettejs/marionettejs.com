@@ -77,7 +77,7 @@ Disclose that the Marionette project publishes this study. Preserve evidence acc
 Images and prompt disclosure
 
 Use this existing image for the hero and social/share image:
- /Users/paulfalgout/Documents/Marionette Marketing/marionette-development-progression.png
+ [local asset directory redacted]/marionette-development-progression.png
 
 Copy it into website assets. Preserve its full composition and readable labels; use padding where share-image dimensions require adaptation. Add appropriate alt text and metadata.
 
