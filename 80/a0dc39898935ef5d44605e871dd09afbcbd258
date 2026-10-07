@@ -1,0 +1,30 @@
+content/case-studies.mjs
+  h_0f06c286dda36f 10,19-35,42,48
+content/case-studies/vikunja.mjs
+  h_0f06c286dda36f 16,28
+scripts/agent-discovery.mjs
+  h_0f06c286dda36f 60
+scripts/build.mjs
+  h_0f06c286dda36f 101
+site/assets/case-studies.css
+  h_0f06c286dda36f 10-11,70-99
+site/assets/image-comparison.js
+  h_0f06c286dda36f 1-42
+site/assets/site.js
+  h_0f06c286dda36f 72-75
+test/case-studies.test.mjs
+  h_0f06c286dda36f 4,10,16-36
+test/site.test.mjs
+  h_0f06c286dda36f 112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "80a0dc39898935ef5d44605e871dd09afbcbd258",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
