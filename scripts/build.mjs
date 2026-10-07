@@ -76,7 +76,7 @@ const revision = await promisify(execFile)('git', ['log', '-1', '--format=%cI'],
   .then(({ stdout }) => utcDate(stdout.trim()), () => new Date().toISOString().slice(0, 10));
 const siteRevision = (await promisify(execFile)('git', ['rev-parse', 'HEAD'], { cwd: root })).stdout.trim();
 export const escape = text => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
-const navigation = active => `<nav aria-label="Main navigation"><a ${active === 'why' ? 'aria-current="page"' : ''} href="/why/">Why Marionette</a><a ${active === 'docs' ? 'aria-current="page"' : ''} href="/docs/">Documentation</a><a ${active === 'examples' ? 'aria-current="page"' : ''} href="/demos/">Demos</a><a ${active === 'case-studies' ? 'aria-current="page"' : ''} href="/case-studies/">Case studies</a><a class="nav-example" href="https://github.com/marionettejs/marionette">GitHub <span aria-hidden="true">↗</span></a></nav>`;
+const navigation = active => `<nav aria-label="Main navigation"><a ${active === 'why' ? 'aria-current="page"' : ''} href="/why/">Why Marionette</a><a ${active === 'docs' ? 'aria-current="page"' : ''} href="/docs/">Documentation</a><a ${active === 'examples' ? 'aria-current="page"' : ''} href="/demos/">Demos</a><a ${active === 'case-studies' ? 'aria-current="page"' : ''} href="/case-studies/">Case Studies</a><a class="nav-example" href="https://github.com/marionettejs/marionette">GitHub <span aria-hidden="true">↗</span></a></nav>`;
 const siteOrigin = 'https://marionettejs.com';
 const shareImage = `${siteOrigin}/assets/marionette-social.png`;
 const socialMetadata = ({title, description, route, image, date}) => `
