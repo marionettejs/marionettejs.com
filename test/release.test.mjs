@@ -9,7 +9,7 @@ import { runInNewContext } from 'node:vm';
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('public release-candidate pages are canonical and indexable while mirrors stay noindexed', async () => {
-  for (const path of ['index.html', 'why/index.html', 'case-studies/index.html', 'case-studies/realworld/index.html', 'case-studies/roundingwell/index.html', 'docs/index.html', 'docs/quick-start/index.html']) {
+  for (const path of ['index.html', 'why/index.html', 'case-studies/index.html', 'case-studies/realworld/index.html', 'case-studies/roundingwell/index.html','case-studies/vikunja/index.html', 'docs/index.html', 'docs/quick-start/index.html']) {
     const html = await read(`dist/${path}`);
     const canonical = `https://marionettejs.com/${path.replace(/index\.html$/, '')}`;
     assert.equal(html.match(/rel="canonical" href="([^"]+)"/)?.[1], canonical);
@@ -134,9 +134,9 @@ test('published pages keep a validator and the sitemap dates every entry', async
   const manifest = JSON.parse(await read('content/library-docs/manifest.json'));
   const catalog = JSON.parse(await read('dist/docs/diagnostics.json'));
   const supplemental = JSON.parse(await read('content/supplemental-docs/manifest.json'));
-  assert.equal(entries.length, manifest.pages.length + supplemental.pages.length + catalog.diagnostics.length + 12);
+  assert.equal(entries.length, manifest.pages.length + supplemental.pages.length + catalog.diagnostics.length + 13);
   for (const page of supplemental.pages) assert.ok(sitemap.includes(`<loc>https://marionettejs.com/${page.route}/</loc>`));
-  for (const route of ['/case-studies/', '/case-studies/realworld/', '/case-studies/roundingwell/']) {
+  for (const route of ['/case-studies/', '/case-studies/realworld/', '/case-studies/roundingwell/', '/case-studies/vikunja/']) {
     assert.ok(sitemap.includes(`<loc>https://marionettejs.com${route}</loc>`), route);
   }
   const dates = new Set();

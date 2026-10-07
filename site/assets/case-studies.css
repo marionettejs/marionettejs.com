@@ -64,3 +64,5 @@
  .study-hero { width:75%; }
  .study table,.study-screenshots figure { break-inside:avoid; }
 }
+.study #reuse table { table-layout:fixed; }
+.study #reuse th,.study #reuse td { text-align:left; white-space:normal; overflow-wrap:anywhere; }
