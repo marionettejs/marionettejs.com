@@ -71,7 +71,7 @@
 /* Equal 720 × 451 app crops from the unmodified 1520 × 685 paired capture.
    Vue: x=40,y=183; Marionette: x=760,y=183. No color or alignment correction. */
 .study-comparison-hero { max-width:1000px; }
-.study-comparison-frame { position:relative; aspect-ratio:720/451; overflow:hidden; border:1px solid var(--line); border-radius:8px; --comparison-split:50%; }
+.study-comparison-frame { position:relative; aspect-ratio:720/451; overflow:hidden; box-shadow:0 0 0 1px var(--line); border-radius:8px; --comparison-split:50%; }
 .study-comparison-crop { position:absolute; inset:0; overflow:hidden; }
 .study-comparison-crop img { position:absolute; width:211.111111%; max-width:none; height:auto; left:-105.555556%; top:-40.576497%; }
 .study-comparison-before { clip-path:inset(0 calc(100% - var(--comparison-split)) 0 0); }
