@@ -29,13 +29,13 @@ export const roundingwell = {
   date: '2026-10-05',
   dateLabel: 'October 5, 2026',
   image: { src: `${assets}/brand-panels.png`, width: 1729, height: 910, caption: 'RoundingWell × Marionette', alt: 'RoundingWell’s white symbol and wordmark in a blue rounded panel beside Marionette’s white symbol and wordmark in a red rounded panel. An established product. A new chapter.' },
-  disclosure: '<details class="study-disclosure"><summary>About this account</summary><div class="study-disclosure-body"><p>Published by the Marionette project. The migration combined human direction and agent assistance as the framework and its guidance evolved. It was not a controlled agent-development experiment.</p></div></details>',
-  conclusion: 'RoundingWell migrated from Backbone.Marionette to v5 while preserving its care-team workflows. Clearer application boundaries and faster measured worklist operations provide a foundation for continued development.',
+  disclosure: '',
+  conclusion: 'RoundingWell upgraded a complex production application from Backbone.Marionette to v5, making refresh and cancellation lifecycles explicit while retaining its existing services and data.',
   sections: [
     {
       id: 'application', label: 'The application', title: 'An application already at work.',
       body: `<p><a href="https://www.roundingwell.com/">RoundingWell</a> helps care teams organize workflows, worklists, forms, and follow-up. Its frontend is a substantial application used in daily work, with years of product decisions and an established browser-test suite behind it.</p>
-      <p>The migration preserved that investment while removing application jQuery and Marionette.Toolkit. Backbone data and routing, Handlebars templates, and the service layer stayed. <a href="${repo}">Explore the application</a> · ${source(migrationRevision, 'src/js/base/setup.js', 'Runtime integration')}</p>
+      <p>The migration preserved that investment while removing application jQuery and Marionette.Toolkit. Backbone data and routing, Handlebars templates, and the service layer stayed by choice; Marionette v5 does not require Backbone. <a href="${repo}">Explore the application</a> · ${source(migrationRevision, 'src/js/base/setup.js', 'Runtime integration')}</p>
       <figure class="study-capture"><a href="${assets}/worklist-benchmark.png"><img src="${assets}/worklist-benchmark.png" width="1440" height="1000" loading="lazy" alt="RoundingWell action-card views with synthetic Alice and Bob records, assignment controls, dates, and checkboxes."></a><figcaption>Real action-card views with synthetic data, captured in the worklist benchmark harness. <a href="${assets}/worklist-benchmark.png">Open full size</a>.</figcaption></figure>`
     },
     {
@@ -46,7 +46,7 @@ export const roundingwell = {
     },
     {
       id: 'behavior', label: 'Regression coverage', title: 'Protect the workflow.',
-      body: `<p>An early migration revision passed 304 E2E tests across 35 existing specs, with two scenarios passing on retry. The migration also adds coverage for retaining cards during refresh, retrying failed loads, and keeping sidebar navigation available while data loads.</p>
+      body: `<p>The application has an established browser-test suite for care-team workflows. The linked refinement scenarios check that cards remain during refresh, failed loads can be retried, and sidebar navigation stays available while data loads.</p>
       <p>Those user-visible contracts give future changes something concrete to preserve. ${source(refinedRevision, `${worklist}worklist-loading.e2e.cy.js`, 'Read the loading scenarios')} · <a href="${repo}/pull/1825">Verification record</a></p>`
     },
     {
@@ -63,7 +63,7 @@ export const roundingwell = {
     },
   ],
   methodology: `<details id="methodology" class="study-disclosure study-methodology"><summary>Evidence and methodology</summary><div class="study-disclosure-body">
-    <p>Source links pin the <a href="${repo}/pull/1815">initial migration</a> and <a href="${repo}/pull/1825">lifecycle refinement</a> separately. The refined source revision is <code>${refinedRevision}</code>. The verification record reports passing component/E2E CI and 100% instrumented line/branch coverage, with documented exclusions and narrow ignores. Application tests and benchmarks were not rerun for this article; their historical results do not establish production deployment or defect-free behavior.</p>
+    <p>Published by the Marionette project. The migration combined human direction and agent assistance; it was not a controlled agent-development experiment. Source links pin the <a href="${repo}/pull/1815">initial migration</a> and <a href="${repo}/pull/1825">lifecycle refinement</a> separately; loading scenarios use <code>${refinedRevision}</code>. Paul Falgout, who also maintains Marionette, confirms that the v5 upgrade is deployed in production. Verification history is linked, not rerun for this article.</p>
     <p>Benchmark: September 23, 2026 (Asia/Seoul), Apple M2 Pro, 16 GiB RAM, headless Chrome 153.0.8010.53, 1440 × 1000, unthrottled, warm caches. <a href="${assets}/evidence/provenance.json">Exact package versions, source pins, and file hashes</a> identify both benchmark builds.</p>
     <p>Each configuration used 15 alternating branch pairs after two discarded warmups, with no outliers removed. The preserved data contains 360 measured sequences and 2,760 operation timings. Recorded assertions cover list behavior and teardown. An earlier run missing global design tokens was excluded. Exploratory bootstrap ranges describe local variation; cold startup, full navigation, mobile use, live APIs, paint timing, and memory retention were not measured. At 5,000 rows, rendering still took seconds on both branches.</p>
     <p><a href="${assets}/evidence/README.md">Full method and limits</a> · <a href="${assets}/evidence/summary.csv">Complete summary</a> · <a href="${assets}/evidence/results.json">Raw 100–1,000-row samples</a> · <a href="${assets}/evidence/results-5000.json">Raw 5,000-row samples</a>. The table reads the preserved CSV directly. The hero pairs the RoundingWell and Marionette vector logos; the worklist image is a browser capture with synthetic data.</p>
