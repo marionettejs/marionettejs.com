@@ -21,9 +21,9 @@ export const realworld = {
   date: '2026-10-05',
   dateLabel: 'October 5, 2026',
   tldr: [
-    'An AI-assisted Conduit frontend covers authentication, feeds, articles, comments, profiles, and editing.',
-    'Named features own drafts, requests, and cleanup, giving changes a clear place to belong.',
-    'Initial JavaScript was 55.6 KiB gzip, with desktop feed readiness comparable to Vue; SSR SvelteKit was smaller and faster to show the feed. Agent productivity was not measured.',
+    'An agent built a Conduit frontend with Marionette v5 RC2; review and follow-up fixes were needed to get it there.',
+    'Against selected Vue, React FSD, Angular, and SvelteKit implementations, Marionette delivered 55.6 KiB of initial JavaScript gzip and desktop feed readiness comparable to Vue. SSR SvelteKit was smaller and faster to show the feed.',
+    'Explicit owners for drafts, requests, and cleanup made the implementation inspectable. This demonstrates an agent-assisted build, not comparative agent productivity.',
   ],
   image: { caption: 'Editorial illustration', src: `${assets}/development-progression-v2.png`, width: 1800, height: 960, alt: 'Editorial illustration comparing Waterfall, Agile, AI, and Marionette development through successive vehicle designs.' },
   disclosure: disclosure('The prompt behind this case study', `<pre class="study-prompt" tabindex="0" aria-label="Prompt text">${escape(read('./realworld-brief.txt'))}</pre>`),
