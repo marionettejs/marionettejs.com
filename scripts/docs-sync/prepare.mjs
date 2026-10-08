@@ -5,6 +5,9 @@ import { resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 
+export const repositoryName = 'marionettejs/marionettejs.com';
+export const prefix = `/repos/${repositoryName}`;
+export const owner = repositoryName.split('/')[0];
 export const publicationPath = 'content/docs-publication-edits.json';
 export const branch = 'automation/library-docs-sync';
 export const hash = value => createHash('sha256').update(value).digest('hex');
@@ -68,21 +71,30 @@ export function checkNavigation(previous, incoming) {
 
 export async function branchReview(api, head) {
   if (!head) return null;
-  const pulls = await api('/repos/marionettejs/marionettejs.com/pulls?state=all&head=marionettejs:automation/library-docs-sync&base=main&per_page=100');
+  const pulls = await api(`${prefix}/pulls?state=all&head=${owner}:${branch}&base=main&per_page=100&sort=created&direction=desc`);
   const open = pulls.filter(pr => pr.state === 'open');
   if (open.length > 1) throw new Error('DOCS_SYNC_PRS: Expected at most one open sync PR.');
-  const pr = open[0] || pulls[0];
+  const pr = open[0] || pulls.filter(pr => pr.state === 'closed' && pr.head.sha === head).sort((a, b) => b.number - a.number)[0];
   if (!pr || pr.head.sha !== head) throw new Error('DOCS_SYNC_BRANCH_REVIEW: Branch has unreviewed changes; review it manually.');
-  return { number: pr.number, state: pr.state, head };
+  let lifecycle = null;
+  for (let page = 1; ; page++) {
+    const events = await api(`${prefix}/issues/${pr.number}/events?per_page=100&page=${page}`);
+    for (const event of events) {
+      if (['closed', 'reopened'].includes(event.event)) lifecycle = Math.max(lifecycle || 0, event.id);
+    }
+    if (events.length < 100) break;
+  }
+  return { number: pr.number, state: pr.state, head, lifecycle };
 }
 
 export async function mergeBranchPublication({ root, main, head, review, bytes }) {
   // A closed PR is not a pending publication edit. Its ref is still retained
   // for optimistic publication checks and non-force ancestry preservation.
-  if (review?.state !== 'open') return bytes;
+  if (!head) return bytes;
   const base = git(root, 'merge-base', main, head);
   const files = git(root, 'diff', '--name-only', base, head).split('\n').filter(Boolean);
   if (files.some(file => file !== publicationPath)) throw new Error('DOCS_SYNC_BRANCH: Sync branch contains other changes; review it manually.');
+  if (review?.state !== 'open') return bytes;
   return mergeText(bytes, sourceAt(root, base, publicationPath), sourceAt(root, head, publicationPath), publicationPath);
 }
 

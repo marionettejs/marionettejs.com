@@ -79,11 +79,12 @@ function remote({ existing = false, race = false } = {}) {
   const requests = [];
   const content = JSON.stringify({ edits: [{ sourceRevision: 'c'.repeat(40) }] });
   const state = { main: 'a'.repeat(40), head: existing ? 'b'.repeat(40) : null, revision: 'c'.repeat(40), sha256: hash(content), changedFromMain: true };
-  state.review = existing ? { number: 7, state: 'open', head: state.head } : null;
+  state.review = existing ? { number: 7, state: 'open', head: state.head, lifecycle: null } : null;
   const api = async (path, method = 'GET', body) => {
     requests.push({ path, method, body });
     if (path.endsWith('/git/ref/heads/main')) return { object: { sha: race ? 'wrong' : state.main } };
     if (path.includes('/git/ref/heads/automation')) return existing ? { object: { sha: state.head } } : null;
+    if (path.includes('/events?')) return [];
     if (path.includes('state=all')) return existing ? [{ number: 7, state: 'open', head: { sha: state.head } }] : [];
     if (path.includes('/pulls?')) return existing ? [{ number: 7 }] : [];
     if (path.includes('/contents/')) return { content: Buffer.from('old').toString('base64') };
@@ -215,12 +216,11 @@ test('main moving during object creation prevents both new and existing branch p
   }
 });
 
-
 test('only an open exact-head sync PR contributes pending publication edits', async () => {
   const head = 'b'.repeat(40);
   for (const state of ['open', 'closed']) {
     const result = await branchReview(async () => [{ number: 40, state, head: { sha: head } }], head);
-    assert.deepEqual(result, { number: 40, state, head });
+    assert.deepEqual(result, { number: 40, state, head, lifecycle: null });
   }
   assert.equal(await branchReview(() => assert.fail('No branch needs no PR lookup'), null), null);
   for (const pulls of [[], [{ number: 40, state: 'closed', head: { sha: 'changed' } }]])
@@ -230,7 +230,7 @@ test('only an open exact-head sync PR contributes pending publication edits', as
 
 test('a closed sync branch is preserved as ancestry without reapplying its rejected edits', async () => {
   const f = remote({ existing: true });
-  f.state.review = { number: 40, state: 'closed', head: f.state.head };
+  f.state.review = { number: 40, state: 'closed', head: f.state.head, lifecycle: null };
   const api = async (path, ...args) => {
     if (path.includes('state=all')) return [{ number: 40, state: 'closed', head: { sha: f.state.head } }];
     if (path.includes('state=open')) return [];
@@ -240,18 +240,20 @@ test('a closed sync branch is preserved as ancestry without reapplying its rejec
   const commit = f.requests.find(request => request.path.endsWith('/git/commits') && request.method === 'POST');
   assert.deepEqual(commit.body.parents, [f.state.head, f.state.main]);
   assert.equal(f.requests.find(request => request.path.includes('/git/refs')).body.force, false);
-  assert.ok(f.requests.some(request => request.path.endsWith('/pulls') && request.method === 'POST'));
+  const pull = f.requests.find(request => request.path.endsWith('/pulls') && request.method === 'POST');
+  assert.match(pull.body.body, /Squash-merge/);
+  assert.match(pull.body.body, /Do not enable auto-merge/);
+  assert.doesNotMatch(pull.body.body, /Do not merge or deploy automatically/);
 });
 
 test('closing or reopening the sync PR after validation prevents publication writes', async () => {
   const f = remote({ existing: true });
-  f.state.review = { number: 40, state: 'open', head: f.state.head };
+  f.state.review = { number: 40, state: 'open', head: f.state.head, lifecycle: null };
   const api = async (path, ...args) => path.includes('state=all')
     ? [{ number: 40, state: 'closed', head: { sha: f.state.head } }] : f.api(path, ...args);
   await assert.rejects(publish({ ...f, api }), /DOCS_SYNC_RACE/);
   assert.ok(f.requests.every(request => request.method === 'GET'));
 });
-
 
 test('closed RC1 branch cannot overwrite or conflict with human RC2 publication edits', async t => {
   const f = await fixture(t);
@@ -273,7 +275,6 @@ test('closed RC1 branch cannot overwrite or conflict with human RC2 publication 
   assert.equal(await readFile(join(f.repository, path), 'utf8'), bytes);
 });
 
-
 test('a sync PR changing state during object creation cannot update the branch', async () => {
   const f = remote({ existing: true });
   let reviews = 0;
@@ -283,4 +284,43 @@ test('a sync PR changing state during object creation cannot update the branch',
   };
   await assert.rejects(publish({ ...f, api }), /DOCS_SYNC_RACE/);
   assert.ok(f.requests.every(request => !request.path.includes('/git/refs')));
+});
+
+
+test('closed PR selection matches the exact branch head regardless of API order', async () => {
+  const head = 'b'.repeat(40);
+  const pulls = [{ number: 90, state: 'closed', head: { sha: 'unrelated' } }, { number: 40, state: 'closed', head: { sha: head } }];
+  for (const list of [pulls, [...pulls].reverse()]) {
+    const review = await branchReview(async path => path.includes('/events?') ? [] : list, head);
+    assert.equal(review.number, 40);
+  }
+});
+
+test('close and reopen at the same head invalidates the prepared PR lifecycle', async () => {
+  const f = remote({ existing: true });
+  const api = async (path, ...args) => path.includes('/events?')
+    ? [{ event: 'closed', id: 100 }, { event: 'reopened', id: 101 }] : f.api(path, ...args);
+  await assert.rejects(publish({ ...f, api }), /DOCS_SYNC_RACE/);
+  assert.ok(f.requests.every(request => request.method === 'GET'));
+});
+
+test('lifecycle pagination observes reopen events beyond the first page', async () => {
+  const head = 'b'.repeat(40);
+  const api = async path => path.includes('/events?')
+    ? (path.endsWith('page=1') ? Array.from({ length: 100 }, (_, id) => ({ event: 'labeled', id })) : [{ event: 'reopened', id: 101 }])
+    : [{ number: 40, state: 'open', head: { sha: head } }];
+  assert.equal((await branchReview(api, head)).lifecycle, 101);
+});
+
+test('closed sync branches still reject unrelated file changes', async t => {
+  const f = await fixture(t);
+  await mkdir(join(f.repository, 'content'));
+  await writeFile(join(f.repository, 'content/docs-publication-edits.json'), '{}');
+  git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'website baseline');
+  const main = git(f.repository, 'rev-parse', 'HEAD');
+  await writeFile(join(f.repository, 'unrelated.txt'), 'review me');
+  git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'unrelated branch change');
+  const head = git(f.repository, 'rev-parse', 'HEAD');
+  for (const state of ['open', 'closed'])
+    await assert.rejects(mergeBranchPublication({ root: f.repository, main, head, bytes: '{}', review: { state } }), /DOCS_SYNC_BRANCH/);
 });

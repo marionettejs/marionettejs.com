@@ -60,6 +60,14 @@ npm archive merely to clear this guard. Record the adopted exact library commit 
 file after implementing and validating the corresponding website route changes.
 Until that review lands, sync is blocked.
 
+Local preparation now reads PR state and close/reopen events from GitHub. Set
+`GH_TOKEN` through your normal credential environment before `npm run docs:sync -- /path/to/library`
+to avoid unauthenticated API rate limits; never put its value in commands or reports.
+The hosted prepare job supplies its read-only workflow token. Closed exact-head PR
+edits are ignored after checking that the branch changes only publication metadata.
+The retained branch history is advanced without force; squash-merge a new sync PR
+when rejected historical commits must stay out of main ancestry.
+
 A pending branch is read as data and merged with current website publication edits;
 its code is never checked out or executed. Other file changes on that branch stop
 the run. Website and library checkouts remain read-only to the preparation job's
