@@ -60,6 +60,14 @@ npm archive merely to clear this guard. Record the adopted exact library commit 
 file after implementing and validating the corresponding website route changes.
 Until that review lands, sync is blocked.
 
+Local preparation now reads PR state and close/reopen events from GitHub. Set
+`GH_TOKEN` through your normal credential environment before `npm run docs:sync -- /path/to/library`
+to avoid unauthenticated API rate limits; never put its value in commands or reports.
+The hosted prepare job supplies its read-only workflow token. Closed exact-head PR
+edits are ignored after checking that the branch changes only publication metadata.
+The retained branch history is advanced without force; squash-merge a new sync PR
+when rejected historical commits must stay out of main ancestry.
+
 A pending branch is read as data and merged with current website publication edits;
 its code is never checked out or executed. Other file changes on that branch stop
 the run. Website and library checkouts remain read-only to the preparation job's
@@ -72,10 +80,10 @@ serialized; canceled pending dispatches are harmless because every run reads the
 current library head. There is no arbitrary revision/URL input and no library code
 execution with credentials.
 
-No relevant byte changes cause no commit. A repeated successful run reuses the PR
-without adding a commit. A push that succeeded before PR creation failed is
-recoverable by rerunning; the existing branch becomes the one PR. When intentionally
-closing an unmerged sync PR, delete its branch too, or a retry may reopen that work.
+No relevant changes from main cause no commit. A repeated successful run reuses
+an open PR without adding a commit when its publication bytes already match. A push that succeeded before PR creation failed is
+recoverable by rerunning; the existing branch becomes the one PR. When an unmerged sync PR is closed, a retry ignores its edits and advances the
+retained branch without force from current main, creating a new PR if changes remain.
 
 ## Validation and failures
 
