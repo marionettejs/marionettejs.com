@@ -335,3 +335,28 @@ test('PR history pagination finds an exact-head closed PR beyond the first page'
     : [{ number: 40, state: 'closed', head: { sha: head } }];
   assert.equal((await branchReview(api, head)).number, 40);
 });
+
+
+test('matching bytes reuse an open PR but rebuild a closed branch from current main', async () => {
+  for (const reviewState of ['open', 'closed']) {
+    const f = remote({ existing: true });
+    f.state.review.state = reviewState;
+    const api = async (path, ...args) => {
+      const result = await f.api(path, ...args);
+      if (path.includes('state=all')) return [{ number: 7, state: reviewState, head: { sha: f.state.head } }];
+      if (path.includes('state=open') && reviewState === 'closed') return [];
+      if (path.includes('/contents/')) return { content: Buffer.from(f.content).toString('base64') };
+      return result;
+    };
+    await publish({ ...f, api });
+    const commit = f.requests.find(r => r.path.endsWith('/git/commits') && r.method === 'POST');
+    if (reviewState === 'closed') {
+      assert.deepEqual(commit.body.parents, [f.state.head, f.state.main]);
+      assert.equal(f.requests.find(r => r.path.includes('/git/trees')).body.base_tree, 'tree');
+      assert.equal(f.requests.find(r => r.path.includes('/git/refs')).body.force, false);
+    } else {
+      assert.equal(commit, undefined);
+      assert.ok(f.requests.every(r => !r.path.includes('/git/refs')));
+    }
+  }
+});

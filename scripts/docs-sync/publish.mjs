@@ -14,7 +14,7 @@ export async function publish({ api, state, content }) {
   const pulls = await api(`${prefix}/pulls?state=open&head=${owner}:${branch}&base=main`);
   if (pulls.length > 1) throw new Error('DOCS_SYNC_PRS: Expected at most one open sync PR.');
   const existing = head && await api(`${prefix}/contents/${publicationPath}?ref=${state.head}`);
-  if (!existing || Buffer.from(existing.content, 'base64').toString('utf8') !== content) {
+  if (state.review?.state === 'closed' || !existing || Buffer.from(existing.content, 'base64').toString('utf8') !== content) {
     const base = await api(`${prefix}/git/commits/${state.main}`);
     const blob = await api(`${prefix}/git/blobs`, 'POST', { content, encoding: 'utf-8' });
     const tree = await api(`${prefix}/git/trees`, 'POST', { base_tree: base.tree.sha, tree: [{ path: publicationPath, mode: '100644', type: 'blob', sha: blob.sha }] });

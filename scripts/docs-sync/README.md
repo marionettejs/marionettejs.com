@@ -80,10 +80,10 @@ serialized; canceled pending dispatches are harmless because every run reads the
 current library head. There is no arbitrary revision/URL input and no library code
 execution with credentials.
 
-No relevant byte changes cause no commit. A repeated successful run reuses the PR
-without adding a commit. A push that succeeded before PR creation failed is
-recoverable by rerunning; the existing branch becomes the one PR. When intentionally
-closing an unmerged sync PR, delete its branch too, or a retry may reopen that work.
+No relevant changes from main cause no commit. A repeated successful run reuses
+an open PR without adding a commit when its publication bytes already match. A push that succeeded before PR creation failed is
+recoverable by rerunning; the existing branch becomes the one PR. When an unmerged sync PR is closed, a retry ignores its edits and advances the
+retained branch without force from current main, creating a new PR if changes remain.
 
 ## Validation and failures
 
