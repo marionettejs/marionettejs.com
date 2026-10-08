@@ -1,0 +1,18 @@
+scripts/docs-sync/README.md
+  h_0f06c286dda36f 83-86
+scripts/docs-sync/publish.mjs
+  h_0f06c286dda36f 17
+test/docs-sync.test.mjs
+  h_0f06c286dda36f 338-362
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2181cd2fc34bdd30c6f02bcd94869890012d3f8e",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
