@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, writeFile, rm, mkdir, cp, readFile, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { syncPublication, git, hash, checkNavigation } from '../scripts/docs-sync/prepare.mjs';
+import { syncPublication, git, hash, checkNavigation, branchReview, mergeBranchPublication } from '../scripts/docs-sync/prepare.mjs';
 import { publish } from '../scripts/docs-sync/publish.mjs';
 
 async function fixture(t) {
@@ -79,10 +79,12 @@ function remote({ existing = false, race = false } = {}) {
   const requests = [];
   const content = JSON.stringify({ edits: [{ sourceRevision: 'c'.repeat(40) }] });
   const state = { main: 'a'.repeat(40), head: existing ? 'b'.repeat(40) : null, revision: 'c'.repeat(40), sha256: hash(content), changedFromMain: true };
+  state.review = existing ? { number: 7, state: 'open', head: state.head } : null;
   const api = async (path, method = 'GET', body) => {
     requests.push({ path, method, body });
     if (path.endsWith('/git/ref/heads/main')) return { object: { sha: race ? 'wrong' : state.main } };
     if (path.includes('/git/ref/heads/automation')) return existing ? { object: { sha: state.head } } : null;
+    if (path.includes('state=all')) return existing ? [{ number: 7, state: 'open', head: { sha: state.head } }] : [];
     if (path.includes('/pulls?')) return existing ? [{ number: 7 }] : [];
     if (path.includes('/contents/')) return { content: Buffer.from('old').toString('base64') };
     if (path.includes('/git/commits/') && method === 'GET') return { tree: { sha: 'tree' } };
@@ -211,4 +213,74 @@ test('main moving during object creation prevents both new and existing branch p
     assert.ok(f.requests.some(request => request.path.endsWith('/git/commits') && request.method === 'POST'));
     assert.ok(f.requests.every(request => !request.path.includes('/git/refs') && !(request.path.includes('/pulls') && request.method !== 'GET')));
   }
+});
+
+
+test('only an open exact-head sync PR contributes pending publication edits', async () => {
+  const head = 'b'.repeat(40);
+  for (const state of ['open', 'closed']) {
+    const result = await branchReview(async () => [{ number: 40, state, head: { sha: head } }], head);
+    assert.deepEqual(result, { number: 40, state, head });
+  }
+  assert.equal(await branchReview(() => assert.fail('No branch needs no PR lookup'), null), null);
+  for (const pulls of [[], [{ number: 40, state: 'closed', head: { sha: 'changed' } }]])
+    await assert.rejects(branchReview(async () => pulls, head), /DOCS_SYNC_BRANCH_REVIEW/);
+  await assert.rejects(branchReview(async () => [1, 2].map(number => ({ number, state: 'open', head: { sha: head } })), head), /DOCS_SYNC_PRS/);
+});
+
+test('a closed sync branch is preserved as ancestry without reapplying its rejected edits', async () => {
+  const f = remote({ existing: true });
+  f.state.review = { number: 40, state: 'closed', head: f.state.head };
+  const api = async (path, ...args) => {
+    if (path.includes('state=all')) return [{ number: 40, state: 'closed', head: { sha: f.state.head } }];
+    if (path.includes('state=open')) return [];
+    return f.api(path, ...args);
+  };
+  await publish({ ...f, api });
+  const commit = f.requests.find(request => request.path.endsWith('/git/commits') && request.method === 'POST');
+  assert.deepEqual(commit.body.parents, [f.state.head, f.state.main]);
+  assert.equal(f.requests.find(request => request.path.includes('/git/refs')).body.force, false);
+  assert.ok(f.requests.some(request => request.path.endsWith('/pulls') && request.method === 'POST'));
+});
+
+test('closing or reopening the sync PR after validation prevents publication writes', async () => {
+  const f = remote({ existing: true });
+  f.state.review = { number: 40, state: 'open', head: f.state.head };
+  const api = async (path, ...args) => path.includes('state=all')
+    ? [{ number: 40, state: 'closed', head: { sha: f.state.head } }] : f.api(path, ...args);
+  await assert.rejects(publish({ ...f, api }), /DOCS_SYNC_RACE/);
+  assert.ok(f.requests.every(request => request.method === 'GET'));
+});
+
+
+test('closed RC1 branch cannot overwrite or conflict with human RC2 publication edits', async t => {
+  const f = await fixture(t);
+  const path = 'content/docs-publication-edits.json';
+  await mkdir(join(f.repository, 'content'));
+  await writeFile(join(f.repository, path), '{"version":"rc1","wording":"baseline"}\n');
+  git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'website: RC1 baseline');
+  const base = git(f.repository, 'rev-parse', 'HEAD');
+  await writeFile(join(f.repository, path), '{"version":"rc1","wording":"rejected automation"}\n');
+  git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'automation: pending RC1 edit');
+  const head = git(f.repository, 'rev-parse', 'HEAD');
+  git(f.repository, 'checkout', '-q', '--detach', base);
+  const bytes = '{"version":"rc2","wording":"human publication edit"}\n';
+  await writeFile(join(f.repository, path), bytes);
+  git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'website: reviewed RC2 wording');
+  const main = git(f.repository, 'rev-parse', 'HEAD');
+  assert.equal(await mergeBranchPublication({ root: f.repository, main, head, bytes, review: { state: 'closed' } }), bytes);
+  await assert.rejects(mergeBranchPublication({ root: f.repository, main, head, bytes, review: { state: 'open' } }), /DOCS_SYNC_CONFLICT/);
+  assert.equal(await readFile(join(f.repository, path), 'utf8'), bytes);
+});
+
+
+test('a sync PR changing state during object creation cannot update the branch', async () => {
+  const f = remote({ existing: true });
+  let reviews = 0;
+  const api = async (path, ...args) => {
+    if (path.includes('state=all') && ++reviews > 1) return [{ number: 7, state: 'closed', head: { sha: f.state.head } }];
+    return f.api(path, ...args);
+  };
+  await assert.rejects(publish({ ...f, api }), /DOCS_SYNC_RACE/);
+  assert.ok(f.requests.every(request => !request.path.includes('/git/refs')));
 });

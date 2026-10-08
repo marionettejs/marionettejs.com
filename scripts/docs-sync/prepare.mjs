@@ -66,7 +66,36 @@ export function checkNavigation(previous, incoming) {
   }
 }
 
-export async function prepare({ root, repository }) {
+export async function branchReview(api, head) {
+  if (!head) return null;
+  const pulls = await api('/repos/marionettejs/marionettejs.com/pulls?state=all&head=marionettejs:automation/library-docs-sync&base=main&per_page=100');
+  const open = pulls.filter(pr => pr.state === 'open');
+  if (open.length > 1) throw new Error('DOCS_SYNC_PRS: Expected at most one open sync PR.');
+  const pr = open[0] || pulls[0];
+  if (!pr || pr.head.sha !== head) throw new Error('DOCS_SYNC_BRANCH_REVIEW: Branch has unreviewed changes; review it manually.');
+  return { number: pr.number, state: pr.state, head };
+}
+
+export async function mergeBranchPublication({ root, main, head, review, bytes }) {
+  // A closed PR is not a pending publication edit. Its ref is still retained
+  // for optimistic publication checks and non-force ancestry preservation.
+  if (review?.state !== 'open') return bytes;
+  const base = git(root, 'merge-base', main, head);
+  const files = git(root, 'diff', '--name-only', base, head).split('\n').filter(Boolean);
+  if (files.some(file => file !== publicationPath)) throw new Error('DOCS_SYNC_BRANCH: Sync branch contains other changes; review it manually.');
+  return mergeText(bytes, sourceAt(root, base, publicationPath), sourceAt(root, head, publicationPath), publicationPath);
+}
+
+async function githubRead(path) {
+  const response = await fetch(`https://api.github.com${path}`, { headers: {
+    Accept: 'application/vnd.github+json',
+    ...(process.env.GH_TOKEN ? { Authorization: `Bearer ${process.env.GH_TOKEN}` } : {})
+  } });
+  if (!response.ok) throw new Error(`DOCS_SYNC_REVIEW: Cannot read branch PR state (HTTP ${response.status}).`);
+  return response.json();
+}
+
+export async function prepare({ root, repository, api = githubRead }) {
   const { readSnapshot, readSupplementalPages } = await import('../library-docs.mjs');
   const { manifest, pages: archivedPages } = await readSnapshot(resolve(root, 'content/library-docs'));
   const pages = [...archivedPages, ...await readSupplementalPages(resolve(root, 'content/supplemental-docs'), archivedPages)];
@@ -80,18 +109,14 @@ export async function prepare({ root, repository }) {
   const remoteBranch = `refs/remotes/origin/${branch}`;
   const old = spawnSync('git', ['rev-parse', '--verify', remoteBranch], { cwd: root, encoding: 'utf8' });
   const head = old.status === 0 ? old.stdout.trim() : null;
+  const review = await branchReview(api, head);
   let bytes = await readFile(resolve(root, publicationPath), 'utf8');
-  if (head) {
-    const base = git(root, 'merge-base', main, head);
-    const files = git(root, 'diff', '--name-only', base, head).split('\n').filter(Boolean);
-    if (files.some(file => file !== publicationPath)) throw new Error('DOCS_SYNC_BRANCH: Sync branch contains other changes; review it manually.');
-    bytes = await mergeText(bytes, sourceAt(root, base, publicationPath), sourceAt(root, head, publicationPath), publicationPath);
-  }
+  bytes = await mergeBranchPublication({ root, main, head, review, bytes });
   const { publication, changed } = await syncPublication({ repository, revision, manifest, pages, publication: JSON.parse(bytes) });
   const next = `${JSON.stringify(publication, null, 2)}\n`;
   const original = await readFile(resolve(root, publicationPath), 'utf8');
   await mkdir(resolve(root, 'output/docs-sync'), { recursive: true });
-  await writeFile(resolve(root, 'output/docs-sync/state.json'), JSON.stringify({ main, head, revision, changed, sha256: hash(next), changedFromMain: next !== original }));
+  await writeFile(resolve(root, 'output/docs-sync/state.json'), JSON.stringify({ main, head, review, revision, changed, sha256: hash(next), changedFromMain: next !== original }));
   await writeFile(resolve(root, publicationPath), next);
   console.log(`Documentation sync ${revision}: ${changed.length} changed reading copies.`);
 }
