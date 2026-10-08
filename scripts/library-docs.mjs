@@ -8,6 +8,7 @@ import { resolve, dirname, posix, relative, isAbsolute, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Marked, Renderer, Lexer } from 'marked';
 import * as pagefind from 'pagefind';
+import { writeSearchFiles } from './search-index.mjs';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
 export const escapeHtml = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
@@ -193,8 +194,7 @@ export async function buildLibraryDocs({ directory, out, shell }) {
       if (added.errors?.length) throw new Error(added.errors.join('\n'));
       if (added.file?.url !== url || !added.file.uniqueWords) throw new Error(`Documentation page was not indexed: ${url}`);
     }
-    const written = await index.writeFiles({ outputPath: resolve(out, 'pagefind') });
-    if (written.errors?.length) throw new Error(written.errors.join('\n'));
+    await writeSearchFiles(index, resolve(out, 'pagefind'));
   } finally { await pagefind.close(); }
   await verifySearchIndex(resolve(out, 'pagefind'), searchUrls.length);
   return pages.length + JSON.parse(catalog.content).diagnostics.length + 4;
