@@ -247,12 +247,14 @@ test('a closed sync branch is preserved as ancestry without reapplying its rejec
 });
 
 test('closing or reopening the sync PR after validation prevents publication writes', async () => {
-  const f = remote({ existing: true });
-  f.state.review = { number: 40, state: 'open', head: f.state.head, lifecycle: null };
-  const api = async (path, ...args) => path.includes('state=all')
-    ? [{ number: 40, state: 'closed', head: { sha: f.state.head } }] : f.api(path, ...args);
-  await assert.rejects(publish({ ...f, api }), /DOCS_SYNC_RACE/);
-  assert.ok(f.requests.every(request => request.method === 'GET'));
+  for (const [prepared, current] of [['open', 'closed'], ['closed', 'open']]) {
+    const f = remote({ existing: true });
+    f.state.review = { number: 40, state: prepared, head: f.state.head, lifecycle: null };
+    const api = async (path, ...args) => path.includes('state=all')
+      ? [{ number: 40, state: current, head: { sha: f.state.head } }] : f.api(path, ...args);
+    await assert.rejects(publish({ ...f, api }), /DOCS_SYNC_RACE/);
+    assert.ok(f.requests.every(request => request.method === 'GET'));
+  }
 });
 
 test('closed RC1 branch cannot overwrite or conflict with human RC2 publication edits', async t => {
@@ -323,4 +325,13 @@ test('closed sync branches still reject unrelated file changes', async t => {
   const head = git(f.repository, 'rev-parse', 'HEAD');
   for (const state of ['open', 'closed'])
     await assert.rejects(mergeBranchPublication({ root: f.repository, main, head, bytes: '{}', review: { state } }), /DOCS_SYNC_BRANCH/);
+});
+
+
+test('PR history pagination finds an exact-head closed PR beyond the first page', async () => {
+  const head = 'b'.repeat(40);
+  const api = async path => path.includes('/events?') ? [] : path.endsWith('page=1')
+    ? Array.from({ length: 100 }, (_, number) => ({ number: number + 100, state: 'closed', head: { sha: 'unrelated' } }))
+    : [{ number: 40, state: 'closed', head: { sha: head } }];
+  assert.equal((await branchReview(api, head)).number, 40);
 });

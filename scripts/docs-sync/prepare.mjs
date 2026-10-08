@@ -71,7 +71,12 @@ export function checkNavigation(previous, incoming) {
 
 export async function branchReview(api, head) {
   if (!head) return null;
-  const pulls = await api(`${prefix}/pulls?state=all&head=${owner}:${branch}&base=main&per_page=100&sort=created&direction=desc`);
+  const pulls = [];
+  for (let page = 1; ; page++) {
+    const batch = await api(`${prefix}/pulls?state=all&head=${owner}:${branch}&base=main&per_page=100&sort=created&direction=desc&page=${page}`);
+    pulls.push(...batch);
+    if (batch.length < 100) break;
+  }
   const open = pulls.filter(pr => pr.state === 'open');
   if (open.length > 1) throw new Error('DOCS_SYNC_PRS: Expected at most one open sync PR.');
   const pr = open[0] || pulls.filter(pr => pr.state === 'closed' && pr.head.sha === head).sort((a, b) => b.number - a.number)[0];
