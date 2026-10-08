@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, mkdir, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, mkdir, writeFile, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { writeSearchFiles } from '../scripts/search-index.mjs';
@@ -52,4 +52,16 @@ test('generation and path errors preserve the previous bundle before replacement
     await assert.rejects(writeSearchFiles({ getFiles: async () => generated }, root));
     assert.equal(await readFile(existing, 'utf8'), 'previous');
   }
+});
+
+
+test('a mid-write filesystem error preserves the previous bundle and cleans staging', async t => {
+  const parent = await fixture(t);
+  const root = join(parent, 'pagefind');
+  await mkdir(root);
+  await writeFile(join(root, 'pagefind-entry.json'), 'previous bundle');
+  const files = [{ path: 'collision', content: Buffer.from('first file') }, { path: 'collision/child', content: Buffer.from('cannot create directory over a file') }];
+  await assert.rejects(writeSearchFiles({ getFiles: async () => ({ files }) }, root), /EEXIST|ENOTDIR/);
+  assert.equal(await readFile(join(root, 'pagefind-entry.json'), 'utf8'), 'previous bundle');
+  assert.deepEqual(await readdir(parent), ['pagefind']);
 });
