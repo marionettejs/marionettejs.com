@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, mkdir, writeFile, readdir } from 'node:fs/promises';
+import fs, { mkdtemp, readFile, rm, mkdir, writeFile, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { writeSearchFiles } from '../scripts/search-index.mjs';
@@ -64,4 +64,21 @@ test('a mid-write filesystem error preserves the previous bundle and cleans stag
   await assert.rejects(writeSearchFiles({ getFiles: async () => ({ files }) }, root), /EEXIST|ENOTDIR/);
   assert.equal(await readFile(join(root, 'pagefind-entry.json'), 'utf8'), 'previous bundle');
   assert.deepEqual(await readdir(parent), ['pagefind']);
+});
+
+
+test('cleanup failure neither rejects a completed replacement nor masks a write failure', async t => {
+  const parent = await fixture(t);
+  const root = join(parent, 'pagefind');
+  await mkdir(root);
+  await writeFile(join(root, 'pagefind-entry.json'), 'previous');
+  const cleanup = t.mock.method(fs, 'rm', async () => { throw new Error('cleanup unavailable'); });
+  try {
+    await writeSearchFiles({ getFiles: async () => ({ files: [{ path: 'pagefind-entry.json', content: Buffer.from('installed') }] }) }, root);
+    assert.equal(await readFile(join(root, 'pagefind-entry.json'), 'utf8'), 'installed');
+    const files = [{ path: 'collision', content: Buffer.from('file') }, { path: 'collision/child', content: Buffer.from('bad') }];
+    await assert.rejects(writeSearchFiles({ getFiles: async () => ({ files }) }, root), /EEXIST|ENOTDIR/);
+    assert.equal(await readFile(join(root, 'pagefind-entry.json'), 'utf8'), 'installed');
+    assert.equal(cleanup.mock.callCount(), 2);
+  } finally { cleanup.mock.restore(); }
 });

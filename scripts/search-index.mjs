@@ -1,4 +1,4 @@
-import { mkdir, writeFile, rm, mkdtemp, rename } from 'node:fs/promises';
+import fs, { mkdir, writeFile, mkdtemp, rename } from 'node:fs/promises';
 import { resolve, dirname, sep, join, relative } from 'node:path';
 
 /** Write a fresh Pagefind bundle and await every Node disk write.
@@ -42,6 +42,7 @@ export async function writeSearchFiles(index, directory) {
       throw error;
     }
   } finally {
-    if (!keepBackup) await rm(transaction, { recursive: true, force: true });
+    // Cleanup cannot veto an installed bundle or hide the original write error.
+    if (!keepBackup) await fs.rm(transaction, { recursive: true, force: true }).catch(() => {});
   }
 }
