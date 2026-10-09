@@ -22,7 +22,8 @@
     "test:mcp:http": "node --test test/mcp-http.test.mjs",
     "vendor:demos": "node scripts/build-demo-vendor.mjs",
     "docs:sync": "node scripts/docs-sync/prepare.mjs",
-    "test:docs:browser": "node test/browser/docs-candidate.mjs"
+    "test:docs:browser": "node test/browser/docs-candidate.mjs",
+    "docs:stage-stable": "node scripts/stage-stable-docs.mjs"
   },
   "devDependencies": {
     "@babel/parser": "8.0.4",

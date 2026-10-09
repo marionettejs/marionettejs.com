@@ -6,10 +6,14 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
+import { readRuntimeRelease } from './release-contract.mjs';
+
 const root = fileURLToPath(new URL('../', import.meta.url));
 const read = path => readFile(new URL('../' + path, import.meta.url), 'utf8');
 const lock = JSON.parse(await read('package-lock.json'));
 const provenance = JSON.parse(await read('content/provenance.json'));
+const { version, manifest } = await readRuntimeRelease(root);
+if (version !== provenance.packageVersion || manifest.sourceRevision !== provenance.libraryRevision) throw new Error('Rebuild core from the matching published package first.');
 const core = await read('site/vendor/marionette.js');
 const data = lock.packages['node_modules/@mnjs/data'];
 if (data.version !== provenance.packageVersion || createHash('sha256').update(core).digest('hex') !== provenance.bundleSha256) {

@@ -15,7 +15,7 @@ export const adoptionQuestions = [
   },
   {
     question:'“Is it maintained? Is it ready?”',
-    answer:`This site uses Marionette ${provenance.packageVersion}, a published npm release candidate. Pin matching versions as described in /docs/quick-start/ and assess whether a prerelease fits the project delivery requirements. Verify maintainer availability, required integrations, and who will review and maintain the application. The package version alone does not establish production suitability for a particular project.`
+    answer:`This site uses Marionette ${provenance.packageVersion}. Pin matching versions as described in /docs/quick-start/ and evaluate the required behavior against your project’s delivery requirements. Verify maintainer availability, required integrations, and who will review and maintain the application. The package version alone does not establish production suitability for a particular project.`
   },
   {
     question:'“What about the community and hiring pool?”',

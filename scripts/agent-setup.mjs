@@ -1,6 +1,7 @@
 // Website-authored setup. The skill itself stays in the installed release package.
-export const release = '5.0.0-rc.2';
-export const revision = 'f4243b8334cafe0bd1b06eba85d87e2310cb3618';
+import provenance from '../content/provenance.json' with { type: 'json' };
+export const release = provenance.packageVersion;
+export const revision = provenance.libraryRevision;
 const fence = (code, language = 'sh') => `\`\`\`${language}\n${code}\n\`\`\``;
 const copySkill = directory => fence(`node -e "
 const fs = require('node:fs');
@@ -18,7 +19,7 @@ export const setupIntro = `Your agent learns the patterns. You get on with the a
 
 The **skill** guides development using your application's installed, version-matched docs. The **plugin** bundles that skill and the documentation MCP connection. Marionette's skill and plugin are free; your selected AI service has its own pricing.
 
-**Prerelease setup: Marionette ${release}.**
+**Setup: Marionette ${release}.**
 `;
 
 export const setupPrerequisites = `For a new application, run this in its project directory (Node.js 24 or newer):
@@ -43,7 +44,7 @@ OpenAI directory publication is not complete. Use this project skill for now. [C
 ` },
   { id: 'claude', name: 'Claude Code', markdown: `### Claude Code
 
-Install the repository plugin from the verified RC2 source revision. Run in your terminal with Git and Claude Code installed. Keep this checkout while using the plugin:
+Install the repository plugin from the verified package source revision. Run in your terminal with Git and Claude Code installed. Keep this checkout while using the plugin:
 
 ${fence(`${checkout} &&\nclaude plugin marketplace add ./.marionette-plugin &&\nclaude plugin install marionette@marionettejs &&\nclaude plugin list`)}
 
@@ -53,11 +54,11 @@ This repository marketplace is separate from the Claude web directory. Installat
 ` },
   { id: 'copilot', name: 'Copilot CLI', markdown: `### Copilot CLI
 
-The repository marketplace commands installed ${release} and one bundled skill:
+Install the repository marketplace plugin and its bundled skill:
 
 ${fence('copilot plugin marketplace add marionettejs/marionette &&\ncopilot plugin install marionette@marionettejs &&\ncopilot plugin list')}
 
-These commands follow the repository's current marketplace, which may change. To hold the plugin at RC2, use a local checkout of the verified release instead, before installing:
+These commands follow the repository's current marketplace, which may change. To hold the plugin at ${release}, use a local checkout of the verified release instead, before installing:
 
 ${fence(`${checkout} &&\ncopilot plugin marketplace add ./.marionette-plugin &&\ncopilot plugin install marionette@marionettejs &&\ncopilot plugin list`)}
 
