@@ -7,6 +7,7 @@ import { chromium } from 'playwright';
 const root = resolve('dist');
 const manifest = JSON.parse(await readFile(resolve(root, 'docs/manifest.json'), 'utf8'));
 const supplemental = JSON.parse(await readFile(resolve(root, 'docs/supplemental-manifest.json'), 'utf8'));
+const publication = JSON.parse(await readFile(resolve(root, 'docs/publication.json'), 'utf8'));
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.png': 'image/png' };
 const { base, close } = await staticServer({ root, types, fallbackType: 'text/plain' });
 const browser = await chromium.launch({ headless: true });
@@ -53,7 +54,15 @@ try {
     assert.equal(await staticPage.locator('.docs-release').isVisible(), true);
     await staticPage.locator('.docs-source>summary').click();
     assert.equal(await staticPage.getByRole('link', { name: 'Read Markdown', exact: true }).isVisible(), true);
-    assert.ok((await staticPage.locator('.docs-version').textContent()).includes(manifest.sourceRevision));
+    const item = [...manifest.pages, ...supplemental.pages].find(item => `/${item.route}/` === route);
+    const readingRevision = publication.edits.find(edit => edit.source === item?.source && edit.sourceRevision)?.sourceRevision || item?.sourceRevision || manifest.sourceRevision;
+    const provenance = await staticPage.locator('.docs-version').textContent();
+    assert.ok(provenance.includes(manifest.sourceRevision.slice(0, 8)), `${route}: archive revision remains identified`);
+    if (item) {
+      assert.ok(provenance.includes(`Reading source: ${readingRevision}.`), `${route}: exact reading-copy revision is accessible without JavaScript`);
+    } else {
+      assert.ok(provenance.includes(manifest.sourceRevision), `${route}: generated setup page identifies the full archive revision`);
+    }
     await staticPage.locator('.docs-menu>summary').click();
     assert.equal(await staticPage.locator('.docs-shortcuts').isVisible(), true);
   }
