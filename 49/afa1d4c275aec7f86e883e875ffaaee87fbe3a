@@ -1,0 +1,53 @@
+content/case-studies.mjs
+  s_dbc3c3afabbfce::t_974c08794591e2 3,5
+  s_dbc3c3afabbfce::t_7498f73db7cee7 30
+site/assets/case-studies/roundingwell/evidence/results.json
+  s_dbc3c3afabbfce::t_8cab104e20261c 1-15141
+site/assets/case-studies/roundingwell/evidence/summary.csv
+  s_dbc3c3afabbfce::t_8cab104e20261c 1-93
+content/why.mjs
+  s_dbc3c3afabbfce::t_dc29894051d0cd 21
+content/case-studies/roundingwell.mjs
+  s_dbc3c3afabbfce::t_31ff28968a51bd 5
+  s_dbc3c3afabbfce::t_7498f73db7cee7 31,69
+  s_dbc3c3afabbfce::t_3547b8df028775 1-4,7-25,28-30,34-35,40-41,46-47,51-52,58-59,63-65,70-71
+  s_dbc3c3afabbfce::t_4675dfcf5d34c1 6,32,39,45,49-50,54-57,66-67
+  s_dbc3c3afabbfce::t_886c0a5d15a865 26-27,33,36-38,42-44,48,53,60-62,68
+README.md
+  s_dbc3c3afabbfce::t_7498f73db7cee7 395-398
+  s_dbc3c3afabbfce::t_dc29894051d0cd 389-394
+test/release.test.mjs
+  s_dbc3c3afabbfce::t_dc29894051d0cd 12,135-136
+site/assets/case-studies/roundingwell/evidence/README.md
+  s_dbc3c3afabbfce::t_02141f87baa4b1 1-57
+site/assets/case-studies/roundingwell/brand-panels.svg
+  s_dbc3c3afabbfce::t_7498f73db7cee7 1-13
+site/assets/case-studies.css
+  s_dbc3c3afabbfce::t_d103f19eb561ec 13
+  s_dbc3c3afabbfce::t_974c08794591e2 2,30-31
+test/site.test.mjs
+  s_dbc3c3afabbfce::t_dc29894051d0cd 14
+site/assets/case-studies/roundingwell/evidence/results-5000.json
+  s_dbc3c3afabbfce::t_8cab104e20261c 1-5061
+site/assets/case-studies/roundingwell/evidence/provenance.json
+  s_dbc3c3afabbfce::t_02141f87baa4b1 1-13,15-25
+  s_dbc3c3afabbfce::t_31ff28968a51bd 14
+scripts/agent-discovery.mjs
+  s_dbc3c3afabbfce::t_dc29894051d0cd 59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "49afa1d4c275aec7f86e883e875ffaaee87fbe3a",
+  "prompts": {},
+  "sessions": {
+    "s_dbc3c3afabbfce": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10865-f2db-77f3-b080-b44877fb0227",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

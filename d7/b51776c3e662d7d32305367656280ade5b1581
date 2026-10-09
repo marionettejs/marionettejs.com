@@ -1,0 +1,39 @@
+site/assets/case-studies.css
+  s_e970acca898273::t_773b8725a917ed 1-64
+content/case-studies.mjs
+  s_e970acca898273::t_cf13ea66ada29f 1-35
+content/case-studies/realworld-metrics.json
+  s_e970acca898273::t_599fa4f7ab9f41 1-151
+content/case-studies/realworld.mjs
+  s_e970acca898273::t_e1e1ab14d73a50 1-78
+scripts/build.mjs
+  s_e970acca898273::t_a031df437a2249 12,23,37-38,78,81,83,87,89-91,95-96,98-100,102,131
+test/release.test.mjs
+  s_e970acca898273::t_58956081e8bc79 12,134-137
+scripts/agent-discovery.mjs
+  s_e970acca898273::t_e9cabb95c5c1e3 59
+content/case-studies/realworld-prompts.json
+  s_e970acca898273::t_58001b3067c0c4 1-18
+content/case-studies/realworld-brief.txt
+  s_e970acca898273::t_048e411844b2c3 1-94
+test/site.test.mjs
+  s_e970acca898273::t_34e7fbe1c02629 14,70
+README.md
+  s_e970acca898273::t_d180ec1b88d108 373-388
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d7b51776c3e662d7d32305367656280ade5b1581",
+  "prompts": {},
+  "sessions": {
+    "s_e970acca898273": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10845-5544-75d2-8483-34099485c183",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

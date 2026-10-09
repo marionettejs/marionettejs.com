@@ -1,0 +1,44 @@
+test/browser/agent-workshop.mjs
+  s_930f3c9a37745c::t_e15e955d0d6b9d 598,604,610-617,621,628,634-637,639-643
+  s_930f3c9a37745c::t_f6b4576bd77810 47,64-91,104,661,666-667
+AGENTS.md
+  s_930f3c9a37745c::t_9138dd0a7b353c 25
+content/adoption.mjs
+  s_930f3c9a37745c::t_87d285052bc33e 1-2,14,18
+content/pages.mjs
+  s_930f3c9a37745c::t_4a91c4da4b3ffc 73
+mcp/README.md
+  s_930f3c9a37745c::t_d7bc52a33bd731 129-132,195-196,227-228
+scripts/build.mjs
+  s_930f3c9a37745c::t_bbe51b3374c545 14,91
+site/agent-prompt.md
+  s_930f3c9a37745c::t_9cb81855323c4c 1-60
+site/assets/demo-projects.js
+  s_930f3c9a37745c::t_d005481e69f9d3 6,8,19
+site/assets/demo.js
+  s_930f3c9a37745c::t_d7131c80dbd08c 23-27,31-32,35,47,63
+site/assets/workshop-starter.js
+  s_930f3c9a37745c::t_eafd9a6a4ef27d 4
+site/demos/projects/list-detail/app.js
+  s_930f3c9a37745c::t_84ccf79b8b76a6 3,9-11
+site/workshop/app.js
+  s_930f3c9a37745c::t_c007448c67886e 21,52-53,59
+test/playground.test.mjs
+  s_930f3c9a37745c::t_d71283c88acd93 27,29-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5f45f6c0e30769058869d73a4825ca172c0cc490",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

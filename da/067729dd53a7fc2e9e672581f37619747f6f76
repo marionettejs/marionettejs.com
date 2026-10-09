@@ -1,0 +1,27 @@
+test/site.test.mjs
+  s_40b5199a39a618::t_3254bafb705e8c 20
+content/pages.mjs
+  s_40b5199a39a618::t_3254bafb705e8c 60-61
+content/thanks.mjs
+  s_40b5199a39a618::t_3254bafb705e8c 12,25,27-28
+README.md
+  s_40b5199a39a618::t_3254bafb705e8c 85
+scripts/build.mjs
+  s_40b5199a39a618::t_3254bafb705e8c 81
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "da067729dd53a7fc2e9e672581f37619747f6f76",
+  "prompts": {},
+  "sessions": {
+    "s_40b5199a39a618": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d2c1-09d2-7d03-9d39-ff54956d62ce",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

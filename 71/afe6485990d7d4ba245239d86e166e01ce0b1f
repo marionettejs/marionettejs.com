@@ -1,0 +1,42 @@
+content/privacy.mjs
+  h_0f06c286dda36f 9
+planning/analytics.md
+  h_0f06c286dda36f 50-54
+scripts/build.mjs
+  h_0f06c286dda36f 35-36,46-49,63,128
+site/assets/analytics-posthog.js
+  h_0f06c286dda36f 4,66,75-79,99
+site/assets/analytics.js
+  h_0f06c286dda36f 36
+site/assets/demo.js
+  h_0f06c286dda36f 1-2
+site/assets/docs.js
+  h_0f06c286dda36f 1-2
+site/assets/examples.js
+  h_0f06c286dda36f 1-2,82
+site/assets/playground.js
+  h_0f06c286dda36f 1-2
+site/assets/site.js
+  h_0f06c286dda36f 1-18,24
+test/analytics-posthog.test.mjs
+  h_0f06c286dda36f 33-36
+test/analytics.test.mjs
+  h_0f06c286dda36f 64,67-70
+test/browser/analytics.mjs
+  h_0f06c286dda36f 6-10,15,21,58-60,107-125,158,162,171
+test/release.test.mjs
+  h_0f06c286dda36f 134
+test/site.test.mjs
+  h_0f06c286dda36f 109,114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "71afe6485990d7d4ba245239d86e166e01ce0b1f",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+planning/agent-discovered-playground.md
+  s_21a28c4e69a102::t_7b61252fb2e759 7,9-10,12-39,44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "cb0073b01a01c5827a5cc0bcc613d671e7c9e373",
+  "prompts": {},
+  "sessions": {
+    "s_21a28c4e69a102": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a070d0-c9a5-7960-a134-1be904f7c1cf",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

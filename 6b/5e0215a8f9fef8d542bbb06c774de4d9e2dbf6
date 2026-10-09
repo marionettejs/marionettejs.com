@@ -1,0 +1,21 @@
+content/playground.mjs
+  s_21a28c4e69a102::t_013a7136aaad11 4-5
+site/assets/playground.js
+  s_21a28c4e69a102::t_5449bab420af83 262
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "6b5e0215a8f9fef8d542bbb06c774de4d9e2dbf6",
+  "prompts": {},
+  "sessions": {
+    "s_21a28c4e69a102": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a070d0-c9a5-7960-a134-1be904f7c1cf",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

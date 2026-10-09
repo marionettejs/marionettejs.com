@@ -1,0 +1,42 @@
+.github/workflows/check.yml
+  h_0f06c286dda36f 31-32
+README.md
+  h_0f06c286dda36f 100-101
+content/privacy.mjs
+  h_0f06c286dda36f 1-12
+package-lock.json
+  h_0f06c286dda36f 21,1892-1919,2264-2271,2609-2623,2723-2732,3027-3033,3833-3882,3916-3922,4402-4416
+package.json
+  h_0f06c286dda36f 38
+planning/analytics.md
+  h_0f06c286dda36f 3,36,39,41,43,49-62
+scripts/build.mjs
+  h_0f06c286dda36f 8-10,35,41,43,56-58,92,94,125
+site/assets/analytics-config.js
+  h_0f06c286dda36f 1-6
+site/assets/analytics-posthog.js
+  h_0f06c286dda36f 1-96
+site/assets/analytics.js
+  h_0f06c286dda36f 13-29,48
+site/assets/site.css
+  h_0f06c286dda36f 661-663
+site/assets/site.js
+  h_0f06c286dda36f 1-13
+test/analytics-posthog.test.mjs
+  h_0f06c286dda36f 1-32
+test/browser/analytics.mjs
+  h_0f06c286dda36f 1-74
+test/site.test.mjs
+  h_0f06c286dda36f 109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "7f00f1641d2708df1d18739cd938955393d593f6",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
