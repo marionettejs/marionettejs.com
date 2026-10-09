@@ -10,6 +10,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   prepare:
+    permissions:
+      contents: read
+      pull-requests: read
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -27,6 +30,8 @@ jobs:
         run: git clone --branch master --single-branch https://github.com/marionettejs/marionette.git "$RUNNER_TEMP/library"
       - run: npm ci
       - run: npm run docs:sync -- "$RUNNER_TEMP/library"
+        env:
+          GH_TOKEN: ${{ github.token }}
       - run: npm run check
       - run: node scripts/check-agent-site.mjs --local --report output/agent-retrieval.json
       - run: node scripts/docs-sync/validate.mjs

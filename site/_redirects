@@ -1,13 +1,3 @@
-# Preserve published guide URLs; canonical content is now in the package snapshot.
-/development /docs/development/ 301
-/development/ /docs/development/ 301
-/development.md /docs/development.md 301
-/development/manifest.json /docs/manifest.json 301
-/development/source/docs/development.md /docs/markdown/docs/development.md 301
-/development/source/docs/troubleshooting.md /docs/markdown/docs/troubleshooting.md 301
-/troubleshooting /docs/troubleshooting/ 301
-/troubleshooting/ /docs/troubleshooting/ 301
-/troubleshooting.md /docs/troubleshooting.md 301
 # Existing v0-v4 consumers retain their original documentation URLs.
 /docs/current https://v4.marionettejs.com/docs/current/ 301
 /docs/master https://v4.marionettejs.com/docs/master/ 301
@@ -21,6 +11,6 @@
 /annotated-src/* https://v4.marionettejs.com/annotated-src/:splat 301
 /downloads/* https://v4.marionettejs.com/downloads/:splat 301
 # Published preview URLs remain supported while external links use them.
-/docs/regions /docs/region/ 301
-/docs/regions/ /docs/region/ 301
-/reference/region.md /docs/region.md 301
+/docs/regions /docs/api/region/ 301
+/docs/regions/ /docs/api/region/ 301
+/reference/region.md /docs/api/region.md 301

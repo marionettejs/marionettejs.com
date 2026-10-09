@@ -1,9 +1,9 @@
 // Real Chromium, pinned browser library, static built artifact, and opaque-origin
 // preview. Run npm run build before this command. No production host is involved.
 import assert from 'node:assert/strict';
-import { createServer } from 'node:http';
-import { readFile, stat, mkdir } from 'node:fs/promises';
-import { resolve, extname, sep } from 'node:path';
+import { staticServer } from './static-server.mjs';
+import { readFile, mkdir } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { chromium } from 'playwright';
 import { recipes, recipeRuntime } from '../../site/assets/playground-recipes.js';
@@ -12,22 +12,22 @@ import { runnerDocument } from '../../site/assets/playground-runtime.js';
 import { compileProject } from '../../tools/demo-project.js';
 const root = resolve('dist');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.md': 'text/plain', '.svg': 'image/svg+xml' };
-const server = createServer(async (req, res) => {
-  try {
-    let file = resolve(root, '.' + new URL(req.url, 'http://localhost').pathname);
-    if (file !== root && !file.startsWith(root + sep)) throw Error('Invalid path');
-    if ((await stat(file)).isDirectory()) file = resolve(file, 'index.html');
-    res.setHeader('Content-Type', types[extname(file)] || 'application/octet-stream');
-    res.end(await readFile(file));
-  } catch { res.writeHead(404); res.end(); }
-});
-await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+const { base, close } = await staticServer({ root, types });
 const browser = await chromium.launch({ headless: true, args: ['--enable-experimental-web-platform-features'] });
 try {
+  const failedDemo = await browser.newPage();
+  const fallbackErrors = [];
+  failedDemo.on('pageerror', error => fallbackErrors.push(error.message));
+  await failedDemo.route('**/assets/demo.js*', route => route.abort());
+  await failedDemo.goto(`${base}/`);
+  await failedDemo.locator('#application-slot').filter({ hasText: 'The application example could not load.' }).waitFor();
+  assert.deepEqual(fallbackErrors, []);
+  await failedDemo.close();
+  console.log('PASS homepage demo failure: readable host fallback without a missing-status error');
   const page = await browser.newPage({ reducedMotion: 'reduce' });
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.message));
-  await page.goto(`http://127.0.0.1:${server.address().port}/#playground`);
+  await page.goto(`${base}/#playground`);
   await page.waitForFunction(() => window.MarionettePlayground && document.querySelector('#playground').open);
   const api = async (method, input) => page.evaluate(({ method, input }) => window.MarionettePlayground[method](input), { method, input });
   await api('close');
@@ -44,7 +44,7 @@ try {
     deliveredBrief += briefPage.content;
   }
   assert.equal(deliveredBrief, await readFile(resolve(root, 'agent-prompt.md'), 'utf8'));
-  assert.match(deliveredBrief, /Build beautiful Marionette/);
+  assert.match(deliveredBrief, /Runtime and Marionette patterns/);
   await assert.rejects(api('read', { section: '../private', offset: 0 }), /Expected/);
   await assert.rejects(api('read', { offset: -1 }), /Expected/);
   let editorPage = await api('read', { section: 'code' });
@@ -61,6 +61,34 @@ try {
   assert.equal(await nextSteps.isVisible(), false);
   await api('run', { title: 'Failed first run', code: 'throw new Error("Startup failed");', css: '' });
   assert.equal(await nextSteps.isVisible(), false);
+  await api('run', {
+    title: 'Application root inspection', css: '',
+    code: `const Page = View.extend({ template: () => '<p>Prepared app</p>' });
+const App = Application.extend({
+  async prepareStart() { await Promise.resolve(); },
+  onStart() { this.showView(this.getView() || new Page()); }
+});
+export const region = new Region({ el: '#app' });
+const app = new App();
+await app.start({ region });
+const root = app.getView();
+const element = root.el;
+await app.restart();
+const retained = app.getView() === root && root.el === element && !root.isDestroyed();
+const stopped = app.stop() === true && root.isDestroyed() && !region.currentView;
+await app.start();
+export function inspectRecipe() {
+  return { checks: [
+    { id: 'retained-restart', expected: true, observed: retained },
+    { id: 'synchronous-stop', expected: true, observed: stopped }
+  ], views: [{ name: 'app-root', view: app.getView() }], regions: [{ name: 'root', region }] };
+}`
+  });
+  const appProof = await api('inspect');
+  assert.deepEqual(appProof.preview.errors, []);
+  assert.ok(appProof.preview.recipe.checks.every(check => check.observed));
+  assert.equal(appProof.preview.recipe.checks.length, 2);
+  console.log('PASS exported Application Region: async readiness, retained restart and synchronous stop');
   const personalChecks = await readFile('test/browser/workshop-checks.js', 'utf8');
   await api('run', { ...starter, code: `${starter.code}\n${personalChecks}` });
   await page.frameLocator('.workshop-preview iframe').locator('body').evaluate(() => {
@@ -73,7 +101,7 @@ try {
   console.log('PASS personal starter: 18 data, draft, focus, identity, replacement and cleanup checks');
   const errorsBeforeControls = pageErrors.length;
   // A handler-only update can look correct when clicked while missing external changes.
-  const handlerOnly = starter.code.replace(/  modelEvents: \{[\s\S]*?\n  \},\n/, '')
+  const handlerOnly = starter.code.replace("  modelEvents: { change: 'render' },\n", '')
     .replace("    this.getUI('toggle')[0].focus();", "    this.render();\n    this.getUI('toggle')[0].focus();");
   assert.notEqual(handlerOnly, starter.code);
   await api('run', { ...starter, code: `${handlerOnly}\n${personalChecks}` });
@@ -105,7 +133,7 @@ Victory.prototype.onRender = function () {
 
   execFileSync(process.execPath, ['test/browser/playground-ownership.mjs']);
   const ownershipPage = await browser.newPage();
-  await ownershipPage.goto(`http://127.0.0.1:${server.address().port}/_ownership-check.html`);
+  await ownershipPage.goto(`${base}/_ownership-check.html`);
   await ownershipPage.frameLocator('iframe').locator('#run-ownership-checks').click();
   await ownershipPage.frameLocator('iframe').locator('#ownership-result').filter({ hasText: '18 BROWSER CHECKS PASSED' }).waitFor({ timeout: 10000 }).catch(async error => {
     throw new Error(await ownershipPage.frameLocator('iframe').locator('body').innerText(), { cause: error });
@@ -135,9 +163,9 @@ Victory.prototype.onRender = function () {
   console.log('PASS Backstage: personal app only, successful-run exports, mobile layout');
 
   const galleryPage = await browser.newPage({ reducedMotion: 'reduce' });
-  await galleryPage.goto(`http://127.0.0.1:${server.address().port}/`);
+  await galleryPage.goto(`${base}/`);
   assert.equal(await galleryPage.locator('.home-demo-cards a').count(), 3);
-  assert.equal(await galleryPage.locator('.home-demo-cards a[href="/demos/#mission-control"] strong').innerText(), 'Cheese Patrol');
+  assert.equal(await galleryPage.locator('.home-demo-cards a[href="/demos/#mission-control"] strong').innerText(), 'CHEESE PATROL');
   assert.equal(await galleryPage.evaluate(() => document.querySelector('.night-closing').nextElementSibling.id === 'demos' && document.querySelector('#demos').nextElementSibling.classList.contains('home-support')), true);
   await galleryPage.locator('.home-demo-cards a[href="/demos/#list-detail"]').click();
   await galleryPage.waitForFunction(() => window.MarionetteExamples);
@@ -394,7 +422,7 @@ Victory.prototype.onRender = function () {
   execFileSync('unzip', ['-oq', await download.path(), '-d', exportDirectory]);
   assert.match(await readFile(resolve(exportDirectory, 'app.js'), 'utf8'), /import \{ Radio \} from '\.\/radio-view.js'/);
   const exported = await browser.newPage();
-  await exported.goto(`http://127.0.0.1:${server.address().port}/downloaded-project/`);
+  await exported.goto(`${base}/downloaded-project/`);
   await exported.locator('#replace-widget').click();
   await exported.locator('#broadcast-radio').click();
   assert.match(await exported.locator('#experiment .widget').innerText(), /Broadcasts heard: 1/);
@@ -567,42 +595,52 @@ Victory.prototype.onRender = function () {
         const signal = oldApplication.getState().signal;
         view.render();
         await opening;
-        await oldApplication.destroy();
+        oldApplication.destroy();
         return { aborted: signal.aborted, destroyed: oldApplication.isDestroyed(), phase: view.phase, fresh: view.application !== oldApplication };
       }), { aborted: true, destroyed: true, phase: 'closed', fresh: true }, 'Rerender retires pending Application readiness');
       assert.equal(await penPage.evaluate(async () => {
         const controller = window.demoModule.controller;
         const view = controller.view;
+        const lesson = controller.rootRegion.currentView;
         const retiredRoots = [];
         for (let cycle = 0; cycle < 3; cycle++) {
           const opening = view.onClickOpen();
           for (let step = 0; step < 3; step++) await view.onClickOpen();
           await opening;
-          const listeners = Object.values(controller._rdListeningTo || {});
-          if (listeners.some(listener => retiredRoots.includes(listener.obj))) return false;
-          retiredRoots.push(view.application.getView());
+          const explanation = lesson.getChildView('explanation');
+          for (const retired of retiredRoots) retired.trigger('pause:flight');
+          if (lesson.getChildView('explanation') !== explanation) return false;
+          const root = view.application.getView();
+          root.trigger('pause:flight');
+          const currentExplanation = lesson.getChildView('explanation');
+          if (currentExplanation === explanation || !currentExplanation.el.textContent.includes('Paused is not finished')) return false;
+          retiredRoots.push(root);
           await view.onClickClose();
         }
         return true;
-      }), true, 'Reopening the same Application releases subscriptions to its retired roots');
+      }), true, 'Retired roots cannot update the lesson; each reopened root still can');
 
       for (let step = 0; step < 4; step++) await penPage.locator('#open-station').click();
       await penPage.locator('.flight-chapter').click();
       await penPage.locator('#guided-flight').click();
       await penPage.locator('#cancel-flight').click();
       await penPage.locator('#guided-flight').click();
-      assert.equal(await penPage.evaluate(async () => {
+      assert.equal(await penPage.evaluate(() => {
         const controller = window.demoModule.controller;
         if (!controller.retired) throw new Error('Expected a retired flight before rerender');
         const view = controller.view;
         const app = view.application;
         const deck = app.getView();
-        if (!Object.values(controller._rdListeningTo || {}).some(listener => listener.obj === deck)) throw new Error('Expected controller subscriptions to the flight screen');
+        const lesson = controller.rootRegion.currentView;
+        const explanation = lesson.getChildView('explanation');
+        deck.trigger('pause:flight');
+        if (lesson.getChildView('explanation') === explanation) throw new Error('Expected the current flight screen to update the lesson');
         view.render();
-        await app.destroy();
-        const detached = !Object.values(controller._rdListeningTo || {}).some(listener => listener.obj === deck);
-        return deck.isDestroyed() && view.phase === 'closed' && controller.retired === null && detached;
-      }), true, 'Rerender destroys the prior flight screen');
+        app.destroy();
+        const closedExplanation = lesson.getChildView('explanation');
+        deck.trigger('pause:flight');
+        return deck.isDestroyed() && view.phase === 'closed' && controller.retired === null && lesson.getChildView('explanation') === closedExplanation;
+      }), true, 'Rerender destroys the prior flight screen and its events cannot update the lesson');
     }
     // The app's module is reusable with no teaching controller mounted.
     await penPage.evaluate(async id => {
@@ -620,17 +658,13 @@ Victory.prototype.onRender = function () {
       const { Region } = await import(imports.marionette);
       const module = await import(imports['demo:app.js']);
       const ViewClass = module.Todos || module.RadioStation || module.StationConsole;
-      const options = {};
-      if (id === 'list-detail') {
-        const { TodoCollection } = await import(imports['demo:todo-views.js']);
-        options.collection = new TodoCollection();
-      }
-      new Region({ el: '#app' }).show(new ViewClass(options));
+      new Region({ el: '#app' }).show(new ViewClass());
     }, recipe.id);
     if (recipe.id === 'list-detail') {
       await penPage.locator('#new-todo').fill('No lesson controller needed');
       await penPage.locator('#new-todo').press('Enter');
-      assert.equal(await penPage.locator('.todo-item').count(), 1);
+      assert.equal(await penPage.locator('.todo-item').count(), 2);
+      assert.equal(await penPage.locator('.todo-item').filter({ hasText: 'No lesson controller needed' }).count(), 1);
     } else if (recipe.id === 'owned-widget') {
       await penPage.locator('#replace-widget').click();
       await penPage.locator('#broadcast-radio').click();
@@ -813,32 +847,12 @@ export function increment() { count += amount; }`,
   assert.equal(bounded.preview.recipe.lifecycle[0].length, 120);
   assert.equal(bounded.preview.recipe.checks[0].id.length, 80);
   console.log('PASS inspection boundaries: thrown inspectors and oversized app observations');
-  const troubleshooting = await readFile(resolve('content/library-docs/docs/troubleshooting.md'), 'utf8');
-  const examples = [...troubleshooting.matchAll(/<!-- troubleshooting-example: (MN\d{4}) -->\s*```javascript\n([\s\S]*?)\n```/g)];
-  assert.equal(examples.length, 4);
-  const expected = { MN0020: 'Ready', MN0003: true, MN0023: 'Save', MN0007: 'New' };
-  for (const [, code, source] of examples) {
-    const result = await page.evaluate(async source => {
-      const vendor = new URL('/vendor/marionette.js', location.href).href;
-      const url = URL.createObjectURL(new Blob([source.replace("'marionette'", JSON.stringify(vendor))], { type: 'text/javascript' }));
-      try {
-        const example = await import(url);
-        try {
-          let failure;
-          try { example.fail(); } catch (error) { failure = error.code; }
-          return { failure, fixed: example.fix() };
-        } finally { example.cleanup(); }
-      } finally { URL.revokeObjectURL(url); }
-    }, source);
-    assert.deepEqual(result, { failure: code, fixed: expected[code] });
-  }
-  console.log('PASS troubleshooting: four exact failing/fixed examples against pinned published RC.1');
   let licenseRequests = 0;
   await page.route('**/vendor/DEMOS-LICENSE.txt', route => {
     licenseRequests++;
     return licenseRequests === 1 ? route.fulfill({ status: 503, body: 'Temporary failure' }) : route.continue();
   });
-  await page.goto(`http://127.0.0.1:${server.address().port}/`);
+  await page.goto(`${base}/`);
   await page.waitForFunction(() => document.querySelector('#codepen-help').textContent.includes('could not load') && window.MarionettePlayground);
   assert.equal(await page.locator('[data-workshop-codepen]').isDisabled(), true);
   await api('open');
@@ -847,13 +861,13 @@ export function increment() { count += amount; }`,
   assert.match(await page.locator('#codepen-help').innerText(), /Free Pens are public/);
   await page.unroute('**/vendor/DEMOS-LICENSE.txt');
   console.log('PASS CodePen recovery: transient preload failure, workshop retry, enabled export and restored help');
-  await page.goto(`http://127.0.0.1:${server.address().port}/docs/development/`);
+  await page.goto(`${base}/docs/quick-start/`);
   await page.locator('h1').waitFor();
-  assert.match(await page.locator('h1').innerText(), /Develop with the starter/);
+  assert.match(await page.locator('h1').innerText(), /Install and render/);
   await page.screenshot({ path: 'output/playwright/development-guide.png', fullPage: true });
   await page.setViewportSize({ width: 375, height: 812 });
-  for (const route of ['/docs/development/', '/docs/troubleshooting/', '/errors/MN0020/']) {
-    await page.goto(`http://127.0.0.1:${server.address().port}${route}`);
+  for (const route of ['/docs/quick-start/', '/docs/tooling/', '/errors/MN0020/']) {
+    await page.goto(`${base}${route}`);
     assert.equal(await page.locator('h1').count(), 1);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, `${route} fits a phone viewport`);
   }
@@ -861,8 +875,8 @@ export function increment() { count += amount; }`,
   console.log('PASS development reading path: desktop guide and three phone-width pages');
   for (const width of [1280, 375]) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto(`http://127.0.0.1:${server.address().port}/docs/routing/`);
-    const table = page.locator('.docs-prose table');
+    await page.goto(`${base}/docs/api/application/`);
+    const table = page.locator('.docs-prose table').first();
     await table.scrollIntoViewIfNeeded();
     const spacing = await table.evaluate(element => {
       const paragraph = element.nextElementSibling;
@@ -876,12 +890,12 @@ export function increment() { count += amount; }`,
     assert.equal(spacing.nextTag, 'P');
     assert.ok(spacing.gap >= spacing.paragraphSpacing && spacing.gap > 0,
       `Table-to-paragraph spacing at ${width}px matches paragraph spacing`);
-    assert.equal(spacing.fitsViewport, true, `Routing guide fits ${width}px viewport`);
-    await page.screenshot({ path: `output/playwright/routing-spacing-${width}.png` });
+    assert.equal(spacing.fitsViewport, true, `Application API page fits ${width}px viewport`);
+    await page.screenshot({ path: `output/playwright/application-spacing-${width}.png` });
   }
-  console.log('PASS routing layout: table-to-paragraph spacing at desktop and phone widths');
+  console.log('PASS Application layout: table-to-paragraph spacing at desktop and phone widths');
   assert.deepEqual(pageErrors, []);
 } finally {
   await browser.close();
-  await new Promise(resolve => server.close(resolve));
+  await close();
 }

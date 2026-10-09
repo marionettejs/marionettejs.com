@@ -1,9 +1,9 @@
 import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import assert from 'node:assert/strict';
 import { readFile, writeFile, rm } from 'node:fs/promises';
 import { git, hash, publicationPath } from './prepare.mjs';
-import { readSnapshot } from '../library-docs.mjs';
+import { readSnapshot, readSupplementalPages } from '../library-docs.mjs';
 
 export async function validateSync(root) {
   const read = path => readFile(resolve(root, path));
@@ -16,21 +16,28 @@ export async function validateSync(root) {
     const path = item.markdown === undefined ? `dist/docs/source/${item.source}` : `dist/docs/markdown/${item.source}`;
     assert.equal(hash(await read(path)), item.sha256, `Archived output changed: ${item.source}`);
   }
+  const supplemental = await readSupplementalPages(resolve(root, 'content/supplemental-docs'), pages);
+  for (const page of supplemental) assert.equal(hash(await read(`dist/docs/markdown/${page.source}`)), page.sha256, page.source);
+  assert.deepEqual(JSON.parse(await read('dist/docs/supplemental-manifest.json')), { schemaVersion: 1, pages: supplemental.map(({ markdown, ...page }) => page) });
   assert.deepEqual(JSON.parse(await read('dist/docs/manifest.json')), manifest);
   const publication = await read(publicationPath);
   assert.equal(hash(publication), state.sha256);
   assert.equal(hash(await read('dist/docs/publication.json')), state.sha256);
   const corpus = JSON.parse(await read('dist/docs/corpus.json'));
   assert.equal(corpus.publicationEditsSha256, state.sha256);
+  assert.equal(corpus.supplementalManifestSha256, hash(await read('dist/docs/supplemental-manifest.json')));
   for (const document of corpus.documents) {
     const path = new URL(document.markdownUrl).pathname;
     assert.equal(hash(await read(`dist${path}`)), document.sha256, document.id);
   }
   const mcp = JSON.parse(await read('output/mcp/snapshot.json'));
   assert.ok(mcp.provenance, 'MCP snapshot is missing provenance');
-  assert.equal(mcp.provenance.corpusSha256, hash(await read('dist/docs/corpus.json')));
+  const { loadSnapshot } = await import(pathToFileURL(resolve(root, 'mcp/load.mjs')));
+  const { deploymentRevision, ...artifact } = mcp;
+  assert.match(deploymentRevision, /^[a-f0-9]{40}$/);
+  assert.deepEqual(artifact, JSON.parse(JSON.stringify(await loadSnapshot())), 'MCP differs from the immutable package artifact');
   await writeFile(resolve(root, 'output/docs-sync/validated.json'), JSON.stringify({ ...state, corpusSha256: mcp.provenance.corpusSha256 }));
-  console.log('Validated archive bytes, publication hash, and website/MCP parity.');
+  console.log('Validated archive bytes, publication hash, and website delivery and immutable MCP artifact.');
 
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

@@ -4,12 +4,29 @@ import { readFile, stat } from 'node:fs/promises';
 import { resolve, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import { build } from 'esbuild';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const out=resolve(root,'dist');
 const manifest=JSON.parse(await readFile(resolve(out,'docs/manifest.json'),'utf8'));
+const installedPackage=JSON.parse(await readFile(resolve(root,'node_modules/marionette/package.json'),'utf8'));
 const catalog=JSON.parse(await readFile(resolve(out,'docs/diagnostics.json'),'utf8'));
-const routes=['demos/index.html','errors/index.html',...catalog.diagnostics.map(entry=>`errors/${entry.code}/index.html`),'thanks/index.html','index.html','why/index.html','404.html',...manifest.pages.map(page=>`${page.route}/index.html`)];
+const routes=['case-studies/index.html','case-studies/realworld/index.html','case-studies/roundingwell/index.html','case-studies/vikunja/index.html','demos/index.html','errors/index.html',...catalog.diagnostics.map(entry=>`errors/${entry.code}/index.html`),'thanks/index.html','index.html','why/index.html','404.html',...manifest.pages.map(page=>`${page.route}/index.html`)];
+
+test('documentation embeds the branded Context7 widget without changing Markdown', async () => {
+  for (const page of manifest.pages) {
+    const html = await readFile(resolve(out, `${page.route}/index.html`), 'utf8');
+    assert.equal((html.match(/src="https:\/\/context7.com\/widget.js"/g) || []).length, 1, page.route);
+    assert.match(html, /<script async src="https:\/\/context7.com\/widget.js"/);
+    assert.match(html, /data-library="\/marionettejs\/marionette"/);
+    assert.match(html, /data-color="#b4232d" data-position="bottom-right"/);
+    assert.match(html, /data-placeholder="Ask about Marionette v5…"/);
+    assert.match(html, /Questions are sent to Context7\./);
+    const markdownPath = page.route === 'docs' ? 'docs/index.md' : `${page.route}.md`;
+    assert.ok(!(await readFile(resolve(out, markdownPath), 'utf8')).includes('context7.com/widget.js'));
+  }
+  assert.ok(!(await readFile(resolve(out, 'index.html'), 'utf8')).includes('context7.com/widget.js'));
+});
 
 test('every built page has valid local links, fragments, and asset references',async()=>{
   let checked=0;
@@ -17,7 +34,9 @@ test('every built page has valid local links, fragments, and asset references',a
     const html=await readFile(resolve(out,route),'utf8');
     assert.equal((html.match(/<h1[ >]/g)||[]).length,1,route);
     assert.match(html,/<html lang="en">/);
-    for (const link of ['/thanks/', 'https://github.com/sponsors/paulfalgout', 'https://store.marionettejs.com/', 'https://www.npmjs.com/package/marionette/v/5.0.0-rc.1']) {
+    assert.equal((html.match(/src="https:\/\/context7.com\/docs7-analytics.js"/g) || []).length, 1, route);
+    assert.ok(html.includes('<script defer src="https://context7.com/docs7-analytics.js" data-site="b83657b2-fde7-4916-a683-2d3ba41f185b"></script>'), route);
+    for (const link of ['/thanks/', 'https://github.com/sponsors/paulfalgout', 'https://store.marionettejs.com/', 'https://x.com/marionettejs', `https://www.npmjs.com/package/marionette/v/${installedPackage.version}`]) {
       assert.ok(html.includes(`href="${link}"`), `${route}: missing shared footer link ${link}`);
     }
     assert.ok(!html.includes('https://www.patreon.com/marionettejs'), `${route}: obsolete Patreon link`);
@@ -48,7 +67,7 @@ test('every built page has valid local links, fragments, and asset references',a
 });
 
 test('all local JavaScript imports and CSS imports resolve in the built output',async()=>{
-  for(const file of ['assets/site.js','assets/demo.js','assets/motion.js','assets/playground.js','assets/examples.js','assets/playground-runtime.js','assets/playground.css','assets/site.css','assets/night.css','assets/docs.js','assets/docs.css']){
+  for(const file of ['assets/site.js','assets/demo.js','assets/motion.js','assets/playground.js','assets/examples.js','assets/playground-runtime.js','assets/playground.css','assets/site.css','assets/night.css','assets/docs.js','assets/docs.css','assets/case-studies.css']){
     const body=await readFile(resolve(out,file),'utf8');
     for(const match of body.matchAll(/(?:from\s*|import\(|@import url\()['"]([^'"]+)['"]/g)){
       const target=resolve(dirname(resolve(out,file)),match[1].split('?')[0]);
@@ -57,7 +76,7 @@ test('all local JavaScript imports and CSS imports resolve in the built output',
   }
 });
 
-test('the demo runtime and documentation match the published release candidate',async()=>{
+test('published demo runtime and documentation match the installed artifact',async()=>{
   const provenance=JSON.parse(await readFile(resolve(out,'reference/provenance.json'),'utf8'));
   const candidateNumber=provenance.packageVersion.match(/^5\.0\.0-rc\.(\d+)$/)?.[1];
   assert.ok(candidateNumber);
@@ -65,9 +84,17 @@ test('the demo runtime and documentation match the published release candidate',
   assert.match(provenance.libraryRevision,/^[a-f0-9]{40}$/);
   const hash=createHash('sha256').update(await readFile(resolve(out,'vendor/marionette.js'))).digest('hex');
   assert.equal(hash,provenance.bundleSha256);
-  assert.equal(provenance.packageVersion, '5.0.0-rc.1');
-  assert.equal(provenance.packageVersion, manifest.packageVersion);
-  assert.equal(provenance.libraryRevision, manifest.sourceRevision);
+  const runtime = await build({ entryPoints: [resolve(root, 'node_modules/marionette/dist/marionette.js')],
+    bundle: true, format: 'esm', platform: 'browser', target: 'es2022', write: false, legalComments: 'inline' });
+  assert.equal(hash, createHash('sha256').update(runtime.outputFiles[0].contents).digest('hex'),
+    'Delivered runtime matches a bundle of the installed package and its pinned dependencies.');
+  assert.equal(provenance.packageVersion, installedPackage.version);
+  const installed = JSON.parse(await readFile(new URL('../node_modules/marionette/docs-manifest.json', import.meta.url), 'utf8'));
+  assert.equal(provenance.packageVersion, installed.packageVersion);
+  assert.equal(provenance.libraryRevision, installed.sourceRevision);
+  assert.equal(manifest.packageVersion, installedPackage.version);
+  assert.equal(manifest.sourceRevision, installed.sourceRevision);
+  assert.equal(manifest.contentSha256, installed.contentSha256);
   assert.equal(manifest.sourceDirty, false);
   assert.match(await readFile(resolve(out,'vendor/MARIONETTE-LICENSE.txt'),'utf8'),/MIT/);
 });
@@ -78,14 +105,17 @@ test('entry, workshop and nested runtime imports use content versions to invalid
   const version = source => createHash('sha256').update(source).digest('hex').slice(0, 12);
   const html = await readFile(resolve(out, 'index.html'), 'utf8');
   assert.ok(html.includes(`src="/assets/site.js?v=${version(entry)}"`));
+  const setup = await readFile(resolve(out, 'docs/agent-start/index.html'), 'utf8');
+  const setupModule = await readFile(resolve(out, 'assets/agent-setup.js'), 'utf8');
+  assert.ok(setup.includes(`src="/assets/agent-setup.js?v=${version(setupModule)}"`));
   const imports = [...entry.matchAll(/import\('(.+?)\?v=([a-f0-9]+)'\)/g)];
-  assert.equal(imports.length, 4);
+  assert.equal(imports.length, 8);
   for (const [, path, hash] of imports) {
     assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
   }
   const workshop = await readFile(resolve(out, 'assets/playground.js'), 'utf8');
-  const dependencies = [...workshop.matchAll(/from '(\.\/[^']+\.js)\?v=([a-f0-9]+)'/g)];
-  assert.deepEqual(dependencies.map(([, path]) => path).sort(), ['./playground-export.js', './playground-runtime.js']);
+  const dependencies = [...workshop.matchAll(/(?:from |import\()'(\.\/[^']+\.js)\?v=([a-f0-9]+)'/g)];
+  assert.deepEqual(dependencies.map(([, path]) => path).sort(), ['./analytics.js', './playground-export.js', './playground-runtime.js']);
   for (const [, path, hash] of dependencies) {
     assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
   }
@@ -101,7 +131,7 @@ test('entry, workshop and nested runtime imports use content versions to invalid
   }
   const recipes = await readFile(resolve(out, 'assets/playground-recipes.js'), 'utf8');
   const examples = [...recipes.matchAll(/from '(\.\/[^']+\.js)\?v=([a-f0-9]+)'/g)];
-  assert.equal(examples.length, 2);
+  assert.equal(examples.length, 3);
   for (const [, path, hash] of examples) assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
 
 });

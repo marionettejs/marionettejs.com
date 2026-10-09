@@ -1,12 +1,8 @@
 import { projects } from './demo-projects.js';
 import todoCSS from './todomvc-style.js';
+import { runtime } from './workshop-starter.js';
 
-export const recipeRuntime = Object.freeze({
-  "package": "marionette",
-  "version": "5.0.0-rc.1",
-  "revision": "469e790fea03993a5c063e39028445ac3610c9e4",
-  "data": Object.freeze({ "package": "@mnjs/data", "version": "5.0.0-rc.1" })
-});
+export const recipeRuntime = Object.freeze({ ...runtime, data: Object.freeze({ ...runtime.data }) });
 
 const css = `
 body { background:#f6f0e3; color:#292c35; }
@@ -183,9 +179,9 @@ export const recipes = [
   "title": "TodoMVC, one View at a time",
   "summary": "@mnjs/data Models and Collection drive TodoMVC. CollectionView observes membership; modelEvents render changed rows and collectionEvents update counts. A separate notes Region preserves draft, focus and identity.",
   "docs": [
-    "/docs/collection-view/",
-    "/docs/view/",
-    "/docs/lifecycle/"
+    "/docs/api/collection-view/",
+    "/docs/api/view/",
+    "/docs/guides/lists/"
   ],
   "checks": [
     {
@@ -223,8 +219,8 @@ export const recipes = [
   "title": "Radio Ghostbusters",
   "summary": "A View explicitly releases an application-owned widget subscription in onBeforeDestroy. Region replacement destroys its previous View; parent teardown destroys the replacement.",
   "docs": [
-    "/docs/lifecycle/",
-    "/docs/region/"
+    "/docs/api/view/",
+    "/docs/api/region/"
   ],
   "checks": [
     {
@@ -261,9 +257,9 @@ export const recipes = [
   "title": "Cheese Patrol",
   "summary": "Application readiness prepares the station before attaching a flight screen. Each rocket View owns a three-second delivery. Fire a beam at 40–60% progress to cancel it; misses leave the flight alive. Cancel preparation, fail it, retry, cancel or replace a flight, or stop the Application to destroy the entire screen and its work.",
   "docs": [
-    "/docs/application/",
-    "/docs/region/",
-    "/docs/lifecycle/"
+    "/docs/api/application/",
+    "/docs/api/region/",
+    "/docs/api/view/"
   ],
   "checks": [
     { "id": "beam-miss-continues", "expected": true },

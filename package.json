@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Marionette website and published release-candidate documentation",
+  "description": "Marionette website with versioned consumer documentation and separately pinned browser examples",
   "engines": {
     "node": ">=24"
   },
   "scripts": {
-    "build": "node scripts/build-demo-projects.mjs && node scripts/build.mjs && node scripts/build-mcp.mjs",
+    "build": "node scripts/build-workshop-starter.mjs && node scripts/build-demo-projects.mjs && node scripts/build.mjs && node scripts/build-mcp.mjs",
     "dev": "node scripts/dev.mjs",
     "test": "node --test test/*.test.mjs",
     "check": "npm run build && npm test",
@@ -21,20 +21,23 @@
     "mcp:deploy": "wrangler deploy",
     "test:mcp:http": "node --test test/mcp-http.test.mjs",
     "vendor:demos": "node scripts/build-demo-vendor.mjs",
-    "docs:sync": "node scripts/docs-sync/prepare.mjs"
+    "docs:sync": "node scripts/docs-sync/prepare.mjs",
+    "test:docs:browser": "node test/browser/docs-candidate.mjs"
   },
   "devDependencies": {
     "@babel/parser": "8.0.4",
-    "@mnjs/data": "5.0.0-rc.1",
+    "@mnjs/data": "5.0.0-rc.2",
     "@modelcontextprotocol/client": "2.0.0",
     "@modelcontextprotocol/server": "2.0.0",
     "agents": "0.22.0",
+    "ajv": "8.20.0",
     "esbuild": "0.28.2",
-    "marionette": "5.0.0-rc.1",
+    "marionette": "5.0.0-rc.2",
     "marked": "18.0.12",
     "pagefind": "1.5.2",
     "playwright": "1.63.0",
-    "wrangler": "4.130.0",
+    "posthog-js": "1.435.8",
+    "wrangler": "4.147.0",
     "zod": "4.5.4"
   },
   "overrides": {

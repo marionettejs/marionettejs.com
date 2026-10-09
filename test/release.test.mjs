@@ -9,9 +9,10 @@ import { runInNewContext } from 'node:vm';
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('public release-candidate pages are canonical and indexable while mirrors stay noindexed', async () => {
-  for (const path of ['index.html', 'why/index.html', 'docs/index.html', 'docs/installation/index.html']) {
+  for (const path of ['index.html', 'why/index.html', 'case-studies/index.html', 'case-studies/realworld/index.html', 'case-studies/roundingwell/index.html', 'case-studies/vikunja/index.html', 'docs/index.html', 'docs/quick-start/index.html']) {
     const html = await read(`dist/${path}`);
-    assert.match(html, /rel="canonical" href="https:\/\/marionettejs.com\//);
+    const canonical = `https://marionettejs.com/${path.replace(/index\.html$/, '')}`;
+    assert.equal(html.match(/rel="canonical" href="([^"]+)"/)?.[1], canonical);
     assert.match(html, /content="index, follow"/);
     assert.ok(!html.includes('noindex'));
     assert.ok(!html.includes('Development documentation;'));
@@ -24,50 +25,19 @@ test('public release-candidate pages are canonical and indexable while mirrors s
     }
   }
   assert.match(await read('dist/robots.txt'), /Sitemap: https:\/\/marionettejs.com\/sitemap.xml/);
-  assert.match(await read('dist/sitemap.xml'), /https:\/\/marionettejs.com\/docs\/installation\//);
+  assert.match(await read('dist/sitemap.xml'), /https:\/\/marionettejs.com\/docs\/quick-start\//);
 });
 
-test('release reading copies announce publication while the package source stays exact', async () => {
-  const website = JSON.parse(await read('content/library-docs/manifest.json'));
-  const installed = JSON.parse(await read('node_modules/marionette/dist/docs/manifest.json'));
-  for (const key of ['packageVersion', 'sourceRevision', 'sourceRepository', 'sourceDirty', 'channel']) {
-    assert.equal(website[key], installed[key], key);
-  }
-  // The website export also includes maintainer docs; every npm consumer source
-  // must still be present with exactly the published metadata and bytes.
-  for (const key of ['pages', 'assets']) for (const entry of installed[key]) {
-    assert.deepEqual(website[key].find(item => item.source === entry.source), entry, entry.source);
-    assert.equal(await read(`content/library-docs/${entry.source}`),
-      await read(`node_modules/marionette/dist/docs/${entry.source}`), entry.source);
-  }
-  for (const path of ['docs/installation.md', 'docs/beta.md']) {
-    const raw = await read(`content/library-docs/${path}`);
-    const npmSource = await read(`node_modules/marionette/dist/docs/${path}`);
-    assert.equal(raw, npmSource);
-    const published = await read(`dist/${path}`);
-    assert.doesNotMatch(published, /becomes available after the beta|After publication, install|registry when available/);
-    assert.match(published, /5\.0\.0-rc\.1/);
-  }
-});
-
-test('routing reading copies publish reviewed guidance without replacing the package archive', async () => {
-  const { sourceRevision: exampleRevision } = JSON.parse(await read('content/library-docs/manifest.json'));
-  const reading = await read('dist/docs/routing.md');
-  const html = await read('dist/docs/routing/index.html');
-  for (const output of [reading, html]) {
-    assert.match(output, /Use the Navigation API/);
-    assert.match(output, /Connect Backbone.Router/);
-    assert.ok(output.includes(`${exampleRevision}/test/browser/docs-routing.test.mjs`));
-    assert.ok(output.includes(`${exampleRevision}/test/fixtures/docs-routing/validate.mjs`));
-  }
-  assert.doesNotMatch(reading, /status\.textContent|querySelector\('h1'\)/);
+test('reading copies preserve every imported source and declared publication status', async () => {
+  const manifest = JSON.parse(await read('content/library-docs/manifest.json'));
   const publication = JSON.parse(await read('dist/docs/publication.json'));
-  const revision = publication.edits.find(edit => edit.source === 'docs/routing.md').sourceRevision;
-  assert.match(revision, /^[a-f0-9]{40}$/);
-  assert.ok(reading.includes(`reading source revision ${revision}`));
-  assert.ok(html.includes(`Reading source: ${revision}`));
-  assert.equal(await read('dist/docs/markdown/docs/routing.md'),
-    await read('node_modules/marionette/dist/docs/docs/routing.md'));
+  assert.equal(publication.packageVersion, manifest.packageVersion);
+  const declaration = JSON.parse(await read('content/docs-publication-edits.json'));
+  assert.equal(publication.status, declaration.status);
+  for (const page of manifest.pages) assert.equal(await read(`dist/docs/markdown/${page.source}`), await read(`content/library-docs/${page.source}`));
+  const routing = await read('dist/docs/guides/routing.md');
+  assert.match(routing, /hashchange/);
+  assert.match(routing, /readiness/);
 });
 
 test('legacy worker retirement clears only its precache and unregisters before reloading', async () => {
@@ -95,9 +65,9 @@ test('the sitemap includes every diagnostic and published preview links redirect
     assert.ok(sitemap.includes(`<loc>https://marionettejs.com${route}</loc>`), route);
   }
   const redirects = await read('dist/_redirects');
-  assert.match(redirects, /^\/docs\/regions\/ \/docs\/region\/ 301$/m);
-  assert.match(redirects, /^\/reference\/region.md \/docs\/region.md 301$/m);
-  assert.ok((await read('dist/docs/region.md')).startsWith('<!-- Documentation snapshot:'));
+  assert.match(redirects, /^\/docs\/regions\/ \/docs\/api\/region\/ 301$/m);
+  assert.match(redirects, /^\/reference\/region.md \/docs\/api\/region.md 301$/m);
+  assert.ok((await read('dist/docs/api/region.md')).startsWith('<!-- Documentation snapshot:'));
 });
 
 test('worker retirement finishes when one closing window rejects navigation', async () => {
@@ -122,7 +92,9 @@ test('worker retirement finishes when one closing window rejects navigation', as
 test('publication overrides retain complete source identity without rewriting the archive', async () => {
   const publication = JSON.parse(await read('dist/docs/publication.json'));
   const originals = JSON.parse(await read('content/library-docs/manifest.json'));
-  for (const edit of publication.edits.filter(edit => edit.sourceRevision)) {
+  const supplemental = JSON.parse(await read('content/supplemental-docs/manifest.json'));
+  const pages = [...originals.pages, ...supplemental.pages];
+  for (const edit of publication.edits) {
     assert.match(edit.sourceRevision, /^[a-f0-9]{40}$/);
     const archived = await read(`dist/docs/markdown/${edit.source}`);
     assert.equal(createHash('sha256').update(archived).digest('hex'),
@@ -132,11 +104,10 @@ test('publication overrides retain complete source identity without rewriting th
     assert.equal(publishedMarkdown(page), edit.after, edit.source);
     // Compare every byte of the delivered reading copy, including prose, while
     // allowing the documented link rewriting and provenance/footer additions.
-    assert.equal(await read(`dist${markdownUrl(page)}`), deriveMarkdown(page, originals.pages, originals), edit.source);
-    if (edit.readingSha256) {
-      assert.equal(createHash('sha256').update(edit.after).digest('hex'), edit.readingSha256);
-      assert.match(edit.sourceSha256, /^[a-f0-9]{64}$/);
-    }
+    assert.equal(await read(`dist${markdownUrl(page)}`), deriveMarkdown(page, pages, originals), edit.source);
+    assert.match(edit.sourceSha256, /^[a-f0-9]{64}$/);
+    assert.match(edit.readingSha256, /^[a-f0-9]{64}$/);
+    assert.equal(createHash('sha256').update(edit.after).digest('hex'), edit.readingSha256);
   }
 });
 
@@ -160,7 +131,14 @@ test('published pages keep a validator and the sitemap dates every entry', async
   // which is not necessarily the commit checked out when the test runs.
   const sitemap = await read('dist/sitemap.xml');
   const entries = [...sitemap.matchAll(/<url>(.*?)<\/url>/g)].map(([, entry]) => entry);
-  assert.ok(entries.length > 100);
+  const manifest = JSON.parse(await read('content/library-docs/manifest.json'));
+  const catalog = JSON.parse(await read('dist/docs/diagnostics.json'));
+  const supplemental = JSON.parse(await read('content/supplemental-docs/manifest.json'));
+  assert.equal(entries.length, manifest.pages.length + supplemental.pages.length + catalog.diagnostics.length + 13);
+  for (const page of supplemental.pages) assert.ok(sitemap.includes(`<loc>https://marionettejs.com/${page.route}/</loc>`));
+  for (const route of ['/case-studies/', '/case-studies/realworld/', '/case-studies/roundingwell/', '/case-studies/vikunja/']) {
+    assert.ok(sitemap.includes(`<loc>https://marionettejs.com${route}</loc>`), route);
+  }
   const dates = new Set();
   for (const entry of entries) {
     const [, date] = entry.match(/<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/) ?? [];

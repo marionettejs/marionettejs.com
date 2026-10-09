@@ -2,60 +2,32 @@ import { readSnapshot } from '../scripts/library-docs.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { diagnosticExamples } from '../scripts/development-docs.mjs';
 
-const readDevelopmentDocs = async () => {
+const installedPackage = JSON.parse(await readFile('node_modules/marionette/package.json', 'utf8'));
+const declaration = JSON.parse(await readFile('content/docs-publication-edits.json', 'utf8'));
+
+test('canonical consumer guides replace obsolete instructional paths', async () => {
   const { manifest, pages } = await readSnapshot('content/library-docs');
-  return { manifest, pages: ['docs/development.md', 'docs/troubleshooting.md'].map(source => pages.find(page => page.source === source)) };
-};
-
-test('development guides preserve the matching published library source', async () => {
-  const { manifest, pages } = await readDevelopmentDocs();
-  assert.equal(manifest.packageVersion, '5.0.0-rc.1');
-  for (const page of pages) {
-    assert.equal(await readFile(`dist/docs/markdown/${page.source}`, 'utf8'), page.markdown);
+  assert.equal(manifest.packageVersion, installedPackage.version);
+  for (const source of ['docs/quick-start.md', 'docs/tooling.md', 'docs/guides/testing.md', 'docs/guides/production.md']) {
+    const page = pages.find(page => page.source === source);
+    assert.equal(await readFile(`dist/docs/markdown/${source}`, 'utf8'), page.markdown);
     const html = await readFile(`dist/${page.route}/index.html`, 'utf8');
-    assert.ok(html.includes('npm archive. Reading source:'));
+    assert.ok(html.includes(declaration.status));
     assert.ok(html.includes(manifest.sourceRevision.slice(0, 8)));
-    assert.ok(html.includes(`/${page.route}.md`));
   }
-  const beta = await readFile('dist/docs/manifest.json', 'utf8');
-  assert.equal(beta, await readFile('content/library-docs/manifest.json', 'utf8'));
-  const entry = await readFile('dist/docs/agent-start.md', 'utf8');
-  assert.match(entry, /Channel: latest/);
-  assert.doesNotMatch(await readFile('dist/docs/beta.md', 'utf8'), /Move `next`/);
-});
-
-test('diagnostic pages include the canonical failing and corrected examples', async () => {
-  const { pages, manifest } = await readDevelopmentDocs();
-  const corpus = JSON.parse(await readFile('dist/docs/corpus.json', 'utf8'));
-  const examples = diagnosticExamples(pages[1].markdown);
-  assert.deepEqual(Object.keys(examples), ['MN0020', 'MN0003', 'MN0023', 'MN0007']);
-  for (const code of Object.keys(examples)) {
-    const html = await readFile(`dist/errors/${code}/index.html`, 'utf8');
-    assert.match(html, /Failing and corrected example/);
-    assert.match(html, /export function fail/);
-    assert.match(html, /export function fix/);
-    assert.ok(html.includes('/docs/manifest.json'));
-    const markdown = await readFile(`dist/errors/${code}.md`, 'utf8');
-    assert.ok(markdown.includes(`Example source: docs/troubleshooting.md; revision ${manifest.sourceRevision}; source SHA-256 ${pages[1].sha256}`));
-    const doc = corpus.documents.find(doc => doc.id === `errors/${code}`);
-    assert.deepEqual(doc.sourceSupplements, [{ sourceUrl: 'https://marionettejs.com/docs/markdown/docs/troubleshooting.md',
-      sourceRevision: manifest.sourceRevision, sourceSha256: pages[1].sha256 }]);
-  }
-});
-
-test('published development URLs redirect to their canonical release documents', async () => {
   const redirects = await readFile('dist/_redirects', 'utf8');
-  for (const [from, to] of [
-    ['/development', '/docs/development/'],
-    ['/development/', '/docs/development/'],
-    ['/development.md', '/docs/development.md'],
-    ['/development/manifest.json', '/docs/manifest.json'],
-    ['/development/source/docs/development.md', '/docs/markdown/docs/development.md'],
-    ['/development/source/docs/troubleshooting.md', '/docs/markdown/docs/troubleshooting.md'],
-    ['/troubleshooting', '/docs/troubleshooting/'],
-    ['/troubleshooting/', '/docs/troubleshooting/'],
-    ['/troubleshooting.md', '/docs/troubleshooting.md']
-  ]) assert.ok(redirects.split('\n').includes(`${from} ${to} 301`), from);
+  assert.doesNotMatch(redirects, /docs\/(?:development|troubleshooting)/);
+});
+
+test('diagnostics use the matching catalog without obsolete example supplements', async () => {
+  const corpus = JSON.parse(await readFile('dist/docs/corpus.json', 'utf8'));
+  for (const document of corpus.documents.filter(document => document.kind === 'diagnostic')) {
+    assert.equal(document.sourceSupplements, undefined);
+    if (document.id !== 'errors/index') assert.ok(document.markdown.includes('/docs/tooling/'));
+  }
+  const demo = JSON.parse(await readFile('dist/reference/provenance.json', 'utf8'));
+  assert.equal(demo.packageVersion, installedPackage.version);
+  const manifest = JSON.parse(await readFile('dist/docs/manifest.json', 'utf8'));
+  assert.equal(demo.libraryRevision, manifest.sourceRevision);
 });

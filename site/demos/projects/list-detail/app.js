@@ -1,11 +1,14 @@
 import { View } from 'marionette';
 import { DataApi } from '@mnjs/data';
-import { TodoList, TodoFooter } from './todo-views.js';
+import { TodoCollection, TodoList, TodoFooter } from './todo-views.js';
 import { PlanningNotes } from './planning-notes.js';
 
 // Start here: Todos composes the app with three named Regions.
 // todo-views.js owns Models and rows; planning-notes.js owns the draft.
 const Todos = View.extend({
+  initialize() {
+    this.collection = new TodoCollection([{ title: 'Finish one small thing' }]);
+  },
   template: () => `
     <section class="todoapp" aria-label="Todo list">
       <h2 class="todos-heading">todos</h2>

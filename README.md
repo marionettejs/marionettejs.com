@@ -1,4 +1,4 @@
-# Marionette website — 5.0.0-rc.1
+# Marionette website — v5 documentation integration
 
 The live site is marionettejs.com; www.marionettejs.com and v5.marionettejs.com
 also work. Cloudflare Pages serves one complete artifact.
@@ -6,6 +6,20 @@ The apex is canonical; v5 remains a noindexed mirror.
 
 Source lives in `marionettejs/marionettejs.com`. Earlier design commits and checkouts remain
 preserved in the old website repository. The local preview still binds to loopback.
+
+## Versioned integration
+
+This integration targets `marionette@5.0.0-rc.2` across documentation, browser demos
+and workshops. Import consumer docs with `npm run docs:import -- /path/to/export`.
+Website and MCP retrieval use the same imported corpus and packaged records assets.
+Runtime version and revision come from the installed package's vendor provenance;
+`/docs/manifest.json` identifies the documentation snapshot. Builds do not publish
+the package, website, or MCP service.
+
+A complete import replaces the corpus and its navigation. Preserve matching
+snapshot bytes and hashes; import the reviewed clean released source and verify it
+against the installed registry archive before setting published metadata. Run
+`npm run check` and review desktop/narrow docs. A main merge deploys both services.
 
 ## Deployment
 
@@ -22,6 +36,68 @@ with the local build using `scripts/verify-mcp.mjs ENDPOINT --revision SHA`.
 The Worker response revision must match the deployed commit. A failed Worker deployment
 or parity check fails the run; rerun the workflow after correcting the cause.
 The two service uploads are sequential, not atomic.
+
+### Context7 distribution and feedback
+
+After a successful site and MCP deployment, a change to the documentation manifest
+or publication metadata calls `.github/workflows/context7.yml` to request a refresh
+of `/marionettejs/marionette`. Manual deployment also requests a refresh. Marketing
+changes do not. Context7 failures fail the separate job after deployment; correct
+the cause and use the Context7 workflow's manual refresh rather than redeploying.
+
+Set `CONTEXT7_API_KEY` in the `production` environment from the Context7 teamspace
+that owns the library. The key is used only by trusted `main` workflows. The library
+repository's `context7.json` owns indexing configuration; its `previousVersions`
+list declares supported immutable tags. Add the new release tag there as part of
+release preparation. Website CI refreshes the library's configured branch, and
+Context7 processes the declared versions. Refresh acceptance means queued work;
+verify the tag's completed indexing in the owner dashboard.
+
+The same workflow collects measurements weekly and on manual dispatch. It saves
+`context7-evidence` artifacts for 90 days: expected docs identity, reported index
+state/date, token and snippet counts, benchmark score (null when unavailable),
+available versions, 30-day usage and lifetime topic counts. It makes two read calls,
+plus one request on refresh runs; it does not launch a separate paid evaluation.
+Configuration failures are reported in the job log before a snapshot is collected.
+The API does not attest source revision parity. Check returned snippets against
+the expected release before treating a snapshot as evidence about those docs.
+
+Use the [owner dashboard](https://context7.com/marionettejs/marionette/admin) to
+review Benchmark suggestions and question-level results when available. For each
+candidate improvement, check whether the question is a real supported task and
+whether the failure came from the docs, indexing, retrieval or grading. Correct
+the relevant guide or reference, then compare with a saved snapshot. Keep questions
+and versions consistent where possible; avoid adding prose just to improve a score.
+Trust scores reflect source reputation, usage reflects reach, and benchmark scores
+judge documentation answers. None establishes application correctness or agent
+time/token efficiency; use our consumer checks and controlled tasks for those.
+
+Context7's automatic refresh is usage-triggered with popularity-based thresholds,
+not a release webhook. See its [refresh policy](https://context7.com/docs/library-updates),
+[Actions integration](https://context7.com/docs/integrations/github-actions),
+and [current feedback pipeline](https://upstash.com/blog/context7-research).
+The old owner-run benchmarks were [deprecated by Context7](https://github.com/upstash/context7/issues/2760#issuecomment-4706452541).
+There is currently no documented public benchmark trigger. The API may return zero
+while the dashboard says no benchmark data; this is not a measured failure score.
+
+Documentation HTML also embeds the optional Context7 chat widget with Marionette's
+red, a bottom-right position and a short branded welcome. It uses the public library
+ID, never the CI API key. Enable it in the owner dashboard's Chat tab and allow
+`marionettejs.com` and the public aliases where it should work. Its current script
+sends chat messages to Context7 when visitors submit them; the welcome states this.
+The configured library follows the indexed default branch. Check answers against
+the docs version shown on the page, especially before a new release is published.
+Ordinary docs, Markdown and search work without the widget. The documentation
+browser suite checks this by blocking its script; verify the actual widget on the
+allowed deployed domain after merging. Chat billing is not specified in the widget
+guide; do not infer it from API or private-parsing prices.
+
+All HTML pages include the deferred Docs7 analytics script for connected site
+`b83657b2-fde7-4916-a683-2d3ba41f185b`. This is a public site identifier, not an API
+key. Analytics appears in that site's Docs7 dashboard after deployment; embedding
+the script alone does not establish that visits have been recorded.
+
+PostHog EU is configured on its capped Free plan through the free managed proxy. Standard page views, sessions, navigation duration, public control clicks, named product events and public-page replay use anonymous SDK identifiers. See [the event and setup plan](planning/analytics.md). The `/privacy/` page explains collection and offers an opt-out; this control is separate from Context7 and Cloudflare services.
 
 Publishing needs the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`
 secrets in the `production` environment. The token needs Pages Edit for the
@@ -68,7 +144,7 @@ Social services may cache old previews after deployment.
 
 ## View locally
 
-Requires Node.js 24 or newer. Browser tests also require Chromium (`npx playwright install chromium`) and the `unzip` command to verify downloaded projects. Run `npm ci` before the first build to install the pinned documentation renderer and search tools.
+Requires Node.js 24 or newer. With nvm, run `nvm use` before installation. Browser tests also require Chromium (`npx playwright install chromium`) and the `unzip` command to verify downloaded projects. Run `npm ci` before the first build to install the pinned documentation renderer and search tools.
 
 ```sh
 npm run dev
@@ -125,12 +201,13 @@ reassessment and remaining gates.
 CSS, the live example, and copied draft brand SVGs. `scripts/build.mjs` produces
 static files in ignored `dist/`. `scripts/dev.mjs` serves only that output.
 
-`site/vendor/marionette.js` bundles the published `marionette@5.0.0-rc.1`
+`site/vendor/marionette.js` bundles the exact published `marionette` version
 with matching `@mnjs/radio` and `@mnjs/utils` from package-lock.json. Run
 `npm run vendor:build` after an intentional package upgrade. It verifies the
 package/docs versions, bundles ESM with esbuild, includes all MIT licenses, and
 records the npm integrity and resulting bundle hash in `content/provenance.json`.
-The homepage and playground use the same runtime and docs as the release-candidate package.
+The homepage and playground use that runtime. Imported documentation must match
+its package version and source revision before publication.
 
 ## Launch copy
 
@@ -221,92 +298,101 @@ executable starter; a source test prevents the two from drifting.
 
 ## Documentation source
 
-For an npm release, export the full website corpus from a clean checkout of the
-exact `sourceRevision` recorded in that published package's `dist/docs/manifest.json`.
-Run `npm run docs:export` there, then import its `.docs-export` directory here.
-Do not use moving `master` or import the narrower npm `dist/docs` directory alone:
-that directory omits the maintainer guides and would remove their website routes.
+Import the complete reviewed consumer export from the corresponding library
+revision. For a published release, compare it with that package's bundled manifest;
+for a candidate, retain its actual revision, dirty flag and local-source publication
+status. Never infer publication from the exported `latest` routing label.
 
 ```sh
-npm run docs:import -- /absolute/path/to/released-source/.docs-export
+npm run docs:import -- /absolute/path/to/library/.docs-export
 npm run check
+node test/browser/docs-candidate.mjs
 ```
 
-The importer validates source paths, routes, every content hash, and the aggregate
-digest before replacing `content/library-docs/`. Confirm that the export is clean,
-its version/revision/repository match the published npm manifest, every npm consumer
-page and asset matches the npm metadata and bytes, and all reviewed maintainer routes
-remain present. `npm run check` verifies the npm consumer subset against the installed
-package; review the full manifest diff for the maintainer corpus. Never replace the
-archive until those checks pass. Commit that generated snapshot
-with its manifest after reviewing the source diff. Do not edit imported Markdown.
-The manifest records the package version, base source revision, content digest, and
-whether the source checkout includes local changes. A local-change snapshot is suitable
-for review; publish from a reviewed committed revision. Version alone is not enough
-to identify development snapshots that share the same alpha number.
+The importer checks bounded paths, symlink containment, unique routes, every source
+hash and the aggregate digest before replacing `content/library-docs/`. Review the
+manifest diff and do not edit imported files. Candidate imports replace the prior
+corpus, navigation and diagnostic assets together. Original bytes remain available
+under `/docs/markdown/` and `/docs/source/`; HTML and reading Markdown resolve links
+within the imported snapshot. Code remains intact. Diagnostic schemas are hashed
+assets from the same export, rather than an independently maintained supplement.
 
-The build renders all pages at manifest routes under `/docs/`, publishes reading Markdown at the same route with `.md` (the index uses `/docs/index.md`),
-and preserves canonical source byte for byte under `/docs/markdown/`. Reading
-Markdown resolves documentation links to the snapshot and other source links to its
-base revision; fenced examples and inline code remain unchanged. Its metadata names
-the original source hash, not a hash of the transformed Markdown. The build also
-publishes `/docs/llms.txt` and
-`/docs/manifest.json`. Diagnostic pages at `/errors/` and their Markdown exports
-come from the included catalog. The catalog names `docs.marionettejs.com` diagnostic routes, while runtime errors
-still use the legacy versioned URL prefix. Align runtime URLs and diagnostic
-hosting in a separate release change; this website serves its diagnostic reference under /errors/.
+`content/docs-publication-edits.json` records publication status and any reviewed
+reading-copy changes separately. Website and MCP builds use the same corpus hashes
+and source identity. Their included records example comes from the same packaged
+source assets. The browser workshop identifies its exact runtime independently.
 
-Marked 18.0.12 renders Markdown with raw HTML escaped and unsafe URL schemes blocked.
-Pagefind 1.5.2 indexes generated pages during the build and serves search entirely
-from static files. Search begins with consumer docs selected; readers can include
-maintainer material with the Audience filter. There are no service
-keys, hosted search requests, AI inference calls, or request-based service charges
-in this implementation. Hosting providers can still impose free-tier limits.
+Published documentation labels require a clean snapshot matching the installed npm
+archive, including its revision, content digest and locked registry integrity.
+After an authorized release, upgrade the exact core/data pins together:
 
-Publication wording fixes for the reading copies live in
-`content/docs-publication-edits.json`. Both HTML and agent Markdown apply these
-exact prose edits. Archived package Markdown and its hashes remain unchanged.
-Do not silently describe an edited source archive as the released artifact.
+```sh
+npm install --save-dev --save-exact marionette@5.0.0-rc.2 @mnjs/data@5.0.0-rc.2
+npm ls marionette @mnjs/data @mnjs/radio @mnjs/utils
+```
 
-The normal build creates one `dist/` artifact containing marketing, documentation,
-search, and the workshop. Deploy the complete output to all three active hosts.
+Require all four installed versions to match. The vendor builder reads the package's
+root `docs-manifest.json` and requires RC2 with clean source. Rebuild with
+`npm run vendor:build` and `npm run vendor:demos`; verify both resulting hashes and
+license bundles. `npm run build` derives the workshop brief, runtime, recipes and
+export identity from the resulting provenance, including the released source revision.
 
-Always deploy from this repository and branch with both marketing and documentation present. The old `marionettejs.com` docs worktree is not the deployment source. Preserve the full `dist/` build, including `/thanks/`, documentation, search, agent briefs, and pinned demo assets.
+Compare every imported page and supporting asset with the installed registry
+archive before setting published metadata. Run `npm run check`,
+`npm run test:docs:browser`, `npm run test:browser` and
+`node test/browser/personal-preview.mjs`, plus the deployment runbook's HTTP MCP
+verification. A local candidate import may be checked before publication, with
+its candidate status retained. Final deployment must use the matching registry
+runtime and verified publication metadata.
 
-## Packaged sources and website corrections
 
-`content/library-docs/` is the archived npm documentation snapshot. Keep its
-manifest and listed files byte-for-byte intact. `content/docs-publication-edits.json`
-records corrections applied only to HTML and reading Markdown; diagnostic-code
-links in reading copies go directly to the matching error page.
+Marked escapes raw HTML and blocks unsafe URL schemes. Pagefind builds a static
+search index. The browser check covers every imported page at desktop and narrow
+widths and checks rendered search. It does not run all instructional examples or
+measure reader effectiveness; those are library/consumer verification boundaries.
 
-The package omits the JSON schema referenced by its diagnostic catalog.
-`content/diagnostics-schema.json` supplies the exact schema from the same release
-revision, with its source and hash in `content/diagnostics-schema-provenance.json`.
-The build verifies that identity and publishes the schema beside all catalog
-copies. Recheck this supplement when importing a newer release.
+Imports stage a replacement and retain the previous directory until installation
+succeeds. Failed installation restores it; the next import recovers an interrupted
+replacement before checking new input. Build and review the complete `dist/`
+artifact before requesting publication. Main merges deploy both website and MCP,
+so package release policy, public endpoint version and source reachability need
+agreement before merging this candidate integration.
 
-The published preview URLs `/docs/regions/` and `/reference/region.md` have redirects
-because they were shared externally. Retain them while those links remain in use;
-remove them only after external references are migrated and access logs show no use.
-
-Documentation imports retain the previous snapshot in `content/library-docs.backup/`
-until installation succeeds. A failed install restores it automatically; after
-an interrupted process, the next import restores a missing target before reading
-new input. If a build is needed first, rename the backup to `content/library-docs/`.
-
-Development and troubleshooting are part of the same published snapshot. For an npm release, import
-all guides from the same exact released-source export using the procedure above. The browser check executes their
-actual failing/corrected snippets against the matching published demo bundle.
-The previously shared `/development/` and `/troubleshooting/` URLs redirect to
-`/docs/development/` and `/docs/troubleshooting/`. Their old manifest and source
-URLs also redirect to the matching canonical snapshot; retain those redirects while
-external references use them, and remove only after references migrate and access
-logs show no use. These checks do not authorize deploying the site.
+The existing v0-v4 archive URLs remain supported for those consumers. Previously
+shared `/docs/regions/` and `/reference/region.md` links resolve to the new modular
+Region reference. Their compatibility reason is external links; remove them when
+those references migrate and access logs establish they are unused.
 
 ## Library documentation sync
 
-[`scripts/docs-sync/README.md`](scripts/docs-sync/README.md) describes the single
-automated reading-copy sync, credentials, failure recovery, and manual deployment
-boundary. Ordinary library documentation merges update publication edits through
-one reviewed PR. Only explicit npm-release imports replace `content/library-docs/`.
+[`scripts/docs-sync/README.md`](scripts/docs-sync/README.md) describes the bounded
+reading-copy sync and reviewed PR path. It preserves the imported archive and
+rejects navigation changes. Changes to the canonical corpus require an explicit
+complete snapshot import and website review. Neither import nor build authorizes
+publication.
+
+## Case studies
+
+`/case-studies/` lists studies from `content/case-studies.mjs`. Each article supplies
+metadata, a conclusion, sections, disclosures, and methodology to the shared static
+article layout. Add a study to that list to generate its route and index card.
+
+The first article, `/case-studies/realworld/`, uses only the final five-app run at
+`00dc2c8e469f3d62470b1a63a66ff9892eb3fdff`. Its compact metric data records that pin;
+permanent links point to the raw evidence. Development prompts are transcribed from
+the original chat, separately from repository evidence. The supplied brief is kept
+verbatim in `content/case-studies/realworld-brief.txt` and displayed in a native,
+closed-by-default disclosure. The rebalanced 1800 × 960 editorial illustration serves
+as both hero and social image at its full aspect ratio; no crop or padding is needed.
+Copied screenshots retain their source dimensions and link to their original captures.
+Social metadata uses the canonical public paths; the loopback preview sends a noindex header.
+
+The second article, `/case-studies/roundingwell/`, describes the migration through
+RC2 and is drafted for publication after that application change merges. Its historical
+beta.6 benchmark table reads the preserved CSV in
+`site/assets/case-studies/roundingwell/evidence/`; that directory includes raw
+samples, source pins, file hashes, and methodology. The worklist capture uses
+synthetic data. The 1729 × 910 hero pairs the existing RoundingWell and Marionette
+vector logos in blue and red panels. Its editable source is
+`site/assets/case-studies/roundingwell/brand-panels.svg`; the PNG export is shared
+by the article and social metadata without cropping.

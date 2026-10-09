@@ -1,3 +1,5 @@
+let track = () => false;
+import('./analytics.js').then(module => { track = module.track; }).catch(() => {});
 import { Application, View, CollectionView } from '../vendor/marionette.js';
 
 // Static example content; each screen owns its selection and lifecycle state.
@@ -20,13 +22,19 @@ const Detail = View.extend({
   tagName:'article', className:'application-detail',
   template:({ title, body, tag }) => `<span class="component-label">DetailView</span><h3>${title}</h3><p>${body}</p><small>${tag}</small>`
 });
+const Status = View.extend({
+  tagName:'p', className:'demo-status', id:'demo-status',
+  attributes:{ role:'status' },
+  template:({ message }) => message
+});
 const Screen = View.extend({
   className:'application-screen',
   createState() { return { selectedId:work[0].id, replacements:0, previousDetailDestroyed:false }; },
-  template:() => `<div class="application-owner"><span>ScreenView</span><span>owns this layout</span></div><div class="application-layout"><div class="application-list"><span class="component-label">CollectionView</span><div data-list></div><small>3 items · one list</small></div><div data-detail></div></div>`,
-  regions:{ list:'[data-list]', detail:'[data-detail]' },
+  template:() => `<div class="application-owner"><span>ScreenView</span><span>owns this layout</span></div><div class="application-layout"><div class="application-list"><span class="component-label">CollectionView</span><div data-list></div><small>3 items · one list</small></div><div data-detail></div></div><div data-status></div>`,
+  regions:{ list:'[data-list]', detail:'[data-detail]', status:'[data-status]' },
   childViewEvents:{ 'select:work':'selectWork' },
   onRender() {
+    this.showChildView('status', new Status({ model:{ message:'One Application. A screen with independently owned parts.' } }));
     this.showChildView('list', new WorkList({ collection:work }));
     this.showChildView('detail', new Detail({ model:work.find(item => item.id === this.getState().selectedId) }));
   },
@@ -36,9 +44,10 @@ const Screen = View.extend({
     const previous = this.getChildView('detail');
     this.showChildView('detail', new Detail({ model:item }));
     state.selectedId = item.id;
+    track('ownership_select');
     state.replacements++;
     state.previousDetailDestroyed = previous.isDestroyed();
-    document.querySelector('#demo-status').textContent = 'Detail replaced and cleaned up. Screen and list stayed put.';
+    this.showChildView('status', new Status({ model:{ message:'Detail replaced and cleaned up. Screen and list stayed put.' } }));
   }
 });
 const Preview = Application.extend({
@@ -54,7 +63,7 @@ function inspect() {
   const detail = screen.getChildView('detail');
   return {
     running:app.isRunning(), screenId:screen.cid, listId:list.cid, detailId:detail.cid,
-    attached:screen.isAttached(), regions:['list','detail'], listItems:list.children.length,
+    attached:screen.isAttached(), regions:['list','detail','status'], listItems:list.children.length,
     ...screen.getState()
   };
 }
@@ -83,6 +92,6 @@ if (document.modelContext?.registerTool) {
 addEventListener('pagehide', event => {
   if (!event.persisted) {
     toolsLifetime.abort();
-    app.destroy().catch(error => console.warn('Application example cleanup failed.', error));
+    app.destroy();
   }
 });

@@ -5,13 +5,16 @@ import assert from 'node:assert/strict';
 import { mkdtemp, writeFile, rm, mkdir, cp, readFile, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { syncPublication, git, hash, checkNavigation } from '../scripts/docs-sync/prepare.mjs';
+import { syncPublication, git, hash, checkNavigation, branchReview, mergeBranchPublication } from '../scripts/docs-sync/prepare.mjs';
 import { publish } from '../scripts/docs-sync/publish.mjs';
 
 async function fixture(t) {
   const repository = await mkdtemp(join(tmpdir(), 'docs-sync-test-'));
-  t.after(() => rm(repository, { recursive: true, force: true }));
+  t.after(() => rm(repository, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 }));
   git(repository, 'init', '-q');
+  // Commits must not leave detached Git maintenance writing into a disposed fixture.
+  git(repository, 'config', 'maintenance.auto', 'false');
+  git(repository, 'config', 'gc.auto', '0');
   git(repository, 'config', 'user.name', 'Documentation test');
   git(repository, 'config', 'user.email', 'test@example.invalid');
   await mkdir(join(repository, 'docs'));
@@ -76,10 +79,13 @@ function remote({ existing = false, race = false } = {}) {
   const requests = [];
   const content = JSON.stringify({ edits: [{ sourceRevision: 'c'.repeat(40) }] });
   const state = { main: 'a'.repeat(40), head: existing ? 'b'.repeat(40) : null, revision: 'c'.repeat(40), sha256: hash(content), changedFromMain: true };
+  state.review = existing ? { number: 7, state: 'open', head: state.head, lifecycle: null } : null;
   const api = async (path, method = 'GET', body) => {
     requests.push({ path, method, body });
     if (path.endsWith('/git/ref/heads/main')) return { object: { sha: race ? 'wrong' : state.main } };
     if (path.includes('/git/ref/heads/automation')) return existing ? { object: { sha: state.head } } : null;
+    if (path.includes('/events?')) return [];
+    if (path.includes('state=all')) return existing ? [{ number: 7, state: 'open', head: { sha: state.head } }] : [];
     if (path.includes('/pulls?')) return existing ? [{ number: 7 }] : [];
     if (path.includes('/contents/')) return { content: Buffer.from('old').toString('base64') };
     if (path.includes('/git/commits/') && method === 'GET') return { tree: { sha: 'tree' } };
@@ -132,36 +138,41 @@ test('routing sync builds and validates independently, rejecting corrupted deliv
   await symlink(new URL('../node_modules', import.meta.url).pathname, join(root, 'node_modules'), 'dir');
   const publicationPath = join(root, 'content/docs-publication-edits.json');
   const publication = JSON.parse(await readFile(publicationPath, 'utf8'));
+  publication.status = 'development candidate (local source)';
+  // This isolated repository contains only the routing source under test.
+  publication.edits = [];
+  publication.titles = [];
   const archive = JSON.parse(await readFile(join(root, 'content/library-docs/manifest.json'), 'utf8'));
-  const edit = publication.edits.find(edit => edit.source === 'docs/routing.md');
+  const routing = archive.pages.find(page => page.source === 'docs/guides/routing.md');
+  const original = await readFile(join(root, 'content/library-docs', routing.source), 'utf8');
   const f = await fixture(t);
-  await writeFile(join(f.repository, 'docs/routing.md'), edit.after);
+  await mkdir(join(f.repository, 'docs/guides'));
+  await writeFile(join(f.repository, routing.source), original);
   git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'docs: routing baseline');
   const previousRevision = git(f.repository, 'rev-parse', 'HEAD');
-  const incoming = edit.after + '\nReview direct navigation alongside browser back and forward behavior.\n';
-  await writeFile(join(f.repository, 'docs/routing.md'), incoming);
+  await writeFile(join(f.repository, routing.source), original + '\nReview direct navigation alongside browser Back and Forward behavior.\n');
   git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'docs: clarify routing verification');
   const revision = git(f.repository, 'rev-parse', 'HEAD');
-  const routing = archive.pages.find(page => page.source === edit.source);
-  const update = await syncPublication({ repository: f.repository, revision, manifest: archive,
-    pages: [{ ...routing, markdown: edit.before }],
-    publication: { ...publication, edits: [{ ...edit, sourceRevision: previousRevision, sourceSha256: hash(edit.after) }] } });
-  publication.edits = publication.edits.map(item => item === edit ? update.publication.edits[0] : item);
+  archive.sourceDirty = false;
+  await writeFile(join(root, 'content/library-docs/manifest.json'), JSON.stringify(archive, null, 2) + '\n');
+  const update = await syncPublication({ repository: f.repository, revision, manifest: { ...archive, sourceRevision: previousRevision },
+    pages: [{ ...routing, markdown: original }], publication });
+  publication.edits = update.publication.edits;
   const content = JSON.stringify(publication, null, 2) + '\n';
   await writeFile(publicationPath, content);
   git(root, 'init', '-q'); git(root, 'config', 'user.name', 'Documentation test');
   git(root, 'config', 'user.email', 'test@example.invalid');
   git(root, 'add', 'content'); git(root, 'commit', '-qm', 'docs: archive fixture');
   const run = promisify(execFile);
-  for (const script of ['scripts/build-demo-projects.mjs', 'scripts/build.mjs', 'scripts/build-mcp.mjs']) {
+  for (const script of ['scripts/build-workshop-starter.mjs', 'scripts/build-demo-projects.mjs', 'scripts/build.mjs', 'scripts/build-mcp.mjs']) {
     await run(process.execPath, [script], { cwd: root });
   }
-  await run(process.execPath, ['--test', 'test/release.test.mjs', 'test/docs.test.mjs', 'test/site.test.mjs', 'test/agent-discovery.test.mjs'], { cwd: root });
-  assert.ok((await readFile(join(root, 'dist/docs/routing.md'), 'utf8')).includes(`reading source revision ${revision}`));
+  await run(process.execPath, ['--test', 'test/docs.test.mjs', 'test/site.test.mjs', 'test/agent-discovery.test.mjs', 'test/release.test.mjs'], { cwd: root });
+  assert.ok((await readFile(join(root, 'dist/docs/guides/routing.md'), 'utf8')).includes(`reading source revision ${revision}`));
   await mkdir(join(root, 'output/docs-sync'));
   await writeFile(join(root, 'output/docs-sync/state.json'), JSON.stringify({ main: git(root, 'rev-parse', 'HEAD'), sha256: hash(content) }));
   await validateSync(root);
-  for (const path of ['dist/docs/markdown/docs/agents.md', 'dist/docs/publication.json', 'dist/docs/agents.md', 'output/mcp/snapshot.json']) {
+  for (const path of ['dist/docs/markdown/docs/agents.md', 'dist/docs/publication.json', 'dist/docs/agents.md', 'dist/docs/markdown/docs/guides/framework-migration.md', 'dist/docs/supplemental-manifest.json', 'output/mcp/snapshot.json']) {
     const original = await readFile(join(root, path));
     await writeFile(join(root, path), '{}');
     await assert.rejects(validateSync(root), { code: 'ERR_ASSERTION' }, path);
@@ -202,5 +213,150 @@ test('main moving during object creation prevents both new and existing branch p
     assert.equal(mainReads, 2);
     assert.ok(f.requests.some(request => request.path.endsWith('/git/commits') && request.method === 'POST'));
     assert.ok(f.requests.every(request => !request.path.includes('/git/refs') && !(request.path.includes('/pulls') && request.method !== 'GET')));
+  }
+});
+
+test('only an open exact-head sync PR contributes pending publication edits', async () => {
+  const head = 'b'.repeat(40);
+  for (const state of ['open', 'closed']) {
+    const result = await branchReview(async () => [{ number: 40, state, head: { sha: head } }], head);
+    assert.deepEqual(result, { number: 40, state, head, lifecycle: null });
+  }
+  assert.equal(await branchReview(() => assert.fail('No branch needs no PR lookup'), null), null);
+  for (const pulls of [[], [{ number: 40, state: 'closed', head: { sha: 'changed' } }]])
+    await assert.rejects(branchReview(async () => pulls, head), /DOCS_SYNC_BRANCH_REVIEW/);
+  await assert.rejects(branchReview(async () => [1, 2].map(number => ({ number, state: 'open', head: { sha: head } })), head), /DOCS_SYNC_PRS/);
+});
+
+test('a closed sync branch is preserved as ancestry without reapplying its rejected edits', async () => {
+  const f = remote({ existing: true });
+  f.state.review = { number: 40, state: 'closed', head: f.state.head, lifecycle: null };
+  const api = async (path, ...args) => {
+    if (path.includes('state=all')) return [{ number: 40, state: 'closed', head: { sha: f.state.head } }];
+    if (path.includes('state=open')) return [];
+    return f.api(path, ...args);
+  };
+  await publish({ ...f, api });
+  const commit = f.requests.find(request => request.path.endsWith('/git/commits') && request.method === 'POST');
+  assert.deepEqual(commit.body.parents, [f.state.head, f.state.main]);
+  assert.equal(f.requests.find(request => request.path.includes('/git/refs')).body.force, false);
+  const pull = f.requests.find(request => request.path.endsWith('/pulls') && request.method === 'POST');
+  assert.match(pull.body.body, /Squash-merge/);
+  assert.match(pull.body.body, /Do not enable auto-merge/);
+  assert.doesNotMatch(pull.body.body, /Do not merge or deploy automatically/);
+});
+
+test('closing or reopening the sync PR after validation prevents publication writes', async () => {
+  for (const [prepared, current] of [['open', 'closed'], ['closed', 'open']]) {
+    const f = remote({ existing: true });
+    f.state.review = { number: 40, state: prepared, head: f.state.head, lifecycle: null };
+    const api = async (path, ...args) => path.includes('state=all')
+      ? [{ number: 40, state: current, head: { sha: f.state.head } }] : f.api(path, ...args);
+    await assert.rejects(publish({ ...f, api }), /DOCS_SYNC_RACE/);
+    assert.ok(f.requests.every(request => request.method === 'GET'));
+  }
+});
+
+test('closed RC1 branch cannot overwrite or conflict with human RC2 publication edits', async t => {
+  const f = await fixture(t);
+  const path = 'content/docs-publication-edits.json';
+  await mkdir(join(f.repository, 'content'));
+  await writeFile(join(f.repository, path), '{"version":"rc1","wording":"baseline"}\n');
+  git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'website: RC1 baseline');
+  const base = git(f.repository, 'rev-parse', 'HEAD');
+  await writeFile(join(f.repository, path), '{"version":"rc1","wording":"rejected automation"}\n');
+  git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'automation: pending RC1 edit');
+  const head = git(f.repository, 'rev-parse', 'HEAD');
+  git(f.repository, 'checkout', '-q', '--detach', base);
+  const bytes = '{"version":"rc2","wording":"human publication edit"}\n';
+  await writeFile(join(f.repository, path), bytes);
+  git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'website: reviewed RC2 wording');
+  const main = git(f.repository, 'rev-parse', 'HEAD');
+  assert.equal(await mergeBranchPublication({ root: f.repository, main, head, bytes, review: { state: 'closed' } }), bytes);
+  await assert.rejects(mergeBranchPublication({ root: f.repository, main, head, bytes, review: { state: 'open' } }), /DOCS_SYNC_CONFLICT/);
+  assert.equal(await readFile(join(f.repository, path), 'utf8'), bytes);
+});
+
+test('a sync PR changing state during object creation cannot update the branch', async () => {
+  const f = remote({ existing: true });
+  let reviews = 0;
+  const api = async (path, ...args) => {
+    if (path.includes('state=all') && ++reviews > 1) return [{ number: 7, state: 'closed', head: { sha: f.state.head } }];
+    return f.api(path, ...args);
+  };
+  await assert.rejects(publish({ ...f, api }), /DOCS_SYNC_RACE/);
+  assert.ok(f.requests.every(request => !request.path.includes('/git/refs')));
+});
+
+
+test('closed PR selection matches the exact branch head regardless of API order', async () => {
+  const head = 'b'.repeat(40);
+  const pulls = [{ number: 90, state: 'closed', head: { sha: 'unrelated' } }, { number: 40, state: 'closed', head: { sha: head } }];
+  for (const list of [pulls, [...pulls].reverse()]) {
+    const review = await branchReview(async path => path.includes('/events?') ? [] : list, head);
+    assert.equal(review.number, 40);
+  }
+});
+
+test('close and reopen at the same head invalidates the prepared PR lifecycle', async () => {
+  const f = remote({ existing: true });
+  const api = async (path, ...args) => path.includes('/events?')
+    ? [{ event: 'closed', id: 100 }, { event: 'reopened', id: 101 }] : f.api(path, ...args);
+  await assert.rejects(publish({ ...f, api }), /DOCS_SYNC_RACE/);
+  assert.ok(f.requests.every(request => request.method === 'GET'));
+});
+
+test('lifecycle pagination observes reopen events beyond the first page', async () => {
+  const head = 'b'.repeat(40);
+  const api = async path => path.includes('/events?')
+    ? (path.endsWith('page=1') ? Array.from({ length: 100 }, (_, id) => ({ event: 'labeled', id })) : [{ event: 'reopened', id: 101 }])
+    : [{ number: 40, state: 'open', head: { sha: head } }];
+  assert.equal((await branchReview(api, head)).lifecycle, 101);
+});
+
+test('closed sync branches still reject unrelated file changes', async t => {
+  const f = await fixture(t);
+  await mkdir(join(f.repository, 'content'));
+  await writeFile(join(f.repository, 'content/docs-publication-edits.json'), '{}');
+  git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'website baseline');
+  const main = git(f.repository, 'rev-parse', 'HEAD');
+  await writeFile(join(f.repository, 'unrelated.txt'), 'review me');
+  git(f.repository, 'add', '.'); git(f.repository, 'commit', '-qm', 'unrelated branch change');
+  const head = git(f.repository, 'rev-parse', 'HEAD');
+  for (const state of ['open', 'closed'])
+    await assert.rejects(mergeBranchPublication({ root: f.repository, main, head, bytes: '{}', review: { state } }), /DOCS_SYNC_BRANCH/);
+});
+
+
+test('PR history pagination finds an exact-head closed PR beyond the first page', async () => {
+  const head = 'b'.repeat(40);
+  const api = async path => path.includes('/events?') ? [] : path.endsWith('page=1')
+    ? Array.from({ length: 100 }, (_, number) => ({ number: number + 100, state: 'closed', head: { sha: 'unrelated' } }))
+    : [{ number: 40, state: 'closed', head: { sha: head } }];
+  assert.equal((await branchReview(api, head)).number, 40);
+});
+
+
+test('matching bytes reuse an open PR but rebuild a closed branch from current main', async () => {
+  for (const reviewState of ['open', 'closed']) {
+    const f = remote({ existing: true });
+    f.state.review.state = reviewState;
+    const api = async (path, ...args) => {
+      const result = await f.api(path, ...args);
+      if (path.includes('state=all')) return [{ number: 7, state: reviewState, head: { sha: f.state.head } }];
+      if (path.includes('state=open') && reviewState === 'closed') return [];
+      if (path.includes('/contents/')) return { content: Buffer.from(f.content).toString('base64') };
+      return result;
+    };
+    await publish({ ...f, api });
+    const commit = f.requests.find(r => r.path.endsWith('/git/commits') && r.method === 'POST');
+    if (reviewState === 'closed') {
+      assert.deepEqual(commit.body.parents, [f.state.head, f.state.main]);
+      assert.equal(f.requests.find(r => r.path.includes('/git/trees')).body.base_tree, 'tree');
+      assert.equal(f.requests.find(r => r.path.includes('/git/refs')).body.force, false);
+    } else {
+      assert.equal(commit, undefined);
+      assert.ok(f.requests.every(r => !r.path.includes('/git/refs')));
+    }
   }
 });

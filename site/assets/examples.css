@@ -1,8 +1,8 @@
 .examples-page { max-width:1120px; margin:auto; padding:60px 32px 90px; }
-.examples-intro { margin-bottom:50px; }
+.examples-intro { display:grid; grid-template-columns:1.2fr 1fr; align-items:end; gap:40px; margin-bottom:36px; }
 .examples-intro h1 { font-size:clamp(46px,6vw,80px); line-height:1.02; font-weight:500; letter-spacing:-.05em; margin:20px 0; }
 .examples-intro h1 em { color:#d97d64; font-family:Georgia,serif; font-weight:400; }
-.examples-intro>p:not(.eyebrow) { line-height:1.8; color:#b9b2ae; }
+.examples-intro>p { max-width:34em; margin:0 0 20px; line-height:1.8; color:#cbc2bb; }
 .examples-intro>a { display:inline-block; margin-top:18px; color:#efb19b; }
 .example-workbench { border:1px solid #4f4243; background:#191a1c; scroll-margin-top:20px; }
 .example-heading { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:24px; }
@@ -29,14 +29,29 @@
 #example-docs { display:flex; flex-wrap:wrap; gap:20px; padding:0 24px 24px; }
 #example-docs a { color:#dfab92; font-size:13px; }
 .example-chooser { margin:0 0 36px; scroll-margin-top:25px; }
-.example-cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.examples-page .example-cards .demo-card[aria-pressed=true] { border-color:var(--ticket); box-shadow:inset 0 0 0 2px var(--ticket),4px 4px 0 #050606; background:#1d211e; }
+.examples-page .example-cards .example-number { position:absolute; left:20px; top:15px; color:var(--ticket); font:10px/1.5 ui-monospace,monospace; letter-spacing:.12em; }
+.examples-page .example-cards .example-number::after { content:" / SELECT"; }
+.examples-page .example-cards [aria-pressed=true] .example-number::after { content:" / PLAYING"; }
+.example-journey { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:30px; counter-reset:step; list-style:none; margin:0 0 42px; padding:20px 0; border-top:1px solid #675650; }
+.example-journey li { position:relative; padding-left:25px; counter-increment:step; }
+.example-journey li::before { content:counter(step) "."; position:absolute; left:0; color:#e8a787; font:13px/1.6 ui-monospace,monospace; }
+.example-journey strong { display:block; font-size:14px; font-weight:500; }
+.example-journey span { display:block; margin-top:7px; color:#cbc2bb; font-size:13px; line-height:1.6; }
+.example-next { display:grid; grid-template-columns:1fr 1.6fr; gap:45px; margin-top:60px; padding-top:30px; border-top:1px solid #675650; }
+.example-next h2 { font-size:clamp(32px,4vw,45px); font-weight:500; line-height:1.1; letter-spacing:-.03em; }
+.example-next h2 em { color:#d97d64; font-family:Georgia,serif; font-weight:400; }
+.example-next p { color:#cbc2bb; font-size:14px; line-height:1.8; }
+.example-next blockquote { margin:24px 0; padding:0 0 0 22px; border-left:2px solid #d97d64; color:#f4d9ca; font:22px/1.5 Georgia,serif; }
+.example-next a { color:#efb19b; text-underline-offset:3px; }
+@media(max-width:760px) { .examples-intro,.example-next { grid-template-columns:1fr; gap:8px; } .example-journey { grid-template-columns:1fr; gap:18px; } .example-next { margin-top:40px; } }
 @media(max-width:760px) { .examples-page { padding:32px 16px 60px; } .example-heading { align-items:flex-start; flex-direction:column; padding:20px; } .example-cards { grid-template-columns:1fr; } .example-source { padding:18px 14px; } }
 @media(max-width:440px) { .example-cards { grid-template-columns:1fr; } .example-heading button { padding:10px; font-size:12px; } }
 
 #example-reading-guide { display:flex; flex-wrap:wrap; gap:10px; margin:20px 0 12px; }
-#example-reading-guide button { padding:10px 14px; border-radius:8px; }
+#example-reading-guide button { padding:10px 14px; border-radius:0; }
 #example-reading-location { min-height:3.5em; line-height:1.6; color:var(--muted); }
-.source-editor { border:1px solid #594c48; border-radius:10px; overflow:hidden; background:#101216; }
+.source-editor { border:1px solid #594c48; border-radius:0; overflow:hidden; background:#101216; }
 .source-editor-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:12px; background:#202329; border-bottom:1px solid #41434b; }
 .source-editor-toolbar select { flex:1; min-width:0; max-width:100%; width:220px; }
 .source-editor-toolbar select,.source-editor-toolbar input { background:#11151b; border:1px solid #626875; border-radius:5px; color:#e3e8ef; padding:7px; font:12px/1.5 monospace; }

@@ -1,6 +1,5 @@
 import { View, Region } from '../vendor/marionette.js';
 
-const hero = document.querySelector('.night-hero');
 const rig = document.querySelector('[data-rig]');
 const scene = document.querySelector('.ownership-scene');
 const description = document.querySelector('#phase-description');
@@ -104,15 +103,10 @@ function render() {
   frame = 0;
   const off = paused || reduced.matches || document.hidden;
   document.documentElement.classList.toggle('motion-off', off);
-  const heroBox = hero.getBoundingClientRect();
-  const heroScroll = Math.max(0, Math.min(heroBox.height, -heroBox.top));
-  hero.style.setProperty('--grid-y', `${off ? 0 : heroScroll * .12}px`);
   rig.style.setProperty('--rig-tilt', `${off ? 0 : pointerX * 10}deg`);
   rig.style.setProperty('--rig-y', `${off ? 0 : pointerY * 6}px`);
   const sceneBox = scene.getBoundingClientRect();
   scene.style.setProperty('--scene-lift', `${off ? 0 : Math.max(-12, Math.min(12, (innerHeight / 2 - sceneBox.top) * .04))}px`);
-  const honesty = document.querySelector('.night-honesty');
-  honesty.style.setProperty('--mark-y', `${off ? 0 : Math.max(-100, Math.min(100, (innerHeight / 2 - honesty.getBoundingClientRect().top) * .1))}px`);
   let starTilt = 0;
   let starPresence = 0;
   if (!off && finePointer.matches && innerWidth > 760 && invitationPointer) {

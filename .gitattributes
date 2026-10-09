@@ -1,0 +1,2 @@
+# Preserve the benchmark CSV's original bytes and standard CRLF record endings.
+site/assets/case-studies/roundingwell/evidence/summary.csv -text whitespace=cr-at-eol

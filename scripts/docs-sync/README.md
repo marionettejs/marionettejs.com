@@ -35,7 +35,8 @@ merge, npm publication, or deployment is involved.
    Permit the automation account to create/update its non-protected branch
    and PR, without bypassing `main`. Enable automatic deletion of merged PR branches
    or delete the completed sync branch manually. Do not enable auto-merge. Keep
-   Cloudflare Git auto-build/deploy integrations disabled; use manual deployments.
+   Cloudflare Git auto-build/deploy integrations disabled; the shared publish
+   workflow deploys the reviewed site and MCP together after merge.
 
 Permission reference: [GitHub repository dispatch](https://docs.github.com/en/rest/repos/repos#create-a-repository-dispatch-event)
 and [GitHub App permissions](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app).
@@ -59,6 +60,14 @@ npm archive merely to clear this guard. Record the adopted exact library commit 
 file after implementing and validating the corresponding website route changes.
 Until that review lands, sync is blocked.
 
+Local preparation now reads PR state and close/reopen events from GitHub. Set
+`GH_TOKEN` through your normal credential environment before `npm run docs:sync -- /path/to/library`
+to avoid unauthenticated API rate limits; never put its value in commands or reports.
+The hosted prepare job supplies its read-only workflow token. Closed exact-head PR
+edits are ignored after checking that the branch changes only publication metadata.
+The retained branch history is advanced without force; squash-merge a new sync PR
+when rejected historical commits must stay out of main ancestry.
+
 A pending branch is read as data and merged with current website publication edits;
 its code is never checked out or executed. Other file changes on that branch stop
 the run. Website and library checkouts remain read-only to the preparation job's
@@ -71,10 +80,10 @@ serialized; canceled pending dispatches are harmless because every run reads the
 current library head. There is no arbitrary revision/URL input and no library code
 execution with credentials.
 
-No relevant byte changes cause no commit. A repeated successful run reuses the PR
-without adding a commit. A push that succeeded before PR creation failed is
-recoverable by rerunning; the existing branch becomes the one PR. When intentionally
-closing an unmerged sync PR, delete its branch too, or a retry may reopen that work.
+No relevant changes from main cause no commit. A repeated successful run reuses
+an open PR without adding a commit when its publication bytes already match. A push that succeeded before PR creation failed is
+recoverable by rerunning; the existing branch becomes the one PR. When an unmerged sync PR is closed, a retry ignores its edits and advances the
+retained branch without force from current main, creating a new PR if changes remain.
 
 ## Validation and failures
 
@@ -107,28 +116,49 @@ conflict. Rerun after the fix. Inspect failed Actions logs for the diagnostic co
 no token body or API error response is printed. Validation failures need an actual
 content or test-contract fix, not a bypass or an automatic merge.
 
-## Explicit npm releases and manual deployment
+## Explicit npm releases and reviewed deployment
 
-For a published release, read the exact source revision from the npm package's
-`dist/docs/manifest.json`, check out that revision cleanly in the library, and run
-`npm run docs:export`. Use the existing
-`npm run docs:import -- /path/to/released-source/.docs-export` workflow to import
-that complete corpus, including maintainer guides. The npm `dist/docs` directory
-alone is narrower and must not replace the full website snapshot.
+Read the exact released source revision from the package's root
+`docs-manifest.json`; canonical Markdown lives under `docs/`. The website runtime
+and imported documentation must match that published artifact.
 
-Before accepting the import, require `sourceDirty: false`, matching package version,
-repository and revision, identical metadata/bytes for every npm consumer page and
-asset, and the reviewed maintainer page/route inventory. `npm run check` compares
-the consumer subset against the installed pinned npm package; review the complete
-manifest diff for maintainer scope. See the root README's documentation-source
-procedure. Review the package/runtime pins, publication
-wording, full archive hashes and diagnostic schema provenance together. Reset/rebase
-the pending reading-copy edits deliberately against that new archive and revalidate.
-Ordinary sync never replaces archive files or imports unreleased skill/starter,
-fixture, catalog, or package assets; links to archived resources stay pinned.
+Check out the released source revision cleanly in the library and run
+`npm run docs:export`. Import the complete consumer snapshot with
+`npm run docs:import -- /path/to/released-source/.docs-export`. It includes the
+selected diagnostic/schema, skill and records assets as well as Markdown. Import
+through the manifest rather than copying a documentation directory; maintainer
+and planning pages are outside this consumer corpus.
 
-After the sync PR merges, follow [the deployment runbook](../../mcp/DEPLOYMENT.md).
-Build once from the reviewed merged website commit; manually deploy that complete
-`dist/` and its generated MCP snapshot. Record the website commit, archived package
-revision, publication hash and corpus hash for both deployments, and verify live
-website and MCP parity. A merged PR does not mean either host has been deployed.
+Before accepting the import, require `sourceDirty: false`, matching package
+version, repository and revision, and identical metadata/bytes for every released
+consumer page and asset. Review the complete manifest diff. Upgrade the pinned
+core/data/radio/utils runtime packages together, rebuild both vendor bundles and
+their provenance, and update workshop/export/recipe version assertions. See the
+root README's published-archive gate and runtime-upgrade steps. A published status
+requires matching installed registry-package evidence; changing the label alone
+is insufficient. Review publication wording, archive hashes and diagnostic schema
+provenance together. Rebase pending reading-copy edits deliberately against the
+new archive and revalidate with `npm run check` and the workshop browser checks.
+
+Ordinary reading-copy sync does not replace package archives or selected resource
+assets. After a reviewed website PR merges, the shared workflow publishes Pages
+and MCP; follow [the deployment runbook](../../mcp/DEPLOYMENT.md). Do not deploy
+this candidate or update the hosted catalog outside that release process.
+
+## Separately tracked guides
+
+`content/library-docs` remains the exact npm archive. New reviewed guides live in
+`content/supplemental-docs`, with route, title, section, exact framework source
+revision and SHA-256 in its manifest. Copy sources from Git objects at that revision;
+validate the resulting HTML, Markdown, navigation, search, discovery bundles and
+MCP before adopting the framework navigation revision in publication metadata.
+These guides join the same reading-copy sync; future source updates use each
+guide’s recorded revision and publication overlays, without rewriting its base.
+The served `/docs/supplemental-manifest.json` and per-document MCP metadata retain
+this identity separately from the package archive and runtime revision.
+
+Website-only title edits live in `content/docs-publication-edits.json` under
+`titles`, with source, original title, and published title. They are applied to
+HTML/navigation/discovery metadata without changing the archive manifest. Source
+text synchronization preserves this separate field; an upstream heading conflict
+stops the text merge for review instead of silently restoring the old heading.

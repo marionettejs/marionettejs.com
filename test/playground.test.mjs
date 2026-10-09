@@ -12,6 +12,8 @@ test('CodePen export preserves the draft and exact runtime without HTML parser b
   const app = { ...starter, title: 'Quotes " & 한국어 </script>', code: `${starter.code}\n// unsaved edit: </script>` };
   const output = codePenData(app, vendor, license);
   assert.equal(output.title, app.title);
+  assert.ok(output.description.includes(`marionette@${version}`));
+  assert.ok(output.description.includes(revision));
   assert.ok(output.js.endsWith(app.code));
   assert.ok(output.css.endsWith(app.css));
   const runtime = JSON.parse(output.html.match(/<script[^>]*>([\s\S]*)<\/script>/)[1]);
@@ -22,13 +24,20 @@ test('CodePen export preserves the draft and exact runtime without HTML parser b
   assert.throws(() => codePenData({ ...app, code: '' }, vendor, license));
 });
 
-test('the discoverable brief embeds the exact executable starter', async () => {
+test('the brief delivers runtime and ownership first, with the exact starter available separately', async () => {
   const brief = await readFile(new URL('../dist/agent-prompt.md', import.meta.url), 'utf8');
-  assert.ok(brief.includes(`\`\`\`js\n${starter.code}\n\`\`\``));
-  assert.ok(brief.includes(`\`\`\`css\n${starter.css}\`\`\``));
+  assert.ok(!brief.includes(starter.code), 'Reading the brief must not require the full starter source');
+  assert.ok(brief.length <= 4000, 'The workshop brief should fit on its opening 4,000-character page');
+  const firstPage = brief.slice(0, 4000);
+  for (const contract of [`marionette@${version}`, 'prepareStart(options, { signal })', 'showView', 'setDataApi(DataApi)', 'showChildView']) {
+    assert.ok(firstPage.includes(contract), `Runtime and ownership must be on the opening page: ${contract}`);
+  }
   assert.equal(starter.code, (await readFile(new URL('../site/workshop/app.js', import.meta.url), 'utf8')).trimEnd());
   assert.equal(starter.css, await readFile(new URL('../site/workshop/style.css', import.meta.url), 'utf8'));
   assert.ok(!brief.includes('<!-- playground-starter -->'));
+  assert.ok(brief.includes(`marionette@${version}`));
+  assert.doesNotMatch(brief, /\{\{[^}]+\}\}/);
+  assert.ok(brief.includes(`https://github.com/marionettejs/marionette/blob/${revision}/docs/api.md`), 'Workshop API guidance must match its runtime revision');
 });
 
 test('app submissions reject malformed, oversized and extra inputs before execution', () => {
@@ -91,6 +100,7 @@ test('canonical recipe catalog rejects unknown ids and stays pinned to the demo'
   assert.equal(new Set(recipes.map(recipe => recipe.id)).size, recipes.length);
   assert.ok(listRecipes().every(recipe => !('code' in recipe) && !('css' in recipe)));
   for (const recipe of recipes) {
+    assert.equal(new Set(recipe.docs).size, recipe.docs.length, `Duplicate documentation links: ${recipe.id}`);
     assert.deepEqual(recipe.sourceFiles, getRecipe({ id: recipe.id }).sourceFiles);
     assert.match(recipe.sourceFiles['main.js'], /import .* from/);
     for (const path of recipe.docs) await readFile(new URL(`../dist${path}index.html`, import.meta.url), 'utf8');

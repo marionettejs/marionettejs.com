@@ -28,6 +28,16 @@ jobs:
         run: npx --no-install playwright install --with-deps chromium
       - name: Verify real workshop behavior
         run: npm run test:browser
+      - name: Verify standard analytics and visitor opt-outs
+        run: |
+          node test/browser/analytics.mjs
+          node test/browser/analytics-standard.mjs
+      - name: Verify documentation layout and search
+        run: npm run test:docs:browser
+      - name: Verify case-study images and chart
+        run: node test/browser/case-studies.mjs
+      - name: Verify agent setup and copy controls
+        run: node test/browser/agent-setup.mjs
       - name: Verify personal app export and form boundary
         run: node test/browser/personal-preview.mjs
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
