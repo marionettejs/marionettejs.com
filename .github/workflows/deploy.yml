@@ -76,5 +76,7 @@ jobs:
     needs: publish
     if: needs.publish.outputs.docs_changed == 'true'
     uses: ./.github/workflows/context7.yml
+    secrets:
+      CONTEXT7_API_KEY: ${{ secrets.CONTEXT7_API_KEY }}
     with:
       refresh: true

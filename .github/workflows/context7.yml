@@ -1,6 +1,9 @@
 name: Context7 documentation feedback
 on:
   workflow_call:
+    secrets:
+      CONTEXT7_API_KEY:
+        required: true
     inputs:
       refresh:
         type: boolean
