@@ -45,7 +45,7 @@ const layout = async page => {
   });
   assert.ok(spacing.gap >= 20, `Back-link gap ${spacing.gap}px`);
   assert.ok(spacing.height >= 44, 'Back link has a 44px target');
-  assert.equal(spacing.label, '← Case Studies');
+  assert.equal(spacing.label, '← News');
   assert.ok(await page.locator('.study-chart-legend').first().evaluate(node => parseFloat(getComputedStyle(node).fontSize)) >= 14, 'Chart labels remain readable');
 };
 try {

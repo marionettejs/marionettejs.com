@@ -59,9 +59,8 @@ for (const field of ['packageVersion', 'libraryRevision', 'bundleSha256', 'packa
   if (published) expect(published.content[field] === provenance[field], `/reference/provenance.json serves ${field} ${published.content[field]}`);
 }
 
-// Every entry needs the date, not just the first one: a partial sitemap reports
-// no change for the pages it omits. The date is not compared with this checkout,
-// which can hold commits that were deliberately not deployed.
+// Check artifact identity and any explicitly recorded modification dates.
+// Pages without a known significant update date may omit lastmod.
 const sitemap = await body('/sitemap.xml');
 if (sitemap) {
   if (expectedRevision) {
@@ -69,12 +68,12 @@ if (sitemap) {
     expect(sitemap.content === expectedSitemap, '/sitemap.xml does not match the published artifact');
   }
   const entries = [...sitemap.content.matchAll(/<url>(.*?)<\/url>/g)].map(([, entry]) => entry);
-  const dated = entries.filter(entry => /<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/.test(entry));
   expect(entries.length > 0, '/sitemap.xml lists no URLs');
-  expect(dated.length === entries.length, `/sitemap.xml reports lastmod for ${dated.length} of ${entries.length} URLs`);
+  expect(entries.every(entry => /<loc>https:\/\/[^<]+<\/loc>/.test(entry)), '/sitemap.xml has an invalid canonical URL');
   const today = new Date().toISOString().slice(0, 10);
   for (const [, date] of sitemap.content.matchAll(/<lastmod>(.*?)<\/lastmod>/g)) {
-    expect(date <= today, `/sitemap.xml reports a future lastmod: ${date}`);
+    expect(Number.isFinite(Date.parse(date)), `/sitemap.xml reports an invalid lastmod: ${date}`);
+    expect(date.slice(0, 10) <= today, `/sitemap.xml reports a future lastmod: ${date}`);
   }
 }
 
@@ -91,4 +90,4 @@ if (failures.length) {
   console.error(`${origin} failed deployment checks:\n${failures.map(failure => `  - ${failure}`).join('\n')}`);
   process.exit(1);
 }
-console.log(`${origin} serves ${provenance.packageVersion}${expectedRevision ? ` at website revision ${expectedRevision}` : ' (health only; website revision not verified)'}, with revalidatable pages, a dated sitemap and the expected bundles.`);
+console.log(`${origin} serves ${provenance.packageVersion}${expectedRevision ? ` at website revision ${expectedRevision}` : ' (health only; website revision not verified)'}, with revalidatable pages, a canonical sitemap and the expected bundles.`);

@@ -192,7 +192,8 @@ is already configured; changing it also requires Workers Routes Edit for the
 repository variable and defaults to `marionette-v5`.
 
 `scripts/check-deployment.mjs ORIGIN --health-only` reads the live site and reports what does not
-pass health checks: page version strings, provenance, sitemap `lastmod`, the
+pass health checks: page version strings, provenance, canonical sitemap URLs and
+any recorded page modification dates, the
 headers that keep a validator on published pages, and the exact bytes of both
 vendor bundles. Run it locally, or through the "Deployed site check" workflow,
 which also runs daily. Still verify the homepage, Why page, docs, agent briefs

@@ -24,10 +24,14 @@ const studyHero = study => {
 export function studyPage(study) {
   return {
     ...study,
+    title: `${study.title} — Marionette`,
+    headline: study.title,
     active: 'case-studies',
+    article: true,
+    author: { '@type': 'Organization', name: 'Marionette project', url: 'https://marionettejs.com' },
     body: `<article class="study">
       <header class="article-heading study-heading">
-        <a class="study-back" href="/case-studies/">← Case Studies</a>
+        <a class="study-back" href="/news/">← News</a>
         ${study.disclosure || ''}
         <p class="eyebrow">${study.label}</p><h1>${study.title}</h1>
         <p class="study-conclusion">${study.conclusion}</p>
