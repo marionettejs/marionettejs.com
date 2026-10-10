@@ -72,25 +72,41 @@ test('body and route rejection never creates an MCP server, and streamed overflo
   assert.equal(instances(), 1);
 });
 
-test('factory failures and body stream failures are sanitized and keep the revision header', async t => {
+test('factory, transport and body stream failures are logged while responses stay sanitized', async t => {
+  const logged = [];
+  const originalError = console.error;
+  console.error = (...args) => logged.push(args);
+  t.after(() => { console.error = originalError; });
   const { handler } = fixture(t, () => { throw new Error('private path and credential'); });
-  for (const req of [request(), request({ body: new ReadableStream({ start(controller) { controller.error(new Error('private stream')); } }), duplex: 'half' })]) {
-    const response = await handler.fetch(req);
+  const transportFailure = fixture(t, () => {
+    const server = new McpServer({ name: 'handler-test', version: '1.0.0' });
+    server.connect = async () => { throw new Error('private transport'); };
+    return server;
+  }).handler;
+  const streamFailure = request({ body: new ReadableStream({ start(controller) { controller.error(new Error('private stream')); } }), duplex: 'half' });
+  for (const [target, req] of [[handler, request()], [handler, streamFailure], [transportFailure, request()]]) {
+    const response = await target.fetch(req);
     assert.equal(response.status, 500);
     assert.equal(response.headers.get('x-marionette-revision'), revision);
     assert.deepEqual((await response.json()).error, { code: -32603, message: 'Internal server error' });
   }
+  assert.deepEqual(logged.map(([label, error]) => [label, error.message]), [
+    ['Documentation MCP serving failure:', 'private path and credential'],
+    ['Documentation MCP serving failure:', 'private stream'],
+    ['Documentation MCP serving failure:', 'private transport'],
+  ]);
 });
 
 for (const version of ['2025-11-25', '2026-07-28']) {
   test(`${version} concurrent requests have fresh servers and promptly reject reverse requests`, { timeout: 10_000 }, async t => {
-    let serial = 0;
+    let serial = 0, reverseError;
     const { handler } = fixture(t, () => {
       const id = ++serial;
       const server = new McpServer({ name: 'handler-test', version: '1.0.0' });
       server.registerTool('identity', { inputSchema: {} }, async () => ({ content: [{ type: 'text', text: String(id) }] }));
       server.registerTool('reverse', { inputSchema: {} }, async () => {
-        await server.server.request({ method: 'ping' });
+        try { await server.server.request({ method: 'ping' }); }
+        catch (error) { reverseError = error; throw error; }
         return { content: [] };
       });
       return server;
@@ -100,6 +116,11 @@ for (const version of ['2025-11-25', '2026-07-28']) {
     assert.equal(new Set(responses.map(result => result.content[0].text)).size, 8);
     const reverse = await client.callTool({ name: 'reverse', arguments: {} });
     assert.equal(reverse.isError, true);
-    assert.match(reverse.content[0].text, version.startsWith('2025') ? /Server-to-client requests are unavailable/ : /per-request|inputRequired|push-style|2026|unsupported/i);
+    if (version.startsWith('2025')) {
+      assert.match(reverse.content[0].text, /Server-to-client requests are unavailable/);
+    } else {
+      assert.equal(reverseError.code, 'METHOD_NOT_SUPPORTED_BY_PROTOCOL_VERSION');
+      assert.equal(reverse.content[0].text, "Method 'ping' is not supported by the negotiated protocol version (wire era 2026-07-28)");
+    }
   });
 }

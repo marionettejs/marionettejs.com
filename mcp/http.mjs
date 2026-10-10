@@ -1,6 +1,7 @@
 import { createMcpHandler, hostHeaderValidationResponse, originValidationResponse, isJSONRPCRequest } from '@modelcontextprotocol/server';
 
 const MAX_BODY_BYTES = 16_384;
+const reportError = error => console.error('Documentation MCP serving failure:', error);
 const hosts = ['mcp.marionettejs.com', 'localhost', '127.0.0.1'];
 const origins = ['marionettejs.com', 'www.marionettejs.com', 'v5.marionettejs.com', 'mcp.marionettejs.com', 'localhost', '127.0.0.1'];
 
@@ -8,7 +9,9 @@ export function createDocsHttpHandler(factory, revision) {
   const handler = createMcpHandler(async context => {
     const server = await factory(context);
     // A legacy reverse request cannot receive its reply on a stateless endpoint.
-    // Reject it immediately, retaining the policy previously supplied by Agents.
+    // SDK 2.3.1 has no legacy reverse-request policy option. Retain this
+    // adapter until one exists; test/mcp-handler.test.mjs exercises a real
+    // legacy reverse request and must keep passing on every SDK upgrade.
     if (context.era === 'legacy') {
       const connect = server.connect.bind(server);
       server.connect = transport => {
@@ -26,7 +29,7 @@ export function createDocsHttpHandler(factory, revision) {
       };
     }
     return server;
-  }, { responseMode: 'json', maxSubscriptions: 0, legacy: 'stateless', maxRequestBodySize: MAX_BODY_BYTES });
+  }, { responseMode: 'json', maxSubscriptions: 0, legacy: 'stateless', onerror: reportError });
 
   async function serve(request) {
     if (new URL(request.url).pathname !== '/mcp') return new Response('Not found', { status: 404 });
@@ -36,7 +39,7 @@ export function createDocsHttpHandler(factory, revision) {
     if (request.method !== 'POST') return handler.fetch(request);
     const length = request.headers.get('content-length');
     if (length !== null && (!/^\d+$/.test(length) || Number(length) > MAX_BODY_BYTES)) {
-      return new Response('MCP request body exceeds 16384 bytes', { status: 413 });
+      return new Response(`MCP request body exceeds ${MAX_BODY_BYTES} bytes`, { status: 413 });
     }
     // Count streamed bytes too: Content-Length is optional and untrusted.
     const reader = request.body?.getReader();
@@ -48,7 +51,7 @@ export function createDocsHttpHandler(factory, revision) {
         size += value.byteLength;
         if (size > MAX_BODY_BYTES) {
           await reader.cancel();
-          return new Response('MCP request body exceeds 16384 bytes', { status: 413 });
+          return new Response(`MCP request body exceeds ${MAX_BODY_BYTES} bytes`, { status: 413 });
         }
         chunks.push(value);
       }
@@ -68,7 +71,10 @@ export function createDocsHttpHandler(factory, revision) {
     async fetch(request) {
       let response;
       try { response = await serve(request); }
-      catch { response = Response.json({ jsonrpc: '2.0', id: null, error: { code: -32603, message: 'Internal server error' } }, { status: 500 }); }
+      catch (error) {
+        reportError(error);
+        response = Response.json({ jsonrpc: '2.0', id: null, error: { code: -32603, message: 'Internal server error' } }, { status: 500 });
+      }
       const headers = new Headers(response.headers);
       headers.set('x-marionette-revision', revision);
       // Host/Origin checks above apply to preflights as well as protocol calls.
