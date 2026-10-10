@@ -64,3 +64,14 @@ test('staging rejects invalid documentation hashes even inside an integrity-matc
   await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request }), /Documentation hash mismatch: docs\/quick-start.md/);
   await absent(join(root, 'output/stable-docs/manifest.json'));
 });
+
+test('export retains the validated manifest if the live install changes during writes', async t => {
+  const { root, request, manifest } = await runtimeFixture(t);
+  const write = async (path, bytes) => {
+    await writeFile(join(root, 'node_modules/marionette/docs-manifest.json'), '{"changed":true}');
+    await writeFile(path, bytes);
+  };
+  const { destination } = await stageStableDocs(manifest.sourceRevision, { directory: root, request, write });
+  assert.deepEqual((await readSnapshot(destination)).manifest, manifest);
+  assert.equal(JSON.parse(await readFile(join(destination, 'stable-docs-evidence.json'))).contentSha256, manifest.contentSha256);
+});

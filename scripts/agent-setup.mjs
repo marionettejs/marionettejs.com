@@ -17,7 +17,7 @@ const checkout = `git clone --no-checkout --depth 1 https://github.com/marionett
 
 export const setupIntro = `Your agent learns the patterns. You get on with the application.
 
-The **skill** guides development using your application's installed, version-matched docs. The **plugin** bundles that skill and the documentation MCP connection. Marionette's skill and plugin are free; your selected AI service has its own pricing.
+The **skill** guides development using your application's installed, version-matched docs. The **plugin** bundles a loader that finds your application's installed skill, plus the documentation MCP connection. Its version identifies that loader, independently of the framework. Marionette's skill and plugin are free; your selected AI service has its own pricing.
 
 **Setup: Marionette ${release}.**
 `;
@@ -44,7 +44,7 @@ OpenAI directory publication is not complete. Use this project skill for now. [C
 ` },
   { id: 'claude', name: 'Claude Code', markdown: `### Claude Code
 
-Install the repository plugin from the verified package source revision. Run in your terminal with Git and Claude Code installed. Keep this checkout while using the plugin:
+For a reproducible plugin installation, use the verified package source revision. The loader still reads the skill from your application’s installed package. Run in your terminal with Git and Claude Code installed. Keep this checkout while using the plugin:
 
 ${fence(`${checkout} &&\nclaude plugin marketplace add ./.marionette-plugin &&\nclaude plugin install marionette@marionettejs &&\nclaude plugin list`)}
 
@@ -54,7 +54,7 @@ This repository marketplace is separate from the Claude web directory. Installat
 ` },
   { id: 'copilot', name: 'Copilot CLI', markdown: `### Copilot CLI
 
-Install the repository marketplace plugin and its bundled skill:
+Install the repository marketplace plugin and its skill loader:
 
 ${fence('copilot plugin marketplace add marionettejs/marionette &&\ncopilot plugin install marionette@marionettejs &&\ncopilot plugin list')}
 

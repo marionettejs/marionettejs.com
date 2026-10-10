@@ -1,4 +1,4 @@
-import { lstat, mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { lstat, mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readRuntimeRelease, runtimePackages, stableRelease } from './release-contract.mjs';
@@ -34,7 +34,7 @@ export async function stageStableDocs(revision, { directory = root, request, wri
       await mkdir(dirname(target), { recursive: true });
       await write(target, item.markdown ?? item.content);
     }
-    await write(join(exported, 'manifest.json'), await readFile(join(packageRoot, 'docs-manifest.json')));
+    await write(join(exported, 'manifest.json'), JSON.stringify(snapshot.manifest, null, 2) + '\n');
     await write(join(exported, 'stable-docs-evidence.json'), JSON.stringify({
       packageVersion: version, sourceRevision: revision, contentSha256: manifest.contentSha256,
       archives: Object.fromEntries(runtimePackages.map(name => {
