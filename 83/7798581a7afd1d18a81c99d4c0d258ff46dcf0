@@ -1,0 +1,21 @@
+test/mcp.test.mjs
+  s_dd1c0f2a0340dc::t_557846952d29ce 22,45-48
+mcp/server.mjs
+  s_dd1c0f2a0340dc::t_557846952d29ce 85-86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "837798581a7afd1d18a81c99d4c0d258ff46dcf0",
+  "prompts": {},
+  "sessions": {
+    "s_dd1c0f2a0340dc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a084b0-1a02-7380-9397-01a2c9825349",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

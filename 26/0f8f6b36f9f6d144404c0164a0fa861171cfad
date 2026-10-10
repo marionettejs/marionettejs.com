@@ -1,0 +1,18 @@
+site/assets/analytics-posthog.js
+  h_0f06c286dda36f 2,30-31
+test/analytics-posthog.test.mjs
+  h_0f06c286dda36f 22,25-26
+test/browser/analytics-standard.mjs
+  h_0f06c286dda36f 72-73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "260f8f6b36f9f6d144404c0164a0fa861171cfad",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

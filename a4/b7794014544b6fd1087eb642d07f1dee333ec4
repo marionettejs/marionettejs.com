@@ -1,0 +1,79 @@
+.gitignore
+  s_21a28c4e69a102::t_de41cfdbad6422 1-4
+AGENTS.md
+  s_21a28c4e69a102::t_f228a9315a0893 1-21
+README.md
+  s_21a28c4e69a102::t_4fe4ab38ddc290 1-192
+content/adoption.mjs
+  s_21a28c4e69a102::t_b625376a4de032 1-43
+content/pages.mjs
+  s_21a28c4e69a102::t_5c50217ceaae16 1-81
+content/playground.mjs
+  s_21a28c4e69a102::t_c1e7f8441ac1a4 1-20
+content/provenance.json
+  s_21a28c4e69a102::t_cd7dd32721cd15 1-12
+content/region-reference.md
+  s_21a28c4e69a102::t_79525178e69a6e 1-774
+package.json
+  s_21a28c4e69a102::t_3df2e984d920d8 1-14
+planning/agent-discovered-playground.md
+  s_21a28c4e69a102::t_64e7c85a92c734 1-105
+planning/design-directions.md
+  s_21a28c4e69a102::t_ac83c6d1afb568 1-62
+scripts/build.mjs
+  s_21a28c4e69a102::t_1ccd3ee0386a9a 1-38
+scripts/dev.mjs
+  s_21a28c4e69a102::t_6430efebf34993 1-41
+site/agent-prompt.md
+  s_21a28c4e69a102::t_ea34c8cb0b7fde 1-188
+site/assets/demo.js
+  s_21a28c4e69a102::t_459c4f9fd7fe87 1-88
+site/assets/mark-mono.svg
+  s_21a28c4e69a102::t_80228f1a674373 1-7
+site/assets/mark.svg
+  s_21a28c4e69a102::t_18367317032ea3 1-8
+site/assets/motion.js
+  s_21a28c4e69a102::t_94bd82254aa44b 1-151
+site/assets/night.css
+  s_21a28c4e69a102::t_f60bb02659778d 1-301
+site/assets/playground-runtime.js
+  s_21a28c4e69a102::t_3e937775de267d 1-164
+site/assets/playground.css
+  s_21a28c4e69a102::t_acbc4cf441c6bc 1-144
+site/assets/playground.js
+  s_21a28c4e69a102::t_b616edee06aa1d 1-312
+site/assets/site.css
+  s_21a28c4e69a102::t_dd676f6feb0d58 1-660
+site/assets/site.js
+  s_21a28c4e69a102::t_95b008e6a6b60a 1-36
+site/assets/tokens.css
+  s_21a28c4e69a102::t_1640b704d96d89 1
+site/assets/wordmark.svg
+  s_21a28c4e69a102::t_5b01d2a54c510c 1-59
+site/vendor/MARIONETTE-LICENSE.txt
+  s_21a28c4e69a102::t_2e51ddbed7e391 1-21
+site/vendor/marionette.js
+  s_21a28c4e69a102::t_f792b8338483f2 1-6368
+test/browser/playground-ownership.mjs
+  s_21a28c4e69a102::t_11ffc76f2b0f1d 1-37
+test/playground.test.mjs
+  s_21a28c4e69a102::t_f689ab99e10a18 1-61
+test/site.test.mjs
+  s_21a28c4e69a102::t_20f8b9ce919035 1-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "a4b7794014544b6fd1087eb642d07f1dee333ec4",
+  "prompts": {},
+  "sessions": {
+    "s_21a28c4e69a102": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a070d0-c9a5-7960-a134-1be904f7c1cf",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

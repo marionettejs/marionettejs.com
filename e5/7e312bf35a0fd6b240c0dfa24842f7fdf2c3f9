@@ -1,0 +1,47 @@
+.github/workflows/check.yml
+  s_eedda65bb693c6::t_ffee47187163a1 31-32
+package.json
+  s_eedda65bb693c6::t_3f71f65845b5c8 11
+scripts/build-workshop-starter.mjs
+  s_eedda65bb693c6::t_e2191b76b7fdbc 1-10
+scripts/build.mjs
+  s_eedda65bb693c6::t_dc07b3c721ad87 80
+site/agent-prompt.md
+  s_eedda65bb693c6::t_a83a5cbfd46fff 69-76,78-82,84-88,95-102,107,109-110,115,119,132-202,231,233-235,242,244-245,252
+site/assets/playground-runtime.js
+  s_eedda65bb693c6::t_cd10ea10ac5151 2,6,104,166
+site/assets/playground.js
+  s_eedda65bb693c6::t_824bdf12acaaa5 30,149,207-225,227,240,354,368-371
+site/assets/workshop-starter.js
+  s_eedda65bb693c6::t_9cd8ffd3419cd8 1-6
+site/workshop/app.js
+  s_eedda65bb693c6::t_073d47bddaabcf 1-112
+site/workshop/style.css
+  s_eedda65bb693c6::t_e6aa2bcf16822e 1-27
+test/browser/agent-workshop.mjs
+  s_eedda65bb693c6::t_296bc2ac9486ff 33-55,62-101,103-107,110-112,117-118,645,746,758,781,788,822,833
+test/browser/personal-preview.mjs
+  s_eedda65bb693c6::t_e3c93aa2ba9c66 1-46
+test/browser/workshop-checks.js
+  s_eedda65bb693c6::t_57c6514b389703 1-68
+test/personal-app-evaluation.md
+  s_eedda65bb693c6::t_27ca599a6990b4 1-111
+test/playground.test.mjs
+  s_eedda65bb693c6::t_209d21ec5138b6 10-11,28-30,69-70,72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "e57e312bf35a0fd6b240c0dfa24842f7fdf2c3f9",
+  "prompts": {},
+  "sessions": {
+    "s_eedda65bb693c6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08995-a806-7672-815b-0397ab2f2b4b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

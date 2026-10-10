@@ -1,0 +1,27 @@
+scripts/dev.mjs
+  s_dd1c0f2a0340dc::t_5d0336eb5ac7b2 12,14,42
+test/agent-retrieval.test.mjs
+  s_dd1c0f2a0340dc::t_5d0336eb5ac7b2 3-8,16,18,22-58
+planning/agent-site-validation.md
+  s_dd1c0f2a0340dc::t_5d0336eb5ac7b2 17-19
+scripts/check-agent-site.mjs
+  s_dd1c0f2a0340dc::t_5d0336eb5ac7b2 21,28,49-55,114
+scripts/agent-discovery.mjs
+  s_dd1c0f2a0340dc::t_d963da7f045a5a 43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "a7127b7baacbc16f9823eedba17a90224f529443",
+  "prompts": {},
+  "sessions": {
+    "s_dd1c0f2a0340dc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a084b0-1a02-7380-9397-01a2c9825349",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
