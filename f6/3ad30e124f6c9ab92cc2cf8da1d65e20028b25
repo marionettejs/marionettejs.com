@@ -1,0 +1,49 @@
+.gitignore
+  s_dd1c0f2a0340dc::t_a23dc42f67cd8a 8-9
+content/playground.mjs
+  s_dd1c0f2a0340dc::t_c6e5330716b4dd 15
+package-lock.json
+  s_dd1c0f2a0340dc::t_e73a07aa836440 17,800-828
+package.json
+  s_dd1c0f2a0340dc::t_b19b046f001a92 17-18,27
+scripts/agent-discovery.mjs
+  s_dd1c0f2a0340dc::t_cbe73927f584f0 1-107
+scripts/build.mjs
+  s_dd1c0f2a0340dc::t_04dc58f9d43c5f 47-48,73
+scripts/library-docs.mjs
+  s_dd1c0f2a0340dc::t_7ef570da1172c2 1,120,146,154
+site/_headers
+  s_dd1c0f2a0340dc::t_8b81c2da76d78d 3,17-45
+site/agent-prompt.md
+  s_dd1c0f2a0340dc::t_3a2c157c5fb028 31-53,118-120,168-191
+site/assets/playground-recipes.js
+  s_dd1c0f2a0340dc::t_591c0d48b0ded0 1-171
+site/assets/playground-runtime.js
+  s_dd1c0f2a0340dc::t_14a41bef5bc49f 1,67,72-85,89,155,174
+site/assets/playground.css
+  s_dd1c0f2a0340dc::t_337d9a098c1136 145-147
+site/assets/playground.js
+  s_dd1c0f2a0340dc::t_844f651a75ce0e 1,49-57,121-122,128-129,162,298-304,314-318,323-324,328
+test/agent-discovery.test.mjs
+  s_dd1c0f2a0340dc::t_4ab5d8b043fd65 1-114
+test/browser/agent-workshop.mjs
+  s_dd1c0f2a0340dc::t_018da8760b80ea 1-133
+test/playground.test.mjs
+  s_dd1c0f2a0340dc::t_7f662813c370d9 62-75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "f63ad30e124f6c9ab92cc2cf8da1d65e20028b25",
+  "prompts": {},
+  "sessions": {
+    "s_dd1c0f2a0340dc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a084b0-1a02-7380-9397-01a2c9825349",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

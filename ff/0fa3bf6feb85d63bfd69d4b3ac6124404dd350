@@ -1,0 +1,27 @@
+README.md
+  s_9d31e8bd7547c6::t_dec93b3c414adb 87-90
+content/playground.mjs
+  s_9d31e8bd7547c6::t_320e8fe19abe47 16,20-26
+site/assets/playground.css
+  s_9d31e8bd7547c6::t_e9195b0da6164f 149-171
+site/assets/playground.js
+  s_9d31e8bd7547c6::t_6e48464f767bed 10,48
+test/browser/agent-workshop.mjs
+  s_9d31e8bd7547c6::t_0ff341abb59be9 52-55,57-66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "ff0fa3bf6feb85d63bfd69d4b3ac6124404dd350",
+  "prompts": {},
+  "sessions": {
+    "s_9d31e8bd7547c6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0864b-e70d-79e0-a283-34897b886caa",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+.github/workflows/deploy.yml
+  s_59c2326e863268::t_ce122379e702ec 1-43
+.github/workflows/deployment.yml
+  s_59c2326e863268::t_846766be3f6e73 26-29
+AGENTS.md
+  s_59c2326e863268::t_d09a5472affac3 4-5,8-9
+README.md
+  s_59c2326e863268::t_b11e0ffbbee916 12-15,17-28
+scripts/check-deployment.mjs
+  s_59c2326e863268::t_981d3dd2e5dbf8 3,13,17-35,38-44,47-50,52-65,67-73,80
+test/release.test.mjs
+  s_59c2326e863268::t_e9bef90ac6a67c 6,143,147-151,153-160,162-171
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "3562181716e223559dfdfa1f8fd06a2d7033bb02",
+  "prompts": {},
+  "sessions": {
+    "s_59c2326e863268": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ef72d53-96d3-486e-b2de-a40aa86be37b",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

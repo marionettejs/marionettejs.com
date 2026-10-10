@@ -1,0 +1,41 @@
+README.md
+  s_eedda65bb693c6::t_e779af3b5dc7db 191-192
+package.json
+  s_eedda65bb693c6::t_04c07a28b06c47 11
+scripts/build-workshop-starter.mjs
+  s_eedda65bb693c6::t_a826434ca91df3 3,8-15
+scripts/build.mjs
+  s_eedda65bb693c6::t_43492ffb472838 11
+site/assets/playground.js
+  s_eedda65bb693c6::t_92812ef8236e1c 208
+site/assets/workshop-starter.js
+  s_eedda65bb693c6::t_b2483193a24ee1 4
+site/workshop/app.js
+  s_eedda65bb693c6::t_3009a1dbf041f6 24
+test/browser/agent-workshop.mjs
+  s_eedda65bb693c6::t_5f77da4204ff01 33-34,71,73,85-86,106-116
+test/browser/playground-ownership.mjs
+  s_eedda65bb693c6::t_7cf95bed4ad471 2,6-14,17,19-20,22-23,25
+test/browser/workshop-checks.js
+  s_eedda65bb693c6::t_9bbdaa5f2baff1 3,5,31-32,69
+test/personal-app-evaluation.md
+  s_eedda65bb693c6::t_efd2bc7c776844 105
+test/playground.test.mjs
+  s_eedda65bb693c6::t_fad276140bd943 29-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "8a7f3602ae17af8e1a018c7707eabbcb21fba4d8",
+  "prompts": {},
+  "sessions": {
+    "s_eedda65bb693c6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08995-a806-7672-815b-0397ab2f2b4b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

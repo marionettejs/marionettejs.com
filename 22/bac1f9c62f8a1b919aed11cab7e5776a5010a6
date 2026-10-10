@@ -1,0 +1,25 @@
+AGENTS.md
+  s_21a28c4e69a102::t_d76cbe9568a4b0 3-7
+README.md
+  s_21a28c4e69a102::t_ab06b8cb5b67aa 3-5,7-8,10,12-15,17-20,22-24,110
+scripts/build.mjs
+  s_21a28c4e69a102::t_7c2160b36a82ec 38
+site/agent-prompt.md
+  s_21a28c4e69a102::t_96c89acefbb86b 177,181,188
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "22bac1f9c62f8a1b919aed11cab7e5776a5010a6",
+  "prompts": {},
+  "sessions": {
+    "s_21a28c4e69a102": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a070d0-c9a5-7960-a134-1be904f7c1cf",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

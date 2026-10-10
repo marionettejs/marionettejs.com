@@ -1,0 +1,23 @@
+.gitignore
+  s_dca8c18c9e6753::t_9b021f492b6568 6-7
+scripts/import-docs.mjs
+  s_dca8c18c9e6753::t_0368eb5c1e94c4 1-2,7-45,47-51
+test/import-docs.test.mjs
+  s_dca8c18c9e6753::t_77d51e0c1f924d 1-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "2477cc4c81b0be4e1558914ea2281cbe40f5e196",
+  "prompts": {},
+  "sessions": {
+    "s_dca8c18c9e6753": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a084b1-aeb2-7be3-b700-a14b00c1be44",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

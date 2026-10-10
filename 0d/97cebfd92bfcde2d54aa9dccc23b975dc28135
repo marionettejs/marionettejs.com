@@ -1,0 +1,117 @@
+test/demo-project.test.mjs
+  s_6967b709298859::t_cbf524833977be 1-83
+content/examples.mjs
+  s_6967b709298859::t_41c08c2e9dd8eb 1-29
+content/pages.mjs
+  s_6967b709298859::t_c24cc226c1c9ba 1,54
+content/playground.mjs
+  s_6967b709298859::t_a291e0e1a50a1f 11
+mcp/README.md
+  s_6967b709298859::t_e0088824f31743 135-138
+package-lock.json
+  s_6967b709298859::t_910c1e048c8fe3 11-12,1629-1641
+package.json
+  s_6967b709298859::t_e24d8f1bd3ef4b 11,22-23,26-27
+scripts/build-demo-projects.mjs
+  s_6967b709298859::t_80b5fb7bee25cd 1-15
+scripts/build-demo-vendor.mjs
+  s_6967b709298859::t_08dd62ae2e742c 1-27
+scripts/build.mjs
+  s_6967b709298859::t_467bf509dfc4fa 6,16,30-36,39,45,65,73-75,77,84,97,99
+site/agent-prompt.md
+  s_6967b709298859::t_380d3f48b26c4c 33-37,39
+site/assets/demo-project-tools.js
+  s_6967b709298859::t_810aff3b8af41f 1-51
+site/assets/demo-projects.js
+  s_6967b709298859::t_c104ddd18c2f0c 1-31
+site/assets/examples.css
+  s_6967b709298859::t_e68222399d2cc5 1-68
+site/assets/examples.js
+  s_6967b709298859::t_f054fcccf9797c 1-268
+site/assets/night.css
+  s_6967b709298859::t_19c4cdd24e516c 348-367
+site/assets/playground-recipes.js
+  s_6967b709298859::t_4c0799fafccaa2 1-60,62-179,181-209,211-248,250-335,339,341
+site/assets/playground-runtime.js
+  s_6967b709298859::t_b38774d604af88 1-2,68-69,80,92,126-155,188,192
+site/assets/playground.css
+  s_6967b709298859::t_05685601e0e622 169-170
+site/assets/playground.js
+  s_6967b709298859::t_1686cebf2cd5c1 2,55
+site/assets/project-runtime.js
+  s_6967b709298859::t_15dd6c70aff732 1-19
+site/assets/site.js
+  s_6967b709298859::t_8f51d3bf676232 37-42
+site/assets/source-editor.js
+  s_6967b709298859::t_9c569291ae7477 1-130
+site/assets/todomvc-style.js
+  s_6967b709298859::t_802ef22d70d086 1-49
+site/demos/projects/list-detail/app.js
+  s_6967b709298859::t_e35a61bc28a207 1-154
+site/demos/projects/list-detail/lesson.js
+  s_6967b709298859::t_1543e45eff044d 1-116
+site/demos/projects/list-detail/main.js
+  s_6967b709298859::t_6b9bde2323d29e 1-42
+site/demos/projects/list-detail/planning-notes.js
+  s_6967b709298859::t_8bc4c223303ab5 1-33
+site/demos/projects/list-detail/todo-views.js
+  s_6967b709298859::t_c1064d07c4580a 1-174
+site/demos/projects/mission-control/app.js
+  s_6967b709298859::t_cd232fb454b138 1-164
+site/demos/projects/mission-control/flight.js
+  s_6967b709298859::t_63beb6d938c49f 1-338
+site/demos/projects/mission-control/lesson.js
+  s_6967b709298859::t_afdce7f9cc3637 1-229
+site/demos/projects/mission-control/main.js
+  s_6967b709298859::t_362af8e4fb1383 1-80
+site/demos/projects/mission-control/motion.js
+  s_6967b709298859::t_7ee003b20faabb 1-52
+site/demos/projects/mission-control/readiness.js
+  s_6967b709298859::t_3ba1b22914e0c9 1-165
+site/demos/projects/owned-widget/app.js
+  s_6967b709298859::t_2a309f7582d573 1-45
+site/demos/projects/owned-widget/lesson.js
+  s_6967b709298859::t_7e340a2894099f 1-100
+site/demos/projects/owned-widget/main.js
+  s_6967b709298859::t_95b80ec554be12 1-40
+site/demos/projects/owned-widget/motion.js
+  s_6967b709298859::t_dfd7a51aa853b0 1-70
+site/demos/projects/owned-widget/radio-view.js
+  s_6967b709298859::t_9b4d02dcc9662a 1-137
+site/demos/projects/shared/html.js
+  s_6967b709298859::t_81b874a1ec6c6c 1-14
+site/demos/projects/shared/lesson-ui.js
+  s_6967b709298859::t_75d26247b219f2 1-278
+site/vendor/DEMOS-LICENSE.txt
+  s_6967b709298859::t_6e91eae35923cb 1-94
+site/vendor/demos.js
+  s_6967b709298859::t_162e1c870a610b 1-5202
+site/vendor/demos.provenance.json
+  s_6967b709298859::t_8f051a5a292518 1-6
+test/browser/agent-workshop.mjs
+  s_6967b709298859::t_a6d5e7b74caebf 7,11-12,33-59,61-64,66,69,73,75,81,84,86,88,90,93,96-143,145-171,174,176-260,262-281,285-286,288-291,293-298,302-584,588,600
+test/mcp.test.mjs
+  s_6967b709298859::t_842619924d9486 84
+test/playground.test.mjs
+  s_6967b709298859::t_db16a9f830f614 75,91-92,110,112
+test/site.test.mjs
+  s_6967b709298859::t_6c39d9c80591e8 12,47,75,81,90-96
+tools/demo-project.js
+  s_6967b709298859::t_e36d640053f500 1-144
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0d97cebfd92bfcde2d54aa9dccc23b975dc28135",
+  "prompts": {},
+  "sessions": {
+    "s_6967b709298859": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a086ed-5486-7a51-87c8-ca99b154049d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+planning/analytics.md
+  h_0f06c286dda36f 19,21-23
+site/assets/analytics-posthog.js
+  h_0f06c286dda36f 75-81
+test/analytics-posthog.test.mjs
+  h_0f06c286dda36f 94-100
+test/browser/analytics-standard.mjs
+  h_0f06c286dda36f 68-70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d9cd79cfc85e38c5beae11554c52f0a9314fb1b1",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

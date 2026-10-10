@@ -1,0 +1,53 @@
+.github/workflows/docs-sync.yml
+  s_ecb51887ff50ee::t_80ac3126a44c0e 1-58
+README.md
+  s_ecb51887ff50ee::t_b8451ae23a36c2 265-266,273-279
+content/docs-publication-edits.json
+  s_ecb51887ff50ee::t_6c5df41b7fbf6f 174-221
+package.json
+  s_ecb51887ff50ee::t_20342236fe5281 23-24
+scripts/agent-discovery.mjs
+  s_ecb51887ff50ee::t_294bb6d26a2b85 43
+scripts/docs-sync/README.md
+  s_fd459bdf096d6f::t_05814eab99dce7 1-121
+scripts/docs-sync/prepare.mjs
+  s_ecb51887ff50ee::t_92ce8dbc704137 1-92
+scripts/docs-sync/publish.mjs
+  s_ecb51887ff50ee::t_346aeab1b31a47 1-48
+scripts/docs-sync/validate.mjs
+  s_ecb51887ff50ee::t_6411f30cb83562 1-37
+scripts/library-docs.mjs
+  s_ecb51887ff50ee::t_ab145031bcda29 3,70,123,235
+scripts/published-docs.mjs
+  s_ecb51887ff50ee::t_83f5316713b034 1,8,10-12,24-27
+test/development-docs.test.mjs
+  s_ecb51887ff50ee::t_cc233285b08fd8 18
+test/docs-sync.test.mjs
+  s_fd459bdf096d6f::t_94124154b717b6 1-157
+test/release.test.mjs
+  s_ecb51887ff50ee::t_4db0c2ff3d08a7 117,120-122,124-129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "1df1b721d3294ff78390df11fed48dca38d521b3",
+  "prompts": {},
+  "sessions": {
+    "s_ecb51887ff50ee": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a093d3-e274-7290-9915-277632761c5d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_fd459bdf096d6f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09389-7143-7320-8968-211a01580156",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
