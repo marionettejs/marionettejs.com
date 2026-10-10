@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readRuntimeRelease, runtimePackages, validateRuntimeRelease } from '../scripts/release-contract.mjs';
+import { readRuntimeMetadata, runtimePackages, stableRelease, validateRuntimeRelease } from '../scripts/release-contract.mjs';
 import { fileURLToPath } from 'node:url';
+import { readFile } from 'node:fs/promises';
 import { release, revision } from '../scripts/agent-setup.mjs';
 import provenance from '../content/provenance.json' with { type: 'json' };
 
@@ -48,11 +49,25 @@ test('runtime contract rejects local archives, loose pins, mismatched companions
   }
 });
 
-test('agent installation and vendor guards follow the actual installed publication identity', async () => {
-  const { version, manifest } = await readRuntimeRelease(fileURLToPath(new URL('../', import.meta.url)));
-  assert.equal(release, version);
-  assert.equal(revision, manifest.sourceRevision);
-  assert.equal(release, provenance.packageVersion);
+test('agent installation follows locally validated package metadata without registry requests', async () => {
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = () => { throw new Error('Unit tests must not fetch registry archives'); };
+  try {
+    const { version, manifest, lock } = await readRuntimeMetadata(fileURLToPath(new URL('../', import.meta.url)));
+    assert.equal(version, stableRelease, 'The current website must use the published stable runtime');
+    assert.equal(release, version);
+    assert.equal(revision, manifest.sourceRevision);
+    assert.equal(release, provenance.packageVersion);
+    const publication = JSON.parse(await readFile(new URL('../content/docs-publication-edits.json', import.meta.url)));
+    assert.equal(publication.releaseEvidence.packageVersion, version);
+    assert.equal(publication.releaseEvidence.sourceRevision, manifest.sourceRevision);
+    assert.equal(publication.releaseEvidence.contentSha256, manifest.contentSha256);
+    for (const name of runtimePackages) {
+      const key = `node_modules/${name}`;
+      const { version, resolved, integrity } = lock.packages[key];
+      assert.deepEqual(publication.releaseEvidence.archives[key], { version, resolved, integrity });
+    }
+  } finally { globalThis.fetch = previousFetch; }
 });
 
 test('runtime metadata failures identify the violated invariant', () => {

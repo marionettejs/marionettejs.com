@@ -9,14 +9,23 @@ preserved in the old website repository. The local preview still binds to loopba
 
 ## Stable 5.0.0 transition
 
-This branch prepares the website transition; **5.0.0 is not yet published**.
-The lockfile, archived documentation, publication declaration and vendor evidence
-still identify the real RC2 artifact. Do not merge this transition until the
-following steps are completed and reviewed. Merging to main deploys both site and MCP.
+This branch imports published **5.0.0** from source
+`0f2284ad4bbfe8c82ce82714471697a68c2acaeb`. The [publication run](https://github.com/marionettejs/marionette/actions/runs/38034055064)
+promoted [certification 38032320468](https://github.com/marionettejs/marionette/actions/runs/38032320468);
+the [stable release](https://github.com/marionettejs/marionette/releases/tag/v5.0.0)
+contains the matching archives and evidence. The four runtime registry integrities
+and staged documentation manifest match those certified published bytes.
+The documentation content digest is
+`44c0d535fd36d11f31d909246f4ee7c6592eae3f25fb7513c61af65842593a90`.
+
+Use this procedure for the stable import and its review. Merging to main deploys
+both site and MCP and still requires separate approval.
 
 1. Obtain the release owner's final published source revision and registry readback
    for all five packages (core, data, radio, utils and adapters), along with the
-   certification artifact identity. A successful unpublished build is insufficient.
+   certification artifact identity. The release owner verifies adapters separately;
+   the website staging script checks only core, data, radio and utils.
+   A successful unpublished build is insufficient.
 2. With Node 24, run the exact stable install command in the publication section
    below, then `npm ci`. Review the four runtime lock entries, including transitive
    radio/utils. Never hand-author registry URLs, integrity values or archive hashes.
@@ -25,7 +34,9 @@ following steps are completed and reviewed. Merging to main deploys both site an
    integrities, and compares every installed file with the archive bytes (including
    runtime code and docs). It rejects linked, modified, missing or extra files;
    neither package metadata nor the hidden npm lockfile is proof of installed bytes.
-   Registry access and `tar` are required for this check and both vendor builds.
+   Registry access and `tar` are required for staging and `vendor:build`.
+   `vendor:demos` verifies the core bundle hash and uses a fresh script-free `npm ci`
+   for data; ordinary tests use local metadata and fixture archives without registry reads.
    It requires 5.0.0 and the certified revision, then verifies every documentation/asset hash.
    It exports package bytes plus generated archive evidence to `output/stable-docs`;
    the evidence file is `output/stable-docs/stable-docs-evidence.json`. Docs and evidence appear together
@@ -38,7 +49,9 @@ following steps are completed and reviewed. Merging to main deploys both site an
    changes already in the archive and obsolete RC2 limitations; retain only reviewed
    editorial changes with correct before/after hashes and source identity. Set its
    packageVersion to `5.0.0` and status to `stable release (published on npm)` only
-   with that evidence. Review title edits and navigation too. Never edit archive bytes.
+   with that evidence. Review title edits, navigation and supplemental guides too;
+   remove a supplemental copy when the package now supplies the same guide.
+   Never edit archive bytes.
 5. Run `npm run vendor:build`, then `npm run vendor:demos`, then `npm run check`.
    Commit the actual lockfile, archive, declaration, bundles, licenses, provenance
    and generated workshop changes together. Setup instructions derive their exact
@@ -52,16 +65,27 @@ following steps are completed and reviewed. Merging to main deploys both site an
    homepage title/social metadata, install links, agent setup, llms output and MCP
    catalog/lookup. Current instructions must no longer call stable a candidate;
    immutable historical RC2 evidence and generic candidate tests remain valid.
-7. Update this status and the PR with actual publication evidence and results.
+7. Retain the staged archive URLs/integrities, source revision and content digest
+   under `releaseEvidence` in `content/docs-publication-edits.json`, with the
+   certification/publication run links and separate adapter readback. This structured
+   evidence is committed and served at `/docs/publication.json`. Update this status
+   and the PR with the verification results.
    Obtain separate merge/deployment approval. This preparation does not authorize
    package publication, a site deployment, or changes to credentials/settings.
 
 Reading-copy PR #73 (`automation/library-docs-sync`, reviewed head `5a2ed828`)
-remains separate and only updates RC2 overlays. This transition owns the final
-stable archive/overlay reconciliation. Refresh #73 before that reconciliation:
-incorporate any still-needed reading changes, then coordinate its disposition;
-do not merge an old RC2 overlay after stable import. No overlay edits are copied
-from #73 into this preparation, so its existing work is preserved.
+was merged into main at `46c3402` and integrated into this branch. Its four
+changes are supplied by the stable archive:
+package identity guidance in `docs/agents.md` and `docs/readme.md`, explicit child
+startup cancellation in `docs/api/application.md`, and Backbone reorder guidance
+in `docs/packages/adapters.md`. The latter limitation still applies in stable;
+its guidance is retained in the package, not duplicated in a website overlay.
+The old navigation warning is stale; stable supplies the framework-migration guide
+and navigation directly. Of the 23 previous reading overlays, only the website's
+shorter architecture heading remains. The duplicate supplemental migration guide
+is now replaced by its exact packaged copy and is available through MCP too.
+Do not reintroduce stale RC2 overlays after stable import. Historical RC2
+evidence remains in Git and case-study assets.
 
 ## Versioned integration
 

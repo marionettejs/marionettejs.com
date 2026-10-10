@@ -35,7 +35,9 @@ export function validateRuntimeRelease({ version, manifest, packages, lock, pins
   return manifest;
 }
 
-export async function readRuntimeRelease(root, options) {
+// Metadata-only reads are useful after a clean install or in offline tests.
+// Publication/staging callers must use readRuntimeRelease for byte verification.
+export async function readRuntimeMetadata(root) {
   const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
   const pkg = await json('package.json');
   const lock = await json('package-lock.json');
@@ -43,6 +45,11 @@ export async function readRuntimeRelease(root, options) {
   const packages = Object.fromEntries(await Promise.all(runtimePackages.map(async name => [name, await json(`node_modules/${name}/package.json`)])));
   const version = pkg.devDependencies.marionette;
   validateRuntimeRelease({ version, manifest, packages, lock, pins: pkg.devDependencies });
-  await verifyRuntimeBytes(root, runtimePackages, lock, options);
   return { version, manifest, lock };
+}
+
+export async function readRuntimeRelease(root, options) {
+  const release = await readRuntimeMetadata(root);
+  await verifyRuntimeBytes(root, runtimePackages, release.lock, options);
+  return release;
 }

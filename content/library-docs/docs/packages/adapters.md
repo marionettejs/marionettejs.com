@@ -1,6 +1,6 @@
 # @mnjs/adapters
 
-Optional integrations for existing data sources and DOM libraries. Import the subpath you use; the package has no root export. Imports do not configure Marionette or load other adapters. Install the matching Marionette candidate and only the peers needed by your integration; see [candidate installation](../quick-start.md#install-the-release-candidate).
+Optional integrations for existing data sources and DOM libraries. Import the subpath you use; the package has no root export. Imports do not configure Marionette or load other adapters. Install the matching Marionette version and only the peers needed by your integration; see [package installation](../quick-start.md#install-matching-packages).
 
 | Subpath | Default export | Peer used by the application |
 | --- | --- | --- |
@@ -12,7 +12,7 @@ Optional integrations for existing data sources and DOM libraries. Import the su
 
 Each subpath has ESM, CommonJS, and TypeScript entrypoints. These adapters implement the existing [data/state](../api/providers/data.md) or [DOM](../api/providers/dom.md) contracts. Configure them before constructing consumers. [Runtime configuration](../api/runtime.md) explains application-wide, subclass, and isolated scopes. The examples use subclasses to make the affected classes explicit.
 
-Data and state configuration are independent. Choosing a data adapter does not require changing state, Radio, or DOM providers. [@mnjs/data](data.md) remains an optional observable data solution; it is incomplete for application persistence and needs an API layer or a replacement data solution.
+Data and state configuration are independent. Choosing a data adapter does not require changing state, Radio, or DOM providers. See [observable data and API access](../integrations/setup.md#observable-data-and-api-access) when selecting a data solution.
 
 ## Backbone
 
@@ -47,7 +47,13 @@ model.set('label', 'Archive');
 
 For event maps, use Backbone's map form with the context as the following argument. Standalone subscriptions do not add framework ownership; call the returned disposer when finished.
 
-A standalone `sort` reports `reorder`, retaining surviving child Views and DOM. `update` reports added/removed models; removals destroy those children. Merges retain the model and do not request a child rerender through collection observation—use the child's model events. `reset` reports `reset` and rebuilds children. Sort events accompanying add/remove/merge are handled through the following update.
+A standalone `sort` reports `reorder`, retaining surviving child Views and DOM. `update` reports added/removed models; removals destroy those children. Merges retain the model and do not request a child rerender through collection observation—use the child's model events. `reset` reports `reset` and rebuilds children. The adapter treats sort events with truthy `add`, `remove`, or `merge` options as mutation-related and suppresses them. It relies on the `update` emitted by ordinary non-silent additions, removals and merges; reorder-only `set()` and explicit `sort()` do not provide that update.
+
+**Reorder-only limitation:** `collection.set([second, first])` can reorder existing Model instances without adding, removing, or merging any models. Backbone then emits `sort` with its default mutation options but no `update`, so the adapter leaves the CollectionView in its previous order. This replacement occurs with `add` and `remove` enabled when comparator sorting is inactive: no comparator, `sort: false`, or a supplied `at` option. In particular, `at` does not prevent full order replacement under those conditions; it is not a reliable way to move an existing model to a position. Attribute objects normally count as merges and produce an `update`; with `merge: false`, they can also take the reorder-only path.
+
+After a known reorder-only operation, use `collection.trigger('sort', collection, {})` to notify observing CollectionViews of the already-established order. For example, follow `collection.set([second, first])` with that notification when replacing the order of an unsorted collection. The notification does not sort or mutate the collection itself; with default CollectionView ordering (`sortWithCollection: true`), consumers reconcile the current order while retaining surviving child Views. Pass the explicit empty options object; do not reuse the `set()` mutation options. Do not add this notification after every `set()`, since ordinary additions, removals and merges already reconcile through `update`.
+
+For an explicit comparator sort, call `collection.sort()` without forwarding truthy `add`, `remove`, or `merge` flags. Passing those flags suppresses that standalone sort notification too.
 
 Multiple consumers can share a source. Destroying one consumer removes its subscriptions and children while survivors continue receiving updates. Even factory-owned Backbone state is not destroyed by this adapter: source-wide `off()`, `stopListening()`, and persistence-capable `Model.destroy()` are not called.
 

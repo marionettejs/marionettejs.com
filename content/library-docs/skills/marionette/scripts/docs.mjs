@@ -13,6 +13,7 @@ async function installedPackage(project) {
   if (!(await stat(directory)).isDirectory()) {
     throw new Error('--project must name a directory.');
   }
+  const searched = [];
   while (true) {
     const candidate = resolve(directory, 'node_modules/marionette');
     try {
@@ -20,8 +21,20 @@ async function installedPackage(project) {
     } catch (error) {
       if (error.code !== 'ENOENT') { throw error; }
     }
+    searched.push(directory);
     const parent = dirname(directory);
     if (parent === directory) {
+      for (const location of searched) {
+        let legacy;
+        try { legacy = await json(resolve(location, 'node_modules/backbone.marionette/package.json')); } catch (error) {
+          if (error.code === 'ENOENT') { continue; }
+          throw error;
+        }
+        const guidance = legacy.version.startsWith('4.') ?
+          '(v4). Use its v4 documentation; for migration choose an exact v5 target and read that target’s packaged migration guide.' :
+          '— use documentation for this installed release; the v4-to-v5 guide does not cover it.';
+        throw new Error(`Found backbone.marionette ${legacy.version} ${guidance}`);
+      }
       throw new Error('No installed marionette found. Use the application workspace or --package-root for its physical package directory.');
     }
     directory = parent;
@@ -104,7 +117,7 @@ async function main() {
     const entry = manifest.assets.find(asset => asset.source === source);
     if (!entry) { throw new Error('This artifact has no diagnostic catalog.'); }
     const catalog = JSON.parse(files.get(source).content.toString('utf8'));
-    if (catalog?.schemaVersion !== 2 || !Array.isArray(catalog.diagnostics) || !catalog.diagnostics.length) {
+    if (catalog?.schemaVersion !== 3 || !Array.isArray(catalog.diagnostics) || !catalog.diagnostics.length) {
       throw new Error('Unsupported or incomplete diagnostic catalog.');
     }
     const codes = new Set();
@@ -118,6 +131,7 @@ async function main() {
           !['objects', 'surfaces'].every(field => Array.isArray(diagnostic[field]) && diagnostic[field].length &&
             diagnostic[field].every(value => typeof value === 'string' && value.trim())) ||
           diagnostic.docsAnchor !== `/errors/${diagnostic.code}/` ||
+          diagnostic.docsSection !== `docs/api/errors.md#${diagnostic.code.toLowerCase()}` ||
           (diagnostic.status === 'deprecated' ? !/^MN[0-9]{4}$/.test(diagnostic.replacementCode) :
             diagnostic.replacementCode !== undefined)) {
         throw new Error('Invalid or duplicate diagnostic catalog entry.');
@@ -126,6 +140,10 @@ async function main() {
     }
     const diagnostic = catalog.diagnostics.find(value => value.code === options.diagnostic);
     if (!diagnostic) { throw new Error(`Unknown diagnostic code: ${options.diagnostic}`); }
+    const sectionIndex = JSON.parse(files.get('docs-sections.json')?.content.toString('utf8') ?? '{}');
+    if (!sectionIndex.sections?.some(section => section.id === diagnostic.docsSection)) {
+      throw new Error('Diagnostic section is absent from the installed documentation.');
+    }
     console.log(JSON.stringify({ ...provenance, source, sha256: entry.sha256, diagnostic }, null, 2));
   } else if (mode === 'search' || mode === 'section' || mode === 'symbol') {
     const entry = files.get('docs-sections.json');

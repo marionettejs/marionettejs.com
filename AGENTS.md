@@ -1,9 +1,9 @@
 # Website prototype
 
 This integration uses the exact published package in package-lock.json for the
-documentation, browser demos and workshops. The next target is 5.0.0 stable;
-follow the stable transition section in README.md after publication. Until then,
-retain the existing archive, lockfile and provenance as evidence of RC2.
+documentation, browser demos and workshops: Marionette 5.0.0 stable.
+README.md records the verified publication and import procedure. Preserve historical
+RC evidence in case studies, benchmarks and Git history.
 A build or import does not establish deployment or publication approval.
 Merging to `main` publishes the site and documentation MCP and verifies both
 in the same run; see the deployment section of README.md.

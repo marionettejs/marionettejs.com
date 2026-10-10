@@ -6,20 +6,21 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
-import { readRuntimeRelease } from './release-contract.mjs';
+import { readRuntimeMetadata } from './release-contract.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const read = path => readFile(new URL('../' + path, import.meta.url), 'utf8');
-const lock = JSON.parse(await read('package-lock.json'));
 const provenance = JSON.parse(await read('content/provenance.json'));
-const { version, manifest } = await readRuntimeRelease(root);
+const { version, manifest, lock } = await readRuntimeMetadata(root);
 if (version !== provenance.packageVersion || manifest.sourceRevision !== provenance.libraryRevision) throw new Error('Rebuild core from the matching published package first.');
 const core = await read('site/vendor/marionette.js');
 const data = lock.packages['node_modules/@mnjs/data'];
-if (data.version !== provenance.packageVersion || createHash('sha256').update(core).digest('hex') !== provenance.bundleSha256) {
+if (createHash('sha256').update(core).digest('hex') !== provenance.bundleSha256) {
   throw new Error('Demos require the verified core snapshot and matching @mnjs/data release.');
 }
-// Verify lockfile integrity in an isolated install, without touching a running preview.
+// The core hash is already tied to verified vendor:build output. Build data
+// only from a fresh script-free npm ci, which verifies the exact locked archive
+// integrities. No locally modified installed runtime files enter this bundle.
 const staging = await mkdtemp(join(tmpdir(), 'marionette-demo-vendor-'));
 let bundle, dataLicense;
 try {

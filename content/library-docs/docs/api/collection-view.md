@@ -63,13 +63,14 @@ CollectionView accepts View's root, template, data, UI/DOM, entity-event, state,
 | `childViewContainer` | Descendant selector or function returning one; defaults to the root. Resolved after template rendering. A selector with no match throws `MN0013`. |
 | `emptyView` | View/CollectionView class, or function returning a class, `null`, `undefined`, or `false`. Defaults to no empty View. |
 | `emptyViewOptions` | Options object or function called without arguments. Falls back to `childViewOptions`, also called without a model. |
+| `RegionClass` | Region constructor for the list-owned empty Region; defaults to `Region`. A supplied constructor option overrides the prototype value; omission or `undefined` preserves it. |
 | `sortWithCollection` | Boolean, default `true`. Follows source reorder notifications and uses collection order when no custom comparator is selected. |
 | `viewComparator` | Model attribute name, one-argument key function, or two-argument comparison function; default is collection order. `false` disables the comparator. See [sorting](#sorting). |
 | `viewFilter` | Model attribute name, attribute-value object, or predicate; default no filter. See [filtering](#filtering). |
 
 Resolver functions and comparator/filter callbacks run with the CollectionView as `this`. `childView` and `emptyView` constructors are instantiated, not called as resolvers. Use `CollectionView.extend(prototypeProperties?, staticProperties?)` to declare defaults and overrides.
 
-`cid` is generated with the class's `cidPrefix` (`'mncv'` by default). `options` contains merged class and constructor options. `RegionClass` configures the empty Region on the prototype or in `initialize`; despite appearing in the configuration type, passing it as a constructor option does not set that hook in this prerelease.
+`cid` is generated with the class's `cidPrefix` (`'mncv'` by default). `options` contains merged class and constructor options. `RegionClass` is copied before `initialize`, which can still override it before the empty Region is created. Configure it through a constructor option, prototype property, or `initialize`; native subclass fields are initialized after the empty Region has already been created. This hook affects only empty presentation, not ordinary rows or their named Regions.
 
 ## Rendering and collection updates
 
@@ -201,6 +202,26 @@ A full render runs: `before:render` → old-row destruction → new-row addition
 | `getComparator()`, `getFilter()`, `isEmpty()` | Can be overridden to compute ordering, filtering, or empty presentation. |
 
 DOM extension points perform placement only; ownership and lifecycle remain the job of the enclosing operations. Keep the fixed root. Shared `getTemplate`, serialization, UI, delegation, attributes, Behavior composition, child events and their methods are defined in [View runtime](shared/view-bindings.md). Class setters `setRenderer`, `setDomApi`, `setDataApi`, `setStateApi`, and `setEventDelegator` use its [configuration contracts](shared/view-bindings.md#class-configuration). Inherited object APIs are in [common methods](shared/common.md), [events](shared/events.md), and [state](shared/state.md).
+
+### Compose manual children after rendering
+
+Do not call `addChildView()` from `onBeforeRender` or a `before:render` listener. It renders an unrendered list before adopting the child, so that callback reenters itself. Even with a one-time callback, the outer render destroys the newly adopted child. On a later full render, children added during `before:render` are also included in the following old-row destruction. `{ preventRender: true }` does not avoid either problem: it defers the child's presentation, not the parent's initial render or adoption.
+
+Prepare collection inputs before rendering. For manual children, compose in `onRender` or a `render` listener, after the full-render child destruction and container setup:
+
+```js
+import { CollectionView, View } from 'marionette';
+
+const ManualList = CollectionView.extend({
+  onRender() {
+    this.addChildView(new View({ template: () => 'Ready' }));
+  },
+});
+
+const list = new ManualList().render();
+```
+
+This creates a fresh child after each full render; the next full render, a collection reset, or parent destruction destroys it. A collection reset does not emit `render`, so a manual child composed in `onRender` is not recreated afterward. Do not invoke another full parent render from the completion callback. For collection-backed rows, configure `collection` and `childView` instead of manually recreating those rows. See the related [View composition boundary](view.md#compose-children-after-rendering).
 
 ## TypeScript
 

@@ -1,5 +1,4 @@
-import { cp, lstat, mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { lstat, mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readRuntimeRelease, runtimePackages, stableRelease } from './release-contract.mjs';
@@ -21,14 +20,11 @@ export async function stageStableDocs(revision, { directory = root, request, wri
   });
   if (exists) throw new Error(`Refusing to overwrite existing export: ${destination}`);
   await mkdir(dirname(destination), { recursive: true });
-  const staging = await mkdtemp(join(tmpdir(), 'marionette-stable-docs-'));
   let exported;
   try {
-    // Never add manifest.json to the installed package or alter the snapshot.
+    // Read the installed docs in place without copying dist or adding a manifest.
     const packageRoot = resolve(directory, 'node_modules/marionette');
-    await cp(packageRoot, staging, { recursive: true });
-    await write(join(staging, 'manifest.json'), await readFile(join(packageRoot, 'docs-manifest.json')));
-    const snapshot = await readSnapshot(staging);
+    const snapshot = await readSnapshot(packageRoot, { manifestName: 'docs-manifest.json' });
     // The evidence and docs share one atomic rename on the destination filesystem.
     // Interrupted runs can leave only uniquely named temporary siblings; retries
     // ignore those and never mistake them for a completed export.
@@ -38,7 +34,7 @@ export async function stageStableDocs(revision, { directory = root, request, wri
       await mkdir(dirname(target), { recursive: true });
       await write(target, item.markdown ?? item.content);
     }
-    await write(join(exported, 'manifest.json'), await readFile(join(staging, 'manifest.json')));
+    await write(join(exported, 'manifest.json'), await readFile(join(packageRoot, 'docs-manifest.json')));
     await write(join(exported, 'stable-docs-evidence.json'), JSON.stringify({
       packageVersion: version, sourceRevision: revision, contentSha256: manifest.contentSha256,
       archives: Object.fromEntries(runtimePackages.map(name => {
@@ -50,7 +46,6 @@ export async function stageStableDocs(revision, { directory = root, request, wri
     await publish(exported, destination);
     return { version, count: snapshot.pages.length, destination };
   } finally {
-    await rm(staging, { recursive: true, force: true });
     if (exported) await rm(exported, { recursive: true, force: true });
   }
 }

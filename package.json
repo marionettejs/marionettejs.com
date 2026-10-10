@@ -27,13 +27,13 @@
   },
   "devDependencies": {
     "@babel/parser": "8.0.4",
-    "@mnjs/data": "5.0.0-rc.2",
+    "@mnjs/data": "5.0.0",
     "@modelcontextprotocol/client": "2.0.0",
     "@modelcontextprotocol/server": "2.0.0",
     "agents": "0.22.0",
     "ajv": "8.20.0",
     "esbuild": "0.28.2",
-    "marionette": "5.0.0-rc.2",
+    "marionette": "5.0.0",
     "marked": "18.0.12",
     "pagefind": "1.5.2",
     "playwright": "1.63.0",
@@ -43,7 +43,7 @@
   },
   "overrides": {
     "miniflare": {
-      "sharp": "0.35.4"
+      "sharp": "0.35.5"
     }
   }
 }

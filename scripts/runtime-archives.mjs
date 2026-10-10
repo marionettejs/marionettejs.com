@@ -28,7 +28,7 @@ async function files(directory, prefix = '') {
 // compare the complete file set and bytes, including dist, docs and metadata.
 export async function verifyRuntimeBytes(root, names, lock, { request = fetch } = {}) {
   const modules = await realpath(resolve(root, 'node_modules'));
-  for (const name of names) {
+  const results = await Promise.allSettled(names.map(async name => {
     const installed = join(modules, name);
     if (await realpath(installed) !== installed) throw new Error(`Linked runtime package is not a registry install: ${name}`);
     const staging = await mkdtemp(join(tmpdir(), 'marionette-archive-'));
@@ -55,5 +55,8 @@ export async function verifyRuntimeBytes(root, names, lock, { request = fetch } 
     } finally {
       await rm(staging, { recursive: true, force: true });
     }
-  }
+  }));
+  // Wait for every temporary directory to be cleaned before reporting failure.
+  const failure = results.find(result => result.status === 'rejected');
+  if (failure) throw failure.reason;
 }
