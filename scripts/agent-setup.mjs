@@ -44,7 +44,7 @@ OpenAI directory publication is not complete. Use this project skill for now. [C
 ` },
   { id: 'claude', name: 'Claude Code', markdown: `### Claude Code
 
-For a reproducible plugin installation, use the verified package source revision. The loader still reads the skill from your application’s installed package. Run in your terminal with Git and Claude Code installed. Keep this checkout while using the plugin:
+For a reproducible plugin installation, use the verified package source revision. The loader still reads the skill from your application's installed package. Run in your terminal with Git and Claude Code installed. Keep this checkout while using the plugin:
 
 ${fence(`${checkout} &&\nclaude plugin marketplace add ./.marionette-plugin &&\nclaude plugin install marionette@marionettejs &&\nclaude plugin list`)}
 
