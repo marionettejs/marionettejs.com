@@ -7,8 +7,8 @@ import { tmpdir, cpus } from 'node:os';
 import { join, resolve } from 'node:path';
 import { unstable_dev } from 'wrangler';
 
-// Profile the actual entrypoint in local workerd, including the Cloudflare
-// adapter and body wrapper. Loopback elapsed time is not billed edge CPU.
+// Profile the actual entrypoint in local workerd, including the official SDK
+// handler and body wrapper. Loopback elapsed time is not billed edge CPU.
 const label = process.argv[2] ?? 'local';
 assert.match(label, /^[a-z0-9-]+$/);
 const snapshot = JSON.parse(await readFile('output/mcp/snapshot.json', 'utf8'));
@@ -108,7 +108,7 @@ try {
     summaries.push({ name, firstElapsedMs: elapsed[0], warmupRequests: 20, measuredRequests: 100,
       loopbackElapsedMs: { median: sorted[49], p95: sorted[94], p99: sorted[98] }, maxResponseBytes, topFrames });
   }
-  const sourceHashes = Object.fromEntries(await Promise.all(['mcp/worker.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'mcp/sections.mjs', 'mcp/index-sections.mjs', 'scripts/heading-ids.mjs', 'package-lock.json', 'output/mcp/snapshot.json'].map(async path => [path, createHash('sha256').update(await readFile(path)).digest('hex')])));
+  const sourceHashes = Object.fromEntries(await Promise.all(['mcp/worker.mjs', 'mcp/http.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'mcp/sections.mjs', 'mcp/index-sections.mjs', 'scripts/heading-ids.mjs', 'package-lock.json', 'output/mcp/snapshot.json'].map(async path => [path, createHash('sha256').update(await readFile(path)).digest('hex')])));
   sourceHashes.effectiveWranglerConfig = createHash('sha256').update(JSON.stringify(config)).digest('hex');
   const report = { sourceHashes, label, measuredAt: new Date().toISOString(), runtime: process.version, hardware: cpus()[0].model,
     measurement: 'Actual Worker in local workerd. Inspector samples identify hot frames; loopback elapsed times include I/O and are not edge CPU. Profiles include warmup; percentiles exclude first 20 requests. No module startup profile.',
