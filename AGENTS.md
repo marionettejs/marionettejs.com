@@ -1,19 +1,22 @@
 # Website prototype
 
-This integration targets Marionette 5.0.0-rc.2 for the documentation, browser
-demos and workshops. Use the matching published package and verified provenance.
+This integration uses the exact published package in package-lock.json for the
+documentation, browser demos and workshops: Marionette 5.0.0 stable.
+README.md records the verified publication and import procedure. Preserve historical
+RC evidence in case studies, benchmarks and Git history.
 A build or import does not establish deployment or publication approval.
 Merging to `main` publishes the site and documentation MCP and verifies both
 in the same run; see the deployment section of README.md.
 www.marionettejs.com and v5.marionettejs.com also work; v5 is a mirror with a `noindex` directive.
-The launch was authorized and completed on September 9, 2026 (Asia/Seoul).
+The RC2 website launch was authorized and completed on September 9, 2026
+(Asia/Seoul). That launch does not authorize the pending stable cutover.
 Do not publish out of band; let the workflow deploy what has been merged and
 reviewed. Preserve old documentation links via the
 v4.marionettejs.com GitHub Pages archive while those releases have consumers.
 
 This is the independent website repository. The earlier prototype and design
 options remain in their existing checkouts; preserve them. Keep the website independent of the library's working directory.
-Use the exact published release candidate pinned in package-lock.json for the demos and
+Use the exact published release pinned in package-lock.json for the demos and
 personal workshop. Runtime and documentation versions and source revisions must
 match the installed artifact; a local build does not establish deployment.
 Rebuild core with `npm run vendor:build`,

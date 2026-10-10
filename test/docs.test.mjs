@@ -250,3 +250,17 @@ test('release-rebased source revisions resolve relative and branch links without
     assert.ok(markdown.includes(`](${expected})`), expected);
   }
 });
+
+test('release-profile support verifies its bytes without admitting arbitrary config assets', async t => {
+  const directory = await mkdtemp(resolve(tmpdir(), 'marionette-release-profile-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  await cp(source, directory, { recursive: true });
+  const { assets } = await readSnapshot(directory);
+  assert.ok(assets.some(asset => asset.source === 'config/release-profile.json'));
+  await writeFile(resolve(directory, 'config/release-profile.json'), '{}');
+  await assert.rejects(readSnapshot(directory), /Documentation hash mismatch: config\/release-profile.json/);
+  const manifest = JSON.parse(await readFile(resolve(directory, 'manifest.json')));
+  manifest.assets.find(asset => asset.source === 'config/release-profile.json').source = 'config/other.json';
+  await writeFile(resolve(directory, 'manifest.json'), JSON.stringify(manifest));
+  await assert.rejects(readSnapshot(directory), /Unsupported documentation asset: config\/other.json/);
+});

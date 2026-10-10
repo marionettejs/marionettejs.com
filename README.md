@@ -7,10 +7,94 @@ The apex is canonical; v5 remains a noindexed mirror.
 Source lives in `marionettejs/marionettejs.com`. Earlier design commits and checkouts remain
 preserved in the old website repository. The local preview still binds to loopback.
 
+## Stable 5.0.0 transition
+
+This branch imports published **5.0.0** from source
+`0f2284ad4bbfe8c82ce82714471697a68c2acaeb`. The [publication run](https://github.com/marionettejs/marionette/actions/runs/38034055064)
+promoted [certification 38032320468](https://github.com/marionettejs/marionette/actions/runs/38032320468);
+the [stable release](https://github.com/marionettejs/marionette/releases/tag/v5.0.0)
+contains the matching archives and evidence. The four runtime registry integrities
+and staged documentation manifest match those certified published bytes.
+The documentation content digest is
+`44c0d535fd36d11f31d909246f4ee7c6592eae3f25fb7513c61af65842593a90`.
+
+Use this procedure for the stable import and its review. Merging to main deploys
+both site and MCP and still requires separate approval.
+
+1. Obtain the release owner's final published source revision and registry readback
+   for all five packages (core, data, radio, utils and adapters), along with the
+   certification artifact identity. The release owner verifies adapters separately;
+   the website staging script checks only core, data, radio and utils.
+   A successful unpublished build is insufficient.
+2. With Node 24, run the exact stable install command in the publication section
+   below, then `npm ci`. Review the four runtime lock entries, including transitive
+   radio/utils. Never hand-author registry URLs, integrity values or archive hashes.
+3. Run `npm run docs:stage-stable -- <certified-40-character-source-revision>`.
+   This downloads the four exact locked registry archives, verifies their SHA-512
+   integrities, and compares every installed file with the archive bytes (including
+   runtime code and docs). It rejects linked, modified, missing or extra files;
+   neither package metadata nor the hidden npm lockfile is proof of installed bytes.
+   Registry access and `tar` are required for staging and `vendor:build`;
+   `vendor:demos` also needs registry access or a warm npm cache for its fresh install.
+   `vendor:demos` verifies the core bundle hash and uses a fresh script-free `npm ci`
+   for data; ordinary tests use local metadata and fixture archives without registry reads.
+   It requires 5.0.0 and the certified revision, then verifies every documentation/asset hash.
+   It exports package bytes plus generated archive evidence to `output/stable-docs`;
+   the evidence file is `output/stable-docs/stable-docs-evidence.json`. Docs and evidence appear together
+   only after every write succeeds. It refuses an existing export directory. Failed
+   runs can be retried; an abruptly terminated run may leave an unused `.stable-docs-*`
+   sibling in `output/`, which can be removed once that process has stopped.
+   Compare its digest and revision with the release owner's published artifact evidence.
+4. Run `npm run docs:import -- output/stable-docs`. Reconcile **every** reading-copy
+   overlay in `content/docs-publication-edits.json` against the new archive. Remove
+   changes already in the archive and obsolete RC2 limitations; retain only reviewed
+   editorial changes with correct before/after hashes and source identity. Set its
+   packageVersion to `5.0.0` and status to `stable release (published on npm)` only
+   with that evidence. Review title edits, navigation and supplemental guides too;
+   remove a supplemental copy when the package now supplies the same guide.
+   Never edit archive bytes.
+5. Run `npm run vendor:build`, then `npm run vendor:demos`, then `npm run check`.
+   Commit the actual lockfile, archive, declaration, bundles, licenses, provenance
+   and generated workshop changes together. Setup instructions derive their exact
+   version/revision from that provenance. MCP and discovery outputs derive theirs
+   from the imported publication. Do not replace historical case-study versions,
+   benchmark evidence, original prompts or the v4 archive.
+6. Run `node scripts/check-agent-site.mjs --local --report output/agent-retrieval.json`
+   and the full browser checks in `.github/workflows/check.yml`. The sync validator
+   is for an overlay-only sync PR; this transition instead runs the archive, corpus,
+   import, sync and MCP tests through `npm run check`. Inspect desktop/narrow documentation,
+   homepage title/social metadata, install links, agent setup, llms output and MCP
+   catalog/lookup. Current instructions must no longer call stable a candidate;
+   immutable historical RC2 evidence and generic candidate tests remain valid.
+7. Retain the staged archive URLs/integrities, source revision and content digest
+   under `releaseEvidence` in `content/docs-publication-edits.json`, with the
+   certification/publication run links and separate adapter readback. This structured
+   evidence is committed and served at `/docs/publication.json`. Update this status
+   and the PR with the verification results.
+   Obtain separate merge/deployment approval. This preparation does not authorize
+   package publication, a site deployment, or changes to credentials/settings.
+
+Reading-copy PR #73 (`automation/library-docs-sync`, reviewed head `5a2ed828`)
+was merged into main at `46c3402` and integrated into this branch. Its four
+changes are supplied by the stable archive:
+package identity guidance in `docs/agents.md` and `docs/readme.md`, explicit child
+startup cancellation in `docs/api/application.md`, and Backbone reorder guidance
+in `docs/packages/adapters.md`. The latter limitation still applies in stable;
+its guidance is retained in the package, not duplicated in a website overlay.
+The old navigation warning is stale; stable supplies the framework-migration guide
+and navigation directly. Of the 23 previous reading overlays, only the website's
+shorter architecture heading remains. Four later reading edits clarify the View
+lifecycle diagram, exclusive child-start coordination, data persistence scope,
+and client installation verification without changing the archived package.
+The duplicate supplemental migration guide is now replaced by its exact packaged
+copy and is available through MCP too.
+Do not reintroduce stale RC2 overlays after stable import. Historical RC2
+evidence remains in Git and case-study assets.
+
 ## Versioned integration
 
-This integration targets `marionette@5.0.0-rc.2` across documentation, browser demos
-and workshops. Import consumer docs with `npm run docs:import -- /path/to/export`.
+This integration uses the exact published package pinned in `package-lock.json`
+across documentation, browser demos and workshops. Import consumer docs with `npm run docs:import -- /path/to/export`.
 Website and MCP retrieval use the same imported corpus and packaged records assets.
 Runtime version and revision come from the installed package's vendor provenance;
 `/docs/manifest.json` identifies the documentation snapshot. Builds do not publish
@@ -116,7 +200,7 @@ and a real playground interaction by hand after a release.
 
 The v4 GitHub Pages archive preserves the existing
 versioned documentation and download paths. `_redirects` preserves those legacy paths and the published preview URLs
-(`/docs/regions/` and `/reference/region.md`); current `/docs/` serves release-candidate documentation. The old root `sw.js` unregisters
+(`/docs/regions/` and `/reference/region.md`); current `/docs/` serves the imported package documentation. The old root `sw.js` unregisters
 retained legacy service workers and clears only their named precache. Keep that
 retirement file while returning browsers can retain those registrations.
 
@@ -327,12 +411,13 @@ archive, including its revision, content digest and locked registry integrity.
 After an authorized release, upgrade the exact core/data pins together:
 
 ```sh
-npm install --save-dev --save-exact marionette@5.0.0-rc.2 @mnjs/data@5.0.0-rc.2
+npm install --save-dev --save-exact marionette@5.0.0 @mnjs/data@5.0.0
 npm ls marionette @mnjs/data @mnjs/radio @mnjs/utils
 ```
 
 Require all four installed versions to match. The vendor builder reads the package's
-root `docs-manifest.json` and requires RC2 with clean source. Rebuild with
+root `docs-manifest.json` and requires clean source, matching exact pins and registry
+archive URLs/integrities for core, data, radio and utils. Rebuild with
 `npm run vendor:build` and `npm run vendor:demos`; verify both resulting hashes and
 license bundles. `npm run build` derives the workshop brief, runtime, recipes and
 export identity from the resulting provenance, including the released source revision.

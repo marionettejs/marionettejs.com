@@ -14,8 +14,8 @@ const hash = value => createHash('sha256').update(value).digest('hex');
 export const escapeHtml = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 const safePath = value => typeof value === 'string' && /^[a-zA-Z0-9._/-]+$/.test(value) && !value.startsWith('/') && !value.split('/').some(part => part === '..' || part === '.' || !part);
 
-export async function readSnapshot(directory) {
-  const manifest = JSON.parse(await readFile(resolve(directory, 'manifest.json'), 'utf8'));
+export async function readSnapshot(directory, { manifestName = 'manifest.json' } = {}) {
+  const manifest = JSON.parse(await readFile(resolve(directory, manifestName), 'utf8'));
   if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.pages) || !manifest.pages.length || !/^[a-f0-9]{40}$/.test(manifest.sourceRevision) || typeof manifest.sourceDirty !== 'boolean' || manifest.channel !== 'latest' || manifest.packageName !== 'marionette' || typeof manifest.packageVersion !== 'string' || manifest.sourceRepository !== 'https://github.com/marionettejs/marionette') throw new Error('Unsupported documentation manifest.');
   const base = await realpath(directory);
   const readSource = async source => {
@@ -36,10 +36,10 @@ export async function readSnapshot(directory) {
   }
   const assets = [];
   if (!Array.isArray(manifest.assets)) throw new Error('Documentation snapshot assets are required.');
-  // Only canonical consumer skill, diagnostics, lookup indexes, and packaged example sources are served.
+  // Only canonical consumer skill, diagnostics, release profile, lookup indexes, and packaged example sources are served.
   for (const asset of manifest.assets) {
-    const supported = /^(?:config\/diagnostics\/catalog(?:\.schema)?\.json|docs-(?:sections|symbols)\.json|skills\/marionette\/(?:SKILL\.md|agents\/openai\.yaml|scripts\/(?:docs|search|symbols)\.mjs)|examples\/records\/[a-zA-Z0-9._/-]+\.(?:md|json|m?js|html|css))$/.test(asset.source);
-    if (!safePath(asset.source) || !supported || sources.has(asset.source)) throw new Error('Unsupported documentation asset.');
+    const supported = /^(?:config\/release-profile\.json|config\/diagnostics\/catalog(?:\.schema)?\.json|docs-(?:sections|symbols)\.json|skills\/marionette\/(?:SKILL\.md|agents\/openai\.yaml|scripts\/(?:docs|search|symbols)\.mjs)|examples\/records\/[a-zA-Z0-9._/-]+\.(?:md|json|m?js|html|css))$/.test(asset.source);
+    if (!safePath(asset.source) || !supported || sources.has(asset.source)) throw new Error(`Unsupported documentation asset: ${asset.source}`);
     const content = await readSource(asset.source);
     if (hash(content) !== asset.sha256) throw new Error(`Documentation hash mismatch: ${asset.source}`);
     assets.push({ ...asset, content }); sources.add(asset.source);
@@ -58,7 +58,7 @@ export async function readSnapshot(directory) {
 // Additional reviewed guides are independent of the immutable npm archive.
 export async function readSupplementalPages(directory, archivedPages) {
   const manifest = JSON.parse(await readFile(resolve(directory, 'manifest.json'), 'utf8'));
-  if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.pages) || !manifest.pages.length) throw new Error('Unsupported supplemental documentation manifest.');
+  if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.pages)) throw new Error('Unsupported supplemental documentation manifest.');
   const routes = new Set(archivedPages.map(page => page.route));
   const sources = new Set(archivedPages.map(page => page.source));
   const base = await realpath(directory);

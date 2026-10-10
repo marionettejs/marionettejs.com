@@ -78,6 +78,18 @@ Stop is synchronous and cannot be superseded during cleanup. Start/restart durin
 
 `ApplicationStartOptions` accepts an existing Region and feature options. `ApplicationRestartOptions` forwards feature options, including any `region`, unchanged to hooks, but restart never changes its destination. Stop/destroy forward arbitrary options to notifications and child operations. None of these arguments merge into constructor `options`.
 
+```text
+stopped → start() → prepareStart → active → onStart
+stopped → restart() → prepareStart → active → onStart (retained destination)
+active  → restart() → prepareStart → onStart → active
+                       │
+                       └── preparation rejects → existing active UI retained
+active  → stop() → stopped (root destroyed; Application/state retained)
+live    → destroy() → destroyed (owned UI, children and resources disposed)
+```
+
+An active restart retains its UI during preparation; `onStart` chooses what to update. Initial preparation failure leaves the Application stopped. A newer restart, stop or destroy cancels pending preparation, preventing its obsolete result from reaching `onStart`. This diagram describes successful synchronous callbacks; the failure boundary below still applies.
+
 ## Preparation, cancellation, and failure
 
 `prepareStart(options, { signal })` is the only awaited lifecycle hook. Its result reaches `onStart(app, options, result)` and `start` subscribers. Notification hooks run synchronously and ignore returned Promises. Await required business work before teardown, for example `await app.saveDraft(); app.stop()`.
@@ -112,6 +124,47 @@ Names must be nonempty. Children must share the parent's runtime and have one ow
 Registration owns lifetime, not readiness. Parent start does not start or await children. Start prerequisites explicitly in preparation when their readiness is required; handle the separate Promise when starting a child from a notification. Parent restart leaves children active. To reprepare a child too, call its `restart()` explicitly.
 
 Parent stop traverses children in registration order, including descendants beneath stopped intermediate owners. Child instances remain registered for reuse. Parent destruction stops descendants before `before:destroy`, which can inspect stopped, live children; it then destroys children in registration order. Descendant start/restart is blocked during an ancestor's stop or terminal phase. There are no Application add/remove-child notification events.
+
+### Child operations during lifecycle notifications
+
+These phase rules apply to both method hooks and event listeners: `onBefore…` / `on('before:…', callback)`, and `onStop` / `on('stop', callback)`. Hooks run first; listeners then run synchronously in registration order. A notification is not an awaited coordination step.
+
+| Parent notification | Child operation and consequence |
+| --- | --- |
+| `before:start` | An explicit child `start()` or `restart()` can begin, but its Promise is not awaited by the parent, even if the callback returns it. An explicit child `stop()` completes synchronously; it does not cancel parent startup. |
+| `before:stop` | The parent is already stopping. Descendant `start()` and `restart()` resolve `false`, including from descendant cleanup callbacks. Explicitly stopping a child early is safe; normal parent teardown still stops the remaining descendants. |
+| `before:destroy` | Descendants have already been stopped and are about to be destroyed. Inspect or release external resources here; descendant activation resolves `false`. New child registration is ignored and leaves the supplied instance owned by the caller. |
+| `stop` after ordinary stop | Cleanup has finished, so an explicitly requested next run can start if no ancestor is still stopping. A child can run while its parent remains stopped; starting the parent does not start children automatically. When an ancestor is stopping this parent, descendant activation still resolves `false` during the parent's `stop` callback. During destruction, terminal ownership still blocks activation. |
+
+When child readiness is required for parent success, await it in `prepareStart`, check the preparation signal after the await, and handle a canceled child result explicitly:
+
+```js
+import { Application } from 'marionette';
+
+const Feature = Application.extend({
+  childApps: { results: Application },
+  async prepareStart(options, { signal }) {
+    const child = this.getChildApp('results');
+    if (!child) { throw new Error('Required child is missing'); }
+    if (child.isRunning()) { return; }
+    signal.addEventListener('abort', () => child.stop(), { once: true });
+    const started = await child.start();
+    signal.throwIfAborted();
+    if (!started) { throw new Error('Required child did not start'); }
+  },
+});
+
+const feature = new Feature();
+await feature.start();
+```
+
+This recipe explicitly cancels a child started for the pending parent attempt, including the interval after the child starts but before the parent commits. It preserves an already-running child during restart. Keep the abort listener connected until the attempt settles; a committed preparation's signal is not aborted by later lifecycle operations. This is the recipe's coordination policy, not automatic rollback by Application.
+
+Use the child's `restart()` in preparation only when it should reprepare too; `start()` preserves an already-running child. Parent stop cancels pending child readiness. A rejected parent preparation does not roll back already-started children; explicitly stop or destroy the parent when abandoning that startup.
+
+Calling parent `stop()` from its `before:start` callback is supported cancellation, but it does not cancel the remaining notification listeners. A later listener can still perform side effects or independently start a child after that stop has finished. Keep required child activation in `prepareStart`, which only begins if the parent preparation is still current, instead of distributing dependent lifecycle actions across notification callbacks. Starting an optional child from a notification remains explicit independent work: handle its Promise and rejection yourself.
+
+Do not unconditionally call the same Application's `restart()` from its `before:start` callback: restart emits `before:start` again and supersedes the outer attempt. A conditional redirect must terminate; for ordinary refresh, request restart from the coordinating caller. A repeated `start()` during initial preparation joins that pending preparation instead. These rules do not prohibit synchronous preparation of state or inspection in before hooks.
 
 ## Root View and Region
 

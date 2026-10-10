@@ -86,7 +86,7 @@ For template selection, serialization, `renderAttributes`, and renderer customiz
 
 ## Named Regions
 
-A `regions` map accepts a selector string, Region constructor, Region instance, or options object such as `{ el: '.content', replaceElement: true }`. An options object can include `regionClass`. String selectors resolve inside the View's root by default; `@ui.name` is accepted in selectors and the `el` field. Full Region options are in [Region](region.md).
+A `regions` map accepts a selector string, Region constructor, Region instance, or options object such as `{ el: '.content', replaceElement: true }`. An options object can include `regionClass`. Supply options as own enumerable properties; inherited and non-enumerable option properties are not copied. Use a Region subclass for prototype defaults. String selectors resolve inside the View's root by default; `@ui.name` is accepted in selectors and the `el` field. Full Region options are in [Region](region.md). Registration copies the definition map and options objects before resolving UI selectors, so shared declarations remain unchanged and each View uses its own UI map. Supplied Region instances and constructors retain their identity.
 
 Regions are created before `initialize`; their elements can resolve later when content exists. A Region has one owner/name and must belong to the same Marionette runtime. Names must be nonempty strings. Re-registering the same instance under its existing name is harmless; a different definition under an occupied name throws. Remove the old Region before replacing its definition.
 
@@ -104,7 +104,7 @@ Regions are created before `initialize`; their elements can resolve later when c
 | `removeRegion(name)` | Destroys and unregisters the Region, including its current child; returns the destroyed Region. |
 | `removeRegions()` | Destroys/unregisters every Region; returns a map of the destroyed Regions. |
 
-The child operations and `removeRegion` throw for a missing Region. Region registration/removal emits no View `add:region` or `remove:region` events; observe the Region's lifecycle when needed. Rendering an existing layout resets Regions and destroys their children, so render a smaller child when the surrounding composition should remain alive. The current [missing-selector limitation](region.md#showing-a-view) can also make this reset fail after an allowed missing-element lookup.
+The child operations and `removeRegion` throw for a missing Region. Region registration/removal emits no View `add:region` or `remove:region` events; observe the Region's lifecycle when needed. Rendering an existing layout resets Regions and destroys their children, so render a smaller child when the surrounding composition should remain alive. An allowed missing-element lookup leaves the Region usable for this reset and for parent destruction.
 
 ## Lifecycle hooks and events
 
@@ -123,11 +123,46 @@ Each event below uses `triggerMethod`: the corresponding hook runs first, then e
 | `before:destroy` | `onBeforeDestroy` | `(view, options)` while `isDestroyed()` is false, before root/child cleanup. |
 | `destroy` | `onDestroy` | `(view, options)` after root/child cleanup and destroyed state update; event subscriptions are cleared afterward. |
 
+For a newly constructed View with a rendering template shown in an attached Region, the usual successful path is:
+
+```text
+constructed → render → attach → dom:refresh
+                         │
+                         ├── render again → dom:refresh
+                         └── detach → alive, reusable → attach → dom:refresh
+
+live View → before:destroy → detach if attached → child cleanup → destroy
+```
+
+Existing markup can start rendered or attached without emitting those construction-time events. With `template: false`, `View.render()` is a no-op and emits no render events. For an initially empty View, `Region.show()` still marks it rendered, so attachment can emit `dom:refresh`. Detachment keeps the View alive; destruction is terminal.
+
 Showing an initially unrendered detached View in an attached Region normally proceeds through render, then attach, then DOM refresh. A direct destroy normally proceeds through `before:destroy`, detach phases if attached, child destruction, and `destroy`. Managed children receive attach/detach propagation; during parent destruction they are destroyed after the parent root is detached. A CollectionView owner may detach a child before destroying it, so its child ordering differs; see [Region replacement](region.md#replacing-a-collectionview).
 
 Lifecycle callbacks are synchronous. A thrown callback interrupts the operation; these phases describe successful completion, not rollback guarantees.
 
 Set `monitorViewEvents: false` on the class to disable descendant attachment propagation and generated `dom:refresh`/`dom:remove` notifications. This is a class property, not a recognized constructor option. Ordinary application code should retain monitoring. `monitorViewEvents(view)` is the exported installer used by Marionette; it returns `undefined` and installs handlers only once, unless monitoring is disabled before installation. Native View and CollectionView construction installs it automatically. A custom integration must satisfy `ViewLifecycle`, including event methods, rendered/attached flags and immediate-child traversal. The installer propagates existing lifecycle events; it does not watch external DOM changes.
+
+### Compose children after rendering
+
+Use `onBeforeRender` or a `before:render` listener to prepare template inputs or inspect the existing UI. Avoid operations that render an unrendered parent: `showChildView()`, `getChildView()`, `detachChildView()`, and `emptyRegions()` each reenter the same notification. An unconditional callback recurses; a one-time callback can complete an inner render. If it shows a child, the outer render then resets the Region and destroys that child. Showing children here is also unsafe on later renders, because existing Region children are still reset after `before:render`. `getRegion()` itself is a pure lookup and does not render.
+
+Compose children in `onRender` or a `render` listener, after the parent's template and Regions are ready:
+
+```js
+import { View } from 'marionette';
+
+const Page = View.extend({
+  template: () => '<section class="content"></section>',
+  regions: { content: '.content' },
+  onRender() {
+    this.showChildView('content', new View({ template: () => 'Ready' }));
+  },
+});
+
+const page = new Page().render();
+```
+
+Each full parent render destroys the previous child and composes a new one; parent destruction destroys the current child. Do not call the parent's `render()` again from that completion callback. For `template: false`, no render notification occurs: compose explicitly after establishing the existing markup, as in [existing elements](#existing-elements). CollectionView has a corresponding [manual-child boundary](collection-view.md#compose-manual-children-after-rendering).
 
 ## Configuration and inherited API
 

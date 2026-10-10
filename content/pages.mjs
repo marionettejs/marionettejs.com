@@ -3,18 +3,17 @@ import { invitation } from './playground.mjs';
 export { why } from './why.mjs';
 import provenance from './provenance.json' with { type: 'json' };
 
-const candidateNumber = provenance.packageVersion.match(/^5\.0\.0-rc\.(\d+)$/)?.[1];
-if (!candidateNumber) throw new Error(`Expected a Marionette 5 release-candidate package version, received ${provenance.packageVersion}.`);
+if (!/^5\.0\.0(?:-rc\.\d+)?$/.test(provenance.packageVersion)) throw new Error(`Expected a Marionette 5 package version, received ${provenance.packageVersion}.`);
 
 const demo = `<section class="demo application-demo" id="demo" aria-labelledby="demo-title">
   <div class="demo-heading"><span class="eyebrow" id="demo-title">APPLICATION / PREVIEW</span><span class="live-indicator">LIVE LIBRARY</span></div>
   <div id="application-slot"><p class="empty-region">Enable JavaScript to explore a small Marionette application.</p></div>
 </section>`;
 
-export const home = {title:`Marionette 5 RC.${candidateNumber} — JavaScript library for agent-led development`,description:'A JavaScript UI library for agent-led development. Your agent learns the patterns; you direct the application and follow the code. Build with Marionette 5.',active:'home',body:`
+export const home = {title:`Marionette 5 — JavaScript library for agent-led development`,description:'A JavaScript UI library for agent-led development. Your agent learns the patterns; you direct the application and follow the code. Build with Marionette 5.',active:'home',body:`
 <div class="opening-act"><svg class="opening-thread" aria-hidden="true"><path/></svg>
 <section class="night-hero">
-  <div class="night-copy"><p class="eyebrow"><span class="signal-dot"></span> MARIONETTE 5.0 · RC ${candidateNumber}</p><h1>Pull a few<br><em>strings.</em></h1><p class="night-intro">A JavaScript UI library for<br><strong>agent-led development.</strong></p><p class="hero-purpose">Your agent learns the patterns.<br>You direct the application.<br>The code stays yours to follow.</p><div class="night-actions"><a class="button" href="/why/">Explore Marionette <span aria-hidden="true">↗</span></a><a class="text-link" href="/docs/agent-start/">Equip your agent →</a></div></div>
+  <div class="night-copy"><p class="eyebrow"><span class="signal-dot"></span> MARIONETTE 5.0</p><h1>Pull a few<br><em>strings.</em></h1><p class="night-intro">A JavaScript UI library for<br><strong>agent-led development.</strong></p><p class="hero-purpose">Your agent learns the patterns.<br>You direct the application.<br>The code stays yours to follow.</p><div class="night-actions"><a class="button" href="/why/">Explore Marionette <span aria-hidden="true">↗</span></a><a class="text-link" href="/docs/agent-start/">Equip your agent →</a></div></div>
   <div class="rig" data-rig>
     <div class="rig-decoration" aria-hidden="true"><div class="rig-control"><span class="yoke-pin pin-left"></span><img src="/assets/mark.svg" width="68" height="70" alt=""><span class="yoke-pin pin-right"></span></div><svg class="rig-strings" viewBox="0 0 560 96" preserveAspectRatio="none"><path d="M84 0 V96 M476 0 V96"/><circle cx="84" cy="94" r="3"/><circle cx="476" cy="94" r="3"/></svg><span class="rig-annotation">A PLACE FOR EVERYTHING.</span></div>
     ${demo}

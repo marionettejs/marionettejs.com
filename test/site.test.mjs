@@ -78,9 +78,10 @@ test('all local JavaScript imports and CSS imports resolve in the built output',
 
 test('published demo runtime and documentation match the installed artifact',async()=>{
   const provenance=JSON.parse(await readFile(resolve(out,'reference/provenance.json'),'utf8'));
-  const candidateNumber=provenance.packageVersion.match(/^5\.0\.0-rc\.(\d+)$/)?.[1];
-  assert.ok(candidateNumber);
-  assert.match(await readFile(resolve(out,'index.html'),'utf8'),new RegExp(`MARIONETTE 5\\.0 · RC ${candidateNumber}`));
+  assert.match(provenance.packageVersion, /^5\.0\.0(?:-rc\.\d+)?$/);
+  const homepage = await readFile(resolve(out,'index.html'),'utf8');
+  assert.match(homepage, /MARIONETTE 5\.0/);
+  assert.doesNotMatch(homepage, /Marionette 5 RC|MARIONETTE 5\.0 · RC/);
   assert.match(provenance.libraryRevision,/^[a-f0-9]{40}$/);
   const hash=createHash('sha256').update(await readFile(resolve(out,'vendor/marionette.js'))).digest('hex');
   assert.equal(hash,provenance.bundleSha256);

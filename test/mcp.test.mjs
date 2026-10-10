@@ -238,7 +238,7 @@ test('server refuses stale provenance and tampered Markdown before serving tools
   await cp(new URL('content/supplemental-docs', root), join(fixture, 'content/supplemental-docs'), { recursive: true });
   await cp(new URL('dist/docs/supplemental-manifest.json', root), join(fixture, 'dist/docs/supplemental-manifest.json'));
   await cp(new URL('content/library-docs', root), join(fixture, 'content/library-docs'), { recursive: true });
-  for (const path of ['package-lock.json', 'scripts/heading-ids.mjs', 'mcp/index-sections.mjs', 'mcp/sections.mjs', 'mcp/server.mjs', 'mcp/load.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'content/docs-publication-edits.json', 'scripts/library-docs.mjs', 'scripts/search-index.mjs', 'scripts/published-docs.mjs', 'scripts/publication-status.mjs', 'scripts/agent-discovery.mjs', 'scripts/agent-setup.mjs']) {
+  for (const path of ['package-lock.json', 'scripts/heading-ids.mjs', 'mcp/index-sections.mjs', 'mcp/sections.mjs', 'mcp/server.mjs', 'mcp/load.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'content/docs-publication-edits.json', 'content/provenance.json', 'scripts/library-docs.mjs', 'scripts/search-index.mjs', 'scripts/published-docs.mjs', 'scripts/publication-status.mjs', 'scripts/agent-discovery.mjs', 'scripts/agent-setup.mjs']) {
     await cp(new URL(path, root), join(fixture, path));
   }
   await writeFile(join(fixture, 'package.json'), '{"type":"module"}');
@@ -246,8 +246,8 @@ test('server refuses stale provenance and tampered Markdown before serving tools
   await writeFile(join(fixture, 'dist/docs/corpus.json'), JSON.stringify(corpus));
   const loader = await import(new URL('mcp/load.mjs', new URL(`file://${fixture}/`)));
   assert.equal((await loader.loadSnapshot()).documents.length, corpus.documents.length);
-  // Website edits and supplements are not an input to the artifact corpus.
-  assert.equal((await loader.loadSnapshot()).documents.some(doc => doc.id === 'docs/guides/framework-migration.md'), false);
+  // Stable now packages this guide, so it belongs to the artifact corpus.
+  assert.equal((await loader.loadSnapshot()).documents.some(doc => doc.id === 'docs/guides/framework-migration.md'), true);
   const manifestPath = join(fixture, 'content/library-docs/manifest.json');
   const manifestBytes = await readFile(manifestPath, 'utf8');
   const original = JSON.parse(manifestBytes);
@@ -282,16 +282,18 @@ test('MCP contract text is byte-identical to the archived package, excluding web
     assert.equal(document.sourceSha256, document.sha256);
     assert.equal(document.sourceRevision, manifest.sourceRevision);
   }
-  assert.equal(artifact.documents.some(doc => doc.id === 'docs/guides/framework-migration.md'), false);
+  assert.equal(artifact.documents.some(doc => doc.id === 'docs/guides/framework-migration.md'), true);
 });
 
 
 test('diagnostic document inputs reject missing text, unsupported catalogs, and duplicate codes', async () => {
-  const schema2 = JSON.parse(await readFile(new URL('../content/library-docs/config/diagnostics/catalog.schema.json', import.meta.url), 'utf8'));
-  const schema3 = structuredClone(schema2);
-  schema3.properties.schemaVersion.const = 3;
-  schema3.definitions.diagnostic.required.push('docsSection');
-  schema3.definitions.diagnostic.properties.docsSection = { type: 'string', pattern: '^docs/api/errors\\.md#mn[0-9]{4}$' };
+  const schema3 = JSON.parse(await readFile(new URL('../content/library-docs/config/diagnostics/catalog.schema.json', import.meta.url), 'utf8'));
+  // Keep legacy-schema rejection coverage without treating the stable v3 schema
+  // as though it were still the RC2 v2 artifact.
+  const schema2 = structuredClone(schema3);
+  schema2.properties.schemaVersion.const = 2;
+  schema2.definitions.diagnostic.required = schema2.definitions.diagnostic.required.filter(key => key !== 'docsSection');
+  delete schema2.definitions.diagnostic.properties.docsSection;
   const validate = (catalog, sections) => validateDiagnostics(catalog, catalog?.schemaVersion === 3 ? schema3 : schema2, sections);
   const diagnostic = { code: 'MN0004', slug: 'region-el-required', status: 'active', remediation: 'Supply an element.',
     category: 'ownership', severity: 'error', benchmarkCategory: 'ownership', objects: ['Region'], surfaces: ['runtime'], docsAnchor: '/errors/MN0004/' };

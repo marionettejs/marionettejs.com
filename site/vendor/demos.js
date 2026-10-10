@@ -1304,7 +1304,7 @@ Object.assign(Region$1.prototype, CommonMixin, {
     view._isShown = true;
   },
   _ensureElement(options = {}) {
-    this._setEl(this.el);
+    this._setEl(this.el ?? this._initEl);
     if (!this.el) {
       const allowMissingEl = typeof options.allowMissingEl === "undefined" ? !!getValue(this, "allowMissingEl") : !!options.allowMissingEl;
       if (allowMissingEl) {
@@ -1598,6 +1598,9 @@ var BehaviorsMixin = {
 };
 var DelegateEntityEventsMixin = {
   _delegateEntityEvents(model, collection, Data) {
+    if (this._modelEventCleanup || this._collectionEventCleanup) {
+      this._undelegateEntityEvents();
+    }
     if (model != null) {
       this._modelEvents = getValue(this, "modelEvents");
       if (this._modelEvents) {
@@ -2162,7 +2165,14 @@ var RegionsMixin = {
     for (const name of Object.keys(regions)) {
       assertRegionName(name);
     }
-    regions = this.normalizeUIValues(regions, "el");
+    const definitions = {};
+    for (const name of Object.keys(regions)) {
+      const definition = regions[name];
+      setRegion(definitions, typeof definition === "object" && !(definition instanceof Region$1) ? {
+        ...definition
+      } : definition, name);
+    }
+    regions = this.normalizeUIValues(definitions, "el");
     assertRegionDefinitionsCanRegister(this, regions);
     const allRegions = {};
     for (const name of Object.keys(this.regions)) {
@@ -2714,7 +2724,7 @@ function modelAttributesMatcher(Data, predicate) {
     return true;
   };
 }
-var ClassOptions$2 = ["attributes", "behaviors", "childView", "childViewContainer", "childViewEventPrefix", "childViewEvents", "childViewOptions", "childViewTriggers", "className", "collection", "collectionEvents", "el", "emptyView", "emptyViewOptions", "events", "id", "model", "modelEvents", "stateEvents", "sortWithCollection", "tagName", "template", "templateContext", "triggers", "ui", "viewComparator", "viewFilter"];
+var ClassOptions$2 = ["RegionClass", "attributes", "behaviors", "childView", "childViewContainer", "childViewEventPrefix", "childViewEvents", "childViewOptions", "childViewTriggers", "className", "collection", "collectionEvents", "el", "emptyView", "emptyViewOptions", "events", "id", "model", "modelEvents", "stateEvents", "sortWithCollection", "tagName", "template", "templateContext", "triggers", "ui", "viewComparator", "viewFilter"];
 var CollectionView$1 = function(options) {
   this.cid = uniqueId(this.cidPrefix);
   this._setOptions(options, ClassOptions$2);
@@ -3904,7 +3914,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     return this._preparedView || this._displayedView;
   }
 });
-var version = "5.0.0-rc.2";
+var version = "5.0.0";
 function copyApi(api) {
   return {
     ...api
