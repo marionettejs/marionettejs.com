@@ -90,7 +90,7 @@ for (const changed of ['packageVersion', 'sourceRevision', 'contentSha256', 'rou
         replacement.contentSha256 = createHash('sha256').update([...replacement.pages, ...replacement.assets]
           .sort((a, b) => a.source.localeCompare(b.source, 'en')).map(entry => `${entry.source}\0${entry.sha256}\n`).join('')).digest('hex');
       } else if (changed === 'route' || changed === 'title') {
-        replacement.pages[0][changed] = changed === 'route' ? 'docs/changed-route' : 'Changed title';
+        replacement.pages.find(page => page.route !== 'docs')[changed] = changed === 'route' ? 'docs/changed-route' : 'Changed title';
       } else replacement[changed] = changed === 'packageVersion' ? '5.0.1' : 'b'.repeat(40);
       await writeFile(join(directory, 'docs-manifest.json'), JSON.stringify(replacement));
       return readSnapshot(directory, options);
