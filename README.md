@@ -34,7 +34,8 @@ both site and MCP and still requires separate approval.
    integrities, and compares every installed file with the archive bytes (including
    runtime code and docs). It rejects linked, modified, missing or extra files;
    neither package metadata nor the hidden npm lockfile is proof of installed bytes.
-   Registry access and `tar` are required for staging and `vendor:build`.
+   Registry access and `tar` are required for staging and `vendor:build`;
+   `vendor:demos` also needs registry access or a warm npm cache for its fresh install.
    `vendor:demos` verifies the core bundle hash and uses a fresh script-free `npm ci`
    for data; ordinary tests use local metadata and fixture archives without registry reads.
    It requires 5.0.0 and the certified revision, then verifies every documentation/asset hash.
@@ -82,8 +83,10 @@ in `docs/packages/adapters.md`. The latter limitation still applies in stable;
 its guidance is retained in the package, not duplicated in a website overlay.
 The old navigation warning is stale; stable supplies the framework-migration guide
 and navigation directly. Of the 23 previous reading overlays, only the website's
-shorter architecture heading remains. The duplicate supplemental migration guide
-is now replaced by its exact packaged copy and is available through MCP too.
+shorter architecture heading remains. Four later reading edits clarify the View
+lifecycle diagram, exclusive child-start coordination, data persistence scope,
+and client installation verification without changing the archived package.
+The duplicate supplemental migration guide is now replaced by its exact packaged copy and is available through MCP too.
 Do not reintroduce stale RC2 overlays after stable import. Historical RC2
 evidence remains in Git and case-study assets.
 
