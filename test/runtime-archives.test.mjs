@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { rename, rm, symlink, writeFile } from 'node:fs/promises';
+import { readFile, rename, rm, symlink, writeFile } from 'node:fs/promises';
 import { readRuntimeRelease, runtimePackages } from '../scripts/release-contract.mjs';
 import { runtimeFixture } from './helpers/runtime-fixture.mjs';
 
@@ -10,9 +10,10 @@ test('installed bytes must match all four integrity-verified archives', async t 
   assert.equal((await readRuntimeRelease(root, { request })).manifest.contentSha256, manifest.contentSha256);
   for (const name of runtimePackages) {
     const path = join(root, 'node_modules', name, 'dist/index.js');
+    const original = await readFile(path);
     await writeFile(path, 'changed bytes with unchanged package metadata');
     await assert.rejects(readRuntimeRelease(root, { request }), new RegExp(`Installed registry bytes differ: ${name}/dist/index.js`));
-    await writeFile(path, 'export const fixture = true;\n');
+    await writeFile(path, original);
   }
   const docs = join(root, 'node_modules/marionette/docs/quick-start.md');
   await rm(docs);

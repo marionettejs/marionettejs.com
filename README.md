@@ -27,8 +27,8 @@ following steps are completed and reviewed. Merging to main deploys both site an
    neither package metadata nor the hidden npm lockfile is proof of installed bytes.
    Registry access and `tar` are required for this check and both vendor builds.
    It requires 5.0.0 and the certified revision, then verifies every documentation/asset hash.
-   It exports only package bytes to `output/stable-docs` and records archive evidence
-   in `output/stable-docs/stable-docs-evidence.json`. Docs and evidence appear together
+   It exports package bytes plus generated archive evidence to `output/stable-docs`;
+   the evidence file is `output/stable-docs/stable-docs-evidence.json`. Docs and evidence appear together
    only after every write succeeds. It refuses an existing export directory. Failed
    runs can be retried; an abruptly terminated run may leave an unused `.stable-docs-*`
    sibling in `output/`, which can be removed once that process has stopped.
