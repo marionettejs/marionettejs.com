@@ -6,7 +6,7 @@ import { readSnapshot } from './library-docs.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 
-export async function stageStableDocs(revision, { directory = root, request, write = writeFile, publish = rename } = {}) {
+export async function stageStableDocs(revision, { directory = root, request, write = writeFile, publish = rename, readDocs = readSnapshot } = {}) {
   if (!/^[a-f0-9]{40}$/.test(revision ?? '')) {
     throw new Error('Usage: npm run docs:stage-stable -- <certified published source revision>');
   }
@@ -24,7 +24,11 @@ export async function stageStableDocs(revision, { directory = root, request, wri
   try {
     // Read the installed docs in place without copying dist or adding a manifest.
     const packageRoot = resolve(directory, 'node_modules/marionette');
-    const snapshot = await readSnapshot(packageRoot, { manifestName: 'docs-manifest.json' });
+    const snapshot = await readDocs(packageRoot, { manifestName: 'docs-manifest.json' });
+    if (snapshot.manifest.packageVersion !== version || snapshot.manifest.sourceRevision !== revision ||
+        snapshot.manifest.contentSha256 !== manifest.contentSha256) {
+      throw new Error('Documentation snapshot changed after release verification. Run a clean install and retry staging.');
+    }
     // The evidence and docs share one atomic rename on the destination filesystem.
     // Interrupted runs can leave only uniquely named temporary siblings; retries
     // ignore those and never mistake them for a completed export.

@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
 import { stageStableDocs } from '../scripts/stage-stable-docs.mjs';
 import { readSnapshot } from '../scripts/library-docs.mjs';
 import { runtimeFixture } from './helpers/runtime-fixture.mjs';
@@ -75,3 +76,24 @@ test('export retains the validated manifest if the live install changes during w
   assert.deepEqual((await readSnapshot(destination)).manifest, manifest);
   assert.equal(JSON.parse(await readFile(join(destination, 'stable-docs-evidence.json'))).contentSha256, manifest.contentSha256);
 });
+
+for (const changed of ['packageVersion', 'sourceRevision', 'contentSha256']) {
+  test(`staging rejects a valid snapshot with changed ${changed} after archive verification`, async t => {
+    const { root, request, manifest } = await runtimeFixture(t);
+    const readDocs = async (directory, options) => {
+      const replacement = structuredClone(manifest);
+      if (changed === 'contentSha256') {
+        const page = replacement.pages[0];
+        const bytes = (await readFile(join(directory, page.source), 'utf8')) + '\nChanged after verification.\n';
+        await writeFile(join(directory, page.source), bytes);
+        page.sha256 = createHash('sha256').update(bytes).digest('hex');
+        replacement.contentSha256 = createHash('sha256').update([...replacement.pages, ...replacement.assets]
+          .sort((a, b) => a.source.localeCompare(b.source, 'en')).map(entry => `${entry.source}\0${entry.sha256}\n`).join('')).digest('hex');
+      } else replacement[changed] = changed === 'packageVersion' ? '5.0.1' : 'b'.repeat(40);
+      await writeFile(join(directory, 'docs-manifest.json'), JSON.stringify(replacement));
+      return readSnapshot(directory, options);
+    };
+    await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request, readDocs }), /snapshot changed after release verification.*clean install/);
+    assert.deepEqual(await readdir(join(root, 'output')), []);
+  });
+}
