@@ -111,7 +111,7 @@ test('publication overrides retain complete source identity without rewriting th
   }
 });
 
-test('published pages keep a validator and the sitemap dates every entry', async () => {
+test('published pages keep a validator and the sitemap only dates recorded page updates', async () => {
   // Cloudflare's HTML processing strips the ETag from any page it may rewrite,
   // which leaves a crawler nothing to revalidate and no sign a release happened.
   const headers = await read('dist/_headers');
@@ -126,25 +126,21 @@ test('published pages keep a validator and the sitemap dates every entry', async
     assert.ok(rules.some(rule => rule.endsWith('*') ? route.startsWith(rule.slice(0, -1)) : rule === route),
       `${route} may be transformed, and would lose the ETag a crawler revalidates with`);
   }
-  // One date per entry, shared by all of them, and never ahead of the build that
-  // wrote it. The value itself belongs to whichever revision produced this dist,
-  // which is not necessarily the commit checked out when the test runs.
+  // Only known page modification dates belong in sitemap metadata.
   const sitemap = await read('dist/sitemap.xml');
   const entries = [...sitemap.matchAll(/<url>(.*?)<\/url>/g)].map(([, entry]) => entry);
   const manifest = JSON.parse(await read('content/library-docs/manifest.json'));
   const catalog = JSON.parse(await read('dist/docs/diagnostics.json'));
   const supplemental = JSON.parse(await read('content/supplemental-docs/manifest.json'));
-  assert.equal(entries.length, manifest.pages.length + supplemental.pages.length + catalog.diagnostics.length + 13);
+  assert.equal(entries.length, manifest.pages.length + supplemental.pages.length + catalog.diagnostics.length + 16);
   for (const page of supplemental.pages) assert.ok(sitemap.includes(`<loc>https://marionettejs.com/${page.route}/</loc>`));
-  for (const route of ['/case-studies/', '/case-studies/realworld/', '/case-studies/roundingwell/', '/case-studies/vikunja/']) {
+  for (const slug of ['introducing-marionette-5', 'wear-your-very-specific-opinions']) assert.ok(sitemap.includes(`<loc>https://marionettejs.com/news/${slug}/</loc>`));
+  for (const route of ['/news/', '/case-studies/', '/case-studies/realworld/', '/case-studies/roundingwell/', '/case-studies/vikunja/']) {
     assert.ok(sitemap.includes(`<loc>https://marionettejs.com${route}</loc>`), route);
   }
-  const dates = new Set();
-  for (const entry of entries) {
-    const [, date] = entry.match(/<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/) ?? [];
-    assert.ok(date, `${entry} carries no lastmod`);
-    dates.add(date);
+  for (const [, date] of sitemap.matchAll(/<lastmod>(.*?)<\/lastmod>/g)) {
+    assert.ok(Number.isFinite(Date.parse(date)), 'Modification date is valid');
+    assert.ok(date.slice(0, 10) <= new Date().toISOString().slice(0, 10));
   }
-  assert.equal(dates.size, 1);
-  assert.ok([...dates][0] <= new Date().toISOString().slice(0, 10));
+  assert.ok(!sitemap.includes('<lastmod>'), 'No per-page modification dates are currently recorded');
 });

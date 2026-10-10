@@ -1,0 +1,150 @@
+{
+  "intro": "Marionette 5.0.0 is here: an independent core, flexible integrations, and tools to help your agent work with it. Maintainer Paul Falgout talks with dot about why he came back to v5 and what they’ve tried with it.",
+  "turns": [
+    {
+      "speaker": "dot",
+      "text": "What brought you back to v5?",
+      "question": true
+    },
+    {
+      "speaker": "Paul",
+      "text": "Well, I noticed agents were doing more and more of my coding, and I started wondering whether I should abandon Marionette and move to one of the major frameworks. We'd already gotten v5 to alpha, but the project had lost steam during COVID and the war in Ukraine. With agents, switching didn't mean I had to learn a whole new framework and do the migration myself. So was it still worth investing in Marionette? I asked the agents to help me think that through.",
+      "question": false
+    },
+    {
+      "speaker": "dot",
+      "text": "What did the advice focus on?",
+      "question": true
+    },
+    {
+      "speaker": "Paul",
+      "text": "Early on, the recommendations were mostly about Backbone being old, bigger communities and hiring pools, and more learning resources and training data.",
+      "question": false
+    },
+    {
+      "speaker": "dot",
+      "text": "How did those reasons land with you?",
+      "question": true
+    },
+    {
+      "speaker": "Paul",
+      "text": "Those arguments still have some value. But they seemed to assume a human would be doing most of the implementation. I wanted to know how their value might change when agents were doing more of that work.",
+      "question": false,
+      "id": "workflow-reasons"
+    },
+    {
+      "speaker": "dot",
+      "text": "What did you ask them next?",
+      "question": true
+    },
+    {
+      "speaker": "Paul",
+      "text": "I wanted to look at the architecture separately. If JavaScript existed but no frameworks had been invented yet, what ecosystem would agents want to work in? I asked them to think about safe changes, code I could review, clear ownership and lifecycles, and maintainability. Then I asked where a Backbone-free Marionette would fit.",
+      "question": false
+    },
+    {
+      "speaker": "dot",
+      "text": "What did they think?",
+      "question": true
+    },
+    {
+      "speaker": "Paul",
+      "text": "I deliberately didn't ask ChatGPT, which was my daily driver. I didn't want its familiarity with my preferences to influence the answer. The responses from Claude Opus 4.7 and Gemini 3.5 were positive about Regions, predictable lifecycles, knowing who owns and cleans up each piece, and keeping application state separate from presentation. Claude’s was more qualified; Gemini’s favored that architectural fit over React or Vue. They disagreed on things like message buses and reactivity, but both saw real value in the architecture and wanted it modernized.",
+      "question": false
+    },
+    {
+      "speaker": "Paul",
+      "text": "That encouragement is why I picked v5 back up. It was an idea worth trying in real applications. That, and OpenAI gave me six months free on their $200-a-month plan.",
+      "question": false
+    },
+    {
+      "speaker": "dot",
+      "text": "That gives an agent a place to make a change, and you a way to review its consequences.",
+      "question": false
+    },
+    {
+      "speaker": "dot",
+      "text": "How did you decide what to change?",
+      "question": true
+    },
+    {
+      "speaker": "Paul",
+      "text": "The human ergonomics of the code were about code review and not saving keystrokes. So I would bring questions about what to keep or change to multiple agents until there was some sort of consensus.",
+      "question": false
+    },
+    {
+      "speaker": "dot",
+      "text": "What changed?",
+      "question": true
+    },
+    {
+      "speaker": "Paul",
+      "text": "Views, Regions, CollectionViews, and Applications still give an application a recognizable structure, with clear places for startup and cleanup. Core no longer requires Backbone, jQuery, or Underscore. We still value Backbone, and applications can keep using it through an adapter. It just no longer determines how Marionette’s core works. Optional rendering and data adapters let applications choose their integrations, including Lit templates and observable data.",
+      "question": false
+    },
+    {
+      "speaker": "dot",
+      "text": "What can an agent use to work with that?",
+      "question": true
+    },
+    {
+      "speaker": "Paul",
+      "text": "The package includes version-matched docs and a Marionette skill that points an agent to the installed API. Its local helper can look up a symbol, a documentation section, or a diagnostic code. There are TypeScript declarations and an ESLint rule for catching use of private framework members, too.",
+      "question": false,
+      "links": [
+        {
+          "href": "/docs/agents/",
+          "label": "Work with an agent →"
+        },
+        {
+          "href": "/docs/tooling/",
+          "label": "Application tooling →"
+        }
+      ]
+    },
+    {
+      "speaker": "dot",
+      "text": "What have you tried with it?",
+      "question": true
+    },
+    {
+      "speaker": "Paul",
+      "text": "The results have been surprising. Agent-led development seems to work, and the applications have performed well against their peers.",
+      "question": false
+    },
+    {
+      "speaker": "Paul",
+      "text": "In RealWorld, an agent built Conduit, a blogging frontend, then refined it through review and follow-up requests. In the simulated-mobile benchmark, median article navigation was 175 ms for the measured v5 build versus 425 ms for Vue, across ten samples per app.",
+      "question": false,
+      "links": [
+        {
+          "href": "/case-studies/realworld/#comparison",
+          "label": "Read the RealWorld measurements →"
+        }
+      ]
+    },
+    {
+      "speaker": "Paul",
+      "text": "The Vikunja Vue migration measurements show another encouraging result: median rich-task opening was 1.04 seconds for the measured v5 build versus 3.72 seconds for Vue. That’s 72% shorter across 20 samples per app in desktop Chromium, using production builds and a 500-task fixture with 50 comments on the opened task.",
+      "question": false,
+      "id": "vikunja-results",
+      "links": [
+        {
+          "href": "/case-studies/vikunja/#journey",
+          "label": "Read the Vikunja measurements →"
+        }
+      ]
+    },
+    {
+      "speaker": "dot",
+      "text": "What would that mean for someone already using Marionette?",
+      "question": true
+    },
+    {
+      "speaker": "Paul",
+      "text": "The migration guide allows an app to retain its Backbone Models, Collections, and persistence through an adapter while updating to v5’s contracts. Removing a core dependency doesn’t require replacing every working part of an application.",
+      "question": false
+    }
+  ],
+  "closing": "Try v5 on a small feature. Start with the quick start for a new project, or the migration guide for an existing Marionette app."
+}

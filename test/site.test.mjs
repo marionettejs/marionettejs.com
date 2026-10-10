@@ -11,7 +11,7 @@ const out=resolve(root,'dist');
 const manifest=JSON.parse(await readFile(resolve(out,'docs/manifest.json'),'utf8'));
 const installedPackage=JSON.parse(await readFile(resolve(root,'node_modules/marionette/package.json'),'utf8'));
 const catalog=JSON.parse(await readFile(resolve(out,'docs/diagnostics.json'),'utf8'));
-const routes=['case-studies/index.html','case-studies/realworld/index.html','case-studies/roundingwell/index.html','case-studies/vikunja/index.html','demos/index.html','errors/index.html',...catalog.diagnostics.map(entry=>`errors/${entry.code}/index.html`),'thanks/index.html','index.html','why/index.html','404.html',...manifest.pages.map(page=>`${page.route}/index.html`)];
+const routes=['news/index.html','news/introducing-marionette-5/index.html','news/wear-your-very-specific-opinions/index.html','case-studies/index.html','case-studies/realworld/index.html','case-studies/roundingwell/index.html','case-studies/vikunja/index.html','demos/index.html','errors/index.html',...catalog.diagnostics.map(entry=>`errors/${entry.code}/index.html`),'thanks/index.html','index.html','why/index.html','404.html',...manifest.pages.map(page=>`${page.route}/index.html`)];
 
 test('documentation embeds the branded Context7 widget without changing Markdown', async () => {
   for (const page of manifest.pages) {
@@ -48,7 +48,7 @@ test('every built page has valid local links, fragments, and asset references',a
     const socialUrl = new URL(socialImage[1]);
     assert.equal(socialUrl.origin, 'https://marionettejs.com');
     assert.ok((await stat(resolve(out, `.${socialUrl.pathname}`))).isFile(), `${route}: missing social image`);
-    assert.match(html,/<meta name="robots" content="index, follow">/);
+    assert.match(html, (route === '404.html') ? /<meta name="robots" content="noindex, follow">/ : /<meta name="robots" content="index, follow">/);
     const base=new URL(route.replace(/index.html$/,''),'http://preview.local/');
     for(const [,ref]of html.matchAll(/(?:href|src)="([^"]+)"/g)){
       const url=new URL(ref,base);
@@ -67,7 +67,7 @@ test('every built page has valid local links, fragments, and asset references',a
 });
 
 test('all local JavaScript imports and CSS imports resolve in the built output',async()=>{
-  for(const file of ['assets/site.js','assets/demo.js','assets/motion.js','assets/playground.js','assets/examples.js','assets/playground-runtime.js','assets/playground.css','assets/site.css','assets/night.css','assets/docs.js','assets/docs.css','assets/case-studies.css']){
+  for(const file of ['assets/site.js','assets/demo.js','assets/motion.js','assets/playground.js','assets/examples.js','assets/playground-runtime.js','assets/playground.css','assets/site.css','assets/night.css','assets/docs.js','assets/docs.css','assets/case-studies.css','assets/news.css','assets/news.js']){
     const body=await readFile(resolve(out,file),'utf8');
     for(const match of body.matchAll(/(?:from\s*|import\(|@import url\()['"]([^'"]+)['"]/g)){
       const target=resolve(dirname(resolve(out,file)),match[1].split('?')[0]);
@@ -110,7 +110,7 @@ test('entry, workshop and nested runtime imports use content versions to invalid
   const setupModule = await readFile(resolve(out, 'assets/agent-setup.js'), 'utf8');
   assert.ok(setup.includes(`src="/assets/agent-setup.js?v=${version(setupModule)}"`));
   const imports = [...entry.matchAll(/import\('(.+?)\?v=([a-f0-9]+)'\)/g)];
-  assert.equal(imports.length, 8);
+  assert.equal(imports.length, 9);
   for (const [, path, hash] of imports) {
     assert.equal(hash, version(await readFile(resolve(out, 'assets', path))), path);
   }

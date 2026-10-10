@@ -238,7 +238,7 @@ test('server refuses stale provenance and tampered Markdown before serving tools
   await cp(new URL('content/supplemental-docs', root), join(fixture, 'content/supplemental-docs'), { recursive: true });
   await cp(new URL('dist/docs/supplemental-manifest.json', root), join(fixture, 'dist/docs/supplemental-manifest.json'));
   await cp(new URL('content/library-docs', root), join(fixture, 'content/library-docs'), { recursive: true });
-  for (const path of ['package-lock.json', 'scripts/heading-ids.mjs', 'mcp/index-sections.mjs', 'mcp/sections.mjs', 'mcp/server.mjs', 'mcp/load.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'content/docs-publication-edits.json', 'content/provenance.json', 'scripts/library-docs.mjs', 'scripts/search-index.mjs', 'scripts/published-docs.mjs', 'scripts/publication-status.mjs', 'scripts/agent-discovery.mjs', 'scripts/agent-setup.mjs']) {
+  for (const path of ['package-lock.json', 'scripts/heading-ids.mjs', 'mcp/index-sections.mjs', 'mcp/sections.mjs', 'mcp/server.mjs', 'mcp/load.mjs', 'mcp/tools.mjs', 'mcp/search.mjs', 'content/docs-publication-edits.json', 'content/provenance.json', 'scripts/library-docs.mjs', 'scripts/html.mjs', 'scripts/search-index.mjs', 'scripts/published-docs.mjs', 'scripts/publication-status.mjs', 'scripts/agent-discovery.mjs', 'scripts/agent-setup.mjs']) {
     await cp(new URL(path, root), join(fixture, path));
   }
   await writeFile(join(fixture, 'package.json'), '{"type":"module"}');

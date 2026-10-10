@@ -101,7 +101,7 @@ img {
 .site-header nav a {
   text-decoration:none;
 }
-.site-header nav a:hover,.site-header nav a[aria-current] {
+.site-header nav a:hover,.site-header nav a[aria-current],.site-header nav a.is-active {
   color:var(--red);
 }
 .nav-example {

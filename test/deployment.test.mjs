@@ -4,16 +4,10 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { utcDate } from '../scripts/build-date.mjs';
 
 const root = new URL('../', import.meta.url);
 const read = path => readFile(new URL(path, root));
 const exec = promisify(execFile);
-
-test('UTC sitemap dates normalize east and west of UTC', () => {
-  assert.equal(utcDate('2026-09-20T00:30:00+13:00'), '2026-09-19');
-  assert.equal(utcDate('2026-09-19T23:30:00-07:00'), '2026-09-20');
-});
 
 test('post-publish verification rejects stale pages with unchanged library bundles', async t => {
   const provenance = JSON.parse(await read('content/provenance.json'));
@@ -44,7 +38,11 @@ test('post-publish verification rejects stale pages with unchanged library bundl
   served = revision;
   sitemap = '<urlset><url><loc>https://example.test/</loc><lastmod>2020-01-01</lastmod></url></urlset>';
   await assert.rejects(run('--revision', revision), error => error.code === 1 && error.stderr.includes('/sitemap.xml does not match'));
-  await run('--health-only');
+  await assert.rejects(run('--health-only'), error => error.code === 1 && error.stderr.includes('invalid canonical URL'));
+  for (const date of ['2026-02-31', new Date(Date.now() + 3600000).toISOString()]) {
+    sitemap = `<urlset><url><loc>https://marionettejs.com/</loc><lastmod>${date}</lastmod></url></urlset>`;
+    await assert.rejects(run('--health-only'), error => error.code === 1 && /invalid lastmod|future lastmod/.test(error.stderr));
+  }
   sitemap = builtSitemap;
   served = revision;
   staleRoute = '/docs/';

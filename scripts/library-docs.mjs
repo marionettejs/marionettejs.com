@@ -1,3 +1,4 @@
+import { escapeHtml } from './html.mjs';
 import Ajv from 'ajv';
 import { headingId } from './heading-ids.mjs';
 import { buildAgentDiscovery } from './agent-discovery.mjs';
@@ -11,7 +12,7 @@ import * as pagefind from 'pagefind';
 import { writeSearchFiles } from './search-index.mjs';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
-export const escapeHtml = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+export { escapeHtml } from './html.mjs';
 const safePath = value => typeof value === 'string' && /^[a-zA-Z0-9._/-]+$/.test(value) && !value.startsWith('/') && !value.split('/').some(part => part === '..' || part === '.' || !part);
 
 export async function readSnapshot(directory, { manifestName = 'manifest.json' } = {}) {
@@ -147,6 +148,24 @@ function adjacentPages(page, pages) {
   return links.length ? `<nav class="docs-adjacent" aria-label="Continue reading" data-pagefind-ignore>${links.join('')}</nav>` : '';
 }
 
+// Use the existing guide's first explanatory paragraph for search previews;
+// navigation rows and source/provenance details are not a reader summary.
+export function documentationDescription(page, version) {
+  const paragraphs = Lexer.lex(page.markdown).filter(token => token.type === 'paragraph' && !token.text.startsWith('[API index]'));
+  for (const paragraph of paragraphs) {
+    // Skip link-only navigation regardless of its labels or length.
+    const prose = paragraph.tokens.filter(token => !['link', 'image'].includes(token.type)).map(token => token.raw).join('').replace(/<[^>]*>/g, '');
+    if (!/[\p{L}\p{N}]/u.test(prose)) continue;
+    const text = paragraph.tokens.map(token => ['link', 'image'].includes(token.type) ? token.text : token.raw).join('').replace(/!?\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/<[^>]*>/g, '').replace(/`|\*\*/g, '').replace(/\s+/g, ' ').trim();
+    if (text.length < 60) continue;
+    if (text.length <= 240) return text;
+    const shortened = text.slice(0, 237);
+    const boundary = shortened.lastIndexOf(' ');
+    return `${boundary > 0 ? shortened.slice(0, boundary) : shortened}…`;
+  }
+  return `${page.title}. Marionette ${version} documentation.`;
+}
+
 export async function buildLibraryDocs({ directory, out, shell }) {
   const { manifest, pages: archivedPages, assets } = await readSnapshot(directory);
   const supplementalPages = await readSupplementalPages(fileURLToPath(new URL('../content/supplemental-docs/', import.meta.url)), archivedPages);
@@ -156,7 +175,7 @@ export async function buildLibraryDocs({ directory, out, shell }) {
     const provenance = `${manifest.packageVersion} · ${publicationStatus(manifest)} · ${manifest.sourceRevision.slice(0, 8)}${manifest.sourceDirty ? ' + local changes' : ''}`;
     const sectionLinks = headings.filter(item => item.depth === 2).map(item => `<a href="#${escapeHtml(item.id)}">${item.text.replace(/<[^>]*>/g, '')}</a>`).join('');
     const body = `<div class="docs-layout canonical-docs">${sidebar(page, pages)}<article class="prose docs-prose" data-pagefind-body><header class="docs-page-meta" data-pagefind-ignore><span class="docs-breadcrumb">${escapeHtml(page.section)}</span><span class="docs-release">v${escapeHtml(manifest.packageVersion)}</span></header><details class="docs-source" data-pagefind-ignore><summary>Markdown &amp; source details</summary><div class="docs-tools"><a href="${markdownUrl(page)}">Read Markdown</a><button type="button" data-copy-markdown="${markdownUrl(page)}">Copy Markdown</button><a href="${canonicalSourceUrl(page)}">Canonical source</a><a href="${pageManifestUrl(page)}">Snapshot manifest</a><span class="copy-status" role="status"></span></div><p class="docs-version">${escapeHtml(provenance)} snapshot. Reading source: ${readingRevision(page, manifest)}. Match APIs to your installed version.</p></details>${sectionLinks ? `<details class="docs-page-index" data-pagefind-ignore><summary>On this page</summary><nav aria-label="On this page">${sectionLinks}</nav></details>` : ''}<span hidden data-pagefind-filter="Audience">Consumer</span>${html}${adjacentPages(page, pages)}</article><aside class="docs-margin"><nav aria-label="On this page"><p class="eyebrow">ON THIS PAGE</p>${sectionLinks}</nav><div class="docs-note"><p>The homepage demo and workshops identify their runtime in the source notes.</p><a href="/reference/provenance.json">Demo source notes ↗</a></div></aside></div>`;
-    const rendered = shell({ title: page.title, description: `${page.title}. Marionette ${manifest.packageVersion} documentation.`, active: 'docs', body, route: `/${page.route}/`, markdown: markdownUrl(page) });
+    const rendered = shell({ title: page.title.includes('Marionette') ? page.title : `${page.title} — Marionette ${manifest.packageVersion} docs`, description: documentationDescription(page, manifest.packageVersion), active: 'docs', body, route: `/${page.route}/`, markdown: markdownUrl(page) });
     await mkdir(resolve(out, page.route), { recursive: true });
     await writeFile(resolve(out, page.route, 'index.html'), rendered);
     await mkdir(resolve(out, 'docs/markdown', posix.dirname(page.source)), { recursive: true });
@@ -262,7 +281,7 @@ async function buildDiagnostics({ out, shell, manifest, asset, schema, sectionId
     const { html } = renderMarkdown(page, [], manifest);
     await mkdir(resolve(out, 'errors', diagnostic.code), { recursive: true });
     await writeFile(resolve(out, 'errors', `${diagnostic.code}.md`), deriveMarkdown(page, [], manifest));
-    await writeFile(resolve(out, 'errors', diagnostic.code, 'index.html'), shell({ title, description: diagnostic.remediation, active: 'docs', route: `/errors/${diagnostic.code}/`, markdown: `/errors/${diagnostic.code}.md`, body: wrap(html) }));
+    await writeFile(resolve(out, 'errors', diagnostic.code, 'index.html'), shell({ title: `${title} — Marionette`, description: `${title}. ${diagnostic.remediation}`, active: 'docs', route: `/errors/${diagnostic.code}/`, markdown: `/errors/${diagnostic.code}.md`, body: wrap(html) }));
   }
   await writeFile(resolve(out, 'errors/index.md'), deriveMarkdown({ source: asset.source, route: 'errors', title: 'Diagnostic codes', sha256: asset.sha256, markdown: index }, [], manifest));
   const { html } = renderMarkdown({ source: 'docs/diagnostics.md', markdown: index }, [], manifest);
