@@ -7,7 +7,7 @@ Your agent client's own access and model costs are separate.
 The hosted Cloudflare Worker and the optional local, read-only stdio server share
 `search_docs`, `get_doc`, `search_sections`, `get_sections`, `get_symbol`, `get_diagnostic`, `get_example`, and `marionette://catalog`. Both serve the
 same verified package artifact and packaged records example. Website reading-copy edits and supplemental guides are excluded from MCP contracts. Links identify the immutable source revision. This integration
-uses the version and source revision reported by its catalog. Importing or
+is verified against the version and source revision reported by its catalog. Importing or
 building does not update the hosted endpoint: read its catalog before using it.
 
 **Bundled Markdown remains the installed-version reference.** First inspect your

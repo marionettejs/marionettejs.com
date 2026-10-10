@@ -21,10 +21,17 @@ following steps are completed and reviewed. Merging to main deploys both site an
    below, then `npm ci`. Review the four runtime lock entries, including transitive
    radio/utils. Never hand-author registry URLs, integrity values or archive hashes.
 3. Run `npm run docs:stage-stable -- <certified-40-character-source-revision>`.
-   This checks installed package identities against the lockfile, requires 5.0.0 and
-   the certified revision, and verifies every archived documentation/asset hash.
+   This downloads the four exact locked registry archives, verifies their SHA-512
+   integrities, and compares every installed file with the archive bytes (including
+   runtime code and docs). It rejects linked, modified, missing or extra files;
+   neither package metadata nor the hidden npm lockfile is proof of installed bytes.
+   Registry access and `tar` are required for this check and both vendor builds.
+   It requires 5.0.0 and the certified revision, then verifies every documentation/asset hash.
    It exports only package bytes to `output/stable-docs` and records archive evidence
-   in `output/stable-docs-evidence.json`. It refuses an existing export directory.
+   in `output/stable-docs/stable-docs-evidence.json`. Docs and evidence appear together
+   only after every write succeeds. It refuses an existing export directory. Failed
+   runs can be retried; an abruptly terminated run may leave an unused `.stable-docs-*`
+   sibling in `output/`, which can be removed once that process has stopped.
    Compare its digest and revision with the release owner's published artifact evidence.
 4. Run `npm run docs:import -- output/stable-docs`. Reconcile **every** reading-copy
    overlay in `content/docs-publication-edits.json` against the new archive. Remove

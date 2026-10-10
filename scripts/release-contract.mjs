@@ -1,17 +1,24 @@
 import { readFile } from 'node:fs/promises';
+import { verifyRuntimeBytes } from './runtime-archives.mjs';
 import { resolve } from 'node:path';
 
 export const stableRelease = '5.0.0';
 export const runtimePackages = ['marionette', '@mnjs/data', '@mnjs/utils', '@mnjs/radio'];
 
-// Only exact registry archives qualify. A local build, tag, or version field alone
-// cannot establish publication. npm ci verifies these locked archive integrities.
+// Metadata checks are necessary but not sufficient: readRuntimeRelease also
+// compares installed bytes with integrity-verified registry archives.
 export function validateRuntimeRelease({ version, manifest, packages, lock, pins }) {
-  if (!/^5\.0\.0(?:-rc\.\d+)?$/.test(version) || manifest.packageVersion !== version ||
-      manifest.packageName !== 'marionette' || manifest.sourceDirty !== false ||
-      manifest.sourceRepository !== 'https://github.com/marionettejs/marionette' ||
-      !/^[a-f0-9]{40}$/.test(manifest.sourceRevision) || !/^[a-f0-9]{64}$/.test(manifest.contentSha256)) {
-    throw new Error('Expected matching clean published Marionette documentation.');
+  const checks = {
+    'version format': /^5\.0\.0(?:-rc\.\d+)?$/.test(version),
+    'docs manifest version': manifest.packageVersion === version,
+    'package name': manifest.packageName === 'marionette',
+    'clean source': manifest.sourceDirty === false,
+    'source repository': manifest.sourceRepository === 'https://github.com/marionettejs/marionette',
+    'source revision format': /^[a-f0-9]{40}$/.test(manifest.sourceRevision),
+    'content digest format': /^[a-f0-9]{64}$/.test(manifest.contentSha256)
+  };
+  for (const [label, valid] of Object.entries(checks)) {
+    if (!valid) throw new Error(`Invalid runtime documentation: ${label}`);
   }
   for (const name of ['marionette', '@mnjs/data']) {
     if (pins[name] !== version || lock.packages[''].devDependencies[name] !== version) throw new Error(`Expected exact runtime pin: ${name}@${version}`);
@@ -28,7 +35,7 @@ export function validateRuntimeRelease({ version, manifest, packages, lock, pins
   return manifest;
 }
 
-export async function readRuntimeRelease(root) {
+export async function readRuntimeRelease(root, options) {
   const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
   const pkg = await json('package.json');
   const lock = await json('package-lock.json');
@@ -36,5 +43,6 @@ export async function readRuntimeRelease(root) {
   const packages = Object.fromEntries(await Promise.all(runtimePackages.map(async name => [name, await json(`node_modules/${name}/package.json`)])));
   const version = pkg.devDependencies.marionette;
   validateRuntimeRelease({ version, manifest, packages, lock, pins: pkg.devDependencies });
+  await verifyRuntimeBytes(root, runtimePackages, lock, options);
   return { version, manifest, lock };
 }

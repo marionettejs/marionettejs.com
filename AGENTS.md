@@ -8,7 +8,8 @@ A build or import does not establish deployment or publication approval.
 Merging to `main` publishes the site and documentation MCP and verifies both
 in the same run; see the deployment section of README.md.
 www.marionettejs.com and v5.marionettejs.com also work; v5 is a mirror with a `noindex` directive.
-The launch was authorized and completed on September 9, 2026 (Asia/Seoul).
+The RC2 website launch was authorized and completed on September 9, 2026
+(Asia/Seoul). That launch does not authorize the pending stable cutover.
 Do not publish out of band; let the workflow deploy what has been merged and
 reviewed. Preserve old documentation links via the
 v4.marionettejs.com GitHub Pages archive while those releases have consumers.
