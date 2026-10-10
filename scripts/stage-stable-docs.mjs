@@ -1,6 +1,7 @@
 import { lstat, mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
 import { readRuntimeRelease, runtimePackages, stableRelease } from './release-contract.mjs';
 import { readSnapshot } from './library-docs.mjs';
 
@@ -25,8 +26,8 @@ export async function stageStableDocs(revision, { directory = root, request, wri
     // Read the installed docs in place without copying dist or adding a manifest.
     const packageRoot = resolve(directory, 'node_modules/marionette');
     const snapshot = await readDocs(packageRoot, { manifestName: 'docs-manifest.json' });
-    if (snapshot.manifest.packageVersion !== version || snapshot.manifest.sourceRevision !== revision ||
-        snapshot.manifest.contentSha256 !== manifest.contentSha256) {
+    // The content digest excludes routing/title metadata, so bind the entire manifest.
+    if (!isDeepStrictEqual(snapshot.manifest, manifest)) {
       throw new Error('Documentation snapshot changed after release verification. Run a clean install and retry staging.');
     }
     // The evidence and docs share one atomic rename on the destination filesystem.

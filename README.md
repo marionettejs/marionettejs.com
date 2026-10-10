@@ -86,7 +86,8 @@ and navigation directly. Of the 23 previous reading overlays, only the website's
 shorter architecture heading remains. Four later reading edits clarify the View
 lifecycle diagram, exclusive child-start coordination, data persistence scope,
 and client installation verification without changing the archived package.
-The duplicate supplemental migration guide is now replaced by its exact packaged copy and is available through MCP too.
+The duplicate supplemental migration guide is now replaced by its exact packaged
+copy and is available through MCP too.
 Do not reintroduce stale RC2 overlays after stable import. Historical RC2
 evidence remains in Git and case-study assets.
 

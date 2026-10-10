@@ -77,7 +77,7 @@ test('export retains the validated manifest if the live install changes during w
   assert.equal(JSON.parse(await readFile(join(destination, 'stable-docs-evidence.json'))).contentSha256, manifest.contentSha256);
 });
 
-for (const changed of ['packageVersion', 'sourceRevision', 'contentSha256']) {
+for (const changed of ['packageVersion', 'sourceRevision', 'contentSha256', 'route', 'title']) {
   test(`staging rejects a valid snapshot with changed ${changed} after archive verification`, async t => {
     const { root, request, manifest } = await runtimeFixture(t);
     const readDocs = async (directory, options) => {
@@ -89,6 +89,8 @@ for (const changed of ['packageVersion', 'sourceRevision', 'contentSha256']) {
         page.sha256 = createHash('sha256').update(bytes).digest('hex');
         replacement.contentSha256 = createHash('sha256').update([...replacement.pages, ...replacement.assets]
           .sort((a, b) => a.source.localeCompare(b.source, 'en')).map(entry => `${entry.source}\0${entry.sha256}\n`).join('')).digest('hex');
+      } else if (changed === 'route' || changed === 'title') {
+        replacement.pages[0][changed] = changed === 'route' ? 'docs/changed-route' : 'Changed title';
       } else replacement[changed] = changed === 'packageVersion' ? '5.0.1' : 'b'.repeat(40);
       await writeFile(join(directory, 'docs-manifest.json'), JSON.stringify(replacement));
       return readSnapshot(directory, options);
