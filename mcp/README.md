@@ -230,8 +230,7 @@ built snapshot. The maintenance runbook lives in `mcp/DEPLOYMENT.md` in the webs
 repository. Local builds and pull-request checks do not publish anything; the
 deployment workflow publishes both services after a reviewed merge to `main`.
 
-Implementation references: [Cloudflare stateless handler](https://developers.cloudflare.com/agents/model-context-protocol/apis/handler-api/),
-[official SDK web-standard HTTP](https://ts.sdk.modelcontextprotocol.io/v2/serving/web-standard.html),
+Implementation references: [official SDK web-standard HTTP](https://ts.sdk.modelcontextprotocol.io/v2/serving/web-standard.html),
 and [SDK client compatibility](https://ts.sdk.modelcontextprotocol.io/v2/serving/legacy-clients.html).
 
 ## Focused section retrieval

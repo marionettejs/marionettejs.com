@@ -10,12 +10,14 @@ Pages project: `marionette-v5`, production branch `main`.
 the pinned package manifest. Website reading-copy edits and supplements do not
 enter the MCP corpus. It prepares the lexical
 index and recipe hashes once. `tools.mjs` registers the shared tools and catalog.
-`server.mjs` serves stdio; `worker.mjs` uses `createMcpHandler` from
-`agents/mcp/server` with a fresh server per HTTP request. `npm run build` creates
-the website and its separately verified package-specific Worker snapshot. No runtime filesystem, outbound
+`server.mjs` serves stdio; `worker.mjs` uses the official SDK
+`createMcpHandler` from `@modelcontextprotocol/server` through `http.mjs`, with a
+fresh server per HTTP request. The local adapter retains Host/Origin allowlists,
+CORS, body limits, sanitized failures and immediate legacy reverse-request
+rejection. `npm run build` creates the website and its separately verified package-specific Worker snapshot. No runtime filesystem, outbound
 fetch, AI, database, Durable Object, persistent session, or secret binding exists.
 
-Cloudflare's stateless adapter also accepts the 2025 initialization protocol,
+The SDK's stateless adapter also accepts the 2025 initialization protocol,
 which the official SDK client uses by default. Keep it while supported clients
 need it. It is not a persistent session transport. The 2026-07-28 protocol is
 verified separately. No npm artifact is published by this repository.
@@ -45,7 +47,7 @@ npx --no-install wrangler deploy --dry-run --outdir output/worker
 ```
 
 The benchmark runs the actual Worker entrypoint in local workerd, including the
-Cloudflare adapter and bounded request-body wrapper. It covers legacy initialization,
+official SDK handler and bounded request-body wrapper. It covers legacy initialization,
 modern discovery,
 catalog, tool listing, document/example retrieval, and bounded search cases across
 both supported wire protocols. Run `node scripts/benchmark-mcp.mjs <label>` before
@@ -105,8 +107,7 @@ deployment. Before this work, that deployment was
 production version at deployment time. There are no data migrations or sessions
 to roll back. Never roll the library package or npm dist-tags as part of this task.
 
-References checked September 9, 2026:
-- https://developers.cloudflare.com/agents/model-context-protocol/apis/handler-api/
+Implementation checked against the installed official SDK 2.3.1; reference documentation:
 - https://developers.cloudflare.com/workers/platform/limits/
 - https://developers.cloudflare.com/workers/configuration/routing/custom-domains/
 - https://ts.sdk.modelcontextprotocol.io/v2/serving/web-standard.html
