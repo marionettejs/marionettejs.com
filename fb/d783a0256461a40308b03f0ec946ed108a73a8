@@ -1,0 +1,52 @@
+README.md
+  h_0f06c286dda36f 485-499
+content/case-studies.mjs
+  h_0f06c286dda36f 1
+content/news.mjs
+  h_0f06c286dda36f 1,6-12,24,38-42,62,67-68,76,79-80
+content/news/launch-interview.json
+  h_0f06c286dda36f 32-33,93-103,118-124,129-136
+content/news/store-story.mjs
+  h_0f06c286dda36f 1,18-23,27-28,37-39
+scripts/build.mjs
+  h_0f06c286dda36f 1,78-81,83-85,116
+scripts/check-deployment.mjs
+  h_0f06c286dda36f 8,73-76,78-80
+scripts/dev.mjs
+  h_0f06c286dda36f 16
+scripts/html.mjs
+  h_0f06c286dda36f 1
+scripts/library-docs.mjs
+  h_0f06c286dda36f 1,15,156-159,163-164
+scripts/seo.mjs
+  h_0f06c286dda36f 1,9-17,26,32,38-39,59-60,68
+site/assets/news.js
+  h_0f06c286dda36f 21
+site/assets/site.css
+  h_0f06c286dda36f 104
+test/browser/news.mjs
+  h_0f06c286dda36f 7,13-16,23-25,55-57,71,74-76,92-93,116,120-125,127
+test/deployment.test.mjs
+  h_0f06c286dda36f 41-45
+test/mcp.test.mjs
+  h_0f06c286dda36f 241
+test/news.test.mjs
+  h_0f06c286dda36f 11,16-17,23,49,56-57,60-77
+test/release.test.mjs
+  h_0f06c286dda36f 135,137
+test/seo.test.mjs
+  h_0f06c286dda36f 4,15,17,34,40,46-47,53-54,68-93
+test/site.test.mjs
+  h_0f06c286dda36f 51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fbd783a0256461a40308b03f0ec946ed108a73a8",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
