@@ -1,9 +1,9 @@
+import { escapeHtml as escape } from '../../scripts/html.mjs';
 export const storeStory = {
   title: 'Wear your very specific opinions.',
   description: 'Marionette has merch. Your laptop has room for one more opinion. Help support the work, with or without sleeves.',
   path: '/news/wear-your-very-specific-opinions/',
   categories: ['Story'],
-  draft: true,
   date: '2026-09-08',
   dateStatus: 'verified',
   dateLabel: 'September 8, 2026',
@@ -15,17 +15,17 @@ export const storeStory = {
   image: { src: '/assets/store-header.png', width: 1920, height: 800, alt: 'Marionette hoodies, a T-shirt, cap, mug, and stickers hanging from red puppet strings.' }
 };
 
-export const storeStoryPage = {
-  title: `${storeStory.title} — Marionette`,
-  description: storeStory.description,
-  image: storeStory.image,
-  date: storeStory.date,
+export function storyPage(story = storeStory) {
+  return {
+  title: `${escape(story.title)} — Marionette`,
+  description: story.description,
+  image: story.image,
+  date: story.date,
   article: true,
   active: 'news',
-  draft: storeStory.draft,
   body: `<article class="news-article">
-    <header class="news-article-heading"><a class="study-back" href="/news/">← News</a><div class="news-meta"><ul class="news-tags" aria-label="Categories"><li>Story</li></ul>${storeStory.draft ? '<span class="news-draft">Draft for review</span>' : ''}</div><h1>${storeStory.title}</h1><p class="news-lede">Apparently, explicit ownership now extends to your wardrobe.</p><p class="news-byline"><time datetime="${storeStory.date}">${storeStory.dateLabel}</time> · <a href="${storeStory.dateSource}">The store announcement</a></p></header>
-    <figure class="news-hero"><img src="${storeStory.image.src}" width="${storeStory.image.width}" height="${storeStory.image.height}" alt="${storeStory.image.alt}"></figure>
+    <header class="news-article-heading"><a class="study-back" href="/news/">← News</a><div class="news-meta"><ul class="news-tags" aria-label="Categories"><li>Story</li></ul></div><h1>${escape(story.title)}</h1><p class="news-lede">Apparently, explicit ownership now extends to your wardrobe.</p><p class="news-byline"><time datetime="${escape(story.date)}">${escape(story.dateLabel)}</time> · <a href="${escape(story.dateSource)}">The store announcement</a></p></header>
+    <figure class="news-hero"><img src="${escape(story.image.src)}" width="${story.image.width}" height="${story.image.height}" alt="${escape(story.image.alt)}"></figure>
     <div class="news-reading news-story-reading"><div class="news-prose">
       <p>Marionette has a <a href="https://store.marionettejs.com/">merch store</a>. There are tees, hoodies, hats, mugs, and stickers, including “No Backbone. Still Opinionated.” for anyone whose architectural preferences need a wider audience. Your laptop has room for one more opinion.</p>
       <p>The store and <a href="https://github.com/sponsors/paulfalgout">GitHub sponsorship</a> are two ways to help support Marionette’s future development. Sponsorship supports maintenance, documentation, examples, and the human review that keeps the AI-generated enthusiasm in check.</p>
@@ -34,4 +34,6 @@ export const storeStoryPage = {
       <p><a href="https://marionettejs.com/thanks/">More ways to support Marionette →</a></p>
     </div></div>
   </article>`
-};
+  };
+}
+export const storeStoryPage = storyPage();

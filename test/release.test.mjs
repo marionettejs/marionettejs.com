@@ -132,9 +132,9 @@ test('published pages keep a validator and the sitemap only dates recorded page 
   const manifest = JSON.parse(await read('content/library-docs/manifest.json'));
   const catalog = JSON.parse(await read('dist/docs/diagnostics.json'));
   const supplemental = JSON.parse(await read('content/supplemental-docs/manifest.json'));
-  assert.equal(entries.length, manifest.pages.length + supplemental.pages.length + catalog.diagnostics.length + 14);
+  assert.equal(entries.length, manifest.pages.length + supplemental.pages.length + catalog.diagnostics.length + 16);
   for (const page of supplemental.pages) assert.ok(sitemap.includes(`<loc>https://marionettejs.com/${page.route}/</loc>`));
-  assert.ok(!sitemap.includes('<loc>https://marionettejs.com/news/introducing-marionette-5/</loc>'), 'Draft announcement stays out of the public sitemap');
+  for (const slug of ['introducing-marionette-5', 'wear-your-very-specific-opinions']) assert.ok(sitemap.includes(`<loc>https://marionettejs.com/news/${slug}/</loc>`));
   for (const route of ['/news/', '/case-studies/', '/case-studies/realworld/', '/case-studies/roundingwell/', '/case-studies/vikunja/']) {
     assert.ok(sitemap.includes(`<loc>https://marionettejs.com${route}</loc>`), route);
   }

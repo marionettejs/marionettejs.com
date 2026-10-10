@@ -29,7 +29,8 @@
     {
       "speaker": "Paul",
       "text": "Those arguments still have some value. But they seemed to assume a human would be doing most of the implementation. I wanted to know how their value might change when agents were doing more of that work.",
-      "question": false
+      "question": false,
+      "id": "workflow-reasons"
     },
     {
       "speaker": "dot",
@@ -89,7 +90,17 @@
     {
       "speaker": "Paul",
       "text": "The package includes version-matched docs and a Marionette skill that points an agent to the installed API. Its local helper can look up a symbol, a documentation section, or a diagnostic code. There are TypeScript declarations and an ESLint rule for catching use of private framework members, too.",
-      "question": false
+      "question": false,
+      "links": [
+        {
+          "href": "/docs/agents/",
+          "label": "Work with an agent →"
+        },
+        {
+          "href": "/docs/tooling/",
+          "label": "Application tooling →"
+        }
+      ]
     },
     {
       "speaker": "dot",
@@ -104,12 +115,25 @@
     {
       "speaker": "Paul",
       "text": "In RealWorld, an agent built Conduit, a blogging frontend, then refined it through review and follow-up requests. In the simulated-mobile benchmark, median article navigation was 175 ms for the measured v5 build versus 425 ms for Vue, across ten samples per app.",
-      "question": false
+      "question": false,
+      "links": [
+        {
+          "href": "/case-studies/realworld/#comparison",
+          "label": "Read the RealWorld measurements →"
+        }
+      ]
     },
     {
       "speaker": "Paul",
       "text": "The Vikunja Vue migration measurements show another encouraging result: median rich-task opening was 1.04 seconds for the measured v5 build versus 3.72 seconds for Vue. That’s 72% shorter across 20 samples per app in desktop Chromium, using production builds and a 500-task fixture with 50 comments on the opened task.",
-      "question": false
+      "question": false,
+      "id": "vikunja-results",
+      "links": [
+        {
+          "href": "/case-studies/vikunja/#journey",
+          "label": "Read the Vikunja measurements →"
+        }
+      ]
     },
     {
       "speaker": "dot",

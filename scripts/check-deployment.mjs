@@ -5,6 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
+import { siteOrigin, parseMetadataDate } from './seo.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const origin = process.argv[2] ?? 'https://marionettejs.com';
@@ -69,11 +70,14 @@ if (sitemap) {
   }
   const entries = [...sitemap.content.matchAll(/<url>(.*?)<\/url>/g)].map(([, entry]) => entry);
   expect(entries.length > 0, '/sitemap.xml lists no URLs');
-  expect(entries.every(entry => /<loc>https:\/\/[^<]+<\/loc>/.test(entry)), '/sitemap.xml has an invalid canonical URL');
-  const today = new Date().toISOString().slice(0, 10);
+  expect(entries.every(entry => {
+    try { return new URL(entry.match(/<loc>(.*?)<\/loc>/)?.[1]).origin === siteOrigin; }
+    catch { return false; }
+  }), '/sitemap.xml has an invalid canonical URL');
   for (const [, date] of sitemap.content.matchAll(/<lastmod>(.*?)<\/lastmod>/g)) {
-    expect(Number.isFinite(Date.parse(date)), `/sitemap.xml reports an invalid lastmod: ${date}`);
-    expect(date.slice(0, 10) <= today, `/sitemap.xml reports a future lastmod: ${date}`);
+    const timestamp = parseMetadataDate(date);
+    expect(Number.isFinite(timestamp), `/sitemap.xml reports an invalid lastmod: ${date}`);
+    expect(!Number.isFinite(timestamp) || timestamp <= Date.now(), `/sitemap.xml reports a future lastmod: ${date}`);
   }
 }
 

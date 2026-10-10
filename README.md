@@ -482,3 +482,18 @@ synthetic data. The 1729 × 910 hero pairs the existing RoundingWell and Marione
 vector logos in blue and red panels. Its editable source is
 `site/assets/case-studies/roundingwell/brand-panels.svg`; the PNG export is shared
 by the article and social metadata without cropping.
+
+
+## News publication
+
+The feature branch and pull request are the staging mechanism. News articles have
+no draft flag: the normal build includes them in the feed, sitemap, and public
+article metadata. They become public when the PR is merged and the deployment
+workflow publishes that commit. A branch build does not authorize that merge.
+The loopback preview independently sends `X-Robots-Tag: noindex, nofollow` for all
+responses; the production 404 also remains noindexed.
+
+Article dates are editorial publication dates. RoundingWell intentionally uses
+October 6, 2026, separately from its Git merge and deployment timestamps.
+The launch hero's lossless WebP derivative is used in-page; the original PNG is
+preserved for source and social previews, with unchanged artwork and dimensions.

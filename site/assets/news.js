@@ -18,7 +18,7 @@ if (feed) {
     const url = new URL(location.href);
     if (category === 'All') url.searchParams.delete('category');
     else url.searchParams.set('category', category);
-    history.pushState(null, '', url);
+    if (url.href !== location.href) history.pushState(null, '', url);
     apply(category);
   };
   for (const button of buttons) button.addEventListener('click', () => select(button.dataset.newsFilter));

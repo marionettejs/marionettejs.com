@@ -1,3 +1,4 @@
+import { escapeHtml } from './html.mjs';
 import Ajv from 'ajv';
 import { headingId } from './heading-ids.mjs';
 import { buildAgentDiscovery } from './agent-discovery.mjs';
@@ -11,7 +12,7 @@ import * as pagefind from 'pagefind';
 import { writeSearchFiles } from './search-index.mjs';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
-export const escapeHtml = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+export { escapeHtml } from './html.mjs';
 const safePath = value => typeof value === 'string' && /^[a-zA-Z0-9._/-]+$/.test(value) && !value.startsWith('/') && !value.split('/').some(part => part === '..' || part === '.' || !part);
 
 export async function readSnapshot(directory, { manifestName = 'manifest.json' } = {}) {
@@ -152,11 +153,15 @@ function adjacentPages(page, pages) {
 export function documentationDescription(page, version) {
   const paragraphs = Lexer.lex(page.markdown).filter(token => token.type === 'paragraph' && !token.text.startsWith('[API index]'));
   for (const paragraph of paragraphs) {
-    const text = paragraph.text.replace(/!?\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/<[^>]*>/g, '').replace(/`|\*\*/g, '').replace(/\s+/g, ' ').trim();
+    // Skip link-only navigation regardless of its labels or length.
+    const prose = paragraph.tokens.filter(token => !['link', 'image'].includes(token.type)).map(token => token.raw).join('').replace(/<[^>]*>/g, '');
+    if (!/[\p{L}\p{N}]/u.test(prose)) continue;
+    const text = paragraph.tokens.map(token => ['link', 'image'].includes(token.type) ? token.text : token.raw).join('').replace(/!?\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/<[^>]*>/g, '').replace(/`|\*\*/g, '').replace(/\s+/g, ' ').trim();
     if (text.length < 60) continue;
     if (text.length <= 240) return text;
     const shortened = text.slice(0, 237);
-    return `${shortened.slice(0, shortened.lastIndexOf(' '))}…`;
+    const boundary = shortened.lastIndexOf(' ');
+    return `${boundary > 0 ? shortened.slice(0, boundary) : shortened}…`;
   }
   return `${page.title}. Marionette ${version} documentation.`;
 }
