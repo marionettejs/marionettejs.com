@@ -1,3 +1,5 @@
+import { newsPosts } from '../content/news.mjs';
+import { studies } from '../content/case-studies.mjs';
 import { deriveMarkdown, markdownUrl } from '../scripts/library-docs.mjs';
 import { publishedMarkdown } from '../scripts/published-docs.mjs';
 import { test } from 'node:test';
@@ -132,10 +134,11 @@ test('published pages keep a validator and the sitemap only dates recorded page 
   const manifest = JSON.parse(await read('content/library-docs/manifest.json'));
   const catalog = JSON.parse(await read('dist/docs/diagnostics.json'));
   const supplemental = JSON.parse(await read('content/supplemental-docs/manifest.json'));
-  assert.equal(entries.length, manifest.pages.length + supplemental.pages.length + catalog.diagnostics.length + 16);
+  const standaloneRoutes = ['/news/', '/case-studies/', ...studies.map(study => study.path), '/privacy/', '/', '/why/', '/thanks/', '/demos/', '/errors/', '/docs/agent-start/', '/docs/coverage/', '/docs/mcp/'];
+  assert.equal(entries.length, manifest.pages.length + supplemental.pages.length + catalog.diagnostics.length + standaloneRoutes.length + newsPosts.length);
   for (const page of supplemental.pages) assert.ok(sitemap.includes(`<loc>https://marionettejs.com/${page.route}/</loc>`));
-  for (const slug of ['introducing-marionette-5', 'wear-your-very-specific-opinions']) assert.ok(sitemap.includes(`<loc>https://marionettejs.com/news/${slug}/</loc>`));
-  for (const route of ['/news/', '/case-studies/', '/case-studies/realworld/', '/case-studies/roundingwell/', '/case-studies/vikunja/']) {
+  for (const post of newsPosts) assert.ok(sitemap.includes(`<loc>https://marionettejs.com${post.path}</loc>`));
+  for (const route of standaloneRoutes) {
     assert.ok(sitemap.includes(`<loc>https://marionettejs.com${route}</loc>`), route);
   }
   for (const [, date] of sitemap.matchAll(/<lastmod>(.*?)<\/lastmod>/g)) {

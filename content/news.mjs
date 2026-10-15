@@ -2,6 +2,7 @@ import { escapeHtml as escape } from '../scripts/html.mjs';
 import { studies } from './case-studies.mjs';
 import interview from './news/launch-interview.json' with { type: 'json' };
 import { storeStory, storeStoryPage } from './news/store-story.mjs';
+import { maintenanceResearch, maintenanceResearchPage } from './news/maintenance-research.mjs';
 
 const dialogueText = turn => {
   const body = escape(turn.text).replaceAll(/\bRealWorld\b/g, '<a href="https://github.com/marionettejs/marionette-realworld-example-app">RealWorld</a>');
@@ -23,8 +24,8 @@ export const announcement = {
   linkLabel: 'Read the announcement',
   image: { src: '/assets/news/introducing-marionette-5.png', displaySrc: '/assets/news/introducing-marionette-5.webp', width: 1672, height: 941, alt: 'Fry under “You” and Bender holding tokens under “Your Agent”: “Take my tokens!” Marionette v5 available now.' }
 };
-export { storeStory, storeStoryPage };
-export const newsPosts = [announcement, storeStory];
+export { storeStory, storeStoryPage, maintenanceResearch, maintenanceResearchPage };
+export const newsPosts = [announcement, storeStory, maintenanceResearch];
 // Change this path to make an editorial selection; publication dates do not choose it.
 export const featuredNewsPath = announcement.path;
 export const sortNewsItems = entries => [...entries].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
