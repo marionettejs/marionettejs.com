@@ -47,7 +47,7 @@ export const maintenanceResearchPage = {
         <p>The fresh agent fixed accessible names in application markup. The tests did not get a motivational rewrite.</p>
         <dl class="news-maintenance-results">
           <div><dt>Fresh-agent handoff</dt><dd><strong>44 / 44</strong> browser checks</dd><dd>33 baseline + 7 author + 4 withheld extension cases. Three unit tests, build, lint and architecture review also passed. <a href="${evidence}/assessment-A3.json">Handoff assessment →</a></dd></div>
-          <div id="lifecycle"><dt>Separate lifecycle repair</dt><dd><strong>11 / 11</strong> frozen independent checks</dd><dd>An additional fresh attempt, reported separately. Covered stale loads, errors, synchronous cleanup and retained restart. The borrowed state source survived; one subscription and heartbeat pair remained. <a href="${evidence}/README.md">Lifecycle report →</a></dd></div>
+          <div id="lifecycle"><dt>Separate lifecycle repair</dt><dd><strong>11 / 11</strong> frozen independent checks</dd><dd>An additional fresh attempt, reported separately. Checks covered stale loads and errors. A retained restart had the expected single subscription and heartbeat pair. Stop and destroy released resources synchronously; the borrowed state source survived destruction. <a href="${evidence}/README.md">Lifecycle report →</a></dd></div>
         </dl>
         <p>The <a href="${evidence}/architecture-A3.json">architecture review</a> found clear ownership: the Application owned status and collection sources; Views borrowed them. Refresh, retry, navigation and cleanup behavior survived the extension.</p>
       </section>
