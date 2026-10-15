@@ -23,14 +23,14 @@ try {
   const unchangedHistory = await page.evaluate(() => history.length);
   await filter('All').click();
   assert.equal(await page.evaluate(() => history.length), unchangedHistory);
-  assert.equal(await stories.count(), 5);
+  assert.equal(await stories.count(), 6);
   assert.equal(await page.locator('.news-feature').count(), 1);
   assert.equal(await page.locator('.news-feature').getAttribute('data-news-path'), '/news/introducing-marionette-5/');
-  assert.deepEqual(await page.locator('[data-news-chronological] [data-news-item]').evaluateAll(items => items.map(item => item.dataset.newsPath)), ['/case-studies/vikunja/', '/case-studies/roundingwell/', '/case-studies/realworld/', '/news/wear-your-very-specific-opinions/']);
+  assert.deepEqual(await page.locator('[data-news-chronological] [data-news-item]').evaluateAll(items => items.map(item => item.dataset.newsPath)), ['/news/realworld-agent-maintenance/', '/case-studies/vikunja/', '/case-studies/roundingwell/', '/case-studies/realworld/', '/news/wear-your-very-specific-opinions/']);
   assert.equal(await filter('Interview').count(), 0);
   assert.equal(await filter('Experiment').count(), 0);
   assert.equal(await page.getByRole('navigation', { name: 'Main navigation' }).locator('[aria-current=page]').innerText(), 'News');
-  for (const [category, count] of [['Release', 1], ['Case Study', 3], ['Research', 2], ['Story', 2]]) {
+  for (const [category, count] of [['Release', 1], ['Case Study', 3], ['Research', 3], ['Story', 2]]) {
     await filter(category).focus();
     await page.keyboard.press('Enter');
     assert.equal(await stories.count(), count);
@@ -41,14 +41,14 @@ try {
   // Exercise the existing empty/reset flow with a feed fixture that has no research.
   await page.route('**/news/?empty-fixture=1', async route => {
     const response = await route.fetch();
-    await route.fulfill({ response, body: (await response.text()).replaceAll('Case Study|Research', 'Case Study') });
+    await route.fulfill({ response, body: (await response.text()).replace(/data-categories="[^"]*"/g, 'data-categories="Fixture"') });
   });
   await page.goto(`${base}/news/?empty-fixture=1`);
   await filter('Research').click();
   assert.equal(await stories.count(), 0);
   assert.equal(await page.locator('[data-news-empty]').isVisible(), true);
   await filter('See all news').click();
-  assert.equal(await stories.count(), 5);
+  assert.equal(await stories.count(), 6);
   assert.equal(await filter('All').evaluate(el => el === document.activeElement), true);
   await page.goto(`${base}/news/`);
   await filter('Case Study').click();
@@ -63,10 +63,10 @@ try {
   assert.equal(await stories.count(), 3);
   await page.goto(`${base}/news/?category=Unknown`);
   await filter('All').waitFor();
-  assert.equal(await stories.count(), 5);
+  assert.equal(await stories.count(), 6);
   for (const width of [1440, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 });
-    for (const route of ['/news/', '/news/introducing-marionette-5/', '/news/wear-your-very-specific-opinions/']) {
+    for (const route of ['/news/', '/news/introducing-marionette-5/', '/news/wear-your-very-specific-opinions/', '/news/realworld-agent-maintenance/']) {
       await page.goto(base + route);
       assert.equal(await decodeImages(), true);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${route} at ${width}`);
@@ -74,6 +74,29 @@ try {
       const current = page.getByRole('navigation', { name: 'Main navigation' }).locator('[aria-current=page]');
       assert.equal(await current.count(), route === '/news/' ? 1 : 0);
       assert.equal(await page.locator('.news-draft').count(), 0);
+      if (route === '/news/realworld-agent-maintenance/') {
+        assert.equal(await page.locator('.news-tags').innerText(), 'Research');
+        assert.equal(await page.locator('.news-byline time').getAttribute('datetime'), '2026-10-14');
+        assert.equal(await page.locator('.news-byline time').innerText(), 'October 14, 2026');
+        const outcomes = page.locator('.news-maintenance-results>div');
+        assert.equal(await outcomes.count(), 2);
+        assert.equal(await outcomes.nth(0).locator('dd strong').innerText(), '44 / 44');
+        assert.ok((await outcomes.nth(0).innerText()).includes('Three unit tests'));
+        assert.equal(await outcomes.nth(1).locator('dd strong').innerText(), '11 / 11');
+        const hero = page.locator('.news-hero img');
+        assert.equal(await hero.getAttribute('width'), '1672');
+        assert.equal(await hero.getAttribute('height'), '941');
+        const heroBox = await hero.boundingBox();
+        assert.ok(Math.abs(heroBox.width / heroBox.height - 1672 / 941) < 0.001);
+        assert.ok((await page.locator('#filter-example-caption').innerText()).includes('Illustrative example'));
+        const method = page.locator('#method');
+        assert.equal(await method.evaluate(el => el.open), false);
+        await method.locator('summary').press('Enter');
+        assert.equal(await method.evaluate(el => el.open), true);
+        assert.ok((await method.innerText()).includes('unscored'));
+        await method.locator('summary').press('Enter');
+        assert.equal(await method.evaluate(el => el.open), false);
+      }
       if (route === '/news/introducing-marionette-5/') {
         assert.equal(await page.locator('.news-prose figure').count(), 2);
         assert.equal(await page.locator('.news-pullquote blockquote').innerText(), 'The human ergonomics of the code were about code review and not saving keystrokes.');
@@ -86,9 +109,10 @@ try {
         await page.locator('.news-pullquote').screenshot({ path: `output/playwright/news/pullquote-${width}.png` });
         await page.locator('.news-case-capture').screenshot({ path: `output/playwright/news/capture-${width}.png` });
       }
-      await page.screenshot({ path: `output/playwright/news/${route === '/news/' ? 'feed' : route.includes('opinions') ? 'story' : 'article'}-${width}.png`, fullPage: true });
+      await page.screenshot({ path: `output/playwright/news/${route === '/news/' ? 'feed' : route.includes('opinions') ? 'story' : route.includes('agent-maintenance') ? 'research' : 'article'}-${width}.png`, fullPage: true });
     }
   }
+  await page.goto(`${base}/news/wear-your-very-specific-opinions/`);
   assert.equal(await page.locator('meta[name=robots]').getAttribute('content'), 'index, follow');
   assert.equal(await page.locator('meta[property="article:published_time"]').getAttribute('content'), '2026-09-08');
   assert.equal(await page.locator('.news-byline time').innerText(), 'September 8, 2026');
@@ -108,7 +132,7 @@ try {
   const staticPage = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   await staticPage.route('https://**/*', route => route.abort());
   await staticPage.goto(`${base}/news/`);
-  assert.equal(await staticPage.locator('[data-news-item]:visible').count(), 5);
+  assert.equal(await staticPage.locator('[data-news-item]:visible').count(), 6);
   assert.equal(await staticPage.locator('[data-news-controls]').isVisible(), false);
   for (const route of ['/case-studies/realworld/', '/case-studies/roundingwell/', '/case-studies/vikunja/']) {
     assert.equal((await staticPage.goto(base + route)).status(), 200);
