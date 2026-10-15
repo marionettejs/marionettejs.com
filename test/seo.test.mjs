@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFile } from 'node:fs/promises';
+import { newsPosts, maintenanceResearch } from '../content/news.mjs';
 import { socialImageFor, socialMetadata, articleMetadata, sitemapMetadata, parseMetadataDate } from '../scripts/seo.mjs';
 
 test('share images keep the hero, support overrides and safely fall back from non-raster/malformed candidates', () => {
@@ -39,13 +40,21 @@ test('sitemap lists canonical published pages once and only dates known modifica
 
 test('built articles have chosen dates, canonical images and publishers', async () => {
   const read = file => readFile(new URL(`../dist/${file}`, import.meta.url), 'utf8');
-  for (const slug of ['introducing-marionette-5', 'wear-your-very-specific-opinions']) {
-    const html = await read(`news/${slug}/index.html`);
+  for (const post of newsPosts) {
+    const html = await read(`${post.path.slice(1)}index.html`);
     const data = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
     assert.equal(data['@type'], 'Article');
-    assert.equal(data.datePublished, slug === 'introducing-marionette-5' ? '2026-10-10' : '2026-09-08');
+    assert.equal(data.datePublished, post.date);
+    assert.equal(data.mainEntityOfPage['@id'], `https://marionettejs.com${post.path}`);
+    assert.equal(data.publisher['@type'], 'Organization');
+    assert.equal(data.publisher.name, 'Marionette project');
     assert.match(html, /robots" content="index, follow"/);
     assert.equal(html.match(/property="og:image" content="([^"]+)"/)[1], data.image.url);
+    assert.equal(data.image.url, `https://marionettejs.com${post.image.src}`);
+    if (post.path === maintenanceResearch.path) {
+      assert.equal(data.author['@type'], 'Organization');
+      assert.equal(data.author.name, 'Marionette project');
+    }
   }
   const caseStudy = JSON.parse((await read('case-studies/vikunja/index.html')).match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   assert.equal(caseStudy.datePublished, '2026-10-07');

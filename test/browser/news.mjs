@@ -3,6 +3,9 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 import { staticServer } from './static-server.mjs';
 import { resolve } from 'node:path';
+import { newsItems, featuredNewsPath } from '../../content/news.mjs';
+
+const categoryCount = category => newsItems.filter(item => item.categories.includes(category)).length;
 
 const { base, close } = process.env.NEWS_PREVIEW_URL ? { base: process.env.NEWS_PREVIEW_URL, close: async () => {} } : await staticServer({ root: resolve('dist'), types: { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.webp': 'image/webp', '.png': 'image/png', '.svg': 'image/svg+xml' } });
 const browser = await chromium.launch({ headless: true });
@@ -23,17 +26,17 @@ try {
   const unchangedHistory = await page.evaluate(() => history.length);
   await filter('All').click();
   assert.equal(await page.evaluate(() => history.length), unchangedHistory);
-  assert.equal(await stories.count(), 6);
+  assert.equal(await stories.count(), newsItems.length);
   assert.equal(await page.locator('.news-feature').count(), 1);
-  assert.equal(await page.locator('.news-feature').getAttribute('data-news-path'), '/news/introducing-marionette-5/');
-  assert.deepEqual(await page.locator('[data-news-chronological] [data-news-item]').evaluateAll(items => items.map(item => item.dataset.newsPath)), ['/news/realworld-agent-maintenance/', '/case-studies/vikunja/', '/case-studies/roundingwell/', '/case-studies/realworld/', '/news/wear-your-very-specific-opinions/']);
+  assert.equal(await page.locator('.news-feature').getAttribute('data-news-path'), featuredNewsPath);
+  assert.deepEqual(await page.locator('[data-news-chronological] [data-news-item]').evaluateAll(items => items.map(item => item.dataset.newsPath)), newsItems.filter(item => item.path !== featuredNewsPath).map(item => item.path));
   assert.equal(await filter('Interview').count(), 0);
   assert.equal(await filter('Experiment').count(), 0);
   assert.equal(await page.getByRole('navigation', { name: 'Main navigation' }).locator('[aria-current=page]').innerText(), 'News');
-  for (const [category, count] of [['Release', 1], ['Case Study', 3], ['Research', 3], ['Story', 2]]) {
+  for (const category of ['Release', 'Case Study', 'Research', 'Story']) {
     await filter(category).focus();
     await page.keyboard.press('Enter');
-    assert.equal(await stories.count(), count);
+    assert.equal(await stories.count(), categoryCount(category));
     assert.equal(await filter(category).getAttribute('aria-pressed'), 'true');
     assert.ok((await page.getByRole('status').innerText()).includes(category));
   }
@@ -48,7 +51,7 @@ try {
   assert.equal(await stories.count(), 0);
   assert.equal(await page.locator('[data-news-empty]').isVisible(), true);
   await filter('See all news').click();
-  assert.equal(await stories.count(), 6);
+  assert.equal(await stories.count(), newsItems.length);
   assert.equal(await filter('All').evaluate(el => el === document.activeElement), true);
   await page.goto(`${base}/news/`);
   await filter('Case Study').click();
@@ -57,13 +60,13 @@ try {
   assert.equal(await page.evaluate(() => history.length), selectedHistory);
   await page.reload();
   await filter('Case Study').waitFor();
-  assert.equal(await stories.count(), 3);
+  assert.equal(await stories.count(), categoryCount('Case Study'));
   await filter('Release').click();
   await page.goBack();
-  assert.equal(await stories.count(), 3);
+  assert.equal(await stories.count(), categoryCount('Case Study'));
   await page.goto(`${base}/news/?category=Unknown`);
   await filter('All').waitFor();
-  assert.equal(await stories.count(), 6);
+  assert.equal(await stories.count(), newsItems.length);
   for (const width of [1440, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 });
     for (const route of ['/news/', '/news/introducing-marionette-5/', '/news/wear-your-very-specific-opinions/', '/news/realworld-agent-maintenance/']) {
@@ -94,6 +97,11 @@ try {
         await method.locator('summary').press('Enter');
         assert.equal(await method.evaluate(el => el.open), true);
         assert.ok((await method.innerText()).includes('unscored'));
+        await method.locator('summary').press('Enter');
+        assert.equal(await method.evaluate(el => el.open), false);
+        await page.locator('a[href="#race"]').click();
+        assert.equal(await method.evaluate(el => el.open), true);
+        assert.equal(await page.locator('#race').isVisible(), true);
         await method.locator('summary').press('Enter');
         assert.equal(await method.evaluate(el => el.open), false);
       }
@@ -132,7 +140,7 @@ try {
   const staticPage = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   await staticPage.route('https://**/*', route => route.abort());
   await staticPage.goto(`${base}/news/`);
-  assert.equal(await staticPage.locator('[data-news-item]:visible').count(), 6);
+  assert.equal(await staticPage.locator('[data-news-item]:visible').count(), newsItems.length);
   assert.equal(await staticPage.locator('[data-news-controls]').isVisible(), false);
   for (const route of ['/case-studies/realworld/', '/case-studies/roundingwell/', '/case-studies/vikunja/']) {
     assert.equal((await staticPage.goto(base + route)).status(), 200);

@@ -1,6 +1,5 @@
 import { escapeHtml as escape } from '../../scripts/html.mjs';
 
-// Evidence is pinned to the published report submission; its review remains open.
 const evidence = 'https://github.com/paulfalgout/marionette-realworld-example-app/blob/6d69d2510f26c46f14435569a81b604fb0cdc99d/evaluations/2026-10-10';
 export const maintenanceResearch = {
   title: 'Can an agent maintain another agent’s app?',
@@ -41,13 +40,13 @@ export const maintenanceResearchPage = {
 
       <section id="handoff"><h2>New agent. Same contracts.</h2>
         <figure class="news-handoff" aria-labelledby="handoff-caption">
-          <ol class="news-handoff-steps"><li><strong>First agent</strong><span>Title filter + real code</span></li><li><strong>Fresh agent</strong><span>Descriptions + tags</span></li><li><strong>Independent checks</strong><span>Old behavior + new feature</span></li></ol>
-          <figcaption id="handoff-caption">A fresh agent picked up the actual submission and preserved its inherited tests.</figcaption>
+          <ol class="news-handoff-steps"><li><strong>First agent</strong><span>Title filter + partly broken code</span></li><li><strong>Fresh agent</strong><span>Repair + descriptions + tags</span></li><li><strong>Independent checks</strong><span>Old behavior + new feature</span></li></ol>
+          <figcaption id="handoff-caption">The fresh agent received code and tests, without a handoff note.</figcaption>
         </figure>
-        <p>The fresh agent fixed accessible names in application markup. The tests did not get a motivational rewrite.</p>
+        <p>Three inherited author tests were failing. The fresh agent repaired accessible names in application markup and added the extension while keeping those tests intact. They did not get a motivational rewrite.</p>
         <dl class="news-maintenance-results">
-          <div><dt>Fresh-agent handoff</dt><dd><strong>44 / 44</strong> browser checks</dd><dd>33 baseline + 7 author + 4 withheld extension cases. Three unit tests, build, lint and architecture review also passed. <a href="${evidence}/assessment-A3.json">Handoff assessment →</a></dd></div>
-          <div id="lifecycle"><dt>Separate lifecycle repair</dt><dd><strong>11 / 11</strong> frozen independent checks</dd><dd>An additional fresh attempt, reported separately. Checks covered stale loads and errors. A retained restart had the expected single subscription and heartbeat pair. Stop and destroy released resources synchronously; the borrowed state source survived destruction. <a href="${evidence}/README.md">Lifecycle report →</a></dd></div>
+          <div><dt>Fresh-agent takeover</dt><dd><strong>44 / 44</strong> browser checks</dd><dd>33 baseline + 7 author + 4 withheld extension cases. Three unit tests, build, lint and architecture review also passed. <a href="${evidence}/assessment-A3.json">Takeover assessment →</a></dd></div>
+          <div id="lifecycle"><dt>Lifecycle repair · second attempt</dt><dd><strong>11 / 11</strong> frozen independent checks</dd><dd>The first attempt was quota-interrupted and graded 7/11. This fresh attempt started from the original seed; no architecture review was performed. <a href="${evidence}/README.md">Lifecycle report →</a></dd><dd><a href="#race">A later unscored probe found a controller race →</a></dd></div>
         </dl>
         <p>The <a href="${evidence}/architecture-A3.json">architecture review</a> found clear ownership: the Application owned status and collection sources; Views borrowed them. Refresh, retry, navigation and cleanup behavior survived the extension.</p>
       </section>
@@ -55,11 +54,12 @@ export const maintenanceResearchPage = {
       <details id="method" class="news-research-method"><summary>How we checked it: method and limits</summary>
         <p>Gemini 3.8 Flash High at high effort, a fixed runner, published Marionette 5.0.0 packages and matching docs, in Chromium with local fixtures. The handoff used the installed official skill and read-only documentation MCP. Acceptance cases were withheld, without implementation hints, evaluator feedback or silent retries.</p>
         <p>The full record includes the earlier attempts: the first feature passed baseline and withheld checks but failed three author tests; the next extension changed protected tests and was rejected before behavior grading; two original attempts stopped at provider quota. The additional lifecycle attempt is separate from those four.</p>
+        <p>The lifecycle checks covered stale loads and errors. Stop and destroy released resources synchronously; the borrowed state source survived destruction. A retained restart had the expected single subscription and heartbeat pair.</p>
         <p id="race">A later <strong>unscored</strong> probe found an agent-written controller race: a canceled restart cleared a newer restart’s flag, letting refresh abort its load. This was outside the eleven scored checks; their original result is unchanged. See the <a href="${evidence}/observations/restart-race.json">observation</a> and <a href="https://github.com/paulfalgout/marionette-realworld-example-app/issues/2">open regression</a>.</p>
         <p>Supporting checks passed 30 native state tests; lint caught four deliberately invalid examples and cleared five valid ones. Review noted duplicated filtering work and an unverified refresh-focus case. This bounded study does not compare frameworks or measure speed, event counts, heap retention, live backends, other browsers or broader models.</p>
       </details>
       <p class="news-research-takeaway">Give the next agent real code, readable contracts and tests it must preserve. Then check its work. Instructions included; verification still required.</p>
-      <ul class="news-next"><li><a href="${evidence}/README.md">Read the full report and replay instructions →</a></li><li><a href="https://github.com/paulfalgout/marionette-realworld-example-app/pull/1">Review the pinned evidence submission →</a></li><li><a href="/docs/agents/">Equip an agent for your Marionette app →</a></li></ul>
+      <ul class="news-next"><li><a href="${evidence}/README.md">Read the full report and replay instructions →</a></li><li><a href="/docs/agents/">Equip an agent for your Marionette app →</a></li></ul>
     </div></div>
   </article>`
 };
