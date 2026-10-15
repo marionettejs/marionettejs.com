@@ -43,7 +43,7 @@ export const maintenanceResearchPage = {
           <ol class="news-handoff-steps"><li><strong>First agent</strong><span>Title filter + partly broken code</span></li><li><strong>Fresh agent</strong><span>Repair + descriptions + tags</span></li><li><strong>Independent checks</strong><span>Old behavior + new feature</span></li></ol>
           <figcaption id="handoff-caption">The fresh agent received code and tests, without a handoff note.</figcaption>
         </figure>
-        <p>Three inherited author tests were failing. The fresh agent repaired accessible names in application markup and added the extension while keeping those tests intact. They did not get a motivational rewrite.</p>
+        <p>Three inherited author tests were failing. The fresh agent repaired accessible names in application markup and added the extension while keeping those tests intact. The tests did not get a motivational rewrite.</p>
         <dl class="news-maintenance-results">
           <div><dt>Fresh-agent takeover</dt><dd><strong>44 / 44</strong> browser checks</dd><dd>33 baseline + 7 author + 4 withheld extension cases. Three unit tests, build, lint and architecture review also passed. <a href="${evidence}/assessment-A3.json">Takeover assessment →</a></dd></div>
           <div id="lifecycle"><dt>Lifecycle repair · second attempt</dt><dd><strong>11 / 11</strong> frozen independent checks</dd><dd>The first attempt was quota-interrupted and graded 7/11. This fresh attempt started from the original seed; no architecture review was performed. <a href="${evidence}/README.md">Lifecycle report →</a></dd><dd><a href="#race">A later unscored probe found a controller race →</a></dd></div>
