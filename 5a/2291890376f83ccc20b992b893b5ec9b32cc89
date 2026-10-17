@@ -1,0 +1,16 @@
+mcp/http.mjs
+  h_0f06c286dda36f 4,12-14,32,42,54,74-77
+test/mcp-handler.test.mjs
+  h_0f06c286dda36f 75-79,81-88,93-97,102,108-109,119-124
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5a2291890376f83ccc20b992b893b5ec9b32cc89",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
