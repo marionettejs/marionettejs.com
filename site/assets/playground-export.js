@@ -12,7 +12,7 @@ export function codePenData(input, vendor, license) {
     description: `Made in Marionette Backstage. Bring your agent: ${backstageURL}\nRuntime: marionette@${version} · source ${revision}`,
     html: `<main id="app"></main>\n<script type="application/json" id="marionette-runtime">${runtime}</script>`,
     css: `* { box-sizing: border-box; }\nbody { margin: 0; font: 16px/1.5 system-ui, sans-serif; }\nbutton, input, select, textarea { font: inherit; max-width: 100%; }\n:focus-visible { outline: 3px solid #2869e8; outline-offset: 3px; }\n\n${app.css}`,
-    js: `// Pinned Marionette runtime and MIT license are included in the HTML panel.\nconst marionetteSource = JSON.parse(document.querySelector('#marionette-runtime').textContent).vendor;\nconst marionetteURL = URL.createObjectURL(new Blob([marionetteSource], { type: 'text/javascript' }));\nconst { View, Region, CollectionView, Behavior, Application, MnObject, Events } = await import(marionetteURL);\nURL.revokeObjectURL(marionetteURL);\n\n${app.code}`,
+    js: `// Pinned Marionette runtime and MIT license are included in the HTML panel.\nconst marionetteSource = JSON.parse(document.querySelector('#marionette-runtime').textContent).vendor;\nconst marionetteURL = URL.createObjectURL(new Blob([marionetteSource], { type: 'text/javascript' }));\nconst { View, Region, CollectionView, Behavior, Application, MnObject, Events, Model, Collection, DataApi, StateApi } = await import(marionetteURL);\nURL.revokeObjectURL(marionetteURL);\n\n${app.code}`,
     head: '<meta name="viewport" content="width=device-width, initial-scale=1">',
     html_pre_processor: 'none',
     css_pre_processor: 'none',

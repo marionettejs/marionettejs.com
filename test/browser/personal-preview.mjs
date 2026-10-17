@@ -3,11 +3,55 @@ import assert from 'node:assert/strict';
 import { readFile, mkdir } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { chromium } from 'playwright';
-import { starter, standaloneDocument } from '../../site/assets/playground-runtime.js';
+import { starter, runnerDocument, standaloneDocument } from '../../site/assets/playground-runtime.js';
+import { codePenData } from '../../site/assets/playground-export.js';
 const vendor = await readFile('site/vendor/demos.js', 'utf8');
 const license = await readFile('site/vendor/DEMOS-LICENSE.txt', 'utf8');
 const browser = await chromium.launch();
 try {
+  const penPage = await browser.newPage();
+  const penErrors = [];
+  penPage.on('pageerror', error => penErrors.push(error.message));
+  async function loadPen(app) {
+    const pen = codePenData(app, vendor, license);
+    await penPage.goto('about:blank');
+    await penPage.setContent(pen.html);
+    await penPage.addStyleTag({ content: pen.css });
+    // Execute the actual generated panel as a module, as in the current CodePen runtime.
+    await penPage.addScriptTag({ type: 'module', content: pen.js });
+  }
+  await loadPen(starter);
+  await penPage.getByRole('heading', { name: 'That counts.' }).waitFor();
+  assert.equal(await penPage.locator('.victory').count(), 2);
+  await penPage.locator('#victory-first span').click();
+  assert.equal(await penPage.locator('#victory-first').getAttribute('aria-pressed'), 'true');
+  assert.match(await penPage.locator('.tally').innerText(), /1\s+small victory/);
+  await penPage.locator('#new-victory').fill('The exported app works');
+  await penPage.locator('#new-victory').press('Enter');
+  assert.equal(await penPage.locator('.victory').count(), 3);
+  assert.equal(await penPage.locator('.victory-title').last().innerText(), 'The exported app works');
+  await penPage.locator('#victory-added-1').click();
+  assert.match(await penPage.locator('.tally').innerText(), /2\s+small victories/);
+  // Exercise every supplied binding in both paths, including those unused by the starter.
+  const bindings = { title: 'Runtime bindings', css: '', code: `
+await Promise.resolve();
+const bindings = { View, Region, CollectionView, Behavior, Application, MnObject, Events, Model, Collection, DataApi, StateApi };
+for (const [name, value] of Object.entries(bindings)) {
+  if (value == null) throw new Error('Missing runtime binding: ' + name);
+}
+export const region = new Region({ el: '#app' });
+region.show(new View({ template: () => '<p id="bindings">' + Object.keys(bindings).join(', ') + '</p>' }));
+` };
+  await loadPen(bindings);
+  const exportedBindings = await penPage.locator('#bindings').innerText();
+  await penPage.goto('about:blank');
+  await penPage.setContent(runnerDocument({ app: bindings, vendor, token: randomUUID(), standalone: true }));
+  await penPage.locator('#bindings').waitFor();
+  assert.equal(await penPage.locator('#bindings').innerText(), exportedBindings);
+  assert.equal(await penPage.locator('#runner-errors').isVisible(), false);
+  assert.deepEqual(penErrors, []);
+  await penPage.close();
+  console.log('PASS personal CodePen export: unchanged starter, module JS panel, all workshop bindings, rendered data interactions');
   const page = await browser.newPage({ viewport: { width: 820, height: 1000 } });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
