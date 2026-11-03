@@ -37,7 +37,7 @@
     "pagefind": "1.5.2",
     "playwright": "1.63.0",
     "posthog-js": "1.435.8",
-    "wrangler": "4.147.0",
+    "wrangler": "4.157.0",
     "zod": "4.5.4"
   },
   "overrides": {
