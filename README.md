@@ -403,9 +403,11 @@ within the imported snapshot. Code remains intact. Diagnostic schemas are hashed
 assets from the same export, rather than an independently maintained supplement.
 
 `content/docs-publication-edits.json` records publication status and any reviewed
-reading-copy changes separately. Website and MCP builds use the same corpus hashes
-and source identity. Their included records example comes from the same packaged
-source assets. The browser workshop identifies its exact runtime independently.
+reading-copy changes separately. The website corpus includes these reading copies
+and separately tracked supplemental guides. MCP serves only the immutable imported
+package artifact, with its own corpus hash and source identity. Both use the same
+packaged records source assets. The browser workshop identifies its exact runtime
+independently.
 
 Published documentation labels require a clean snapshot matching the installed npm
 archive, including its revision, content digest and locked registry integrity.

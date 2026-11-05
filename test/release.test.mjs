@@ -109,7 +109,7 @@ test('publication overrides retain complete source identity without rewriting th
     // allowing the documented link rewriting and provenance/footer additions.
     assert.equal(await read(`dist${markdownUrl(page)}`), deriveMarkdown(page, pages, originals), edit.source);
     assert.match(edit.sourceSha256, /^[a-f0-9]{64}$/);
-    if (edit.sourceRevision === page.sourceRevision) assert.equal(edit.sourceSha256, page.sha256, edit.source);
+    if (edit.sourceRevision === (page.sourceRevision ?? originals.sourceRevision)) assert.equal(edit.sourceSha256, page.sha256, edit.source);
     // Pin the reviewed tooling source bytes. Later synced revisions are checked
     // against their Git objects by the reading-copy preparation gate.
     if (edit.source === 'docs/tooling.md' && edit.sourceRevision === toolingRevision) {

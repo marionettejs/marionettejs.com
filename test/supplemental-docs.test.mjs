@@ -87,11 +87,20 @@ test('testing helper guides retain separate provenance across website delivery w
     assert.ok(html.includes(`href="/${page.route}/" aria-current="page"`));
     assert.ok(html.includes('href="/docs/supplemental-manifest.json"'));
     assert.ok(html.includes(`Reading source: ${readingRevision(page, manifest)}.`));
+    assert.ok(html.includes('<span class="docs-release">Supplemental guide</span>'));
+    const provenance = html.match(/<p class="docs-version">([^<]+)<\/p>/)[1];
+    assert.ok(provenance.includes(`Source snapshot: ${page.sourceRevision}.`));
+    assert.ok(!provenance.includes(manifest.packageVersion));
+    assert.ok(!provenance.includes(manifest.sourceRevision.slice(0, 8)));
+    assert.equal(html.match(/<h1[^>]*>([^<]+)<a /)[1], page.title);
     const markdown = await read(`dist/${page.route}.md`);
+    assert.match(markdown, /^<!-- Supplemental documentation:/);
+    assert.equal(markdown.match(/^# (.+)$/m)[1], page.title);
     for (const text of [index, bundle, full]) assert.ok(text.includes(`/${page.route}.md`));
     for (const text of [bundle, full]) assert.ok(text.includes(markdown));
     const document = corpus.documents.find(item => item.id === page.source);
     assert.equal(document.markdown, markdown);
+    assert.equal(document.title, page.title);
     assert.equal(document.sourceRevision, readingRevision(page, manifest));
     assert.equal(document.sourceSha256, hash(page.markdown));
     assert.equal(document.sha256, hash(markdown));
@@ -104,6 +113,13 @@ test('testing helper guides retain separate provenance across website delivery w
   assert.ok(reference.includes('(/docs/packages/test.md#install)'));
   assert.doesNotMatch(reference, /ownership candidate|packed minimum profile|archive digest/);
   assert.match(reference, /Vitest `>=4\.1\.0`/);
+  for (const markdown of [overview, reference]) {
+    assert.match(markdown, /skipped start, not cancellation/);
+    assert.match(markdown, /Promise returned[\s\S]*?`app\.start\(\)`/);
+  }
+  assert.ok(reference.includes(`/tree/${readingRevision(supplemental[1], manifest)}/packages/test/examples`));
+  assert.ok(reference.includes(`/blob/${readingRevision(supplemental[1], manifest)}/packages/test/examples/form.spec.js`));
+  assert.doesNotMatch(reference, /github\.com\/marionettejs\/marionette\/(?:tree|blob)\/master\//);
   assert.deepEqual(worker.documents, mcp.documents);
   assert.equal(mcp.provenance.sourceRevision, manifest.sourceRevision);
   assert.equal(mcp.provenance.corpusKind, 'package-artifact');
