@@ -34,7 +34,7 @@ try {
         assert.equal(await page.locator('.docs-menu').getAttribute('open'), '', 'Desktop navigation opens when JavaScript is available');
       }
       if (item.source === 'docs/api/application.md') await page.screenshot({ path: `output/playwright/docs-first-screen-${width}.png` });
-      if (['docs/api/application.md', 'docs/guides/production.md', 'docs/guides/framework-migration.md'].includes(item.source)) await page.screenshot({ path: `output/playwright/${item.source.replaceAll('/', '-').replace('.md', '')}-${width}.png`, fullPage: true });
+      if (['docs/api/application.md', 'docs/guides/production.md', 'docs/guides/framework-migration.md', 'packages/test/readme.md', 'packages/test/guide.md'].includes(item.source)) await page.screenshot({ path: `output/playwright/${item.source.replaceAll('/', '-').replace('.md', '')}-${width}.png`, fullPage: true });
     }
   }
   await page.goto(`${base}/docs/`);
@@ -45,6 +45,10 @@ try {
     'Searching prepareStart returns the Application API page.');
   await search.fill('Migrate from another UI framework');
   await page.locator('.pagefind-ui__result-link[href$="/docs/guides/framework-migration/"]').first().waitFor();
+  for (const item of supplemental.pages) {
+    await search.fill(item.title);
+    await page.locator(`.pagefind-ui__result-link[href$="/${item.route}/"]`).first().waitFor();
+  }
   // Native disclosures keep reading, navigation and provenance usable without scripts.
   const staticPage = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   for (const route of ['/docs/api/region/', '/docs/agent-start/']) {

@@ -65,7 +65,8 @@ export async function readSupplementalPages(directory, archivedPages) {
   const base = await realpath(directory);
   const pages = [];
   for (const page of manifest.pages) {
-    if (!safePath(page.source) || !page.source.startsWith('docs/') || !page.source.endsWith('.md') ||
+    const consumerSource = typeof page.source === 'string' && (page.source.startsWith('docs/') || ['packages/test/readme.md', 'packages/test/guide.md'].includes(page.source));
+    if (!safePath(page.source) || !consumerSource || !page.source.endsWith('.md') ||
         !safePath(page.route) || !page.route.startsWith('docs/') || sources.has(page.source) || routes.has(page.route) ||
         typeof page.title !== 'string' || typeof page.section !== 'string' || !/^[a-f0-9]{40}$/.test(page.sourceRevision)) throw new Error('Invalid supplemental documentation page.');
     const path = await realpath(resolve(base, page.source));
