@@ -65,7 +65,8 @@ export async function readSupplementalPages(directory, archivedPages) {
   const base = await realpath(directory);
   const pages = [];
   for (const page of manifest.pages) {
-    if (!safePath(page.source) || !page.source.startsWith('docs/') || !page.source.endsWith('.md') ||
+    const consumerSource = typeof page.source === 'string' && (page.source.startsWith('docs/') || ['packages/test/readme.md', 'packages/test/guide.md'].includes(page.source));
+    if (!safePath(page.source) || !consumerSource || !page.source.endsWith('.md') ||
         !safePath(page.route) || !page.route.startsWith('docs/') || sources.has(page.source) || routes.has(page.route) ||
         typeof page.title !== 'string' || typeof page.section !== 'string' || !/^[a-f0-9]{40}$/.test(page.sourceRevision)) throw new Error('Invalid supplemental documentation page.');
     const path = await realpath(resolve(base, page.source));
@@ -93,14 +94,15 @@ function linkResolver(page, pages, manifest, format = 'html') {
     href = href.replace(/^https:\/\/v5\.marionettejs\.com(?=\/)/, '');
     if (/[\u0000-\u0020]/.test(href) || (/^[a-z][a-z0-9+.-]*:/i.test(href) && !/^(?:https?:|mailto:|tel:)/i.test(href))) return '#';
     if (href.startsWith('#')) return href;
-    const github = href.match(/^https:\/\/github\.com\/marionettejs\/marionette\/blob\/(master|main|v5|[a-f0-9]{40})\/(.*)$/);
-    if (github && /^[a-f0-9]{40}$/.test(github[1])) return href;
+    const github = href.match(/^https:\/\/github\.com\/marionettejs\/marionette\/(blob|tree)\/(master|main|v5|[a-f0-9]{40})\/(.*)$/);
+    if (github && /^[a-f0-9]{40}$/.test(github[2])) return href;
+    if (github?.[1] === 'tree') return `${manifest.sourceRepository}/tree/${readingRevision(page, manifest)}/${github[3]}`;
     if (/^[a-z]+:|^\/\//i.test(href) && !github) return href;
     if (href.startsWith('/')) {
       if (format === 'markdown' && /^\/errors\/(?:MN[0-9]{4}\/)?$/.test(href)) return href === '/errors/' ? '/errors/index.md' : href.slice(0, -1) + '.md';
       return href;
     }
-    const [pathname, fragment] = (github ? github[2] : href).split('#');
+    const [pathname, fragment] = (github ? github[3] : href).split('#');
     const source = github ? pathname : posix.normalize(posix.join(posix.dirname(page.source), pathname));
     const target = bySource.get(source);
     return `${target ? (format === 'markdown' ? markdownUrl(target) : pageUrl(target)) : resources.has(source) ? `/docs/source/${source}` : githubUrl({ ...manifest, sourceRevision: readingRevision(page, manifest) }, source)}${fragment ? `#${fragment}` : ''}`;
@@ -163,7 +165,7 @@ export function documentationDescription(page, version) {
     const boundary = shortened.lastIndexOf(' ');
     return `${boundary > 0 ? shortened.slice(0, boundary) : shortened}…`;
   }
-  return `${page.title}. Marionette ${version} documentation.`;
+  return `${page.title}. Marionette${version ? ` ${version}` : ''} documentation.`;
 }
 
 export async function buildLibraryDocs({ directory, out, shell }) {
@@ -172,10 +174,13 @@ export async function buildLibraryDocs({ directory, out, shell }) {
   const pages = publishedTitles([...archivedPages, ...supplementalPages]);
   for (const page of pages) {
     const { html, headings } = renderMarkdown(page, pages, manifest);
-    const provenance = `${manifest.packageVersion} · ${publicationStatus(manifest)} · ${manifest.sourceRevision.slice(0, 8)}${manifest.sourceDirty ? ' + local changes' : ''}`;
+    const release = page.sourceRevision ? 'Supplemental guide' : `v${manifest.packageVersion}`;
+    const provenance = page.sourceRevision
+      ? `Supplemental guide. Source snapshot: ${page.sourceRevision}. Reading source: ${readingRevision(page, manifest)}. Check the guide's compatibility requirements against your installed packages.`
+      : `${manifest.packageVersion} · ${publicationStatus(manifest)} · ${manifest.sourceRevision.slice(0, 8)}${manifest.sourceDirty ? ' + local changes' : ''} snapshot. Reading source: ${readingRevision(page, manifest)}. Match APIs to your installed version.`;
     const sectionLinks = headings.filter(item => item.depth === 2).map(item => `<a href="#${escapeHtml(item.id)}">${item.text.replace(/<[^>]*>/g, '')}</a>`).join('');
-    const body = `<div class="docs-layout canonical-docs">${sidebar(page, pages)}<article class="prose docs-prose" data-pagefind-body><header class="docs-page-meta" data-pagefind-ignore><span class="docs-breadcrumb">${escapeHtml(page.section)}</span><span class="docs-release">v${escapeHtml(manifest.packageVersion)}</span></header><details class="docs-source" data-pagefind-ignore><summary>Markdown &amp; source details</summary><div class="docs-tools"><a href="${markdownUrl(page)}">Read Markdown</a><button type="button" data-copy-markdown="${markdownUrl(page)}">Copy Markdown</button><a href="${canonicalSourceUrl(page)}">Canonical source</a><a href="${pageManifestUrl(page)}">Snapshot manifest</a><span class="copy-status" role="status"></span></div><p class="docs-version">${escapeHtml(provenance)} snapshot. Reading source: ${readingRevision(page, manifest)}. Match APIs to your installed version.</p></details>${sectionLinks ? `<details class="docs-page-index" data-pagefind-ignore><summary>On this page</summary><nav aria-label="On this page">${sectionLinks}</nav></details>` : ''}<span hidden data-pagefind-filter="Audience">Consumer</span>${html}${adjacentPages(page, pages)}</article><aside class="docs-margin"><nav aria-label="On this page"><p class="eyebrow">ON THIS PAGE</p>${sectionLinks}</nav><div class="docs-note"><p>The homepage demo and workshops identify their runtime in the source notes.</p><a href="/reference/provenance.json">Demo source notes ↗</a></div></aside></div>`;
-    const rendered = shell({ title: page.title.includes('Marionette') ? page.title : `${page.title} — Marionette ${manifest.packageVersion} docs`, description: documentationDescription(page, manifest.packageVersion), active: 'docs', body, route: `/${page.route}/`, markdown: markdownUrl(page) });
+    const body = `<div class="docs-layout canonical-docs">${sidebar(page, pages)}<article class="prose docs-prose" data-pagefind-body><header class="docs-page-meta" data-pagefind-ignore><span class="docs-breadcrumb">${escapeHtml(page.section)}</span><span class="docs-release">${escapeHtml(release)}</span></header><details class="docs-source" data-pagefind-ignore><summary>Markdown &amp; source details</summary><div class="docs-tools"><a href="${markdownUrl(page)}">Read Markdown</a><button type="button" data-copy-markdown="${markdownUrl(page)}">Copy Markdown</button><a href="${canonicalSourceUrl(page)}">Canonical source</a><a href="${pageManifestUrl(page)}">Snapshot manifest</a><span class="copy-status" role="status"></span></div><p class="docs-version">${escapeHtml(provenance)}</p></details>${sectionLinks ? `<details class="docs-page-index" data-pagefind-ignore><summary>On this page</summary><nav aria-label="On this page">${sectionLinks}</nav></details>` : ''}<span hidden data-pagefind-filter="Audience">Consumer</span>${html}${adjacentPages(page, pages)}</article><aside class="docs-margin"><nav aria-label="On this page"><p class="eyebrow">ON THIS PAGE</p>${sectionLinks}</nav><div class="docs-note"><p>The homepage demo and workshops identify their runtime in the source notes.</p><a href="/reference/provenance.json">Demo source notes ↗</a></div></aside></div>`;
+    const rendered = shell({ title: page.title.includes('Marionette') ? page.title : `${page.title} — Marionette${page.sourceRevision ? '' : ` ${manifest.packageVersion}`} docs`, description: documentationDescription(page, page.sourceRevision ? undefined : manifest.packageVersion), active: 'docs', body, route: `/${page.route}/`, markdown: markdownUrl(page) });
     await mkdir(resolve(out, page.route), { recursive: true });
     await writeFile(resolve(out, page.route, 'index.html'), rendered);
     await mkdir(resolve(out, 'docs/markdown', posix.dirname(page.source)), { recursive: true });
@@ -330,5 +335,8 @@ export function deriveMarkdown(page, pages, manifest, { sourceUrl = canonicalSou
   flush();
   const lines = chunks.join('\n');
   const title = /^# /m.test(page.markdown) ? '' : `# ${page.title}\n\n`;
-  return `<!-- Documentation snapshot: package ${manifest.packageVersion}; channel ${publishedChannel(manifest)}; archived channel ${manifest.channel}; base revision ${page.sourceRevision || manifest.sourceRevision}; local changes ${manifest.sourceDirty}; original source SHA-256 ${page.sha256}; reading source revision ${readingRevision(page, manifest)}; publication edits /docs/publication.json. -->\n\n${title}${lines}\n\n[Canonical source](${sourceUrl}) · [Source identity](${manifestUrl})\n`;
+  const identity = page.sourceRevision
+    ? `Supplemental documentation: base revision ${page.sourceRevision}; original source SHA-256 ${page.sha256}; reading source revision ${readingRevision(page, manifest)}`
+    : `Documentation snapshot: package ${manifest.packageVersion}; channel ${publishedChannel(manifest)}; archived channel ${manifest.channel}; base revision ${manifest.sourceRevision}; local changes ${manifest.sourceDirty}; original source SHA-256 ${page.sha256}; reading source revision ${readingRevision(page, manifest)}`;
+  return `<!-- ${identity}; publication edits /docs/publication.json. -->\n\n${title}${lines}\n\n[Canonical source](${sourceUrl}) · [Source identity](${manifestUrl})\n`;
 }

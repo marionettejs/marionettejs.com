@@ -25,7 +25,16 @@ try {
       assert.equal(response.status(), 200, item.source);
       assert.equal(await page.locator('.docs-prose h1').count(), 1, item.source);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, `${item.source} at ${width}px`);
-      assert.equal(await page.locator('.docs-version').textContent().then(text => text.includes(manifest.packageVersion)), true);
+      const provenance = await page.locator('.docs-version').textContent();
+      if (item.sourceRevision) {
+        assert.equal(await page.locator('.docs-release').textContent(), 'Supplemental guide');
+        assert.ok(provenance.includes(`Source snapshot: ${item.sourceRevision}.`));
+        assert.ok(!provenance.includes(manifest.packageVersion));
+        const heading = await page.locator('.docs-prose h1').textContent();
+        assert.equal(heading.replace(/#$/, '').trim(), item.title);
+      } else {
+        assert.ok(provenance.includes(manifest.packageVersion));
+      }
       if (width === 375) {
         const heading = await page.locator('.docs-prose h1').boundingBox();
         assert.ok(heading.y + heading.height < 900, `${item.source}: article title fits the first mobile screen`);
@@ -34,7 +43,7 @@ try {
         assert.equal(await page.locator('.docs-menu').getAttribute('open'), '', 'Desktop navigation opens when JavaScript is available');
       }
       if (item.source === 'docs/api/application.md') await page.screenshot({ path: `output/playwright/docs-first-screen-${width}.png` });
-      if (['docs/api/application.md', 'docs/guides/production.md', 'docs/guides/framework-migration.md'].includes(item.source)) await page.screenshot({ path: `output/playwright/${item.source.replaceAll('/', '-').replace('.md', '')}-${width}.png`, fullPage: true });
+      if (['docs/api/application.md', 'docs/guides/production.md', 'docs/guides/framework-migration.md', 'packages/test/readme.md', 'packages/test/guide.md'].includes(item.source)) await page.screenshot({ path: `output/playwright/${item.source.replaceAll('/', '-').replace('.md', '')}-${width}.png`, fullPage: true });
     }
   }
   await page.goto(`${base}/docs/`);
@@ -45,19 +54,27 @@ try {
     'Searching prepareStart returns the Application API page.');
   await search.fill('Migrate from another UI framework');
   await page.locator('.pagefind-ui__result-link[href$="/docs/guides/framework-migration/"]').first().waitFor();
+  for (const item of supplemental.pages) {
+    await search.fill(item.title);
+    const result = page.locator(`.pagefind-ui__result-link[href$="/${item.route}/"]`).first();
+    await result.waitFor();
+    assert.equal((await result.textContent()).trim(), item.title, 'Search indexes the published heading as its title');
+  }
   // Native disclosures keep reading, navigation and provenance usable without scripts.
   const staticPage = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
-  for (const route of ['/docs/api/region/', '/docs/agent-start/']) {
+  for (const route of ['/docs/api/region/', '/docs/agent-start/', ...supplemental.pages.map(item => `/${item.route}/`)]) {
     await staticPage.goto(`${base}${route}`);
     const heading = await staticPage.locator('.docs-prose h1').boundingBox();
     assert.ok(heading.y + heading.height < 844, `${route}: no-script mobile title fits the first screen`);
     assert.equal(await staticPage.locator('.docs-release').isVisible(), true);
     await staticPage.locator('.docs-source>summary').click();
     assert.equal(await staticPage.getByRole('link', { name: 'Read Markdown', exact: true }).isVisible(), true);
+    assert.ok(await staticPage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), `${route}: expanded source details fit the viewport`);
     const item = [...manifest.pages, ...supplemental.pages].find(item => `/${item.route}/` === route);
     const readingRevision = publication.edits.find(edit => edit.source === item?.source && edit.sourceRevision)?.sourceRevision || item?.sourceRevision || manifest.sourceRevision;
     const provenance = await staticPage.locator('.docs-version').textContent();
-    assert.ok(provenance.includes(manifest.sourceRevision.slice(0, 8)), `${route}: archive revision remains identified`);
+    const sourceRevision = item?.sourceRevision || manifest.sourceRevision;
+    assert.ok(provenance.includes(sourceRevision.slice(0, 8)), `${route}: the page's own source revision remains identified`);
     if (item) {
       assert.ok(provenance.includes(`Reading source: ${readingRevision}.`), `${route}: exact reading-copy revision is accessible without JavaScript`);
     } else {

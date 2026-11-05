@@ -96,18 +96,26 @@ test('publication overrides retain complete source identity without rewriting th
   const originals = JSON.parse(await read('content/library-docs/manifest.json'));
   const supplemental = JSON.parse(await read('content/supplemental-docs/manifest.json'));
   const pages = [...originals.pages, ...supplemental.pages];
+  const toolingRevision = 'f4cdda10bdd9a7c6f232f4bfeec4ff109a10de60';
   for (const edit of publication.edits) {
     assert.match(edit.sourceRevision, /^[a-f0-9]{40}$/);
     const archived = await read(`dist/docs/markdown/${edit.source}`);
     assert.equal(createHash('sha256').update(archived).digest('hex'),
-      originals.pages.find(page => page.source === edit.source).sha256, edit.source);
+      pages.find(page => page.source === edit.source).sha256, edit.source);
     assert.equal(edit.before, archived, edit.source);
-    const page = { ...originals.pages.find(page => page.source === edit.source), markdown: archived };
+    const page = { ...pages.find(page => page.source === edit.source), markdown: archived };
     assert.equal(publishedMarkdown(page), edit.after, edit.source);
     // Compare every byte of the delivered reading copy, including prose, while
     // allowing the documented link rewriting and provenance/footer additions.
     assert.equal(await read(`dist${markdownUrl(page)}`), deriveMarkdown(page, pages, originals), edit.source);
     assert.match(edit.sourceSha256, /^[a-f0-9]{64}$/);
+    if (edit.sourceRevision === (page.sourceRevision ?? originals.sourceRevision)) assert.equal(edit.sourceSha256, page.sha256, edit.source);
+    // Pin the reviewed tooling source bytes. Later synced revisions are checked
+    // against their Git objects by the reading-copy preparation gate.
+    if (edit.source === 'docs/tooling.md' && edit.sourceRevision === toolingRevision) {
+      const source = await read(`test/fixtures/docs-source/${toolingRevision}/docs/tooling.md`);
+      assert.equal(createHash('sha256').update(source).digest('hex'), edit.sourceSha256);
+    }
     assert.match(edit.readingSha256, /^[a-f0-9]{64}$/);
     assert.equal(createHash('sha256').update(edit.after).digest('hex'), edit.readingSha256);
   }

@@ -93,9 +93,11 @@ evidence remains in Git and case-study assets.
 
 ## Versioned integration
 
-This integration uses the exact published package pinned in `package-lock.json`
-across documentation, browser demos and workshops. Import consumer docs with `npm run docs:import -- /path/to/export`.
-Website and MCP retrieval use the same imported corpus and packaged records assets.
+The documentation archive, browser demos and workshops use the exact published
+package pinned in `package-lock.json`. Import consumer docs with `npm run docs:import -- /path/to/export`.
+Website retrieval includes reviewed reading-copy edits and supplemental guides;
+MCP retrieval serves only the immutable imported corpus. Both expose the same
+packaged records assets.
 Runtime version and revision come from the installed package's vendor provenance;
 `/docs/manifest.json` identifies the documentation snapshot. Builds do not publish
 the package, website, or MCP service.
@@ -403,9 +405,11 @@ within the imported snapshot. Code remains intact. Diagnostic schemas are hashed
 assets from the same export, rather than an independently maintained supplement.
 
 `content/docs-publication-edits.json` records publication status and any reviewed
-reading-copy changes separately. Website and MCP builds use the same corpus hashes
-and source identity. Their included records example comes from the same packaged
-source assets. The browser workshop identifies its exact runtime independently.
+reading-copy changes separately. The website corpus includes these reading copies
+and separately tracked supplemental guides. MCP serves only the immutable imported
+package artifact, with its own corpus hash and source identity. Both use the same
+packaged records source assets. The browser workshop identifies its exact runtime
+independently.
 
 Published documentation labels require a clean snapshot matching the installed npm
 archive, including its revision, content digest and locked registry integrity.

@@ -1,4 +1,21 @@
 {
   "schemaVersion": 1,
-  "pages": []
+  "pages": [
+    {
+      "source": "packages/test/readme.md",
+      "route": "docs/packages/test",
+      "title": "Testing helpers",
+      "section": "Development packages",
+      "sourceRevision": "8ed7f99e2c44d3093123dd0796d17416d4d541ad",
+      "sha256": "6fb2335b95e0e8e89edbf1822afa7cedda21b0399bad192517876e95c448fd76"
+    },
+    {
+      "source": "packages/test/guide.md",
+      "route": "docs/packages/test/guide",
+      "title": "Testing helper reference",
+      "section": "Development packages",
+      "sourceRevision": "8ed7f99e2c44d3093123dd0796d17416d4d541ad",
+      "sha256": "5100ac0281b20fed2d3856ca69ce8a0b11a4aa6c098fea7517b332192a80ef73"
+    }
+  ]
 }

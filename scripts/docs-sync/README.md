@@ -150,12 +150,15 @@ this candidate or update the hosted catalog outside that release process.
 `content/library-docs` remains the exact npm archive. New reviewed guides live in
 `content/supplemental-docs`, with route, title, section, exact framework source
 revision and SHA-256 in its manifest. Copy sources from Git objects at that revision;
-validate the resulting HTML, Markdown, navigation, search, discovery bundles and
-MCP before adopting the framework navigation revision in publication metadata.
+validate the resulting HTML, Markdown, navigation, search and discovery bundles
+before adopting the framework navigation revision in publication metadata.
 These guides join the same reading-copy sync; future source updates use each
 guide’s recorded revision and publication overlays, without rewriting its base.
-The served `/docs/supplemental-manifest.json` and per-document MCP metadata retain
-this identity separately from the package archive and runtime revision.
+The served `/docs/supplemental-manifest.json` and per-document website corpus
+metadata retain this identity separately from the package archive and runtime
+revision. MCP serves the immutable package artifact, so supplemental guides and
+website reading-copy edits are not part of its corpus. Validate HTTP/stdio MCP
+parity against that archive; a later published-package import can extend it.
 
 Website-only title edits live in `content/docs-publication-edits.json` under
 `titles`, with source, original title, and published title. They are applied to

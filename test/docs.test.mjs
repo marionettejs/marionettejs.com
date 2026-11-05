@@ -240,6 +240,8 @@ test('release-rebased source revisions resolve relative and branch links without
     [`${base}${manifest.sourceRevision}/docs/readme.md`, `${base}${manifest.sourceRevision}/docs/readme.md`],
     [`${base}${'a'.repeat(40)}/test/routing-check.mjs`, `${base}${'a'.repeat(40)}/test/routing-check.mjs`],
     [`${base}master/test/routing-check.mjs`, `${base}${revision}/test/routing-check.mjs`],
+    [`${manifest.sourceRepository}/tree/master/packages/test/examples`, `${manifest.sourceRepository}/tree/${revision}/packages/test/examples`],
+    [`${manifest.sourceRepository}/tree/${'b'.repeat(40)}/packages/test/examples`, `${manifest.sourceRepository}/tree/${'b'.repeat(40)}/packages/test/examples`],
     ['../../test/routing-check.mjs', `${base}${revision}/test/routing-check.mjs`],
   ];
   const sample = { ...page, markdown: page.markdown + links.map(([href], index) => `\n[Example ${index}](${href})\n`).join('') };

@@ -20,7 +20,7 @@ const tasks = [
   ['Migrate an existing application', ['guides/framework-migration', 'guides/migration', 'api'], 'Read migration contracts and the modular API references.'],
 ];
 
-export const bundleGroups = { start: ['Start here'], guides: ['Guides', 'Development tools'], integrations: ['Integration guides', 'Runtime configuration', 'Provider interfaces', 'Companion packages'], reference: ['Core classes', 'Shared class contracts', 'Diagnostics'] };
+export const bundleGroups = { start: ['Start here'], guides: ['Guides', 'Development tools', 'Development packages'], integrations: ['Integration guides', 'Runtime configuration', 'Provider interfaces', 'Companion packages'], reference: ['Core classes', 'Shared class contracts', 'Diagnostics'] };
 
 export function validateDiscoveryRoutes(pages, groups = bundleGroups) {
   const routes = new Set(pages.map(page => page.route));

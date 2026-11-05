@@ -7,6 +7,8 @@ import { createHash } from 'node:crypto';
 import { readSnapshot, readSupplementalPages } from '../scripts/library-docs.mjs';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
+import { loadSnapshot } from '../mcp/load.mjs';
+import { readingRevision } from '../scripts/published-docs.mjs';
 const source = 'docs/guides/framework-migration.md';
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const read = path => readFile(new URL('../' + path, import.meta.url), 'utf8');
@@ -15,7 +17,7 @@ test('stable migration guide comes from the package and is available through web
   const { manifest, pages } = await readSnapshot('content/library-docs');
   const guide = pages.find(page => page.source === source);
   assert.ok(guide);
-  assert.deepEqual(await readSupplementalPages('content/supplemental-docs', pages), []);
+  assert.ok(!(await readSupplementalPages('content/supplemental-docs', pages)).some(page => page.source === source));
   assert.equal(await read('dist/docs/markdown/' + source), guide.markdown);
   const html = await read('dist/docs/guides/framework-migration/index.html');
   assert.ok(html.includes('Migrate from another UI framework'));
@@ -65,4 +67,69 @@ test('supplemental sources allow an empty manifest but reject corrupt bytes and 
   await writeFile(manifestPath, manifest);
   await writeFile(join(directory, source), '# Changed content\n');
   await assert.rejects(readSupplementalPages(directory, []), /hash mismatch/);
+});
+
+test('testing helper guides retain separate provenance across website delivery without changing the MCP archive', async () => {
+  const { manifest, pages } = await readSnapshot('content/library-docs');
+  const supplemental = await readSupplementalPages('content/supplemental-docs', pages);
+  assert.deepEqual(supplemental.map(page => page.source), ['packages/test/readme.md', 'packages/test/guide.md']);
+  const corpus = JSON.parse(await read('dist/docs/corpus.json'));
+  const mcp = await loadSnapshot();
+  const worker = JSON.parse(await read('output/mcp/snapshot.json'));
+  const index = await read('dist/docs/llms.txt');
+  const bundle = await read('dist/docs/bundles/guides.txt');
+  const full = await read('dist/llms-full.txt');
+  for (const page of supplemental) {
+    assert.equal(page.section, 'Development packages');
+    assert.equal(page.sourceRevision, '8ed7f99e2c44d3093123dd0796d17416d4d541ad');
+    assert.equal(await read(`dist/docs/markdown/${page.source}`), page.markdown);
+    const html = await read(`dist/${page.route}/index.html`);
+    assert.ok(html.includes(`href="/${page.route}/" aria-current="page"`));
+    assert.ok(html.includes('href="/docs/supplemental-manifest.json"'));
+    assert.ok(html.includes(`Reading source: ${readingRevision(page, manifest)}.`));
+    assert.ok(html.includes('<span class="docs-release">Supplemental guide</span>'));
+    const provenance = html.match(/<p class="docs-version">([^<]+)<\/p>/)[1];
+    assert.ok(provenance.includes(`Source snapshot: ${page.sourceRevision}.`));
+    assert.ok(!provenance.includes(manifest.packageVersion));
+    assert.ok(!provenance.includes(manifest.sourceRevision.slice(0, 8)));
+    assert.equal(html.match(/<h1[^>]*>([^<]+)<a /)[1], page.title);
+    const markdown = await read(`dist/${page.route}.md`);
+    assert.match(markdown, /^<!-- Supplemental documentation:/);
+    assert.equal(markdown.match(/^# (.+)$/m)[1], page.title);
+    for (const text of [index, bundle, full]) assert.ok(text.includes(`/${page.route}.md`));
+    for (const text of [bundle, full]) assert.ok(text.includes(markdown));
+    const document = corpus.documents.find(item => item.id === page.source);
+    assert.equal(document.markdown, markdown);
+    assert.equal(document.title, page.title);
+    assert.equal(document.sourceRevision, readingRevision(page, manifest));
+    assert.equal(document.sourceSha256, hash(page.markdown));
+    assert.equal(document.sha256, hash(markdown));
+    assert.ok(!manifest.pages.some(item => item.source === page.source));
+    assert.ok(!mcp.documents.some(item => item.id === page.source));
+  }
+  const overview = await read('dist/docs/packages/test.md');
+  const reference = await read('dist/docs/packages/test/guide.md');
+  assert.ok(overview.includes('(/docs/packages/test/guide.md#mocha-use-the-core)'));
+  assert.ok(reference.includes('(/docs/packages/test.md#install)'));
+  assert.doesNotMatch(reference, /ownership candidate|packed minimum profile|archive digest/);
+  assert.match(reference, /Vitest `>=4\.1\.0`/);
+  for (const markdown of [overview, reference]) {
+    assert.match(markdown, /skipped start, not cancellation/);
+    assert.match(markdown, /Promise returned[\s\S]*?`app\.start\(\)`/);
+  }
+  assert.ok(reference.includes(`/tree/${readingRevision(supplemental[1], manifest)}/packages/test/examples`));
+  assert.ok(reference.includes(`/blob/${readingRevision(supplemental[1], manifest)}/packages/test/examples/form.spec.js`));
+  assert.doesNotMatch(reference, /github\.com\/marionettejs\/marionette\/(?:tree|blob)\/master\//);
+  assert.deepEqual(worker.documents, mcp.documents);
+  assert.equal(mcp.provenance.sourceRevision, manifest.sourceRevision);
+  assert.equal(mcp.provenance.corpusKind, 'package-artifact');
+  assert.deepEqual(JSON.parse(await read('dist/docs/manifest.json')), manifest);
+});
+
+test('supplemental package selection rejects unselected package Markdown', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'supplemental-selection-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const entry = { source: 'packages/test/internal.md', route: 'docs/packages/test/internal', title: 'Internal', section: 'Development packages', sourceRevision: 'a'.repeat(40), sha256: hash('# Internal\n') };
+  await writeFile(join(directory, 'manifest.json'), JSON.stringify({ schemaVersion: 1, pages: [entry] }));
+  await assert.rejects(readSupplementalPages(directory, []), /Invalid supplemental/);
 });
