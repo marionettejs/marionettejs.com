@@ -102,6 +102,8 @@ test('testing helper guides retain separate provenance across website delivery w
   const reference = await read('dist/docs/packages/test/guide.md');
   assert.ok(overview.includes('(/docs/packages/test/guide.md#mocha-use-the-core)'));
   assert.ok(reference.includes('(/docs/packages/test.md#install)'));
+  assert.doesNotMatch(reference, /ownership candidate|packed minimum profile|archive digest/);
+  assert.match(reference, /Vitest `>=4\.1\.0`/);
   assert.deepEqual(worker.documents, mcp.documents);
   assert.equal(mcp.provenance.sourceRevision, manifest.sourceRevision);
   assert.equal(mcp.provenance.corpusKind, 'package-artifact');
