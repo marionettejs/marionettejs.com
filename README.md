@@ -93,9 +93,11 @@ evidence remains in Git and case-study assets.
 
 ## Versioned integration
 
-This integration uses the exact published package pinned in `package-lock.json`
-across documentation, browser demos and workshops. Import consumer docs with `npm run docs:import -- /path/to/export`.
-Website and MCP retrieval use the same imported corpus and packaged records assets.
+The documentation archive, browser demos and workshops use the exact published
+package pinned in `package-lock.json`. Import consumer docs with `npm run docs:import -- /path/to/export`.
+Website retrieval includes reviewed reading-copy edits and supplemental guides;
+MCP retrieval serves only the immutable imported corpus. Both expose the same
+packaged records assets.
 Runtime version and revision come from the installed package's vendor provenance;
 `/docs/manifest.json` identifies the documentation snapshot. Builds do not publish
 the package, website, or MCP service.
