@@ -43,9 +43,17 @@ try {
         assert.equal(await page.locator('.docs-menu').getAttribute('open'), '', 'Desktop navigation opens when JavaScript is available');
       }
       if (item.source === 'docs/api/application.md') await page.screenshot({ path: `output/playwright/docs-first-screen-${width}.png` });
-      if (['docs/api/application.md', 'docs/guides/production.md', 'docs/guides/framework-migration.md', 'packages/test/readme.md', 'packages/test/guide.md'].includes(item.source)) await page.screenshot({ path: `output/playwright/${item.source.replaceAll('/', '-').replace('.md', '')}-${width}.png`, fullPage: true });
+      if (['docs/api/application.md', 'docs/guides/production.md', 'docs/guides/framework-migration.md', 'docs/guides/testing.md', 'packages/test/readme.md', 'packages/test/guide.md'].includes(item.source)) await page.screenshot({ path: `output/playwright/${item.source.replaceAll('/', '-').replace('.md', '')}-${width}.png`, fullPage: true });
     }
   }
+  await page.goto(`${base}/docs/guides/testing/`);
+  const helperOverview = page.locator('.docs-prose').getByRole('link', { name: '@mnjs/test development package', exact: true });
+  assert.equal(await helperOverview.getAttribute('href'), '/docs/packages/test/');
+  await helperOverview.click();
+  assert.equal(new URL(page.url()).pathname, '/docs/packages/test/');
+  await page.goBack();
+  await page.locator('.docs-prose').getByRole('link', { name: 'helper reference', exact: true }).click();
+  assert.equal(new URL(page.url()).pathname, '/docs/packages/test/guide/');
   await page.goto(`${base}/docs/`);
   const search = page.getByRole('textbox', { name: 'Search', exact: true });
   await search.fill('prepareStart');
@@ -62,10 +70,14 @@ try {
   }
   // Native disclosures keep reading, navigation and provenance usable without scripts.
   const staticPage = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
-  for (const route of ['/docs/api/region/', '/docs/agent-start/', ...supplemental.pages.map(item => `/${item.route}/`)]) {
+  for (const route of ['/docs/api/region/', '/docs/agent-start/', '/docs/guides/testing/', ...supplemental.pages.map(item => `/${item.route}/`)]) {
     await staticPage.goto(`${base}${route}`);
     const heading = await staticPage.locator('.docs-prose h1').boundingBox();
     assert.ok(heading.y + heading.height < 844, `${route}: no-script mobile title fits the first screen`);
+    if (route === '/docs/guides/testing/') {
+      assert.equal(await staticPage.locator('.docs-prose').getByRole('link', { name: '@mnjs/test development package', exact: true }).getAttribute('href'), '/docs/packages/test/');
+      assert.equal(await staticPage.locator('.docs-prose').getByRole('link', { name: 'helper reference', exact: true }).getAttribute('href'), '/docs/packages/test/guide/');
+    }
     assert.equal(await staticPage.locator('.docs-release').isVisible(), true);
     await staticPage.locator('.docs-source>summary').click();
     assert.equal(await staticPage.getByRole('link', { name: 'Read Markdown', exact: true }).isVisible(), true);
