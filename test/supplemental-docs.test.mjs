@@ -8,6 +8,7 @@ import { readSnapshot, readSupplementalPages } from '../scripts/library-docs.mjs
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { loadSnapshot } from '../mcp/load.mjs';
+import { readingRevision } from '../scripts/published-docs.mjs';
 const source = 'docs/guides/framework-migration.md';
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const read = path => readFile(new URL('../' + path, import.meta.url), 'utf8');
@@ -80,18 +81,18 @@ test('testing helper guides retain separate provenance across website delivery w
   const full = await read('dist/llms-full.txt');
   for (const page of supplemental) {
     assert.equal(page.section, 'Development packages');
-    assert.equal(page.sourceRevision, 'f4cdda10bdd9a7c6f232f4bfeec4ff109a10de60');
+    assert.equal(page.sourceRevision, '8ed7f99e2c44d3093123dd0796d17416d4d541ad');
     assert.equal(await read(`dist/docs/markdown/${page.source}`), page.markdown);
     const html = await read(`dist/${page.route}/index.html`);
     assert.ok(html.includes(`href="/${page.route}/" aria-current="page"`));
     assert.ok(html.includes('href="/docs/supplemental-manifest.json"'));
-    assert.ok(html.includes(`Reading source: ${page.sourceRevision}.`));
+    assert.ok(html.includes(`Reading source: ${readingRevision(page, manifest)}.`));
     const markdown = await read(`dist/${page.route}.md`);
     for (const text of [index, bundle, full]) assert.ok(text.includes(`/${page.route}.md`));
     for (const text of [bundle, full]) assert.ok(text.includes(markdown));
     const document = corpus.documents.find(item => item.id === page.source);
     assert.equal(document.markdown, markdown);
-    assert.equal(document.sourceRevision, page.sourceRevision);
+    assert.equal(document.sourceRevision, readingRevision(page, manifest));
     assert.equal(document.sourceSha256, hash(page.markdown));
     assert.equal(document.sha256, hash(markdown));
     assert.ok(!manifest.pages.some(item => item.source === page.source));

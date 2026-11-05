@@ -6,16 +6,16 @@
       "route": "docs/packages/test",
       "title": "Testing helpers",
       "section": "Development packages",
-      "sourceRevision": "f4cdda10bdd9a7c6f232f4bfeec4ff109a10de60",
-      "sha256": "7c59fd93a3e4d8f85e00bf9af58cc72a1f6f9c5cd7ae4b285b0bce97380769de"
+      "sourceRevision": "8ed7f99e2c44d3093123dd0796d17416d4d541ad",
+      "sha256": "6fb2335b95e0e8e89edbf1822afa7cedda21b0399bad192517876e95c448fd76"
     },
     {
       "source": "packages/test/guide.md",
       "route": "docs/packages/test/guide",
       "title": "Testing helper reference",
       "section": "Development packages",
-      "sourceRevision": "f4cdda10bdd9a7c6f232f4bfeec4ff109a10de60",
-      "sha256": "23c67a2d8c40626788127964b2df4bc419e15e72e30cf05a8e7f0cdb07c99eea"
+      "sourceRevision": "8ed7f99e2c44d3093123dd0796d17416d4d541ad",
+      "sha256": "5100ac0281b20fed2d3856ca69ce8a0b11a4aa6c098fea7517b332192a80ef73"
     }
   ]
 }
