@@ -1,6 +1,6 @@
 import { escapeHtml as escape } from '../../scripts/html.mjs';
 
-const evidence = 'https://github.com/paulfalgout/marionette-realworld-example-app/blob/6d69d2510f26c46f14435569a81b604fb0cdc99d/evaluations/2026-10-10';
+const evidence = 'https://github.com/marionettejs/marionette-realworld-example-app/blob/6d69d2510f26c46f14435569a81b604fb0cdc99d/evaluations/2026-10-10';
 export const maintenanceResearch = {
   title: 'Can an agent maintain another agent’s app?',
   description: 'A fresh agent extended a real Marionette app, kept its inherited tests intact, and passed 44 browser checks. A bounded study of maintenance, handoff, and lifecycle repair.',
@@ -55,7 +55,7 @@ export const maintenanceResearchPage = {
         <p>Gemini 3.8 Flash High at high effort, a fixed runner, published Marionette 5.0.0 packages and matching docs, in Chromium with local fixtures. The handoff used the installed official skill and read-only documentation MCP. Acceptance cases were withheld, without implementation hints, evaluator feedback or silent retries.</p>
         <p>The full record includes the earlier attempts: the first feature passed baseline and withheld checks but failed three author tests; the next extension changed protected tests and was rejected before behavior grading; two original attempts stopped at provider quota. The additional lifecycle attempt is separate from those four.</p>
         <p>The lifecycle checks covered stale loads and errors. Stop and destroy released resources synchronously; the borrowed state source survived destruction. A retained restart had the expected single subscription and heartbeat pair.</p>
-        <p id="race">A later <strong>unscored</strong> probe found an agent-written controller race: a canceled restart cleared a newer restart’s flag, letting refresh abort its load. This was outside the eleven scored checks; their original result is unchanged. See the <a href="${evidence}/observations/restart-race.json">observation</a> and <a href="https://github.com/paulfalgout/marionette-realworld-example-app/issues/2">open regression</a>.</p>
+        <p id="race">A later <strong>unscored</strong> probe found an agent-written controller race: a canceled restart cleared a newer restart’s flag, letting refresh abort its load. This was outside the eleven scored checks; their original result is unchanged. See the <a href="${evidence}/observations/restart-race.json">observation</a> and <a href="${evidence}/restart-race.mjs">regression reproducer</a>.</p>
         <p>Supporting checks passed 30 native state tests; lint caught four deliberately invalid examples and cleared five valid ones. Review noted duplicated filtering work and an unverified refresh-focus case. This bounded study does not compare frameworks or measure speed, event counts, heap retention, live backends, other browsers or broader models.</p>
       </details>
       <p class="news-research-takeaway">Give the next agent real code, readable contracts and tests it must preserve. Then check its work. Instructions included; verification still required.</p>
