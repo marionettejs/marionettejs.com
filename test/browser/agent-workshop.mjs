@@ -5,6 +5,7 @@ import { staticServer } from './static-server.mjs';
 import { readFile, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import AdmZip from 'adm-zip';
 import { chromium } from 'playwright';
 import { recipes, recipeRuntime } from '../../site/assets/playground-recipes.js';
 import { starter } from '../../site/assets/playground-runtime.js';
@@ -419,7 +420,7 @@ Victory.prototype.onRender = function () {
   const download = await downloadEvent;
   const exportDirectory = resolve(root, 'downloaded-project');
   await mkdir(exportDirectory, { recursive: true });
-  execFileSync('unzip', ['-oq', await download.path(), '-d', exportDirectory]);
+  new AdmZip(await download.path()).extractAllTo(exportDirectory, true);
   assert.match(await readFile(resolve(exportDirectory, 'app.js'), 'utf8'), /import \{ Radio \} from '\.\/radio-view.js'/);
   const exported = await browser.newPage();
   await exported.goto(`${base}/downloaded-project/`);

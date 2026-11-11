@@ -376,6 +376,9 @@ The verification workflow runs all Node, MCP, HTTP and browser checks in the
 and registry digest. Browsers and OS dependencies are already installed; a launch
 check verifies Chromium before the unchanged browser suites run. The job uses UID
 and GID 1001, default container security settings, and the existing Node 24 setup.
+The download/export regression uses pinned `adm-zip` for independent ZIP extraction
+and keeps its content and browser-execution assertions, without requiring a host
+`unzip` executable.
 When upgrading Playwright, update the image tag and verified registry digest in
 `.github/workflows/check.yml` together with the package lock. The version-alignment
 test rejects package/image drift. Validate the full hosted job after an image
