@@ -365,10 +365,21 @@ npm run test:browser
 ```
 
 `test:browser` serves the existing `dist/` on an ephemeral loopback port, so rebuild
-it after source changes. On Linux CI use `npx playwright install --with-deps chromium`.
+it after source changes. A bare Linux environment also needs Playwright's system
+dependencies (`npx playwright install --with-deps chromium`).
 It runs pinned Chromium with experimental web-platform features for native WebMCP,
 fails on behavioral assertions, and writes a screenshot to `output/playwright/`.
 The browser command is separate from the Node checks; it needs Chromium installed.
+
+The verification workflow runs all Node, MCP, HTTP and browser checks in the
+[official Playwright image](https://playwright.dev/docs/docker), pinned by version
+and registry digest. Browsers and OS dependencies are already installed; a launch
+check verifies Chromium before the unchanged browser suites run. The job uses UID
+and GID 1001, default container security settings, and the existing Node 24 setup.
+When upgrading Playwright, update the image tag and verified registry digest in
+`.github/workflows/check.yml` together with the package lock. The version-alignment
+test rejects package/image drift. Validate the full hosted job after an image
+update; a local browser pass does not certify the container or GitHub Actions.
 
 For the ownership regression, after building and starting the preview, run:
 
