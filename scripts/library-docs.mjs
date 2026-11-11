@@ -65,7 +65,7 @@ export async function readSupplementalPages(directory, archivedPages) {
   const base = await realpath(directory);
   const pages = [];
   for (const page of manifest.pages) {
-    const consumerSource = typeof page.source === 'string' && (page.source.startsWith('docs/') || ['packages/test/readme.md', 'packages/test/guide.md'].includes(page.source));
+    const consumerSource = typeof page.source === 'string' && (page.source.startsWith('docs/') || ['packages/test/readme.md', 'packages/test/guide.md', 'packages/html/guide.md'].includes(page.source));
     if (!safePath(page.source) || !consumerSource || !page.source.endsWith('.md') ||
         !safePath(page.route) || !page.route.startsWith('docs/') || sources.has(page.source) || routes.has(page.route) ||
         typeof page.title !== 'string' || typeof page.section !== 'string' || !/^[a-f0-9]{40}$/.test(page.sourceRevision)) throw new Error('Invalid supplemental documentation page.');
@@ -153,7 +153,7 @@ function adjacentPages(page, pages) {
 // Use the existing guide's first explanatory paragraph for search previews;
 // navigation rows and source/provenance details are not a reader summary.
 export function documentationDescription(page, version) {
-  const paragraphs = Lexer.lex(page.markdown).filter(token => token.type === 'paragraph' && !token.text.startsWith('[API index]'));
+  const paragraphs = Lexer.lex(publishedMarkdown(page)).filter(token => token.type === 'paragraph' && !token.text.startsWith('[API index]'));
   for (const paragraph of paragraphs) {
     // Skip link-only navigation regardless of its labels or length.
     const prose = paragraph.tokens.filter(token => !['link', 'image'].includes(token.type)).map(token => token.raw).join('').replace(/<[^>]*>/g, '');

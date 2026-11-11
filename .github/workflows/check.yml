@@ -12,6 +12,10 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    container:
+      # Keep this version and digest aligned with package-lock.json's Playwright.
+      image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+      options: --user 1001:1001
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -24,8 +28,8 @@ jobs:
       - run: npm run check
       - name: Read documentation through HTTP
         run: node scripts/check-agent-site.mjs --local --report output/agent-retrieval.json
-      - name: Install browser
-        run: npx --no-install playwright install --with-deps chromium
+      - name: Verify provisioned browser
+        run: node --input-type=module -e "import { chromium } from 'playwright'; const browser = await chromium.launch(); console.log('Chromium', browser.version()); await browser.close();"
       - name: Verify real workshop behavior
         run: npm run test:browser
       - name: Verify standard analytics and visitor opt-outs

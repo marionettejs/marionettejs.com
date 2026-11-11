@@ -4,7 +4,7 @@ import { readFile, mkdir, mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
-import { readSnapshot, readSupplementalPages } from '../scripts/library-docs.mjs';
+import { readSnapshot, readSupplementalPages, deriveMarkdown } from '../scripts/library-docs.mjs';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { loadSnapshot } from '../mcp/load.mjs';
@@ -69,19 +69,28 @@ test('supplemental sources allow an empty manifest but reject corrupt bytes and 
   await assert.rejects(readSupplementalPages(directory, []), /hash mismatch/);
 });
 
-test('testing helper guides retain separate provenance across website delivery without changing the MCP archive', async () => {
+test('supplemental guides retain their own provenance, bundle and title without changing the MCP archive', async () => {
   const { manifest, pages } = await readSnapshot('content/library-docs');
   const supplemental = await readSupplementalPages('content/supplemental-docs', pages);
-  assert.deepEqual(supplemental.map(page => page.source), ['packages/test/readme.md', 'packages/test/guide.md']);
+  const expected = new Map([
+    ['packages/test/readme.md', { section: 'Development packages', revision: '8ed7f99e2c44d3093123dd0796d17416d4d541ad', bundle: 'guides' }],
+    ['packages/test/guide.md', { section: 'Development packages', revision: '8ed7f99e2c44d3093123dd0796d17416d4d541ad', bundle: 'guides' }],
+    ['packages/html/guide.md', { section: 'Companion packages', revision: '679dea933515da69a689a012eeeaaa9f184b493c', sha256: '650a0a645f7ed40212fe4685c3bade7c2716abbcda7cfe93ee5535b15bedc27b', bundle: 'integrations' }],
+  ]);
+  assert.deepEqual(supplemental.map(page => page.source), [...expected.keys()]);
+  const publication = JSON.parse(await read('dist/docs/publication.json'));
   const corpus = JSON.parse(await read('dist/docs/corpus.json'));
   const mcp = await loadSnapshot();
   const worker = JSON.parse(await read('output/mcp/snapshot.json'));
   const index = await read('dist/docs/llms.txt');
-  const bundle = await read('dist/docs/bundles/guides.txt');
   const full = await read('dist/llms-full.txt');
   for (const page of supplemental) {
-    assert.equal(page.section, 'Development packages');
-    assert.equal(page.sourceRevision, '8ed7f99e2c44d3093123dd0796d17416d4d541ad');
+    const selection = expected.get(page.source);
+    const title = publication.titles.find(edit => edit.source === page.source)?.after || page.title;
+    const bundle = await read(`dist/docs/bundles/${selection.bundle}.txt`);
+    assert.equal(page.section, selection.section);
+    assert.equal(page.sourceRevision, selection.revision);
+    if (selection.sha256) assert.equal(page.sha256, selection.sha256);
     assert.equal(await read(`dist/docs/markdown/${page.source}`), page.markdown);
     const html = await read(`dist/${page.route}/index.html`);
     assert.ok(html.includes(`href="/${page.route}/" aria-current="page"`));
@@ -92,21 +101,31 @@ test('testing helper guides retain separate provenance across website delivery w
     assert.ok(provenance.includes(`Source snapshot: ${page.sourceRevision}.`));
     assert.ok(!provenance.includes(manifest.packageVersion));
     assert.ok(!provenance.includes(manifest.sourceRevision.slice(0, 8)));
-    assert.equal(html.match(/<h1[^>]*>([^<]+)<a /)[1], page.title);
+    assert.equal(html.match(/<h1[^>]*>([^<]+)<a /)[1], title);
     const markdown = await read(`dist/${page.route}.md`);
     assert.match(markdown, /^<!-- Supplemental documentation:/);
-    assert.equal(markdown.match(/^# (.+)$/m)[1], page.title);
+    assert.equal(markdown.match(/^# (.+)$/m)[1], title);
     for (const text of [index, bundle, full]) assert.ok(text.includes(`/${page.route}.md`));
     for (const text of [bundle, full]) assert.ok(text.includes(markdown));
     const document = corpus.documents.find(item => item.id === page.source);
     assert.equal(document.markdown, markdown);
-    assert.equal(document.title, page.title);
+    assert.equal(document.title, title);
     assert.equal(document.sourceRevision, readingRevision(page, manifest));
     assert.equal(document.sourceSha256, hash(page.markdown));
     assert.equal(document.sha256, hash(markdown));
     assert.ok(!manifest.pages.some(item => item.source === page.source));
     assert.ok(!mcp.documents.some(item => item.id === page.source));
   }
+  const htmlGuide = supplemental.find(page => page.source === 'packages/html/guide.md');
+  const htmlReading = await read('dist/docs/packages/html.md');
+  assert.equal(htmlReading, deriveMarkdown(htmlGuide, [...pages, ...supplemental], manifest));
+  for (const text of [htmlReading, await read(`dist/${htmlGuide.route}/index.html`), await read('dist/docs/bundles/integrations.txt'), full]) {
+    assert.match(text, /Version 1\.0\.0 is published on npm\./);
+    assert.match(text, /npm install --save-exact @mnjs\/html@1\.0\.0/);
+    assert.doesNotMatch(text, /unpublished package candidate|\/path\/to\/mnjs-html-1\.0\.0\.tgz|before packing a local archive/);
+  }
+  assert.ok(!(await read('dist/docs/bundles/guides.txt')).includes(htmlReading));
+  assert.ok((await read('dist/sitemap.xml')).includes('/docs/packages/html/'));
   const overview = await read('dist/docs/packages/test.md');
   const reference = await read('dist/docs/packages/test/guide.md');
   assert.ok(overview.includes('(/docs/packages/test/guide.md#mocha-use-the-core)'));
@@ -130,6 +149,8 @@ test('supplemental package selection rejects unselected package Markdown', async
   const directory = await mkdtemp(join(tmpdir(), 'supplemental-selection-'));
   t.after(() => rm(directory, { recursive: true, force: true }));
   const entry = { source: 'packages/test/internal.md', route: 'docs/packages/test/internal', title: 'Internal', section: 'Development packages', sourceRevision: 'a'.repeat(40), sha256: hash('# Internal\n') };
-  await writeFile(join(directory, 'manifest.json'), JSON.stringify({ schemaVersion: 1, pages: [entry] }));
-  await assert.rejects(readSupplementalPages(directory, []), /Invalid supplemental/);
+  for (const source of ['packages/test/internal.md', 'packages/html/internal.md']) {
+    await writeFile(join(directory, 'manifest.json'), JSON.stringify({ schemaVersion: 1, pages: [{ ...entry, source }] }));
+    await assert.rejects(readSupplementalPages(directory, []), /Invalid supplemental/);
+  }
 });

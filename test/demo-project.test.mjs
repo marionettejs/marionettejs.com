@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import AdmZip from 'adm-zip';
 import { compileProject, projectArchive, inspectSource } from '../tools/demo-project.js';
 import { recipes, recipeRuntime } from '../site/assets/playground-recipes.js';
 
@@ -39,7 +40,18 @@ for (const recipe of recipes) {
     }
     const archive=projectArchive(input,'export const View = {};','MIT');
     assert.equal(archive.type,'application/zip');
-    assert.equal(new DataView(await archive.arrayBuffer()).getUint32(0,true),0x04034b50);
+    const bytes = Buffer.from(await archive.arrayBuffer());
+    assert.equal(bytes.readUInt32LE(0),0x04034b50);
+    const zip = new AdmZip(bytes);
+    for (const [file, source] of Object.entries(input.files)) assert.equal(zip.readAsText(file), source);
+    assert.equal(zip.readAsText('vendor/marionette.js'), 'export const View = {};');
+    assert.equal(zip.readAsText('vendor/LICENSE.txt'), 'MIT');
+    // The independent reader must reject a changed payload with its original CRC.
+    const corrupt = Buffer.from(bytes);
+    const nameLength = corrupt.readUInt16LE(26);
+    const firstName = corrupt.subarray(30, 30 + nameLength).toString('utf8');
+    corrupt[30 + nameLength + corrupt.readUInt16LE(28)] ^= 1;
+    assert.throws(() => new AdmZip(corrupt).getEntry(firstName).getData(), /CRC/);
   });
 }
 

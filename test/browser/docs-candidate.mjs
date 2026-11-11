@@ -8,6 +8,7 @@ const root = resolve('dist');
 const manifest = JSON.parse(await readFile(resolve(root, 'docs/manifest.json'), 'utf8'));
 const supplemental = JSON.parse(await readFile(resolve(root, 'docs/supplemental-manifest.json'), 'utf8'));
 const publication = JSON.parse(await readFile(resolve(root, 'docs/publication.json'), 'utf8'));
+const publishedTitle = item => publication.titles?.find(edit => edit.source === item.source)?.after || item.title;
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.png': 'image/png' };
 const { base, close } = await staticServer({ root, types, fallbackType: 'text/plain' });
 const browser = await chromium.launch({ headless: true });
@@ -24,6 +25,12 @@ try {
       const response = await page.goto(`${base}/${item.route}/`);
       assert.equal(response.status(), 200, item.source);
       assert.equal(await page.locator('.docs-prose h1').count(), 1, item.source);
+      if (item.source === 'packages/html/guide.md') {
+        const prose = await page.locator('.docs-prose').textContent();
+        assert.match(prose, /Version 1\.0\.0 is published on npm\./);
+        assert.equal((await page.locator('.docs-prose pre code').first().textContent()).trim(), 'npm install --save-exact @mnjs/html@1.0.0');
+        assert.doesNotMatch(prose, /unpublished package candidate|\/path\/to\/mnjs-html/);
+      }
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, `${item.source} at ${width}px`);
       const provenance = await page.locator('.docs-version').textContent();
       if (item.sourceRevision) {
@@ -31,7 +38,7 @@ try {
         assert.ok(provenance.includes(`Source snapshot: ${item.sourceRevision}.`));
         assert.ok(!provenance.includes(manifest.packageVersion));
         const heading = await page.locator('.docs-prose h1').textContent();
-        assert.equal(heading.replace(/#$/, '').trim(), item.title);
+        assert.equal(heading.replace(/#$/, '').trim(), publishedTitle(item));
       } else {
         assert.ok(provenance.includes(manifest.packageVersion));
       }
@@ -43,7 +50,7 @@ try {
         assert.equal(await page.locator('.docs-menu').getAttribute('open'), '', 'Desktop navigation opens when JavaScript is available');
       }
       if (item.source === 'docs/api/application.md') await page.screenshot({ path: `output/playwright/docs-first-screen-${width}.png` });
-      if (['docs/api/application.md', 'docs/guides/production.md', 'docs/guides/framework-migration.md', 'docs/guides/testing.md', 'packages/test/readme.md', 'packages/test/guide.md'].includes(item.source)) await page.screenshot({ path: `output/playwright/${item.source.replaceAll('/', '-').replace('.md', '')}-${width}.png`, fullPage: true });
+      if (['docs/api/application.md', 'docs/guides/production.md', 'docs/guides/framework-migration.md', 'docs/guides/testing.md', 'packages/test/readme.md', 'packages/test/guide.md', 'packages/html/guide.md'].includes(item.source)) await page.screenshot({ path: `output/playwright/${item.source.replaceAll('/', '-').replace('.md', '')}-${width}.png`, fullPage: true });
     }
   }
   await page.goto(`${base}/docs/guides/testing/`);
@@ -63,10 +70,10 @@ try {
   await search.fill('Migrate from another UI framework');
   await page.locator('.pagefind-ui__result-link[href$="/docs/guides/framework-migration/"]').first().waitFor();
   for (const item of supplemental.pages) {
-    await search.fill(item.title);
+    await search.fill(publishedTitle(item));
     const result = page.locator(`.pagefind-ui__result-link[href$="/${item.route}/"]`).first();
     await result.waitFor();
-    assert.equal((await result.textContent()).trim(), item.title, 'Search indexes the published heading as its title');
+    assert.equal((await result.textContent()).trim(), publishedTitle(item), 'Search indexes the published heading as its title');
   }
   // Native disclosures keep reading, navigation and provenance usable without scripts.
   const staticPage = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
