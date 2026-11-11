@@ -25,6 +25,12 @@ try {
       const response = await page.goto(`${base}/${item.route}/`);
       assert.equal(response.status(), 200, item.source);
       assert.equal(await page.locator('.docs-prose h1').count(), 1, item.source);
+      if (item.source === 'packages/html/guide.md') {
+        const prose = await page.locator('.docs-prose').textContent();
+        assert.match(prose, /Version 1\.0\.0 is published on npm\./);
+        assert.equal((await page.locator('.docs-prose pre code').first().textContent()).trim(), 'npm install --save-exact @mnjs/html@1.0.0');
+        assert.doesNotMatch(prose, /unpublished package candidate|\/path\/to\/mnjs-html/);
+      }
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, `${item.source} at ${width}px`);
       const provenance = await page.locator('.docs-version').textContent();
       if (item.sourceRevision) {

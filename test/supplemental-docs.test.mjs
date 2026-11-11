@@ -75,7 +75,7 @@ test('supplemental guides retain their own provenance, bundle and title without 
   const expected = new Map([
     ['packages/test/readme.md', { section: 'Development packages', revision: '8ed7f99e2c44d3093123dd0796d17416d4d541ad', bundle: 'guides' }],
     ['packages/test/guide.md', { section: 'Development packages', revision: '8ed7f99e2c44d3093123dd0796d17416d4d541ad', bundle: 'guides' }],
-    ['packages/html/guide.md', { section: 'Companion packages', revision: '679dea933515da69a689a012eeeaaa9f184b493c', bundle: 'integrations' }],
+    ['packages/html/guide.md', { section: 'Companion packages', revision: '679dea933515da69a689a012eeeaaa9f184b493c', sha256: '650a0a645f7ed40212fe4685c3bade7c2716abbcda7cfe93ee5535b15bedc27b', bundle: 'integrations' }],
   ]);
   assert.deepEqual(supplemental.map(page => page.source), [...expected.keys()]);
   const publication = JSON.parse(await read('dist/docs/publication.json'));
@@ -90,6 +90,7 @@ test('supplemental guides retain their own provenance, bundle and title without 
     const bundle = await read(`dist/docs/bundles/${selection.bundle}.txt`);
     assert.equal(page.section, selection.section);
     assert.equal(page.sourceRevision, selection.revision);
+    if (selection.sha256) assert.equal(page.sha256, selection.sha256);
     assert.equal(await read(`dist/docs/markdown/${page.source}`), page.markdown);
     const html = await read(`dist/${page.route}/index.html`);
     assert.ok(html.includes(`href="/${page.route}/" aria-current="page"`));
@@ -118,6 +119,11 @@ test('supplemental guides retain their own provenance, bundle and title without 
   const htmlGuide = supplemental.find(page => page.source === 'packages/html/guide.md');
   const htmlReading = await read('dist/docs/packages/html.md');
   assert.equal(htmlReading, deriveMarkdown(htmlGuide, [...pages, ...supplemental], manifest));
+  for (const text of [htmlReading, await read(`dist/${htmlGuide.route}/index.html`), await read('dist/docs/bundles/integrations.txt'), full]) {
+    assert.match(text, /Version 1\.0\.0 is published on npm\./);
+    assert.match(text, /npm install --save-exact @mnjs\/html@1\.0\.0/);
+    assert.doesNotMatch(text, /unpublished package candidate|\/path\/to\/mnjs-html-1\.0\.0\.tgz|before packing a local archive/);
+  }
   assert.ok(!(await read('dist/docs/bundles/guides.txt')).includes(htmlReading));
   assert.ok((await read('dist/sitemap.xml')).includes('/docs/packages/html/'));
   const overview = await read('dist/docs/packages/test.md');

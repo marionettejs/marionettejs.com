@@ -153,7 +153,7 @@ function adjacentPages(page, pages) {
 // Use the existing guide's first explanatory paragraph for search previews;
 // navigation rows and source/provenance details are not a reader summary.
 export function documentationDescription(page, version) {
-  const paragraphs = Lexer.lex(page.markdown).filter(token => token.type === 'paragraph' && !token.text.startsWith('[API index]'));
+  const paragraphs = Lexer.lex(publishedMarkdown(page)).filter(token => token.type === 'paragraph' && !token.text.startsWith('[API index]'));
   for (const paragraph of paragraphs) {
     // Skip link-only navigation regardless of its labels or length.
     const prose = paragraph.tokens.filter(token => !['link', 'image'].includes(token.type)).map(token => token.raw).join('').replace(/<[^>]*>/g, '');
