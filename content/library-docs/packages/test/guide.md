@@ -1,6 +1,6 @@
 # Test Views and Applications
 
-Consumer reference for `@mnjs/test` **0.2.0** with Marionette **5.x**.
+Consumer reference for `@mnjs/test` **1.0.0** with Marionette **5.x**.
 For installation and a first complete test, start with the [package README](readme.md).
 Mounting requires a DOM; importing the neutral entry and creating a cleanup scope do not.
 Repository-example links follow `master` and may change; this installed guide
@@ -709,12 +709,38 @@ context?)` keeps string-based channel names and uses the supplied Radio instance
 There is no global Radio import. Function receivers and arguments follow Radio's
 normal context behavior; omitted/falsy contexts use the channel.
 
+The hash forms are `scope.reply(channel, replies, context?)` and
+`scope.reply(Radio, channelName, replies, context?)`. Each own enumerable string
+key registers independently; inherited properties, non-enumerable properties and
+symbols are ignored. Names, including spaces and `__proto__`, are literal. Hash
+values can be functions or constants, including falsy values and promises.
+TypeScript contextually types a hash method's `this` from the supplied context,
+or from the channel when context is omitted. A primitive context whose type can
+also contain a falsy value requires narrowing the receiver from that primitive
+or the channel.
+
+```js
+const receiver = { token: 'test-token' };
+scope.reply(channel, {
+  getToken() { return this.token; },
+  authorized: false
+}, receiver);
+```
+
 Every registration has its own callback identity. Cleanup filters by request name,
 that callback, and its effective context. A later unrelated replacement remains
 installed, even if it uses the same original function or context. Overwriting an
 older reply follows Radio's existing behavior; cleanup does not restore that
-older handler. Neither channel-wide `stopReplying()` nor `Radio.reset()` is used.
+older handler. If the scoped registration is still current, cleanup leaves that
+request name unregistered: later requests reach a registered `default` reply or
+return `undefined` (with a warning when Radio debugging is enabled). If its
+original owner must keep serving requests, explicitly re-register the known
+handler after cleanup, or keep the override for that owner's lifetime.
+Neither channel-wide `stopReplying()` nor `Radio.reset()` is used.
 Registration after cleanup begins is rejected before changing any reply.
+Hash registration is sequential: successfully registered keys are owned by the
+scope even if a later property read or registration throws. It is not an atomic
+replacement of the whole map.
 
 `@mnjs/test/scope` exports `createTestScope` and its types without importing
 Marionette, a DOM or a runner. The package's Marionette peer still applies to its
@@ -767,8 +793,8 @@ described below; archive-specific native runner results belong with the release
 record.
 
 The 5.0.0 version in this historical table is not the current installation pin.
-Use the [installation instructions](readme.md#install) for Marionette 5.0.1 and
-the separately versioned `@mnjs/test` 0.2.0.
+Use the [installation instructions](readme.md#install) for Marionette 5.1.0 and
+the separately versioned `@mnjs/test` 1.0.0.
 
 | Entry / runner | Version and checks |
 | --- | --- |
@@ -778,7 +804,7 @@ the separately versioned `@mnjs/test` 0.2.0.
 | `@mnjs/test/cypress` | Cypress 16.1.1 / Electron and mount-utils 5.0.0; component lifecycle and expected-failure cleanup probes. |
 | `@mnjs/test/testing-library` | DOM Testing Library 10.4.1; ESM/CommonJS and types, scoped queries, replacement, readiness and existing runner cleanup. |
 
-The ownership candidate's optional peers accept Vitest `>=4.1.0`, DOM Testing
+The optional peers accept Vitest `>=4.1.0`, DOM Testing
 Library `>=8.7.0` and mount-utils `>=4`, alongside Cypress `>=14`.
 The packed minimum profile installs Vitest 4.1.0, DOM Testing Library 8.7.0 and
 mount-utils 4.0.0 with strict peer resolution and no overrides. It passes ESM and
@@ -788,6 +814,12 @@ repository's locked current versions. The installed Cypress adapter's queue/hook
 model runs in JSDOM in both profiles; it does not run Cypress or its bundled
 Electron. Installation profiles record the exact dependency versions and archive
 digest alongside their checks.
+
+The 1.0.0 packed profiles cover Vitest 4.1.0 and 5.1.0, DOM Testing Library 8.7.0
+and 10.4.2, and mount-utils 4.0.0 and 5.0.0. Native Cypress lanes cover 14.0.0 with
+mount-utils 4.0.0 and 16.2.1 with mount-utils 5.0.0. Cypress 15 has not been
+verified; neither have other versions absent from the recorded checks. Passing
+the adapter's JSDOM model is not native Cypress coverage.
 
 Vitest 4.1 is the builder-fixture API boundary; DOM Testing Library 8.7 is the
 generic query declaration boundary. Mount-utils keeps the existing v4 floor.

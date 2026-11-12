@@ -4,7 +4,7 @@
 
 ## Templates and data
 
-`template` is a value understood by the renderer. The default renderer calls a template function as `template(data)`; it does not compile template strings. `template: false` disables template rendering. The default DOM provider inserts renderer output as HTML; choose a renderer/DOM integration appropriate to the output. [Setup](../../integrations/setup.md#configure-once) shows the Lit integration, whose ordinary interpolations render values as text.
+`template` is a value understood by the renderer. The default renderer calls a template function as `template(data)`; it does not compile template strings. `template: false` disables template rendering. The default DOM provider inserts renderer output as HTML; choose a renderer/DOM integration appropriate to the output. [Setup](../../integrations/setup.md#configure-once) shows the `@mnjs/html` integration, whose ordinary interpolations render values as text.
 
 | Method | Default contract and extension use |
 | --- | --- |
@@ -15,19 +15,19 @@
 | `mixinTemplateContext(data)` | Resolves `templateContext`, then shallow-merges its own enumerable properties over data. Does not mutate either input. Returns either input directly when the other is falsy. |
 | `attachElContent(output)` | Sends renderer output to `this.Dom.setContents(this.el, output)`. Override for a specialized insertion strategy that keeps the View's root. Returns no defined value. |
 
-Rendering obtains the template, prepares serialized data plus template context, calls the configured renderer with the View as `this`, and passes its return value to `attachElContent`. Falsy final template data becomes `{}`. The default template function itself receives no View context; use `templateContext` or serialization for View-derived values.
+Rendering obtains the template, prepares serialized data plus template context, calls the configured renderer with the View as `this`, and passes its return value to `attachElContent`. Falsy final template data becomes `{}`. The default template function itself receives no View context; use `templateContext` or serialization for View-derived values. The `@mnjs/html` DOM adapter preserves this template-call contract: it handles the returned template result, rather than passing a View to the template.
 
-This standalone example configures a subclass with Lit, renders plain supplied data, and cleans up:
+This standalone example configures a subclass with `@mnjs/html`, renders plain supplied data, and cleans up:
 
 ```js
 import { View } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const Greeting = View.extend({
   template: ({ name }) => html`<p>Hello, ${name}</p>`,
 });
-Greeting.setDomApi(LitDomApi);
+Greeting.setDomApi(HtmlDomApi);
 
 const greeting = new Greeting({ model: { name: 'Sam' } });
 greeting.render();
@@ -50,7 +50,7 @@ Declare `ui` as `{ name: 'selector' }` or a function returning that map. After b
 | --- | --- |
 | `$(selector)` | Queries descendants of `el`; the root itself is excluded by the native DomApi. Returns the provider's query type (native: static `NodeList`). |
 | `getUI(name)` | Returns the bound query result or `undefined` for an unknown name. Throws if no UI map was declared or it has not been bound. Use `[0]` when the first native element is needed. |
-| `bindUIElements()` → `this` | Resolves the UI map and queries the current DOM, including Behavior UI. Normally automatic after rendering or construction with existing contents. No-op while destroying/destroyed. |
+| `bindUIElements()` → `this` | Resolves the UI map and queries the current DOM, including Behavior UI. Normally automatic after rendering. View construction with existing contents binds host UI; Behavior queries need rendering or explicit binding. No-op while destroying/destroyed. |
 | `unbindUIElements()` → `this` | Releases query bindings and restores the selector declarations, including Behavior UI. Destruction does this automatically. |
 | `normalizeUIString(value, bindings?)` | Returns a string with `@ui.name` references replaced by selectors. |
 | `normalizeUIKeys(map, bindings?)` | Returns a new map with normalized keys; nullish input returns `{}`. |
@@ -82,6 +82,8 @@ Both methods are no-ops while destroying/destroyed. Construction delegates autom
 `delegateEntityEvents()` releases previous model/collection bindings, then binds current declarations, including Behaviors, and returns the View. `undelegateEntityEvents()` releases those subscriptions and returns the View. Construction binds them after `initialize`; destruction releases them.
 
 Replacing a View's model or collection after construction does not change its existing subscriptions. Assign the new source or event map, then call `delegateEntityEvents()` to release the old bindings and observe the current declarations. Repeated delegation replaces bindings rather than accumulating them. Use `undelegateEntityEvents()` when observation should stop without rebinding. Render explicitly if the new source should be displayed immediately.
+
+With callback-matching providers, entity and state bindings on the same source/event need distinct callback functions: undelegation or rebinding can otherwise also remove the state binding. See the [cleanup limitation and forwarding-method example](../providers/data.md#subscription-cleanup). This applies to View and CollectionView entity bindings.
 
 Observable model changes do not automatically update the View's rendered contents. Choose the response in `modelEvents` or `collectionEvents`: for a small View, `modelEvents: { change: 'render' }` rerenders on change. On a layout View, that also resets its Regions and destroys their children; see [View rendering](../view.md#rendering-and-status).
 

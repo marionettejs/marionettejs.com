@@ -35,12 +35,12 @@ test('diagnostics use the matching catalog without obsolete example supplements'
 
 test('the primary testing guide links helper setup from its article while preserving the manual recipe and archive', async () => {
   const source = 'docs/guides/testing.md';
-  const { pages } = await readSnapshot('content/library-docs');
+  const { manifest, pages } = await readSnapshot('content/library-docs');
   const archived = pages.find(page => page.source === source);
   const edit = declaration.edits.find(edit => edit.source === source);
-  assert.equal(edit.before, archived.markdown);
+  assert.equal(edit, undefined, 'Helper setup is now upstream; no duplicate overlay');
   const codeBlocks = markdown => [...markdown.matchAll(/^```[^\n]*\n[\s\S]*?^```/gm)].map(match => match[0]);
-  assert.deepEqual(codeBlocks(edit.after), codeBlocks(archived.markdown), 'The complete manual lifecycle recipe stays intact');
+  assert.deepEqual(codeBlocks(await readFile('dist/docs/guides/testing.md', 'utf8')), codeBlocks(archived.markdown), 'The complete manual lifecycle recipe stays intact');
   assert.equal(await readFile(`dist/docs/markdown/${source}`, 'utf8'), archived.markdown);
   const html = await readFile('dist/docs/guides/testing/index.html', 'utf8');
   const article = html.match(/<article\b[^>]*>([\s\S]*?)<\/article>/)[1];
@@ -53,7 +53,7 @@ test('the primary testing guide links helper setup from its article while preser
   const corpus = JSON.parse(await readFile('dist/docs/corpus.json', 'utf8'));
   const document = corpus.documents.find(document => document.id === source);
   assert.equal(document.markdown, markdown);
-  assert.equal(document.sourceRevision, edit.sourceRevision);
+  assert.equal(document.sourceRevision, manifest.sourceRevision);
   assert.equal(document.sourceSha256, archived.sha256);
   assert.equal(document.sha256, createHash('sha256').update(markdown).digest('hex'));
   for (const path of ['dist/docs/bundles/guides.txt', 'dist/llms-full.txt']) {

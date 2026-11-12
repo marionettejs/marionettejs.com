@@ -7,16 +7,16 @@ The apex is canonical; v5 remains a noindexed mirror.
 Source lives in `marionettejs/marionettejs.com`. Earlier design commits and checkouts remain
 preserved in the old website repository. The local preview still binds to loopback.
 
-## Stable 5.0.0 transition
+## Stable 5.1.0 transition
 
-This branch imports published **5.0.0** from source
-`0f2284ad4bbfe8c82ce82714471697a68c2acaeb`. The [publication run](https://github.com/marionettejs/marionette/actions/runs/38034055064)
-promoted [certification 38032320468](https://github.com/marionettejs/marionette/actions/runs/38032320468);
-the [stable release](https://github.com/marionettejs/marionette/releases/tag/v5.0.0)
+This branch imports published **5.1.0** from source
+`86ee0599ee9c3e1ae472d7426fc3769bd66bdcbe`. The [publication run](https://github.com/marionettejs/marionette/actions/runs/43281587960)
+promoted [certification 43276377466](https://github.com/marionettejs/marionette/actions/runs/43276377466);
+the [stable release](https://github.com/marionettejs/marionette/releases/tag/v5.1.0)
 contains the matching archives and evidence. The four runtime registry integrities
 and staged documentation manifest match those certified published bytes.
 The documentation content digest is
-`44c0d535fd36d11f31d909246f4ee7c6592eae3f25fb7513c61af65842593a90`.
+`27f2f2e672e33c297ac8c1bcf22290c3a7d07c6da68661ea746da5d288f8950f`.
 
 Use this procedure for the stable import and its review. Merging to main deploys
 both site and MCP and still requires separate approval.
@@ -38,10 +38,10 @@ both site and MCP and still requires separate approval.
    `vendor:demos` also needs registry access or a warm npm cache for its fresh install.
    `vendor:demos` verifies the core bundle hash and uses a fresh script-free `npm ci`
    for data; ordinary tests use local metadata and fixture archives without registry reads.
-   It requires 5.0.0 and the certified revision, then verifies every documentation/asset hash.
+   It requires 5.1.0 and the certified revision, then verifies every documentation/asset hash.
    It exports package bytes plus generated archive evidence to `output/stable-docs`;
    the evidence file is `output/stable-docs/stable-docs-evidence.json`. Docs and evidence appear together
-   only after every write succeeds. It refuses an existing export directory. Failed
+   only after every write succeeds. It refuses an existing export directory. Before staging a new version in the same checkout, move an old completed export to a new version-and-revision-labelled directory (for example, `output/stable-docs-5.0.0-0f2284ad`). Keep its evidence; do not delete or overwrite it. Then rerun staging into the empty destination. Failed
    runs can be retried; an abruptly terminated run may leave an unused `.stable-docs-*`
    sibling in `output/`, which can be removed once that process has stopped.
    Compare its digest and revision with the release owner's published artifact evidence.
@@ -49,7 +49,7 @@ both site and MCP and still requires separate approval.
    overlay in `content/docs-publication-edits.json` against the new archive. Remove
    changes already in the archive and obsolete RC2 limitations; retain only reviewed
    editorial changes with correct before/after hashes and source identity. Set its
-   packageVersion to `5.0.0` and status to `stable release (published on npm)` only
+   packageVersion to `5.1.0` and status to `stable release (published on npm)` only
    with that evidence. Review title edits, navigation and supplemental guides too;
    remove a supplemental copy when the package now supplies the same guide.
    Never edit archive bytes.
@@ -430,7 +430,7 @@ archive, including its revision, content digest and locked registry integrity.
 After an authorized release, upgrade the exact core/data pins together:
 
 ```sh
-npm install --save-dev --save-exact marionette@5.0.0 @mnjs/data@5.0.0
+npm install --save-dev --save-exact marionette@5.1.0 @mnjs/data@5.1.0
 npm ls marionette @mnjs/data @mnjs/radio @mnjs/utils
 ```
 
@@ -520,4 +520,5 @@ preserved for source and social previews, with unchanged artwork and dimensions.
 
 See [the 5.1 website and MCP handoff](release/5.1.0-readiness.md) for the
 registry-backed import, companion-package checks, announcement and deployment
-gates. Preparation does not change the live runtime or immutable MCP corpus.
+gates. This branch contains the verified 5.1 runtime and immutable MCP corpus.
+It does not change the deployed website or MCP until an authorized deployment.

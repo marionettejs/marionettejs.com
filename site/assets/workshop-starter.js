@@ -6,10 +6,10 @@ export const starter = {
 };
 export const runtime = {
   "package": "marionette",
-  "version": "5.0.0",
-  "revision": "0f2284ad4bbfe8c82ce82714471697a68c2acaeb",
+  "version": "5.1.0",
+  "revision": "86ee0599ee9c3e1ae472d7426fc3769bd66bdcbe",
   "data": {
     "package": "@mnjs/data",
-    "version": "5.0.0"
+    "version": "5.1.0"
   }
 };

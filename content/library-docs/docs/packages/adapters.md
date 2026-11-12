@@ -1,6 +1,6 @@
 # @mnjs/adapters
 
-Optional integrations for existing data sources and DOM libraries. Import the subpath you use; the package has no root export. Imports do not configure Marionette or load other adapters. Install the matching Marionette version and only the peers needed by your integration; see [package installation](../quick-start.md#install-matching-packages).
+Optional integrations for existing data sources and DOM libraries. Import the subpath you use; the package has no root export. Imports do not configure Marionette or load other adapters. Adapters 5.1.0 supports Marionette `^5.0.1`, not only an identical version. Install a compatible core and only the peers needed by your integration; see [package installation](../quick-start.md#install-matching-packages).
 
 | Subpath | Default export | Peer used by the application |
 | --- | --- | --- |
@@ -41,11 +41,11 @@ model.set('label', 'Archive');
 | `get(model, name)` / `has(model, name)` | Read/check own attributes. `get` returns `undefined` when absent; `has` includes attributes whose value is `undefined`. |
 | `serialize(model)` | Returns the current `model.attributes` object, without copying it. |
 | `models(collection)` | Returns a shallow copy of the ordered `collection.models` array. |
-| `subscribe(source, nameOrMap, callback?, context?)` | Uses native Backbone events and preserves their names, payload arguments, and callback context. Returns an idempotent function that removes only these registrations. |
+| `subscribe(source, nameOrMap, callback?, context?)` | Uses native Backbone events and preserves their names, payload arguments, and callback context. Returns idempotent cleanup using Backbone's `off` matching. |
 | `observeCollection(collection, notify, context?)` | Translates native collection events into the structural changes below. Returns an idempotent disposer. |
 | `disposeOwned(source)` | Does nothing to the source itself. Owner subscriptions have already been released by StateApi cleanup. |
 
-For event maps, use Backbone's map form with the context as the following argument. Standalone subscriptions do not add framework ownership; call the returned disposer when finished.
+For event maps, use Backbone's map form with the context as the following argument. Registrations sharing the same source, event, callback and context are removed together. Use a fresh callback wrapper or distinct owner contexts for independent lifetimes; the [subscription cleanup example and omitted-context boundary](../api/providers/data.md#subscription-cleanup) also apply to BackboneApi. `observeCollection` already creates separate internal callbacks for each observer. Standalone subscriptions do not add framework ownership; call the returned disposer when finished.
 
 A standalone `sort` reports `reorder`, retaining surviving child Views and DOM. `update` reports added/removed models; removals destroy those children. Merges retain the model and do not request a child rerender through collection observation—use the child's model events. `reset` reports `reset` and rebuilds children. The adapter treats sort events with truthy `add`, `remove`, or `merge` options as mutation-related and suppresses them. It relies on the `update` emitted by ordinary non-silent additions, removals and merges; reorder-only `set()` and explicit `sort()` do not provide that update.
 
@@ -128,9 +128,27 @@ const morph = new MorphMessage().render();
 
 `LitDomApi` supplies `setContents(el, value)`, `notifyAttach(el)`, and `notifyDetach(el)`. Templates can return Lit values such as `html` results. The first explicit render replaces existing contents; it does not hydrate them. Subsequent renders update the same marked range.
 
-The notification methods connect/disconnect Lit directives through the stored root part. Marionette's attachment monitoring calls them when managed through Regions; keep `monitorViewEvents` enabled on the View and its ancestors. If monitoring is disabled or its handlers are removed, the application must deliver these notifications itself. Overrides of lifecycle methods must preserve parent behavior.
+The notification methods determine directive connection state, including before the first content render. Unnotified contents start disconnected even when their element is already in the document. Monitored View construction and Region attachment supply these notifications; keep `monitorViewEvents` enabled on the View and its ancestors. When calling the adapter directly, disabling monitoring, or removing its handlers, the application must call `notifyAttach(el)` to connect contents and `notifyDetach(el)` when releasing them. Overrides of lifecycle methods must preserve parent behavior.
 
-Detach and destruction disconnect directive resources. Destruction can also release resources from a failed explicit render; failed construction does not roll back initialization. Release the previous View owner before adopting its element in another View. Lit event handlers use Lit's element receiver; use a closure when a handler needs View or application state.
+With attachment monitoring enabled, this also covers Element roots adopted or
+Region-mounted inside open or closed shadow trees. An already-connected adopted
+Element starts attached; a fresh detached View connects when its Region mounts it
+in a connected tree. Detach/re-show disconnects/reconnects directives, and successful
+destruction disconnects their subscriptions. Directives rendered in a detached
+shadow host stay disconnected until their managed View hierarchy is mounted through
+a monitored Marionette owner. Inserting the host directly through external DOM
+APIs does not generate lifecycle notifications. Ordinary containment,
+selector lookup, and event delegation retain their [DOM provider boundaries](../api/providers/dom.md#domapi).
+
+With monitoring enabled on the View and its ancestors, detach and successful destruction disconnect directive resources in both light DOM and shadow trees. Destruction can also release resources from a failed explicit render; failed construction does not roll back initialization. Release the previous View owner before adopting its element in another View. Lit event handlers use Lit's element receiver; use a closure when a handler needs View or application state.
+
+When handing already-rendered contents to a new View or provider, the previous
+owner or notifier must release its connection first. For an application-managed
+connection, call `LitDomApi.notifyDetach(el)` before the handoff. Monitored adoption
+then reconnects those contents only if the new View is attached. Adopting a root
+that the new attachment policy excludes does not disconnect a part left connected
+by the previous notifier. External DOM insertion alone does not connect directives;
+use a monitored owner or supply the matching notifications explicitly.
 
 ## jQuery
 
@@ -180,3 +198,12 @@ root.innerHTML = '<button>Open</button>';
 const buttons: JQuery<HTMLButtonElement> = JQueryDomApi.findEl<HTMLButtonElement>(root, 'button');
 void actorApi;
 ```
+
+## Use the Router Catalog with HTML
+
+The Router 0.1.0 Catalog example uses optional Lit integration; that is
+compatible, not a Router requirement. Router 0.1.1 and the
+[routing guide](../guides/routing.md) use `@mnjs/html` and `@mnjs/html/marionette`.
+When adapting the 0.1.0 example, replace `lit-html` with `@mnjs/html`
+and `@mnjs/adapters/dom/lit-html` with `@mnjs/html/marionette`. Keep the function
+templates and View event bindings. No Router runtime change is needed.

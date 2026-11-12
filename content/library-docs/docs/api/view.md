@@ -44,7 +44,12 @@ Options below can be declared on the class or supplied at construction. The tabl
 
 ## Existing elements
 
-Construction adopts the supplied element without replacing its contents or applying root attributes. An element with child nodes starts with `isRendered() === true`; an element already inside its document starts attached. Construction does not emit render or attach lifecycle events. UI bindings are available immediately when existing contents are detected.
+Construction adopts the supplied element without replacing its contents or applying root attributes. An element with child nodes starts with `isRendered() === true`; an element already inside its document starts attached. Construction does not emit render or attach lifecycle events. Host UI bindings are available immediately when existing contents are detected. Behavior selectors and DOM events are ready, but Behavior queries need rendering or an explicit `bindUIElements()` call on the Behavior or host.
+
+This attachment detection includes Elements inside open or closed shadow trees
+whose hosts are attached. Supply the actual Element; selector lookup does not cross
+shadow boundaries. Later attachment changes must follow monitored Marionette
+lifecycle, as described under [DOM providers](providers/dom.md#domapi).
 
 Use `template: false` to preserve existing HTML. `render()` then returns the View without rendering, resetting Regions, or emitting render events. Destroying the View still removes its element and destroys managed children. The root stays fixed for the View's lifetime; construct a new View to use a different root.
 

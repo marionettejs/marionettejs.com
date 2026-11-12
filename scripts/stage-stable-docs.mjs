@@ -12,7 +12,7 @@ export async function stageStableDocs(revision, { directory = root, targetVersio
     throw new Error('Usage: npm run docs:stage-stable -- <certified published source revision> [target stable version]');
   }
   if (![stableRelease, preparedRelease].includes(targetVersion)) throw new Error(`Unsupported stable release target: ${targetVersion}`);
-  const { version, manifest, lock } = await readRuntimeRelease(directory, { request });
+  const { version, manifest, lock } = await readRuntimeRelease(directory, { request, expectedVersion: targetVersion });
   if (version !== targetVersion) throw new Error(`Expected installed ${targetVersion}; found ${version}. Install the published stable packages before staging.`);
   if (manifest.sourceRevision !== revision) throw new Error(`Certified source revision mismatch: requested ${revision}; installed ${manifest.sourceRevision}. Check the release owner’s published evidence.`);
   const destination = resolve(directory, 'output/stable-docs');

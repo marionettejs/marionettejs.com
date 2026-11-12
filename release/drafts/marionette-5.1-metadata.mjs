@@ -1,4 +1,4 @@
-// Prepared publication descriptor. Not imported by the production build/feed.
+// Prepared publication descriptor. Production integration is held behind its unset publication-date gate.
 export const releaseArticle = {
   title: 'Marionette 5.1: Two more opinions.',
   description: 'Meet @mnjs/html and @mnjs/router: templates and navigation built around Marionette’s Views, Regions, and Applications. Take what you need.',
@@ -27,6 +27,6 @@ export function releaseArticleMetadata({ publicationDate } = {}) {
     title: `${releaseArticle.title} — Marionette`,
     headline: releaseArticle.title,
     route: releaseArticle.path,
-    ...(publicationDate ? { date: publicationDate } : {})
+    ...(publicationDate ? { date: publicationDate, dateLabel: new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(new Date(publicationDate)) } : {})
   };
 }

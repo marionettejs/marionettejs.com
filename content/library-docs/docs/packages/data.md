@@ -162,7 +162,7 @@ Import `DataApi` and `StateApi` from `@mnjs/data` and configure Marionette befor
 | `DataApi.subscribe(...)` / `StateApi.subscribe(...)` | Observe compatible `on`/`off` sources, preserving event arguments and context. Missing event methods throw `TypeError`. |
 | `StateApi.disposeOwned(source)` | Calls the source's `destroy()` when present. Native destruction is local cleanup: no server request, and destroying a Collection does not destroy its Models. |
 
-Both providers accept `subscribe(source, name, callback, context?)` and `subscribe(source, eventMap, context?)`. Map values are function callbacks. Both forms return an idempotent cleanup function that removes only those registrations.
+Both providers accept `subscribe(source, name, callback, context?)` and `subscribe(source, eventMap, context?)`. Map values are function callbacks. Both forms return idempotent cleanup using the source's `off` matching: registrations with the same source, event, callback and context are removed together. Use a fresh callback wrapper or distinct owner contexts for independent lifetimes, and call the returned disposer when finished. See [subscription cleanup](../api/providers/data.md#subscription-cleanup) for an example and the omitted-context boundary. `observeCollection` already uses separate internal callbacks for each observer.
 
 Model change events remain separate from structural collection notifications. Use a row's `modelEvents` for attribute changes; changing attributes does not automatically sort or refilter a list. See [Collection events](#collection-events).
 
@@ -194,7 +194,7 @@ Attributes and `toObject()` are partial because construction and mutation can le
 | `MutationOptions` | Open metadata object. Event-specific `changed`, `previous`, and `changes` fields are runtime payloads; this type does not infer their contents. |
 | `ModelInput<Member>` | A member Model or its attributes, used by Collection construction and mutation. |
 | `CollectionOptions<Member>` | Optional `model` constructor. `comparator` belongs on the prototype or in `sort`, not constructor options. |
-| `CollectionChange<Member>` | Discriminated union of `{ kind: 'reset' }`, `{ kind: 'reorder' }`, and `{ kind: 'update', added, removed, updated }`, where `updated` contains `{ previous, current }` member pairs. |
+| `CollectionChange<Member>` | Discriminated union of `{ kind: 'reset' }`, `{ kind: 'reorder' }`, and `{ kind: 'update', added, removed, updated }`, where `updated` contains `{ previous, current }` pairs with the same stable key. Different objects replace the child; retaining an object keeps the child, while Model events or explicit `render()` calls can refresh its contents. Built-in Collection notifications leave `updated` empty. |
 | `EventCallback` / `EventSource` | Re-exported callback and event-method types from `@mnjs/utils`. Event names do not statically validate payload types. |
 
 `Model.extend` and `Collection.extend` use the shared [class extension mechanism](../api/shared/common.md#define-a-class), preserving added methods and static properties in their types. Prefer `initialize` for setup. An explicit constructor replaces parent initialization and owns its return contract. Unlike core owners, these classes do not supply `getOption`, binding helpers, or Radio configuration.

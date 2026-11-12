@@ -27,6 +27,7 @@ test('release metadata admits only a real publication date when explicitly suppl
     assert.throws(() => releaseArticleMetadata({ publicationDate }), /actual publication date/);
   }
   const page = releaseArticleMetadata({ publicationDate: '2000-01-01' });
+  assert.equal(page.dateLabel, 'January 1, 2000');
   assert.match(articleMetadata(page), /"datePublished":"2000-01-01"/);
 });
 
@@ -36,4 +37,20 @@ test('held draft includes package versions and compatibility, without repeated m
   assert.ok(draft.includes('Directives connect and disconnect with the View, and subsequent renders stay within the renderer-owned range, leaving child Views outside that range alone.'));
   assert.ok(!draft.includes('Worth a minor release') && !draft.includes('That is worth **5.1**'));
   for (const version of ['**5.1.0**', '**`@mnjs/html` 1.0.0**', '**`@mnjs/router` 0.1.1**', '**`@mnjs/test` 1.0.0**']) assert.ok(draft.includes(version));
+});
+
+test('production article factory is ready but route and feed remain gated', async () => {
+  const { createReleaseArticle, releasePublicationDate, release510Post, release510Page } = await import('../content/news/release-510.mjs');
+  assert.equal(releasePublicationDate, null);
+  assert.equal(release510Post, null);
+  assert.equal(release510Page, null);
+  assert.throws(() => createReleaseArticle(null), /publication date/);
+  const { post, page } = createReleaseArticle('2000-01-01');
+  assert.equal(post.path, releaseArticle.path);
+  assert.equal(post.dateLabel, 'January 1, 2000');
+  assert.equal(page.route, post.path);
+  assert.match(page.body, /class="news-article-heading"/);
+  assert.match(page.body, /What&#39;s in 5.1/);
+  assert.equal((page.body.match(/<h1>/g) || []).length, 1);
+  assert.ok(page.body.includes(post.image.src));
 });

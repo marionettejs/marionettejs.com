@@ -69,75 +69,36 @@ test('supplemental sources allow an empty manifest but reject corrupt bytes and 
   await assert.rejects(readSupplementalPages(directory, []), /hash mismatch/);
 });
 
-test('supplemental guides retain their own provenance, bundle and title without changing the MCP archive', async () => {
+test('previous supplemental guides are now immutable 5.1 archive and MCP documents', async () => {
   const { manifest, pages } = await readSnapshot('content/library-docs');
-  const supplemental = await readSupplementalPages('content/supplemental-docs', pages);
-  const expected = new Map([
-    ['packages/test/readme.md', { section: 'Development packages', revision: '8ed7f99e2c44d3093123dd0796d17416d4d541ad', bundle: 'guides' }],
-    ['packages/test/guide.md', { section: 'Development packages', revision: '8ed7f99e2c44d3093123dd0796d17416d4d541ad', bundle: 'guides' }],
-    ['packages/html/guide.md', { section: 'Companion packages', revision: '679dea933515da69a689a012eeeaaa9f184b493c', sha256: '650a0a645f7ed40212fe4685c3bade7c2716abbcda7cfe93ee5535b15bedc27b', bundle: 'integrations' }],
-  ]);
-  assert.deepEqual(supplemental.map(page => page.source), [...expected.keys()]);
-  const publication = JSON.parse(await read('dist/docs/publication.json'));
-  const corpus = JSON.parse(await read('dist/docs/corpus.json'));
+  assert.equal(manifest.packageVersion, '5.1.0');
+  assert.deepEqual(await readSupplementalPages('content/supplemental-docs', pages), []);
   const mcp = await loadSnapshot();
   const worker = JSON.parse(await read('output/mcp/snapshot.json'));
-  const index = await read('dist/docs/llms.txt');
-  const full = await read('dist/llms-full.txt');
-  for (const page of supplemental) {
-    const selection = expected.get(page.source);
-    const title = publication.titles.find(edit => edit.source === page.source)?.after || page.title;
-    const bundle = await read(`dist/docs/bundles/${selection.bundle}.txt`);
-    assert.equal(page.section, selection.section);
-    assert.equal(page.sourceRevision, selection.revision);
-    if (selection.sha256) assert.equal(page.sha256, selection.sha256);
-    assert.equal(await read(`dist/docs/markdown/${page.source}`), page.markdown);
-    const html = await read(`dist/${page.route}/index.html`);
-    assert.ok(html.includes(`href="/${page.route}/" aria-current="page"`));
-    assert.ok(html.includes('href="/docs/supplemental-manifest.json"'));
-    assert.ok(html.includes(`Reading source: ${readingRevision(page, manifest)}.`));
-    assert.ok(html.includes('<span class="docs-release">Supplemental guide</span>'));
-    const provenance = html.match(/<p class="docs-version">([^<]+)<\/p>/)[1];
-    assert.ok(provenance.includes(`Source snapshot: ${page.sourceRevision}.`));
-    assert.ok(!provenance.includes(manifest.packageVersion));
-    assert.ok(!provenance.includes(manifest.sourceRevision.slice(0, 8)));
-    assert.equal(html.match(/<h1[^>]*>([^<]+)<a /)[1], title);
+  const corpus = JSON.parse(await read('dist/docs/corpus.json'));
+  for (const source of ['packages/test/readme.md', 'packages/test/guide.md', 'packages/html/guide.md']) {
+    const page = pages.find(page => page.source === source);
+    assert.ok(page, source);
+    assert.equal(pages.filter(page => page.source === source).length, 1);
+    assert.equal(await read(`dist/docs/markdown/${source}`), page.markdown);
+    assert.ok(mcp.documents.some(document => document.id === source));
     const markdown = await read(`dist/${page.route}.md`);
-    assert.match(markdown, /^<!-- Supplemental documentation:/);
-    assert.equal(markdown.match(/^# (.+)$/m)[1], title);
-    for (const text of [index, bundle, full]) assert.ok(text.includes(`/${page.route}.md`));
-    for (const text of [bundle, full]) assert.ok(text.includes(markdown));
-    const document = corpus.documents.find(item => item.id === page.source);
+    assert.equal(markdown, deriveMarkdown(page, pages, manifest));
+    const document = corpus.documents.find(document => document.id === source);
     assert.equal(document.markdown, markdown);
-    assert.equal(document.title, title);
-    assert.equal(document.sourceRevision, readingRevision(page, manifest));
     assert.equal(document.sourceSha256, hash(page.markdown));
-    assert.equal(document.sha256, hash(markdown));
-    assert.ok(!manifest.pages.some(item => item.source === page.source));
-    assert.ok(!mcp.documents.some(item => item.id === page.source));
+    const html = await read(`dist/${page.route}/index.html`);
+    assert.doesNotMatch(html, /docs-release">Supplemental guide/);
+    assert.ok(html.includes(manifest.packageVersion));
   }
-  const htmlGuide = supplemental.find(page => page.source === 'packages/html/guide.md');
-  const htmlReading = await read('dist/docs/packages/html.md');
-  assert.equal(htmlReading, deriveMarkdown(htmlGuide, [...pages, ...supplemental], manifest));
-  for (const text of [htmlReading, await read(`dist/${htmlGuide.route}/index.html`), await read('dist/docs/bundles/integrations.txt'), full]) {
-    assert.match(text, /Version 1\.0\.0 is published on npm\./);
-    assert.match(text, /npm install --save-exact @mnjs\/html@1\.0\.0/);
-    assert.doesNotMatch(text, /unpublished package candidate|\/path\/to\/mnjs-html-1\.0\.0\.tgz|before packing a local archive/);
-  }
-  assert.ok(!(await read('dist/docs/bundles/guides.txt')).includes(htmlReading));
-  assert.ok((await read('dist/sitemap.xml')).includes('/docs/packages/html/'));
-  const overview = await read('dist/docs/packages/test.md');
+  const html = await read('dist/docs/packages/html.md');
+  assert.match(html, /npm install --save-exact @mnjs\/html@1\.0\.0/);
+  assert.doesNotMatch(html, /unpublished package candidate|before packing a local archive/);
   const reference = await read('dist/docs/packages/test/guide.md');
-  assert.ok(overview.includes('(/docs/packages/test/guide.md#mocha-use-the-core)'));
-  assert.ok(reference.includes('(/docs/packages/test.md#install)'));
-  assert.doesNotMatch(reference, /ownership candidate|packed minimum profile|archive digest/);
-  assert.match(reference, /Vitest `>=4\.1\.0`/);
-  for (const markdown of [overview, reference]) {
+  for (const markdown of [await read('dist/docs/packages/test.md'), reference]) {
     assert.match(markdown, /skipped start, not cancellation/);
     assert.match(markdown, /Promise returned[\s\S]*?`app\.start\(\)`/);
   }
-  assert.ok(reference.includes(`/tree/${readingRevision(supplemental[1], manifest)}/packages/test/examples`));
-  assert.ok(reference.includes(`/blob/${readingRevision(supplemental[1], manifest)}/packages/test/examples/form.spec.js`));
   assert.doesNotMatch(reference, /github\.com\/marionettejs\/marionette\/(?:tree|blob)\/master\//);
   assert.deepEqual(worker.documents, mcp.documents);
   assert.equal(mcp.provenance.sourceRevision, manifest.sourceRevision);

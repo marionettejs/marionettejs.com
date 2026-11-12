@@ -6,19 +6,19 @@ CollectionView owns repeated child Views and their placement, order, and lifetim
 
 ## Render a collection
 
-This standalone TypeScript example uses `@mnjs/data` for observable membership and Lit for text rendering. API access and persistence remain separate concerns; see [data setup](../integrations/setup.md#observable-data-and-api-access).
+This standalone TypeScript example uses `@mnjs/data` for observable membership and `@mnjs/html` for text rendering. API access and persistence remain separate concerns; see [data setup](../integrations/setup.md#observable-data-and-api-access).
 
 ```ts
 import { CollectionView, Region, View } from 'marionette';
 import { Collection, DataApi } from '@mnjs/data';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const Item = View.extend({
   tagName: 'li',
   template: ({ label }: { label: string }) => html`${label}`,
   modelEvents: { change: 'render' },
-}).setDataApi(DataApi).setDomApi(LitDomApi);
+}).setDataApi(DataApi).setDomApi(HtmlDomApi);
 
 const Empty = View.extend({
   tagName: 'li',
@@ -80,8 +80,9 @@ Resolver functions and comparator/filter callbacks run with the CollectionView a
 | Observable addition/removal | Creates added rows and destroys removed rows; retains unaffected child instances. Reapplies sorting/filtering and presentation. |
 | Source reorder | Sorts/presents existing rows when `sortWithCollection` is true. Does not recreate surviving rows. |
 | Source reset | Destroys/rebuilds rows from the new snapshot, even if the same Models or keys occur again. Does not rerender the list's own template. |
-| Adapter update of the same model object | Retains its child, marks it for rendering, then sorts/filters. A hidden child renders when next presented. |
 | Adapter replacement with a different object under the same key | Creates a replacement child and destroys the previous child. Stable keys do not imply rebinding an existing View to a different model. |
+
+For a retained model or actor, the row's source subscriptions or an explicit application render refresh its contents. See [DataApi observation](providers/data.md#collection-identity-and-observation) for the separate roles of source events and collection notifications.
 
 A plain array is not observed. After changing it, `render()` rebuilds the list. Observable sources let additions and ordering changes preserve surviving Views and their DOM; do not call full `render()` merely to apply a filter or comparator. Use a new CollectionView when changing the collection source; assigning `collection` does not transfer an existing observer to that source.
 
@@ -122,17 +123,21 @@ Filtering controls presentation; it does not remove models or destroy their chil
 | Method | Contract |
 | --- | --- |
 | `getFilter()` | Returns `viewFilter`; override for a computed filter. |
-| `filter()` → `this` | Recomputes presentation and renders/attaches included children, without sorting first. Detaches excluded rows without destroying them. |
+| `filter()` → `this` | Recomputes presentation without sorting first. Renders included children as needed and attaches them; detaches excluded rows without destroying them. |
 | `setFilter(value, options?)` → `this` | Stores the value and filters immediately when its identity changed, unless `preventRender` is true. |
 | `removeFilter(options?)` → `this` | Clears the filter using the same setter rules. |
 
-Changing values captured by a predicate does not change the predicate's identity. Call `filter()` explicitly to apply those changes. Hidden Views can be shown again as the same instances; they are still destroyed when removed from the source, on full render/reset, or when the list is destroyed.
+Changing values captured by a predicate does not change the predicate's identity. Call `filter()` explicitly to apply those changes. Sorting, filtering and notifications that retain an existing child reuse the rendered row's DOM, including when it is hidden and shown again. The row's source subscriptions or an explicit render can refresh its contents. A never-rendered child renders on first presentation. Source subscriptions remain active while a row is hidden; the application controls whether and how they refresh its contents. Hidden Views are still destroyed when removed from the source, on full render/reset, or when the list is destroyed.
 
 ## Empty presentation
 
 `isEmpty()` reports whether `children` has no presented rows. All rows can be filtered out while the source still has models. The `emptyView` appears for this presentation state, through the Region returned by `getEmptyRegion()`.
 
+An override can choose the empty presentation while newly added rows remain in `children`. Those unpresented rows remain owned. Unattached rows receive no parent attachment or detachment notifications until a later presentation pass includes them.
+
 The empty View is separate from `children`. It receives `emptyViewOptions`, or the `childViewOptions` fallback, with no automatic model. Give it a root suitable for the child container, such as `li` inside `ul`. Each empty presentation pass creates a new empty View and replaces the previous one; it is destroyed when rows appear or the list is destroyed. Its events use the same [child forwarding](shared/view-bindings.md#child-events) as rows.
+
+With lifecycle monitoring enabled, the empty View and its descendants attach and detach with the list, including when composed before the list is mounted.
 
 `getEmptyRegion()` returns the list-owned Region for the current child container, with replacement disabled. It is created during construction and reused while live; its owner is this CollectionView. If explicitly destroyed while the list is live, the next call recreates it. After list destruction, the getter returns the destroyed Region. Use it to inspect `currentView`; configure empty presentation through `emptyView` and `emptyViewOptions`.
 
@@ -171,6 +176,10 @@ These operations do not change the source collection. For collection-backed rows
 | `swapChildViews(first, second)` → `this` | Swaps two managed children without changing the collection. Both must belong to this list (`MN0015` otherwise). If only one is currently presented, reapplies filtering. A later sort can override the swap. |
 
 For addition, `{ index, preventRender }` may be supplied as options; a non-null options index takes precedence over the positional index. `preventRender` defers child presentation, not adoption or the parent's initial render. Destroyed/falsy incoming Views and additions to a destroying/destroyed list return unchanged. Already owned incoming Views throw `MN0003`.
+
+With monitoring enabled, a deferred child outside the list's markup receives no parent attachment notifications until it is presented, even if the child was already rendered. An already-attached deferred child, such as one constructed against connected markup outside the list, receives `before:detach` and `detach` when a filter excludes it, even if the list never presented it. A child adopting markup already inside the list participates in its lifecycle immediately, including when an `add:child` callback shows the list. Finish a batch with `sort()` or `filter()` to present its included rows. The list still owns pending children and destroys them during teardown.
+
+With monitoring enabled, when the markup was mounted before the child acquired an owner, adoption catches up its missing attachment after `add:child` and before `addChildView()` returns, provided the list is still attached and the child remains owned and presented after the callbacks. During this adoption catch-up, `before:attach` sees already-connected markup and `attach` sees `isAttached()` true. If an `add:child` handler first presents the child through `sort()` or `filter()`, normal presentation lifecycle applies instead: `before:attach` runs before insertion and `attach` after insertion. Later flushing does not repeat attachment. A child constructed against already-connected markup starts attached and receives no synthetic attachment during adoption. Filtering out or removing the child in `add:child` prevents this catch-up; an unattached list waits for its normal mounting lifecycle.
 
 A child that destroys itself is removed from the list automatically. Full `render()` destroys manual children too and rebuilds only collection rows.
 

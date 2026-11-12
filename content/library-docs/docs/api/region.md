@@ -4,6 +4,8 @@
 
 A Region owns the placement and lifetime of one View or CollectionView. Showing another View destroys the current one. Detaching releases it for reuse. A View can own named Regions for composition; an Application can use a Region to display its root View.
 
+For a Region filled after first paint, reserve its space in application CSS or render the surrounding chrome with its content; Region does not reserve layout space.
+
 ## Construction and options
 
 `new Region(options?)` configures the Region and calls `initialize(options)`. It does not resolve a selector, render a View, or change the DOM. Supply `el` before showing content. Unlike View, Region has no `preinitialize` hook.
@@ -54,6 +56,12 @@ On a successful show, the Region:
 5. Emits `show`.
 
 Showing the current View again does not rerender it or repeat show events. A destroyed View cannot be shown. A View already owned by an Application, Region, or CollectionView must first be detached from that owner. A View adopting existing attached markup does not receive another attach notification just because a Region shows it.
+
+A Region supplied an actual Element inside an attached open or closed shadow tree
+uses this same attach/detach lifecycle. When the Region belongs to a detached host
+View, mounting that View through a monitored owner propagates attachment to its
+children. A standalone Region is not discovered from its DOM location. Region selectors do
+not cross shadow boundaries; see [DOM providers](providers/dom.md#domapi).
 
 An unmatched selector produces `MN0005` unless allowed; no configured element produces `MN0004`. A destroyed incoming View produces `MN0007`, and an already owned View produces `MN0003`. `allowMissingEl` skips that show attempt without taking ownership of the View. A later explicit operation retries an unresolved selector; the Region does not watch for DOM changes.
 
