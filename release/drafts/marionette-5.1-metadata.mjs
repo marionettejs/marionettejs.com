@@ -1,4 +1,4 @@
-// Prepared publication descriptor. Production integration is held behind its unset publication-date gate.
+// Shared metadata for the authorized release article and local preview.
 export const releaseArticle = {
   title: 'Marionette 5.1: Two more opinions.',
   description: 'Meet @mnjs/html and @mnjs/router: templates and navigation built around Marionette’s Views, Regions, and Applications. Take what you need.',
