@@ -21,13 +21,18 @@ test('post-publish verification rejects stale pages with unchanged library bundl
   let sitemap = builtSitemap;
   const releaseAssets = new Map(await Promise.all([['/news/marionette-5-1/', 'dist/news/marionette-5-1/index.html'], ['/news/', 'dist/news/index.html'], ['/assets/news/marionette-5.1.webp', 'site/assets/news/marionette-5.1.webp']].map(async ([path, file]) => [path, await read(file)])));
   let changedRelease;
+  let injectedAnalytics = false;
   const server = createServer((req, res) => {
     res.setHeader('etag', '"fixture"');
     res.setHeader('cache-control', 'public, max-age=0, must-revalidate, no-transform');
     const path = new URL(req.url, 'http://localhost').pathname;
     if (path === '/reference/provenance.json') return res.end(JSON.stringify(provenance));
     if (path === '/sitemap.xml') return res.end(sitemap);
-    if (releaseAssets.has(path)) return res.end(path === changedRelease ? Buffer.concat([releaseAssets.get(path), Buffer.from('stale release artifact')]) : releaseAssets.get(path));
+    if (releaseAssets.has(path)) {
+      let content = releaseAssets.get(path);
+      if (injectedAnalytics && path.startsWith('/news/')) content = Buffer.from(content.toString().replace('</body>', `<!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "${'a'.repeat(32)}"}'></script><!-- Cloudflare Pages Analytics --></body>`));
+      return res.end(path === changedRelease ? Buffer.concat([content, Buffer.from('stale release artifact')]) : content);
+    }
     const bundle = path.match(/^\/vendor\/(marionette|demos)\.js$/)?.[1];
     if (bundle) return res.end(bundles[bundle]);
     const marker = path === staleRoute ? 'b'.repeat(40) : served;
@@ -36,6 +41,8 @@ test('post-publish verification rejects stale pages with unchanged library bundl
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   t.after(() => new Promise(resolve => server.close(resolve)));
   const run = (...args) => exec(process.execPath, ['scripts/check-deployment.mjs', `http://127.0.0.1:${server.address().port}`, ...args], { cwd: root });
+  await run('--revision', revision);
+  injectedAnalytics = true;
   await run('--revision', revision);
   for (const path of releaseAssets.keys()) {
     changedRelease = path;

@@ -20,6 +20,9 @@ if (!expectedRevision && !healthOnly) {
 const provenance = JSON.parse(await readFile(resolve(root, 'content/provenance.json'), 'utf8'));
 const demos = JSON.parse(await readFile(resolve(root, 'site/vendor/demos.provenance.json'), 'utf8'));
 const digest = source => createHash('sha256').update(source).digest('hex');
+// Pages injects its configured analytics beacon after uploading the artifact.
+// Ignore only that exact platform-owned wrapper, not arbitrary script or content changes.
+const withoutPagesAnalytics = html => html.replace(/<!-- Cloudflare Pages Analytics --><script defer src='https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js' data-cf-beacon='\{"token": "[a-f0-9]{32}"\}'><\/script><!-- Cloudflare Pages Analytics -->/g, '');
 
 const failures = [];
 const expect = (condition, message) => { if (!condition) failures.push(message); };
@@ -90,7 +93,7 @@ if (release510Post) {
     expect(page.content.includes(release510Post.title), `${path}: release article missing`);
     if (expectedRevision) {
       const artifact = await readFile(resolve(root, 'dist', path.slice(1), 'index.html'), 'utf8');
-      expect(page.content === artifact, `${path}: does not match the published article/feed artifact`);
+      expect(withoutPagesAnalytics(page.content) === artifact, `${path}: does not match the published article/feed artifact`);
     }
   }
   const hero = await body(release510Post.image.src, 'arrayBuffer');
