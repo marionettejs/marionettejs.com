@@ -56,6 +56,10 @@ try {
       assert.equal(await page.locator('meta[property="article:published_time"]').getAttribute('content'), '2026-11-12');
       assert.equal(await page.locator('.news-hero img').evaluate(async img => { await img.decode(); return img.naturalWidth; }), 1672);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${width}px production overflow`);
+      for (const href of ['https://marionettejs.com/docs/packages/html/', 'https://marionettejs.com/docs/packages/router/']) {
+        assert.equal(await page.locator(`.news-prose a[href="${href}"]`).count(), 1);
+      }
+      assert.equal(await page.locator('.news-prose pre').getAttribute('tabindex'), '0');
       await page.screenshot({ path: `output/playwright/release-article/production-${width}.png`, fullPage: true });
       await page.locator('.study-back').click();
       assert.ok(page.url().endsWith('/news/'));
