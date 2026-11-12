@@ -22,6 +22,7 @@ test('post-publish verification rejects stale pages with unchanged library bundl
   const releaseAssets = new Map(await Promise.all([['/news/marionette-5-1/', 'dist/news/marionette-5-1/index.html'], ['/news/', 'dist/news/index.html'], ['/assets/news/marionette-5.1.webp', 'site/assets/news/marionette-5.1.webp']].map(async ([path, file]) => [path, await read(file)])));
   let changedRelease;
   let injectedAnalytics = false;
+  let invalidAnalytics;
   const server = createServer((req, res) => {
     res.setHeader('etag', '"fixture"');
     res.setHeader('cache-control', 'public, max-age=0, must-revalidate, no-transform');
@@ -31,6 +32,10 @@ test('post-publish verification rejects stale pages with unchanged library bundl
     if (releaseAssets.has(path)) {
       let content = releaseAssets.get(path);
       if (injectedAnalytics && path.startsWith('/news/')) content = Buffer.from(content.toString().replace('</body>', `<!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "${'a'.repeat(32)}"}'></script><!-- Cloudflare Pages Analytics --></body>`));
+      if (invalidAnalytics && path.startsWith('/news/')) {
+        const wrapper = `<!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "${'a'.repeat(32)}"}'></script><!-- Cloudflare Pages Analytics -->`;
+        content = Buffer.from(content.toString().replace(invalidAnalytics === 'duplicate' ? '</body>' : '<body>', match => wrapper + match));
+      }
       return res.end(path === changedRelease ? Buffer.concat([content, Buffer.from('stale release artifact')]) : content);
     }
     const bundle = path.match(/^\/vendor\/(marionette|demos)\.js$/)?.[1];
@@ -44,6 +49,11 @@ test('post-publish verification rejects stale pages with unchanged library bundl
   await run('--revision', revision);
   injectedAnalytics = true;
   await run('--revision', revision);
+  for (const placement of ['duplicate', 'misplaced']) {
+    invalidAnalytics = placement;
+    await assert.rejects(run('--revision', revision), error => error.code === 1 && /article\/feed artifact/.test(error.stderr));
+  }
+  invalidAnalytics = undefined;
   for (const path of releaseAssets.keys()) {
     changedRelease = path;
     await assert.rejects(run('--revision', revision), error => error.code === 1 && /article\/feed artifact|hero differs/.test(error.stderr));

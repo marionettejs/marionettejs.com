@@ -22,7 +22,7 @@ const demos = JSON.parse(await readFile(resolve(root, 'site/vendor/demos.provena
 const digest = source => createHash('sha256').update(source).digest('hex');
 // Pages injects its configured analytics beacon after uploading the artifact.
 // Ignore only that exact platform-owned wrapper, not arbitrary script or content changes.
-const withoutPagesAnalytics = html => html.replace(/<!-- Cloudflare Pages Analytics --><script defer src='https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js' data-cf-beacon='\{"token": "[a-f0-9]{32}"\}'><\/script><!-- Cloudflare Pages Analytics -->/g, '');
+const withoutPagesAnalytics = html => html.replace(/<!-- Cloudflare Pages Analytics --><script defer src='https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js' data-cf-beacon='\{"token": "[a-f0-9]{32}"\}'><\/script><!-- Cloudflare Pages Analytics -->(?=<\/body>)/, '');
 
 const failures = [];
 const expect = (condition, message) => { if (!condition) failures.push(message); };
