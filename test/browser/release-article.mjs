@@ -42,9 +42,34 @@ try {
     evidence.push({ width, imageDecoded: true, horizontalOverflow: false, keyboardFocus: true });
     await page.close();
   }
-  // A preview test must not accidentally put release-day content into production.
+  // The separately authorized production integration must include its feed entry.
   const feed = await readFile('dist/news/index.html', 'utf8');
-  assert.ok(!feed.includes('Two more opinions.'));
+  assert.ok(feed.includes('Two more opinions.'));
+  const production = await staticServer({ root: resolve('dist'), types: { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.webp': 'image/webp', '.svg': 'image/svg+xml' } });
+  try {
+    for (const width of [1440, 768, 390]) {
+      const page = await browser.newPage({ viewport: { width, height: 900 } });
+      await page.route('https://**/*', route => route.abort());
+      await page.goto(`${production.base}/news/marionette-5-1/`);
+      assert.equal(await page.locator('h1').innerText(), 'Marionette 5.1: Two more opinions.');
+      assert.equal(await page.locator('.news-byline time').getAttribute('datetime'), '2026-11-12');
+      assert.equal(await page.locator('meta[property="article:published_time"]').getAttribute('content'), '2026-11-12');
+      assert.equal(await page.locator('.news-hero img').evaluate(async img => { await img.decode(); return img.naturalWidth; }), 1672);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${width}px production overflow`);
+      for (const href of ['https://marionettejs.com/docs/packages/html/', 'https://marionettejs.com/docs/packages/router/']) {
+        assert.equal(await page.locator(`.news-prose a[href="${href}"]`).count(), 1);
+      }
+      assert.equal(await page.locator('.news-prose pre').getAttribute('tabindex'), '0');
+      await page.screenshot({ path: `output/playwright/release-article/production-${width}.png`, fullPage: true });
+      await page.locator('.study-back').click();
+      assert.ok(page.url().endsWith('/news/'));
+      assert.equal(await page.locator('[data-news-path="/news/marionette-5-1/"]').count(), 1);
+      await page.close();
+    }
+    for (const path of ['/docs/packages/html/', '/docs/packages/router/', '/assets/news/marionette-5.1.webp']) {
+      assert.equal((await fetch(production.base + path)).status, 200, path);
+    }
+  } finally { await production.close(); }
   await writeFile('output/playwright/release-article/evidence.json', JSON.stringify(evidence, null, 2));
   console.log('Held article: desktop/intermediate/mobile screenshots, image, overflow and keyboard checks passed.');
 } finally { await browser.close(); await close(); }

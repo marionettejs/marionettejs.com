@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { siteOrigin, parseMetadataDate } from './seo.mjs';
+import { releaseArticle as release510Post } from '../release/drafts/marionette-5.1-metadata.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const origin = process.argv[2] ?? 'https://marionettejs.com';
@@ -78,6 +79,24 @@ if (sitemap) {
     const timestamp = parseMetadataDate(date);
     expect(Number.isFinite(timestamp), `/sitemap.xml reports an invalid lastmod: ${date}`);
     expect(!Number.isFinite(timestamp) || timestamp <= Date.now(), `/sitemap.xml reports a future lastmod: ${date}`);
+  }
+}
+
+// The authorized release article must be retrievable, not merely listed in the sitemap.
+if (release510Post) {
+  for (const path of [release510Post.path, '/news/']) {
+    const page = await body(path);
+    if (!page) continue;
+    expect(page.content.includes(release510Post.title), `${path}: release article missing`);
+    if (expectedRevision) {
+      const artifact = await readFile(resolve(root, 'dist', path.slice(1), 'index.html'), 'utf8');
+      expect(page.content === artifact, `${path}: does not match the published article/feed artifact`);
+    }
+  }
+  const hero = await body(release510Post.image.src, 'arrayBuffer');
+  if (hero) {
+    const artifact = await readFile(resolve(root, 'site', release510Post.image.src.slice(1)));
+    expect(digest(new Uint8Array(hero.content)) === digest(artifact), 'Release hero differs from approved image');
   }
 }
 

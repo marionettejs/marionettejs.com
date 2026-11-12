@@ -115,3 +115,8 @@
  .news-maintenance .news-filter-panel .news-filter-scope { min-height:0; }
 }
 @media print { .news-filters,.news-contents { display:none; } .news-reading { display:block; } }
+
+/* Release prose has standalone headings and code, unlike sectioned interviews. */
+.news-release .news-prose h2 { margin-top:48px; }
+.news-release .news-prose pre { max-width:100%; overflow:auto; padding:24px; margin-block:24px; border:1px solid var(--line); border-radius:8px; background:var(--paper); line-height:1.6; }
+.news-release .news-prose pre:focus-visible { outline:3px solid var(--red); outline-offset:4px; }

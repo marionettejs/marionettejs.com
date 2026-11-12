@@ -19,7 +19,7 @@ test('held release article prepares canonical, social and Article metadata witho
   assert.ok(!schema.includes('datePublished'));
   assert.ok(schema.includes('"@type":"Article"') && schema.includes('"headline":"Marionette 5.1: Two more opinions."'));
   assert.ok(schema.includes('"author":{"@type":"Organization","name":"Marionette project"'));
-  assert.ok(!newsPosts.some(entry => entry.path === releaseArticle.path));
+  assert.ok(newsPosts.some(entry => entry.path === releaseArticle.path));
 });
 
 test('release metadata admits only a real publication date when explicitly supplied', () => {
@@ -39,11 +39,11 @@ test('held draft includes package versions and compatibility, without repeated m
   for (const version of ['**5.1.0**', '**`@mnjs/html` 1.0.0**', '**`@mnjs/router` 0.1.1**', '**`@mnjs/test` 1.0.0**']) assert.ok(draft.includes(version));
 });
 
-test('production article factory is ready but route and feed remain gated', async () => {
+test('authorized production article has matching route, date and feed metadata', async () => {
   const { createReleaseArticle, releasePublicationDate, release510Post, release510Page } = await import('../content/news/release-510.mjs');
-  assert.equal(releasePublicationDate, null);
-  assert.equal(release510Post, null);
-  assert.equal(release510Page, null);
+  assert.equal(releasePublicationDate, '2026-11-12');
+  assert.equal(release510Post.date, releasePublicationDate);
+  assert.equal(release510Page.date, releasePublicationDate);
   assert.throws(() => createReleaseArticle(null), /publication date/);
   const { post, page } = createReleaseArticle('2000-01-01');
   assert.equal(post.path, releaseArticle.path);

@@ -1,5 +1,4 @@
-<!-- RELEASE-DAY DRAFT: not routed or included in the live news feed.
-Publish only after npm 5.1.0, website/MCP parity, final date and hero approval. -->
+<!-- Article source approved for publication by Paul on November 12, 2026. -->
 
 # Marionette 5.1: Two more opinions.
 
