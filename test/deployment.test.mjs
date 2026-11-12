@@ -27,7 +27,7 @@ test('post-publish verification rejects stale pages with unchanged library bundl
     const path = new URL(req.url, 'http://localhost').pathname;
     if (path === '/reference/provenance.json') return res.end(JSON.stringify(provenance));
     if (path === '/sitemap.xml') return res.end(sitemap);
-    if (releaseAssets.has(path)) return res.end(path === changedRelease ? 'stale release artifact' : releaseAssets.get(path));
+    if (releaseAssets.has(path)) return res.end(path === changedRelease ? Buffer.concat([releaseAssets.get(path), Buffer.from('stale release artifact')]) : releaseAssets.get(path));
     const bundle = path.match(/^\/vendor\/(marionette|demos)\.js$/)?.[1];
     if (bundle) return res.end(bundles[bundle]);
     const marker = path === staleRoute ? 'b'.repeat(40) : served;
@@ -39,7 +39,7 @@ test('post-publish verification rejects stale pages with unchanged library bundl
   await run('--revision', revision);
   for (const path of releaseAssets.keys()) {
     changedRelease = path;
-    await assert.rejects(run('--revision', revision), error => error.code === 1 && /article missing|article\/feed artifact|hero differs/.test(error.stderr));
+    await assert.rejects(run('--revision', revision), error => error.code === 1 && /article\/feed artifact|hero differs/.test(error.stderr));
   }
   changedRelease = undefined;
   served = 'b'.repeat(40);
