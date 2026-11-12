@@ -5,7 +5,9 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { stageStableDocs } from '../scripts/stage-stable-docs.mjs';
 import { readSnapshot } from '../scripts/library-docs.mjs';
-import { runtimeFixture } from './helpers/runtime-fixture.mjs';
+import { runtimeFixture as makeRuntimeFixture } from './helpers/runtime-fixture.mjs';
+
+const runtimeFixture = (t, version = '5.1.0', mutate) => makeRuntimeFixture(t, version, mutate);
 
 const absent = path => assert.rejects(readFile(path), { code: 'ENOENT' });
 
@@ -17,7 +19,7 @@ test('stable staging exports verified docs and evidence together and refuses ove
   const evidencePath = join(destination, 'stable-docs-evidence.json');
   const bytes = await readFile(evidencePath);
   const evidence = JSON.parse(bytes);
-  assert.equal(evidence.packageVersion, '5.0.0');
+  assert.equal(evidence.packageVersion, '5.1.0');
   assert.equal(evidence.sourceRevision, manifest.sourceRevision);
   assert.equal(evidence.contentSha256, manifest.contentSha256);
   assert.deepEqual(evidence.archives, Object.fromEntries(Object.entries(lock.packages).filter(([key]) => key)));
@@ -29,7 +31,7 @@ test('stable staging exports verified docs and evidence together and refuses ove
 test('stable staging diagnoses invalid revision, RC install and certified revision mismatch', async t => {
   await assert.rejects(stageStableDocs('typo'), /Usage:/);
   const rc = await runtimeFixture(t, '5.0.0-rc.2');
-  await assert.rejects(stageStableDocs(rc.manifest.sourceRevision, { directory: rc.root, request: rc.request }), /Expected installed 5.0.0; found 5.0.0-rc.2/);
+  await assert.rejects(stageStableDocs(rc.manifest.sourceRevision, { directory: rc.root, request: rc.request }), /Expected installed 5.1.0; found 5.0.0-rc.2/);
   const stable = await runtimeFixture(t);
   await assert.rejects(stageStableDocs('a'.repeat(40), { directory: stable.root, request: stable.request }), /Certified source revision mismatch: requested a{40}; installed/);
   await absent(join(stable.root, 'output/stable-docs/manifest.json'));
@@ -61,7 +63,7 @@ for (const failure of ['docs', 'evidence', 'rename']) {
 }
 
 test('staging rejects invalid documentation hashes even inside an integrity-matching archive', async t => {
-  const { root, request, manifest } = await runtimeFixture(t, '5.0.0', installed => writeFile(join(installed, 'docs/quick-start.md'), 'invalid documentation'));
+  const { root, request, manifest } = await runtimeFixture(t, '5.1.0', installed => writeFile(join(installed, 'docs/quick-start.md'), 'invalid documentation'));
   await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request }), /Documentation hash mismatch: docs\/quick-start.md/);
   await absent(join(root, 'output/stable-docs/manifest.json'));
 });
@@ -99,3 +101,21 @@ for (const changed of ['packageVersion', 'sourceRevision', 'contentSha256', 'rou
     assert.deepEqual(await readdir(join(root, 'output')), []);
   });
 }
+
+// Synthetic fixtures verify the next-release path, not publication readiness.
+test('current stable release rejects wrong targets and keeps all archive verification', async t => {
+  const { root, request, manifest } = await runtimeFixture(t, '5.1.0');
+  await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request, targetVersion: '5.0.0' }), /Unsupported stable release target/);
+  await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request, targetVersion: '5.2.0' }), /Unsupported stable release target/);
+  const { destination, version } = await stageStableDocs(manifest.sourceRevision, { directory: root, request, targetVersion: '5.1.0' });
+  assert.equal(version, '5.1.0');
+  assert.equal((await readSnapshot(destination)).manifest.packageVersion, '5.1.0');
+});
+
+
+test('5.1 staging rejects changed installed runtime bytes before export', async t => {
+  const { root, request, manifest } = await runtimeFixture(t, '5.1.0');
+  await writeFile(join(root, 'node_modules/marionette/dist/index.js'), 'changed runtime');
+  await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request, targetVersion: '5.1.0' }), /Installed registry bytes differ/);
+  await absent(join(root, 'output/stable-docs/manifest.json'));
+});

@@ -653,6 +653,7 @@ var Requests = {
     const onceCallback = onceWrap(makeCallback(callback), (callbackToRemove) => {
       this.stopReplying(name, callbackToRemove);
     });
+    onceCallback._callback = callback;
     return this.reply(name, onceCallback, context);
   },
   stopReplying(name, callback, context) {
@@ -1096,6 +1097,27 @@ Object.assign(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin,
 });
 var defaultRuntimeId = {};
 var runtimeId = /* @__PURE__ */ Symbol("MarionetteRuntime");
+function isElAttached(el, Dom, documentEl = Dom.getDocumentEl(el)) {
+  if (!documentEl) {
+    return false;
+  }
+  let current = el;
+  while (current) {
+    if (Dom.hasEl(documentEl, current)) {
+      return true;
+    }
+    const root = current.getRootNode();
+    if (root.nodeType !== 11) {
+      return false;
+    }
+    const host = root.host;
+    if (host === documentEl) {
+      return Dom.hasEl(root, current);
+    }
+    current = host;
+  }
+  return false;
+}
 function isView(view) {
   return typeof view?.render === "function" && typeof view.destroy === "function";
 }
@@ -1285,8 +1307,7 @@ Object.assign(Region$1.prototype, CommonMixin, {
     return this._parentView && this._parentView.monitorViewEvents === false;
   },
   _isElAttached() {
-    const documentEl = this.Dom.getDocumentEl(this.el);
-    return !!documentEl && this.Dom.hasEl(documentEl, this.el);
+    return isElAttached(this.el, this.Dom);
   },
   _attachView(view, {
     replaceElement
@@ -1627,6 +1648,10 @@ var DelegateEntityEventsMixin = {
     subscriptions.forEach((cleanup) => cleanup?.());
   }
 };
+function getUIBindings() {
+  const uiBindings = getValue(this, "_uiBindings");
+  return uiBindings || getValue(this, "ui");
+}
 var normalizeUIKeys = function(hash, ui) {
   const normalizedHash = {};
   if (!hash) {
@@ -1684,10 +1709,7 @@ var UIMixin = {
   normalizeUIValues(hash, property, uiBindings = this._getUIBindings()) {
     return normalizeUIValues(hash, uiBindings, property);
   },
-  _getUIBindings() {
-    const uiBindings = getValue(this, "_uiBindings");
-    return uiBindings || getValue(this, "ui");
-  },
+  _getUIBindings: getUIBindings,
   _bindUIElements() {
     if (!this.ui) {
       return;
@@ -1936,8 +1958,7 @@ var ViewMixin = {
     return this.Dom.findEl(this.el, selector);
   },
   _isElAttached() {
-    const documentEl = this.el && this.Dom.getDocumentEl(this.el);
-    return !!documentEl && this.Dom.hasEl(documentEl, this.el);
+    return isElAttached(this.el, this.Dom);
   },
   _isDestroyed: false,
   isDestroyed() {
@@ -2707,6 +2728,20 @@ function canDetachContents(container, children) {
   }
   return container.childNodes.length === children.length || Array.from(container.childNodes).every((node) => node.nodeType === 1 || node.nodeType === 3 && !/[^\t\n\f\r ]/.test(node.textContent));
 }
+function getDeferredChildren(view, children) {
+  const shouldTriggerAttach2 = view._isAttached && view.monitorViewEvents !== false;
+  view._hasDeferredChildren = false;
+  for (const child of children) {
+    if (!child._isShown) {
+      view._hasDeferredChildren = true;
+      return children.filter((candidate) => candidate._isShown);
+    }
+    if (shouldTriggerAttach2 && !child._isAttached) {
+      view._hasDeferredChildren = true;
+    }
+  }
+  return children;
+}
 function modelAttributesMatcher(Data, predicate) {
   const keys = Object.keys(predicate);
   const length = keys.length;
@@ -2852,29 +2887,27 @@ Object.assign(CollectionView$1.prototype, ViewMixin, {
     if (this._isDestroying || this._isDestroyed) {
       return;
     }
-    const updateEntries = [];
+    const replacementEntries = [];
     for (const {
       key,
       previous,
       current
     } of changes.updated) {
+      if (previous === current) {
+        continue;
+      }
       const view = this._children.findByKey(key);
       if (view) {
-        updateEntries.push({
+        replacementEntries.push({
           current,
-          previous,
           view
         });
       }
     }
-    const replacementViews = updateEntries.filter(({
-      current,
-      previous
-    }) => current !== previous).map(({
+    const replacementViews = replacementEntries.map(({
       current
     }) => this._createChildView(current));
     const removedViews = [];
-    const updatedViews = [];
     let replacementIndex = 0;
     for (const {
       key
@@ -2893,24 +2926,15 @@ Object.assign(CollectionView$1.prototype, ViewMixin, {
       this._addChild(view);
     }
     for (const {
-      current,
-      previous,
       view
-    } of updateEntries) {
-      if (previous !== current) {
-        const childIndex = this._children.findIndexByView(view);
-        this._removeChild(view);
-        removedViews.push(view);
-        const replacementView = replacementViews[replacementIndex++];
-        this._addChild(replacementView, childIndex);
-      } else {
-        updatedViews.push(view);
-      }
+    } of replacementEntries) {
+      const childIndex = this._children.findIndexByView(view);
+      this._removeChild(view);
+      removedViews.push(view);
+      const replacementView = replacementViews[replacementIndex++];
+      this._addChild(replacementView, childIndex);
     }
     this._detachChildren(removedViews);
-    for (const view of updatedViews) {
-      view._isRendered = false;
-    }
     this.sort();
     this._removeChildViews(removedViews);
   },
@@ -2948,11 +2972,15 @@ Object.assign(CollectionView$1.prototype, ViewMixin, {
     const view = this.buildChildView(model, ChildView, childViewOptions);
     return view;
   },
-  _addChild(view, index) {
+  _addChild(view, index, deferred) {
     this.triggerMethod("before:add:child", this, view);
     this._setupChildView(view);
     this._children._add(view, index);
     this.children._add(view, index);
+    if (deferred) {
+      view._isShown = isElAttached(view.el, this.Dom, this.el);
+      this._hasDeferredChildren = true;
+    }
     this.triggerMethod("add:child", this, view);
   },
   _getChildView(child) {
@@ -2993,7 +3021,9 @@ Object.assign(CollectionView$1.prototype, ViewMixin, {
     this._proxyChildViewEvents(view);
   },
   _getImmediateChildren() {
-    return this.children._views;
+    const children = this._hasDeferredChildren ? getDeferredChildren(this, this.children._views) : this.children._views;
+    const emptyView2 = this._emptyRegion?.currentView;
+    return emptyView2 ? [...children, emptyView2] : children;
   },
   render() {
     if (this._isDestroyed) {
@@ -3171,6 +3201,9 @@ Object.assign(CollectionView$1.prototype, ViewMixin, {
     const views = this.children._views;
     this.triggerMethod("before:render:children", this, views);
     if (this.isEmpty()) {
+      if (views.length || this._hasDeferredChildren) {
+        this._hasDeferredChildren = views.length > 0;
+      }
       this._showEmptyView();
     } else {
       this._destroyEmptyView();
@@ -3184,7 +3217,10 @@ Object.assign(CollectionView$1.prototype, ViewMixin, {
       for (const view of views) {
         renderView(view);
       }
-      const attaching = views.filter((view) => !view._isShown || view.el.parentNode !== this.container);
+      const attaching = this._hasDeferredChildren && this._isAttached && this.monitorViewEvents !== false ? views.filter((view) => !view._isShown || !view._isAttached || view.el.parentNode !== this.container) : views.filter((view) => !view._isShown || view.el.parentNode !== this.container);
+      if (this._hasDeferredChildren) {
+        this._hasDeferredChildren = false;
+      }
       if (attaching.length) {
         this._attachChildren(this._getBuffer(attaching), attaching);
       }
@@ -3364,11 +3400,17 @@ Object.assign(CollectionView$1.prototype, ViewMixin, {
     if (!this._isRendered) {
       this.render();
     }
-    this._addChild(view, typeof index === "number" ? index : void 0);
+    const childIndex = typeof index === "number" ? index : void 0;
+    this._addChild(view, childIndex, options.preventRender);
     if (options.preventRender) {
+      if (view._parent === this && view._isShown && this._isAttached && this.monitorViewEvents !== false && !view._isAttached) {
+        view.triggerMethod("before:attach", view);
+        view._isAttached = true;
+        view.triggerMethod("attach", view);
+      }
       return view;
     }
-    if (typeof index === "number") {
+    if (childIndex !== void 0) {
       this._renderChildren();
     } else {
       this.sort();
@@ -3419,6 +3461,9 @@ Object.assign(CollectionView$1.prototype, ViewMixin, {
   },
   _destroyChildren() {
     if (!this._children.length) {
+      if (this._hasDeferredChildren) {
+        this._hasDeferredChildren = false;
+      }
       return;
     }
     this.triggerMethod("before:destroy:children", this);
@@ -3430,6 +3475,9 @@ Object.assign(CollectionView$1.prototype, ViewMixin, {
     this._removeChildViews(children);
     this._children._init();
     this.children._init();
+    if (this._hasDeferredChildren) {
+      this._hasDeferredChildren = false;
+    }
     this.triggerMethod("destroy:children", this);
   }
 });
@@ -3444,7 +3492,7 @@ var Behavior$1 = function(options, view) {
   this._initState(options);
   this.ui = {
     ...getValue(this, "ui"),
-    ...getValue(view, "ui")
+    ...getUIBindings.call(view)
   };
   this.listenTo(view, "all", this.triggerMethod);
   this.initialize.apply(this, arguments);
@@ -3918,7 +3966,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     return this._preparedView || this._displayedView;
   }
 });
-var version = "5.0.0";
+var version = "5.1.0";
 function copyApi(api) {
   return {
     ...api

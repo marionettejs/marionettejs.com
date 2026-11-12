@@ -10,8 +10,8 @@ This Behavior turns Escape into a host event. The owner of the host decides how 
 
 ```ts
 import { Behavior, View } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const DismissOnEscape = Behavior.extend({
   events: { keydown: 'handleKeydown' },
@@ -25,7 +25,7 @@ const DismissOnEscape = Behavior.extend({
 const SearchPanel = View.extend({
   behaviors: [DismissOnEscape],
   template: () => html`<input aria-label="Search">`,
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 
 const panel = new SearchPanel();
 panel.render();
@@ -66,7 +66,7 @@ Maps use functions or Behavior method-name strings for handlers, except `trigger
 | `normalizeUIKeys(map, bindings?)` | Returns a map with UI tokens expanded in its keys. |
 | `normalizeUIValues(map, property?, bindings?)` | Mutates and returns the map, expanding tokens in string values or the named property of object values. See [UI helpers](shared/view-bindings.md#ui-bindings). |
 
-The host coordinates UI rebinding during rendering. A saved query still points at its previous elements after a rerender; call `getUI` again. Do not assume Behavior UI is bound in `initialize`. A template-less CollectionView does not automatically bind Behavior UI; call the host's `bindUIElements()` when using existing elements. The Behavior shares the host's [fixed root](view.md#existing-elements).
+The host coordinates UI rebinding during rendering. A saved query still points at its previous elements after a rerender; call `getUI` again. When a View adopts existing contents, host UI is already bound during Behavior initialization. For a fresh View, host queries are unbound until rendering or explicit binding. Construction resolves Behavior selectors and delegates DOM events, but does not automatically bind Behavior queries. Call the Behavior's `bindUIElements()` to bind only its queries, or the host's `bindUIElements()` to bind host and Behavior queries. Rendering also binds them, except that `template: false` preserves existing contents without binding. A template-less CollectionView likewise needs explicit binding when using existing elements. The Behavior shares the host's [fixed root](view.md#existing-elements).
 
 `Behavior.setEventDelegator(provider)` replaces that class's DOM event provider and returns the class. `EventDelegator` is the provider slot. It is configured on the Behavior class independently from a host-specific override; runtime-wide configuration can configure both. There is no Behavior `setRenderer`, `setDomApi`, or `setDataApi`.
 
@@ -77,6 +77,8 @@ Host events are forwarded to each Behavior's `triggerMethod` with their original
 `initialize(options, host)` initializes the Behavior itself. The separate `onInitialize(host, options)` notification runs after the host's initialization. View lifecycle hooks such as `onRender`, `onAttach`, `onDetach`, `onBeforeDestroy`, and `onDestroy` receive the **host** and its event arguments. See the host's [View lifecycle](view.md#lifecycle-hooks-and-events) or [CollectionView lifecycle](collection-view.md#lifecycle-and-extension-points) for event-specific contracts.
 
 `modelEvents` and `collectionEvents` bind after host initialization. Handlers use the Behavior as context and preserve the source's arguments. Access sources as `this.view.model` and `this.view.collection`. `delegateEntityEvents()` releases previous entity bindings and binds the current declarations to those sources; `undelegateEntityEvents()` removes those bindings. Both return the Behavior. Repeated delegation replaces bindings. Reassigning a host model, collection, or declaration does not automatically rebind it; call `delegateEntityEvents()` afterward.
+
+If a Behavior's entity and state bindings share a source/event, use distinct callback functions to preserve state observation through undelegation or rebinding. The [provider cleanup limitation and forwarding-method example](providers/data.md#subscription-cleanup) apply within each Behavior too.
 
 `createState(options)`, `getState()`, `stateEvents`, `State`, and `Behavior.setStateApi(api)` follow the shared [state contract](shared/state.md). The Behavior's StateApi is independent of its host's provider. State observation does not require rendering or attachment. A host's state is not automatically the Behavior's state; pass a borrowed source deliberately when sharing it.
 

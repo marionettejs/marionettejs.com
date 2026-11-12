@@ -132,7 +132,7 @@ test('routing sync builds and validates independently, rejecting corrupted deliv
   const root = await mkdtemp(join(tmpdir(), 'docs-validation-test-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   // Use authored sources only: this test must also work before the first build.
-  for (const path of ['content', 'scripts', 'site', 'mcp', 'tools', 'test', 'package.json']) {
+  for (const path of ['content', 'release', 'scripts', 'site', 'mcp', 'tools', 'test', 'package.json']) {
     await cp(new URL(`../${path}`, import.meta.url), join(root, path), { recursive: true });
   }
   await symlink(new URL('../node_modules', import.meta.url).pathname, join(root, 'node_modules'), 'dir');

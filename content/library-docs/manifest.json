@@ -1,82 +1,82 @@
 {
   "schemaVersion": 1,
   "packageName": "marionette",
-  "packageVersion": "5.0.0",
+  "packageVersion": "5.1.0",
   "channel": "latest",
   "sourceRepository": "https://github.com/marionettejs/marionette",
-  "sourceRevision": "0f2284ad4bbfe8c82ce82714471697a68c2acaeb",
+  "sourceRevision": "86ee0599ee9c3e1ae472d7426fc3769bd66bdcbe",
   "sourceDirty": false,
-  "contentSha256": "44c0d535fd36d11f31d909246f4ee7c6592eae3f25fb7513c61af65842593a90",
+  "contentSha256": "27f2f2e672e33c297ac8c1bcf22290c3a7d07c6da68661ea746da5d288f8950f",
   "pages": [
     {
       "source": "docs/readme.md",
       "route": "docs",
       "title": "Marionette v5 documentation",
       "section": "Start here",
-      "sha256": "3b7c4110a8e7b519bbf762b753f94a29282fde17e0f4545d45d1a1259eb2f4bd"
+      "sha256": "78d0d1167d5b6cecf63224a585c4fc20dcc60f6f9b81f469a3de282da72940c3"
     },
     {
       "source": "docs/quick-start.md",
       "route": "docs/quick-start",
       "title": "Install and render a View",
       "section": "Start here",
-      "sha256": "736de9440dab3eebfa734084ac7190629be008ea183b55146ab354e655306f5f"
+      "sha256": "03816d6c0ea54c6dd231c6bdc8575770084c7747590a191c2d80be8a3db5a9e9"
     },
     {
       "source": "docs/architecture.md",
       "route": "docs/architecture",
       "title": "Building features with Marionette v5",
       "section": "Start here",
-      "sha256": "498361c4fe03d4322995e9c93a98368ab033dfe66da219145bef694c109b2f10"
+      "sha256": "805f023f29e1a9212b3969a5783f7cb15300fbddd1738dac42def02d0679f777"
     },
     {
       "source": "docs/agents.md",
       "route": "docs/agents",
       "title": "Agent workflow",
       "section": "Start here",
-      "sha256": "98bc711d194bb8f842f4987620b1c965762ad0f4c3288b19b8ac6d8f451df3ca"
+      "sha256": "c1009c3ba98e6b5e98f16b28ed7ee2b4399f85e3a41b6e9f98cacd92686e2134"
     },
     {
       "source": "docs/api.md",
       "route": "docs/api",
       "title": "API reference",
       "section": "Start here",
-      "sha256": "8357766ee95ecae6a5f130b1cc2865b140cad6414eba13d2aa6459954aba65aa"
+      "sha256": "d080362cc304a43dff25e8022d245c37242a002e9c21a5b4e8a91863285f4b97"
     },
     {
       "source": "docs/api/application.md",
       "route": "docs/api/application",
       "title": "Application",
       "section": "Core classes",
-      "sha256": "602a37e92b020739cf4ee62228a8f8e3205e94f7399cc62757d28aaa8fc57331"
+      "sha256": "4279a2d15bab25612463382ac0edfe046c3580c3b8741c1f09bb5a14deaade67"
     },
     {
       "source": "docs/api/view.md",
       "route": "docs/api/view",
       "title": "View",
       "section": "Core classes",
-      "sha256": "170bfb72a2b669f569758f2ef4a4a428f9d63e8486f42b43862273b458fc1cce"
+      "sha256": "05204ee537e94fab906c1b849a0123a13e2221bef1ab5f2fd65d8575f4339a8f"
     },
     {
       "source": "docs/api/collection-view.md",
       "route": "docs/api/collection-view",
       "title": "CollectionView",
       "section": "Core classes",
-      "sha256": "8859a50e33bfa983f35addb06aad95b8452799059499562aa5c7fef07cdd37ae"
+      "sha256": "1966452087de8675dd76f0d97e218b14aa941dd83f0d1d572b9e6e10e1fc264a"
     },
     {
       "source": "docs/api/region.md",
       "route": "docs/api/region",
       "title": "Region",
       "section": "Core classes",
-      "sha256": "ef0d045faa1351e38f35e5ccb2b3654f8930346e5f754e885b8fd63fded6429e"
+      "sha256": "c71a7a5800d32a647e359df08a8f7df5bd133549a04d3baca6648f5dccf157ff"
     },
     {
       "source": "docs/api/behavior.md",
       "route": "docs/api/behavior",
       "title": "Behavior",
       "section": "Core classes",
-      "sha256": "45df12d32d15caf9d69849957f476bc90d6c0ab1a89186384618943f68c0ee48"
+      "sha256": "e859cd22c1af3c7a9789b68274ae7679c58784418047d93c1199c90c7ea918be"
     },
     {
       "source": "docs/api/mnobject.md",
@@ -111,7 +111,7 @@
       "route": "docs/api/shared/view-bindings",
       "title": "Rendering and View bindings",
       "section": "Shared class contracts",
-      "sha256": "2e33651d6e04d88cc40809013f36a881247085be1b72b1f174ec21098cf37128"
+      "sha256": "fe051a3191e6d87c748c37a7c4294c3fc19e55c42170a0a11a7ab576c25830e2"
     },
     {
       "source": "docs/api/errors.md",
@@ -125,28 +125,28 @@
       "route": "docs/api/runtime",
       "title": "Runtime configuration",
       "section": "Runtime configuration",
-      "sha256": "b82fc651c2ae6c076b7b8600310ba7e908d699f9bb2a817851be6b22fc8c2e6f"
+      "sha256": "320c7e34f9fef2d8567181e8c718c452ec81e06f97ecbfc591f35ac5240312f3"
     },
     {
       "source": "docs/api/providers/dom.md",
       "route": "docs/api/providers/dom",
       "title": "Rendering and DOM providers",
       "section": "Provider interfaces",
-      "sha256": "7445ee9633d751c9220c9c725040383632f56d06f946f9a60181023ce42a3b8c"
+      "sha256": "2710c726815b4e88554ba26c6a7d967086d42d52f1f82fedc081f2e68d8a3800"
     },
     {
       "source": "docs/api/providers/data.md",
       "route": "docs/api/providers/data",
       "title": "Data and state providers",
       "section": "Provider interfaces",
-      "sha256": "bfdc9fcac45390611b75d28d7cc12fd256325463355fd338abfc6be503844275"
+      "sha256": "da9d70dbbc9750b0187640ea84f4a0280cdcf13b718b2ca32fe76efd709b7d38"
     },
     {
       "source": "docs/packages/data.md",
       "route": "docs/packages/data",
       "title": "@mnjs/data: Model and Collection",
       "section": "Companion packages",
-      "sha256": "ed9e5b76a3a67a459c0e88ab092b200790aff7a0aeb9c24f1e8f5129f9a1efe4"
+      "sha256": "7b398e8c2ee1a38ea7fad8babfb97f45d5d873e1dacf97af9a8c8f57f83e870f"
     },
     {
       "source": "docs/packages/radio.md",
@@ -167,56 +167,77 @@
       "route": "docs/packages/adapters",
       "title": "@mnjs/adapters: optional integrations",
       "section": "Companion packages",
-      "sha256": "c4b60a10fbb121b252c99d51e0a3e99e05843b06f65a3b11609a321d62573e35"
+      "sha256": "cb6dcdfbf540ab71c999e5c9f9afd236c4ff8c61bcf286f4e28949750736bdb5"
+    },
+    {
+      "source": "packages/html/guide.md",
+      "route": "docs/packages/html",
+      "title": "@mnjs/html: tagged-template renderer",
+      "section": "Companion packages",
+      "sha256": "4e7a1876133e9087e2cf0dc5dd396cd42bdc7c37d64f71e1119189fd789b18c9"
+    },
+    {
+      "source": "docs/packages/html.md",
+      "route": "docs/packages/html-reference",
+      "title": "Installed HTML reference",
+      "section": "Companion packages",
+      "sha256": "83c32398e0a22d69be60ffff58e181b806d6c575820bbad188ce1e967e53ec80"
+    },
+    {
+      "source": "docs/packages/router.md",
+      "route": "docs/packages/router",
+      "title": "@mnjs/router: feature-owned routing",
+      "section": "Companion packages",
+      "sha256": "4ffaffa6f7cf268c85ebdab1941cdcdc2bb629f1d4c5b7a1ab7e3d7aa79ee905"
     },
     {
       "source": "docs/integrations/setup.md",
       "route": "docs/integrations/setup",
       "title": "Setup and data",
       "section": "Integration guides",
-      "sha256": "da7a99e5bf1288b4762b1b37ec17ff8f289e1d634308401cc4d1694925854336"
+      "sha256": "2966287a7aa431343caab17f0e68be5ab8d438a7721220ba4dcdda9c463894fa"
     },
     {
       "source": "docs/guides/framework-migration.md",
       "route": "docs/guides/framework-migration",
       "title": "Migrate from another UI framework",
       "section": "Guides",
-      "sha256": "cc41122b1459a8390ae30e9523c97cfb0b6eb328174b597d8429067001d77101"
+      "sha256": "e7ac10883024de08c638af9d00e8723d0052089823a2d3df6ba07a98ece132ee"
     },
     {
       "source": "docs/guides/migration.md",
       "route": "docs/guides/migration",
       "title": "Migrate from Marionette v4",
       "section": "Guides",
-      "sha256": "5e0f72c9da11b024c6cbba37d676ebbcc05548ca53b8f4d12a0215c3f67da7a9"
+      "sha256": "ed81b0e33cafd9f6f3bdaf97dc1cc09ad567c0a155cc56e88daa86fef50ef40f"
     },
     {
       "source": "docs/guides/testing.md",
       "route": "docs/guides/testing",
       "title": "Test an application",
       "section": "Guides",
-      "sha256": "d0c956ff2ea1ccf292b3e406fd45d9d00380a20cd79624aa2f17240d23e8e482"
+      "sha256": "09e04f2a933938aa46160ac00b363ed881fe6f7df573589f5aca6203ca08fae3"
     },
     {
       "source": "docs/guides/typescript.md",
       "route": "docs/guides/typescript",
       "title": "Use TypeScript in an application",
       "section": "Guides",
-      "sha256": "baba4c8483115fd7a6bb16089f38e5666f9c0f632079b531a107ee48b1ed6285"
+      "sha256": "06f02bfa2fc401639d54bbf7bf663c86ecea8affe0cfd329f87ec0335bf88977"
     },
     {
       "source": "docs/guides/local-editing.md",
       "route": "docs/guides/local-editing",
       "title": "Edit a View’s own model",
       "section": "Guides",
-      "sha256": "50f53b24365d2ca886b7ca224b6f1298ccd105b75cc84cdd2eda171a28a511f6"
+      "sha256": "60f3ccbf08165c49d8e9c7d49ebe7a0a70af3bee2f1d1442bfdeb404d285f973"
     },
     {
       "source": "docs/guides/retained-restart.md",
       "route": "docs/guides/retained-restart",
       "title": "Restart readiness while retaining UI",
       "section": "Guides",
-      "sha256": "c331277f256ab66f281c55a80a20c4829f815f26845d1efafac3818557f18190"
+      "sha256": "01f757ca6ed91c37fa0a6a0c81f3f13fced09f0bbb70c0d50ae4fb9cb40c9ecb"
     },
     {
       "source": "docs/guides/existing-html.md",
@@ -230,21 +251,42 @@
       "route": "docs/guides/existing-ui",
       "title": "Integrate with existing UI",
       "section": "Guides",
-      "sha256": "ce14a28b781ed323f712790b605944af0de028decfdf536c1292570c3af52a4a"
+      "sha256": "db512469c18c23d8c162210cce9504a55a102c99402006ad3e31ef7183bc81e8"
     },
     {
       "source": "docs/guides/routing.md",
       "route": "docs/guides/routing",
       "title": "Connect navigation to feature ownership",
       "section": "Guides",
-      "sha256": "e7ff6fe7c9554af81363ca24ae56743af885285b5f8a8fa0221acd32b05c9b2e"
+      "sha256": "81ae31347ab714326ec54675a3b3cd1fcb837503a84b65dd470007641bd541ea"
+    },
+    {
+      "source": "docs/guides/fragment-navigation.md",
+      "route": "docs/guides/fragment-navigation",
+      "title": "Optional native fragment navigation",
+      "section": "Guides",
+      "sha256": "a3a97c1bdb6de31d58950123811d9611eb0afe2545668b93d253a7d1dd7b43ae"
+    },
+    {
+      "source": "docs/guides/composition.md",
+      "route": "docs/guides/composition",
+      "title": "Compose an application feature",
+      "section": "Guides",
+      "sha256": "7b3d2c31212031cbe0c4c7f1a8c3b9816513ecff931956d817072e4c884ddd6b"
+    },
+    {
+      "source": "docs/guides/async-requests.md",
+      "route": "docs/guides/async-requests",
+      "title": "Local requests, stale results and retries",
+      "section": "Guides",
+      "sha256": "bc970b080ae902196ef5affc6efb85068c09d16be163ffadba6c48880d98e17e"
     },
     {
       "source": "docs/guides/lists.md",
       "route": "docs/guides/lists",
       "title": "Show, sort, and filter a list",
       "section": "Guides",
-      "sha256": "0733bd54d05d8c7979c720684aa8506b8737b19dbbb5100f0d2797ab0af39ae7"
+      "sha256": "cdde629f3c0403cc56d747348458a9a87706b5e5eaf5657b011dcc25323dfccd"
     },
     {
       "source": "docs/guides/widgets.md",
@@ -258,28 +300,42 @@
       "route": "docs/guides/accessibility-rendering",
       "title": "Accessibility and rendering",
       "section": "Guides",
-      "sha256": "e197de86f7c0905901a7bbebb45438f96e67de54929e11277d74fcf5e7f1a3ef"
+      "sha256": "d91416ec995738f37dd95b01b68abfbaf6c277beabc477b333c1f132d95a5070"
     },
     {
       "source": "docs/guides/production.md",
       "route": "docs/guides/production",
       "title": "Build and deploy an application",
       "section": "Guides",
-      "sha256": "9e6e921f87c3ec2d2aa602911f2d20ac78e43e3c6df4b3c41806131d983ad715"
+      "sha256": "9cc4fe8b322c01352ced938aac28c802ea64196876cf02c40d38938a0c80b176"
     },
     {
       "source": "docs/records.md",
       "route": "docs/records",
       "title": "Build a records feature",
       "section": "Guides",
-      "sha256": "d28300ebf2c56c1819e4c890daa07c5e395934fc2f472984cdaf73af74144ffc"
+      "sha256": "ef429de715e8c3f3643cc2c68d198453cd85b81b8024ca34a446e1dbb16a5fa2"
     },
     {
       "source": "docs/tooling.md",
       "route": "docs/tooling",
       "title": "Check and debug an application",
       "section": "Development tools",
-      "sha256": "f7c1217dd8cd3d45460d3c51797787d243a4b4bb34b0a338db4b5d9aea85abe7"
+      "sha256": "0a4e1285c074540470a5d0bfdbd5ebad4f2240cc2173ae2a59312c46cd7e7ca4"
+    },
+    {
+      "source": "packages/test/readme.md",
+      "route": "docs/packages/test",
+      "title": "Testing helpers",
+      "section": "Development packages",
+      "sha256": "52808cd7fa3782b70ae10d70e27fd3a7142f435f5731ce60ef05807d8ab4d099"
+    },
+    {
+      "source": "packages/test/guide.md",
+      "route": "docs/packages/test/guide",
+      "title": "Testing helper reference",
+      "section": "Development packages",
+      "sha256": "12847f0479024db98b322d9c5005f878820e4551f3952b411895c95264223ac3"
     }
   ],
   "assets": [
@@ -293,11 +349,11 @@
     },
     {
       "source": "config/release-profile.json",
-      "sha256": "917d9e06ffe360273f19e2789cd256b6a60d2e3ef80a57ccfe44682d7c9b11a0"
+      "sha256": "a103773e32cb3c3c593a8c010b5ede5548974dfe701f3eb38a7bb95baf443c57"
     },
     {
       "source": "skills/marionette/SKILL.md",
-      "sha256": "d78cc22afa8c82b5e2dac6ef72a186e40652a4167a0cf8d7ccb79c8e0b4dfd37"
+      "sha256": "591e2c338e732da101109c730dcf0e1b5602dfa95cb431aad1da52bba4f32d4e"
     },
     {
       "source": "skills/marionette/agents/openai.yaml",
@@ -317,7 +373,7 @@
     },
     {
       "source": "examples/records/README.md",
-      "sha256": "42f4a6a2b679f79ddd6fb853f72999597513198a776c415b8a2f398eb0b67527"
+      "sha256": "e6d1db6dfa0e56bf063dff966932f64ec5e9407a7750d285b8aa61eaf3fb3698"
     },
     {
       "source": "examples/records/index.html",
@@ -325,11 +381,11 @@
     },
     {
       "source": "examples/records/package-lock.json",
-      "sha256": "666e6be2e67301e4687b77845b1be9cc3c44f64bdb742d663e68cb15a143ba0d"
+      "sha256": "dd624698b1499563b2c27e5c2831ed6a83ac380ad383a0f18526b0689f13e414"
     },
     {
       "source": "examples/records/package.json",
-      "sha256": "c310e58f4f3ba1d270276e51a5ff2a4d3e416e7a955e1115b4362268e0769418"
+      "sha256": "0dcceea7e0accaa4808435644d1e1e0748fdd74bfbc44827e68edc406e268f06"
     },
     {
       "source": "examples/records/playwright.config.js",
@@ -341,7 +397,7 @@
     },
     {
       "source": "examples/records/scripts/build-local-packages.mjs",
-      "sha256": "19fd255777083208197d994fbc5fd3a6a0b8e5e1a89b7cc2b2f4bacc7dbceddf"
+      "sha256": "0f438c5b9645dd7dc4f8fdccb868a1a45ef882829cc3396573f92b83a1c27ccf"
     },
     {
       "source": "examples/records/src/main-application.js",
@@ -365,11 +421,11 @@
     },
     {
       "source": "examples/records/src/records-views.js",
-      "sha256": "5ff51e0aa37d3a2397a3c61bf52023208252f09c81ac0d1e7492e59bf290035d"
+      "sha256": "60753c67a35307bb638c1b77a9e11ecb33d02553bf6cbb3173937c60965b1a6d"
     },
     {
       "source": "examples/records/src/setup.js",
-      "sha256": "e06baac1af4943e6b6a99cb21b250d4c6b7b708b1c9a297fcb55e0641df732e0"
+      "sha256": "0bdb745611d5dbbfaa5c74e3e921b950997680f2ddcd2753c361464074ae7c5a"
     },
     {
       "source": "examples/records/src/styles.css",
@@ -381,11 +437,11 @@
     },
     {
       "source": "examples/records/vite.config.js",
-      "sha256": "cade79f781fc6f4aae162840fa0a6343a8e423d61a137d8b5ca909eceaee5ed8"
+      "sha256": "a78e82f371aadced234938133a16f01d37379e27142458d09f83ccd2560c12d9"
     },
     {
       "source": "docs-sections.json",
-      "sha256": "fa9031fe500276335bdc43b5755e66ac7d504466f5c087c61903fd4f28f7ef6a"
+      "sha256": "eb24bcb2f0382ceffb04b2cffd3514ffd23c8e09ac5de1f35d4a4e28c2be2678"
     },
     {
       "source": "docs-symbols.json",

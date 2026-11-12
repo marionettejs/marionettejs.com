@@ -38,8 +38,10 @@ test('reading copies preserve every imported source and declared publication sta
   assert.equal(publication.status, declaration.status);
   for (const page of manifest.pages) assert.equal(await read(`dist/docs/markdown/${page.source}`), await read(`content/library-docs/${page.source}`));
   const routing = await read('dist/docs/guides/routing.md');
-  assert.match(routing, /hashchange/);
-  assert.match(routing, /readiness/);
+  assert.match(routing, /@mnjs\/router/);
+  const fragment = await read('dist/docs/guides/fragment-navigation.md');
+  assert.match(fragment, /hashchange/);
+  assert.match(routing, /getInitialDispatch/);
 });
 
 test('legacy worker retirement clears only its precache and unregisters before reloading', async () => {

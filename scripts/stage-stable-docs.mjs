@@ -2,17 +2,18 @@ import { lstat, mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
-import { readRuntimeRelease, runtimePackages, stableRelease } from './release-contract.mjs';
+import { readRuntimeRelease, runtimePackages, stableRelease, preparedRelease } from './release-contract.mjs';
 import { readSnapshot } from './library-docs.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 
-export async function stageStableDocs(revision, { directory = root, request, write = writeFile, publish = rename, readDocs = readSnapshot } = {}) {
+export async function stageStableDocs(revision, { directory = root, targetVersion = stableRelease, request, write = writeFile, publish = rename, readDocs = readSnapshot } = {}) {
   if (!/^[a-f0-9]{40}$/.test(revision ?? '')) {
-    throw new Error('Usage: npm run docs:stage-stable -- <certified published source revision>');
+    throw new Error('Usage: npm run docs:stage-stable -- <certified published source revision> [target stable version]');
   }
-  const { version, manifest, lock } = await readRuntimeRelease(directory, { request });
-  if (version !== stableRelease) throw new Error(`Expected installed ${stableRelease}; found ${version}. Install the published stable packages before staging.`);
+  if (![stableRelease, preparedRelease].includes(targetVersion)) throw new Error(`Unsupported stable release target: ${targetVersion}`);
+  const { version, manifest, lock } = await readRuntimeRelease(directory, { request, expectedVersion: targetVersion });
+  if (version !== targetVersion) throw new Error(`Expected installed ${targetVersion}; found ${version}. Install the published stable packages before staging.`);
   if (manifest.sourceRevision !== revision) throw new Error(`Certified source revision mismatch: requested ${revision}; installed ${manifest.sourceRevision}. Check the release owner’s published evidence.`);
   const destination = resolve(directory, 'output/stable-docs');
   const exists = await lstat(destination).then(() => true, error => {
@@ -56,7 +57,7 @@ export async function stageStableDocs(revision, { directory = root, request, wri
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  if (process.argv.length !== 3) throw new Error('Usage: npm run docs:stage-stable -- <certified published source revision>');
-  const { version, count } = await stageStableDocs(process.argv[2]);
+  if (![3, 4].includes(process.argv.length)) throw new Error('Usage: npm run docs:stage-stable -- <certified published source revision> [target stable version]');
+  const { version, count } = await stageStableDocs(process.argv[2], { targetVersion: process.argv[3] ?? stableRelease });
   console.log(`Verified ${count} pages from published ${version} at ${process.argv[2]}. Review output/stable-docs/stable-docs-evidence.json, then import output/stable-docs and reconcile publication edits.`);
 }

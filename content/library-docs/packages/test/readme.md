@@ -12,15 +12,17 @@ development package.
 Use Marionette 5 and Node.js `^22.22.2 || >=24.15.0`:
 
 ```sh
-npm install --save-exact marionette@5.0.1
-npm install --save-dev --save-exact @mnjs/test@0.2.0
+npm install --save-exact marionette@5.1.0
+npm install --save-dev --save-exact @mnjs/test@1.0.0
 ```
 
 Install only the optional tools your tests use. Component tests can stay in
 Cypress; the helper does not require a second runner.
 
-The helper is separately versioned: these examples use Marionette 5.0.1 with
-`@mnjs/test` 0.2.0. A coordinated runtime patch does not require a helper release.
+The helper is separately versioned: these examples use Marionette 5.1.0 with
+`@mnjs/test` 1.0.0. A compatible runtime update does not require a helper release.
+Version 1.0 retains the 0.2.1 APIs and ownership behavior, including non-restoring
+scoped replies; no migration from 0.2.1 is required.
 
 ## Use the runner-independent core
 
@@ -144,7 +146,7 @@ survive remounts in `testScope()` and keep shell-owned services in the factory s
 For cleanup without mounting, use the runner-free `@mnjs/test/scope` entry.
 
 The reply example also imports Radio. Install it directly with
-`npm install --save-dev --save-exact @mnjs/radio@5.0.1` if it is not already a
+`npm install --save-dev --save-exact @mnjs/radio@5.1.0` if it is not already a
 dependency of your project:
 
 ```js
@@ -153,12 +155,20 @@ import { Radio } from '@mnjs/radio';
 
 const scope = createTestScope();
 scope.reply(Radio, 'account', 'current', () => ({ name: 'Ada' }));
+scope.reply(Radio, 'account', {
+  enabled: true,
+  label() { return this.name; }
+}, { name: 'Ada' });
 // Or pass an already selected channel: scope.reply(channel, 'current', handler).
+// Hash form: scope.reply(channel, { current: handler }, context).
 await scope.cleanup();
 ```
 
-Reply cleanup removes only this registration if it is still current. It does not
-reset a channel or restore a previously overwritten handler.
+Hash forms register each own enumerable string key separately. Each key has its
+own callback and cleanup; an omitted/falsy context uses the selected channel.
+Reply cleanup removes only this registration if it is still current, preserving
+later replacements even when they reuse the original function and context. It
+does not reset a channel or restore a previously overwritten handler.
 
 Synchronous mount failures after resource acquisition throw `MountError` with the
 original error as `cause`. Await its `cleanup` Promise before continuing; a cleanup

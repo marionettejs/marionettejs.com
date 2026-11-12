@@ -1,13 +1,13 @@
 {
   "libraryRepository": "https://github.com/marionettejs/marionette",
-  "libraryRevision": "0f2284ad4bbfe8c82ce82714471697a68c2acaeb",
-  "packageVersion": "5.0.0",
+  "libraryRevision": "86ee0599ee9c3e1ae472d7426fc3769bd66bdcbe",
+  "packageVersion": "5.1.0",
   "sourceStatus": "Published npm stable release",
   "libraryBuild": "Browser ESM bundle of the exact npm core, radio, and utils packages pinned in package-lock.json; built with esbuild",
-  "packageIntegrity": "sha512-/20gKRRRCGKH6JqmFnlSPE9E2wP/1zBtmNlSUF55cmlaOYudBZR9MgXNWJ0IjhnEnHE7iYSFi7uaJ7OdnrFaGg==",
+  "packageIntegrity": "sha512-EERg66icvm3/mYSP6MXu0HGuHGlhFeMbsWbqASsjqb9w/0xgZogU9Qy4xrks27IG2lycnnwZ5I5y5UkoCjzNNA==",
   "brandSource": "marionettejs/branding assets/marionette-mark.svg and assets/marionette-horizontal.svg",
-  "publication": "Marionette 5.0.0 public website",
-  "bundleSha256": "3aadee81cdf9813b97c9e23a63517d5b2da0d0e9d7512f0723892531c888ee6e",
+  "publication": "Marionette 5.1.0 public website",
+  "bundleSha256": "4287f7460832b1044542bb512ad457ee9d70f063f2b140aa03872e2138d44c60",
   "documentationManifest": "/docs/manifest.json",
   "documentationNote": "The browser demos and documentation use the matching published package. /docs/manifest.json records the documentation source identity."
 }
