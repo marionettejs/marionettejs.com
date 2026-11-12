@@ -1,4 +1,10 @@
 import { readFileSync } from 'node:fs';
+import { metrics, renderChart } from '../../../site/assets/news/ai-cost/charts.js';
+
+const dataset = JSON.parse(readFileSync(new URL('../../../site/assets/news/ai-cost/data.json', import.meta.url), 'utf8'));
+const article = readFileSync(new URL('./article.html', import.meta.url), 'utf8')
+  .replace(/<!-- chart:([a-z]+) -->/g, (_, id) => renderChart(dataset.chart_builds, metrics.find(metric => metric.id === id)))
+  .replace('<!-- benchmark-data -->', `<script id="benchmark-data" type="application/json">${JSON.stringify({ builds: dataset.chart_builds }).replaceAll('<', '\\u003c')}</script>`);
 
 export const aiCost = {
   title: 'The AI Cost of Marionette',
@@ -16,5 +22,5 @@ export const aiCostPage = {
   active: 'news',
   article: true,
   author: { '@type': 'Person', name: 'Paul Falgout' },
-  body: readFileSync(new URL('./article.html', import.meta.url), 'utf8')
+  body: article
 };

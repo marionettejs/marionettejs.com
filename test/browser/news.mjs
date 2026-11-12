@@ -3,7 +3,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 import { staticServer } from './static-server.mjs';
 import { resolve } from 'node:path';
-import { newsItems, featuredNewsPath } from '../../content/news.mjs';
+import { newsItems, newsPosts, featuredNewsPath } from '../../content/news.mjs';
 
 const categoryCount = category => newsItems.filter(item => item.categories.includes(category)).length;
 
@@ -69,7 +69,7 @@ try {
   assert.equal(await stories.count(), newsItems.length);
   for (const width of [1440, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 });
-    for (const route of ['/news/', '/news/introducing-marionette-5/', '/news/wear-your-very-specific-opinions/', '/news/realworld-agent-maintenance/']) {
+    for (const route of ['/news/', ...newsPosts.map(item => item.path)]) {
       await page.goto(base + route);
       assert.equal(await decodeImages(), true);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${route} at ${width}`);
@@ -105,6 +105,17 @@ try {
         await method.locator('summary').press('Enter');
         assert.equal(await method.evaluate(el => el.open), false);
       }
+      if (route === '/news/ai-cost-of-marionette/') {
+        assert.equal(await page.locator('[data-benchmark]').count(), 7);
+        const chart = page.locator('[data-benchmark="cost"]');
+        await chart.getByRole('checkbox').check();
+        assert.equal(await chart.locator('[data-table]').isVisible(), true);
+        assert.equal(await chart.locator('[data-plot]').isVisible(), false);
+        await chart.getByRole('combobox').selectOption('name');
+        assert.equal(await chart.locator('tbody th').first().innerText(), 'Angular');
+        await chart.getByRole('checkbox').uncheck();
+        assert.equal(await chart.locator('[data-plot]').isVisible(), true);
+      }
       if (route === '/news/introducing-marionette-5/') {
         assert.equal(await page.locator('.news-prose figure').count(), 2);
         assert.equal(await page.locator('.news-pullquote blockquote').innerText(), 'The human ergonomics of the code were about code review and not saving keystrokes.');
@@ -117,7 +128,7 @@ try {
         await page.locator('.news-pullquote').screenshot({ path: `output/playwright/news/pullquote-${width}.png` });
         await page.locator('.news-case-capture').screenshot({ path: `output/playwright/news/capture-${width}.png` });
       }
-      await page.screenshot({ path: `output/playwright/news/${route === '/news/' ? 'feed' : route.includes('opinions') ? 'story' : route.includes('agent-maintenance') ? 'research' : 'article'}-${width}.png`, fullPage: true });
+      await page.screenshot({ path: `output/playwright/news/${route === '/news/' ? 'feed' : route.split('/').filter(Boolean).at(-1)}-${width}.png`, fullPage: true });
     }
   }
   await page.goto(`${base}/news/wear-your-very-specific-opinions/`);

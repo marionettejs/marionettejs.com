@@ -17,12 +17,12 @@ Its median home performance score was **96** [92–97], with LCP **1.88 seconds*
 - **Route statistics:** each application contributes its median of five samples. Tables show the median and [minimum–maximum] of four application medians. The 20 samples per framework/route are not treated as 20 independent builds.
 - **Generation time:** `elapsed_seconds` from each completed native-session receipt, measured by the adapter’s monotonic timer immediately before `turn/start` through the root `turn/completed` notification. It includes agent tool work, documentation reads and self-tests within the turn. CLI startup, account/config/tooling preflight, post-turn checks, output drain/shutdown, independent acceptance and Lighthouse are excluded. The same field and boundary are used for all six frameworks. `finished_at` is recorded after shutdown, so subtracting the ISO receipt timestamps is not this timing metric.
 - **Tokens:** final cumulative root-thread counters. Cached input is a subset of total input; uncached input is total minus cached. Reasoning output is retained as a detail and is not added again. Cache-write values are shown only as reported. Different columns’ medians are calculated independently and are not additive.
-- **Accounting:** these are native usage measurements. Actual ChatGPT subscription/credit debits and provider request counts are unavailable. Tokens and tool invocations are not dollar charges or model-request counts; no API-equivalent dollar estimate is asserted. Child/root usage aggregation is not generalized beyond the retained counters.
+- **Accounting:** these are native usage measurements. Actual ChatGPT subscription/credit debits and provider request counts are unavailable. Tokens and tool invocations are not dollar charges or model-request counts. The conditional proxy is a hypothetical token-rate calculation, not actual subscription spending, an invoice or measured API cost. Child/root usage aggregation is not generalized beyond the retained counters.
 - **Runtime:** performance and accessibility use a 0–100 scale. LCP/TBT are milliseconds; CLS is unitless. Lighthouse uses simulated mobile throttling; these are not unthrottled network timings. JavaScript transfer is measured network bytes, displayed as KiB (1 KiB = 1,024 bytes), not an uncompressed bundle-file estimate.
 
 ## Generation and acceptance
 
-Entries are median [minimum–maximum] over four applications.
+Metrics are median [minimum–maximum] over four applications; Acceptance is the aggregate count across those four applications.
 
 | Framework | Generation seconds | Acceptance | Input tokens | Cached input | Output tokens |
 |---|---:|---:|---:|---:|---:|

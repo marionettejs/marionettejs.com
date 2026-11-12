@@ -29,7 +29,7 @@ export function sortRows(rows, order) {
 }
 const summaryText = (row, metric) => `${number(row.median, metric.digits)} (${number(row.min, metric.digits)}–${number(row.max, metric.digits)})`;
 export function tableRows(rows, metric) {
-  return rows.map(row => `<tr data-framework="${esc(row.framework)}" data-median="${row.median}" data-min="${row.min}" data-max="${row.max}"><th scope="row">${esc(row.framework)}</th><td>${summaryText(row, metric)}</td>${row.observations.map(o => `<td data-build="${o.build}" data-value="${o.value}">${number(o.value, metric.digits)}</td>`).join('')}</tr>`).join('');
+  return rows.map(row => `<tr data-framework="${esc(row.framework)}" data-median="${row.median}" data-min="${row.min}" data-max="${row.max}"><th scope="row">${esc(row.framework)}</th><td>${summaryText(row, metric)}</td>${row.observations.map(o => `<td data-build="${esc(o.build)}" data-value="${o.value}">${number(o.value, metric.digits)}</td>`).join('')}</tr>`).join('');
 }
 export function plotRows(rows, metric) {
   // Zero-based and stable across sort modes. Pad enough for endpoint glyphs.
@@ -42,13 +42,13 @@ export function plotRows(rows, metric) {
   const ticks = Array.from({ length: Math.round(maximum / step) + 1 }, (_, i) => i * step);
   return `<div class="benchmark-axis" aria-hidden="true">${ticks.map((tick, i) => `<span>${number(tick, tickDigits)}${i === ticks.length - 1 ? ` ${esc(metric.unit)}` : ''}</span>`).join('')}</div>` + rows.map(row => {
     const pct = value => 100 * value / maximum;
-    const observed = row.observations.map(o => `${o.build}: ${number(o.value, metric.digits)} ${metric.unit}`).join('; ');
+    const observed = row.observations.map(o => `${esc(o.build)}: ${number(o.value, metric.digits)} ${metric.unit}`).join('; ');
     return `<div class="benchmark-row" data-framework="${esc(row.framework)}" data-median="${row.median}" data-min="${row.min}" data-max="${row.max}">
       <strong>${esc(row.framework)}</strong><span class="benchmark-value">${summaryText(row, metric)} <span class="benchmark-deltas" aria-hidden="true">−${number(row.median - row.min, metric.digits)} / +${number(row.max - row.median, metric.digits)}</span></span>
       <div class="benchmark-track" style="background-size:${100 * step / maximum}% 100%" role="img" aria-label="${esc(row.framework)}: median ${number(row.median, metric.digits)} ${esc(metric.unit)}, range ${number(row.min, metric.digits)} to ${number(row.max, metric.digits)}. ${esc(observed)}">
         <span class="benchmark-bar" style="width:${pct(row.median)}%" aria-hidden="true"></span>
         <span class="benchmark-range" style="left:${pct(row.min)}%;width:${pct(row.max - row.min)}%" aria-hidden="true"></span>
-        ${row.observations.map(o => `<span class="benchmark-dot benchmark-${o.build}" data-build="${o.build}" data-value="${o.value}" style="left:${pct(o.value)}%" aria-hidden="true" title="${o.build}: ${number(o.value, metric.digits)} ${esc(metric.unit)}"></span>`).join('')}
+        ${row.observations.map(o => `<span class="benchmark-dot benchmark-${esc(o.build)}" data-build="${esc(o.build)}" data-value="${o.value}" style="left:${pct(o.value)}%" aria-hidden="true" title="${esc(o.build)}: ${number(o.value, metric.digits)} ${esc(metric.unit)}"></span>`).join('')}
         <span class="benchmark-median" style="left:${pct(row.median)}%" aria-hidden="true"></span>
       </div></div>`;
   }).join('');
