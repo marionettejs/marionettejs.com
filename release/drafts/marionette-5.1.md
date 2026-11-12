@@ -35,7 +35,7 @@ The Region renders and mounts the View, then owns replacing and destroying it. A
 
 Interactions stay in Marionette’s `events`, `triggers`, and `ui`. The renderer deliberately rejects template event bindings. You do not need two competing answers to “where did this click handler come from?”
 
-The integration also carries attachment and detachment through to the renderer’s directives and keeps its updates within an owned DOM range. Your templates can do their work without taking over neighboring child Views.
+Directives connect and disconnect with the View, and subsequent renders stay within the renderer-owned range, leaving child Views outside that range alone.
 
 For a new project with no renderer already chosen, this is now the recommended starting point. An existing application can keep its compatible renderer. There is no mandatory template migration hiding in the version number.
 
@@ -65,11 +65,13 @@ That matters whether you write the code yourself or review code an agent wrote. 
 
 The agent can generate plenty of JavaScript without our help. Giving it a sensible place to put that JavaScript is rather more interesting.
 
-## Optional packages. Worth a minor release.
+## What's in 5.1
 
-HTML and Router remain separate packages with their own versions. They do not become dependencies that every Marionette application must carry, and this release does not change core runtime APIs.
+The coordinated packages `marionette`, `@mnjs/utils`, `@mnjs/radio`, `@mnjs/data`, and `@mnjs/adapters` are **5.1.0**.
 
-They do make the recommended Marionette stack more complete. That is worth **5.1**.
+The companion packages keep their own versions: **`@mnjs/html` 1.0.0**, **`@mnjs/router` 0.1.1**, and **`@mnjs/test` 1.0.0**. HTML and Router remain optional; neither becomes a required core dependency. Router 0.1.1 updates the documentation and examples, with no Router runtime or type changes from 0.1.0.
+
+This release makes no core runtime API changes. Existing compatible renderers, data integrations, and host routers remain supported. Follow each package's published peer requirements when choosing your combination.
 
 Start with the [quick start](https://marionettejs.com/docs/quick-start/), try [HTML templates](https://marionettejs.com/docs/packages/html/), or build a [routed feature](https://marionettejs.com/docs/packages/router/).
 

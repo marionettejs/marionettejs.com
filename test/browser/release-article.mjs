@@ -19,6 +19,11 @@ try {
     assert.equal(await page.locator('h1').innerText(), 'Marionette 5.1: Two more opinions.');
     assert.match(await page.locator('.draft-note').innerText(), /Not published/);
     assert.equal(await page.locator('meta[name=robots]').getAttribute('content'), 'noindex');
+    assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), 'https://marionettejs.com/news/marionette-5-1/');
+    assert.equal(await page.locator('meta[property="og:type"]').getAttribute('content'), 'article');
+    assert.equal(await page.locator('meta[name="twitter:card"]').getAttribute('content'), 'summary_large_image');
+    assert.equal(await page.locator('meta[property="article:published_time"]').count(), 0);
+    assert.equal(await page.locator('script[type="application/ld+json"]').count(), 1);
     const image = page.locator('img');
     assert.equal(await image.evaluate(async img => { await img.decode(); return img.naturalWidth; }), 1672);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${width}px overflow`);
@@ -43,4 +48,3 @@ try {
   await writeFile('output/playwright/release-article/evidence.json', JSON.stringify(evidence, null, 2));
   console.log('Held article: desktop/intermediate/mobile screenshots, image, overflow and keyboard checks passed.');
 } finally { await browser.close(); await close(); }
-
