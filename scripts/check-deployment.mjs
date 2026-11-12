@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { siteOrigin, parseMetadataDate } from './seo.mjs';
-import { release510Post } from '../content/news/release-510.mjs';
+import { releaseArticle as release510Post } from '../release/drafts/marionette-5.1-metadata.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const origin = process.argv[2] ?? 'https://marionettejs.com';

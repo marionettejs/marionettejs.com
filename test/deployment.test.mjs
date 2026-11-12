@@ -1,7 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { readFile, mkdtemp, mkdir, cp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
@@ -63,4 +65,19 @@ test('generated pages identify the website commit', async () => {
   for (const path of ['index.html', 'why/index.html', 'thanks/index.html', 'demos/index.html', 'docs/index.html']) {
     assert.ok((await read(`dist/${path}`)).toString().includes(`<meta name="site-revision" content="${revision}">`), path);
   }
+});
+
+// The scheduled workflow intentionally performs no npm install.
+test('deployment health checker starts without installed dependencies', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'deployment-no-deps-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  for (const path of ['scripts/check-deployment.mjs', 'scripts/seo.mjs', 'scripts/html.mjs', 'release/drafts/marionette-5.1-metadata.mjs']) {
+    await mkdir(join(directory, path, '..'), { recursive: true });
+    await cp(new URL(path, root), join(directory, path));
+  }
+  await assert.rejects(exec(process.execPath, ['scripts/check-deployment.mjs'], { cwd: directory }), error => {
+    assert.match(error.stderr, /Usage: check-deployment/);
+    assert.doesNotMatch(error.stderr, /ERR_MODULE_NOT_FOUND/);
+    return error.code === 1;
+  });
 });
