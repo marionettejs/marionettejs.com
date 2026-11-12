@@ -2,14 +2,16 @@ import { readFile } from 'node:fs/promises';
 import { verifyRuntimeBytes } from './runtime-archives.mjs';
 import { resolve } from 'node:path';
 
+// The live runtime stays pinned until registry-backed staging is complete.
 export const stableRelease = '5.0.0';
+export const preparedRelease = '5.1.0';
 export const runtimePackages = ['marionette', '@mnjs/data', '@mnjs/utils', '@mnjs/radio'];
 
 // Metadata checks are necessary but not sufficient: readRuntimeRelease also
 // compares installed bytes with integrity-verified registry archives.
 export function validateRuntimeRelease({ version, manifest, packages, lock, pins }) {
   const checks = {
-    'version format': /^5\.0\.0(?:-rc\.\d+)?$/.test(version),
+    'version format': (/^(?:5\.0\.0(?:-rc\.\d+)?|5\.1\.0)$/.test(version)),
     'docs manifest version': manifest.packageVersion === version,
     'package name': manifest.packageName === 'marionette',
     'clean source': manifest.sourceDirty === false,

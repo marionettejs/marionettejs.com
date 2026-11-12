@@ -99,3 +99,13 @@ for (const changed of ['packageVersion', 'sourceRevision', 'contentSha256', 'rou
     assert.deepEqual(await readdir(join(root, 'output')), []);
   });
 }
+
+// Synthetic fixtures verify the next-release path, not publication readiness.
+test('prepared release requires explicit target and keeps all archive verification', async t => {
+  const { root, request, manifest } = await runtimeFixture(t, '5.1.0');
+  await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request }), /Expected installed 5.0.0; found 5.1.0/);
+  await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request, targetVersion: '5.2.0' }), /Unsupported stable release target/);
+  const { destination, version } = await stageStableDocs(manifest.sourceRevision, { directory: root, request, targetVersion: '5.1.0' });
+  assert.equal(version, '5.1.0');
+  assert.equal((await readSnapshot(destination)).manifest.packageVersion, '5.1.0');
+});

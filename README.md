@@ -515,3 +515,9 @@ Article dates are editorial publication dates. RoundingWell intentionally uses
 October 6, 2026, separately from its Git merge and deployment timestamps.
 The launch hero's lossless WebP derivative is used in-page; the original PNG is
 preserved for source and social previews, with unchanged artwork and dimensions.
+
+## Preparing the 5.1 release
+
+See [the 5.1 website and MCP handoff](release/5.1.0-readiness.md) for the
+registry-backed import, companion-package checks, announcement and deployment
+gates. Preparation does not change the live runtime or immutable MCP corpus.
