@@ -17,7 +17,7 @@ test('an older editorial feature stays selected while the remaining feed stays c
   assert.deepEqual(sortNewsItems(entries).map(entry => entry.path), ['/new/', '/middle/', '/old-feature/', '/undated/']);
   assert.deepEqual(entries, original);
   assert.equal(selectNewsLayout(entries, '/missing/').featured, undefined);
-  assert.equal(featuredNewsPath, '/news/introducing-marionette-5/');
+  assert.equal(featuredNewsPath, '/news/ai-cost-of-marionette/');
 });
 
 test('the requested taxonomy supports research case studies and a dated Story article', () => {
