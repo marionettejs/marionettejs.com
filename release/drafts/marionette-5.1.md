@@ -73,4 +73,6 @@ They do make the recommended Marionette stack more complete. That is worth **5.1
 
 Start with the [quick start](https://marionettejs.com/docs/quick-start/), try [HTML templates](https://marionettejs.com/docs/packages/html/), or build a [routed feature](https://marionettejs.com/docs/packages/router/).
 
+Read the [5.1 release notes](https://github.com/marionettejs/marionette/releases/tag/v5.1.0) for the full release details.
+
 Take a small feature. Give it a View, a place to live, and somewhere to go.
