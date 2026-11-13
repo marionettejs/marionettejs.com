@@ -3,6 +3,7 @@ import { demosInvitation } from './examples.mjs';
 import { invitation } from './playground.mjs';
 export { why } from './why.mjs';
 import provenance from './provenance.json' with { type: 'json' };
+import { openingHeroRig } from './hero-code.mjs';
 
 if (provenance.packageVersion !== runtimeRelease) throw new Error(`Expected a Marionette 5 package version, received ${provenance.packageVersion}.`);
 
@@ -10,14 +11,7 @@ export const home = {title:`Marionette 5 — JavaScript library for agent-led de
 <div class="opening-act"><svg class="opening-thread" aria-hidden="true"><path/></svg>
 <section class="night-hero interactive-hero" id="demo" data-home-hero>
   <div class="hero-shell"><div class="night-copy"><p class="eyebrow"><span class="signal-dot"></span> MARIONETTE ${provenance.packageVersion.split('.').slice(0, 2).join('.')}</p><h1>Pull a few<br><em>strings.</em></h1><p class="night-intro">A JavaScript UI library for<br><strong>agent-led development.</strong></p><div class="night-actions hero-choices"><a class="button" href="/why/">Explore Marionette <span aria-hidden="true">↗</span></a><a class="text-link" href="/docs/agent-start/">Equip your agent →</a></div><div class="hero-answer"><p class="hero-initial-purpose">Your agent learns the patterns.<br>You direct the application.<br>The code stays yours to follow.</p><noscript><p>Enable JavaScript to try the list, changing panels, and async Application.</p></noscript></div></div>
-  <div class="rig hero-live-code"><section class="demo hero-code-frame" aria-label="An illustrative Marionette sketch"><div class="hero-code-heading"><span>FOLLOW THE STRINGS</span></div><pre class="hero-code-source"><code>// A feature prepares before it starts.
-async prepareStart(_options, { signal }) {
-  return await loadCoolIdeas({ signal });
-}
-onStart(_app, _options, ideas) {
-  // Our app-defined helper.
-  this.showApp(ideas);
-}</code></pre></section><p class="rig-caption">An illustrative sketch. <span>A few strings worth following.</span></p></div></div>
+  ${openingHeroRig()}</div>
 </section>
 ${invitation}
 </div>
