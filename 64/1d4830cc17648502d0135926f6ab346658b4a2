@@ -1,0 +1,16 @@
+content/docs-publication-edits.json
+  h_0f06c286dda36f 35,37,43,45,51,53,99,101
+test/browser/docs-candidate.mjs
+  h_0f06c286dda36f 10,57-65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "641d4830cc17648502d0135926f6ab346658b4a2",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

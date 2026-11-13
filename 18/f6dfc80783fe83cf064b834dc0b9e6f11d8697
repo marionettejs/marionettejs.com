@@ -1,0 +1,31 @@
+README.md
+  s_21a28c4e69a102::t_d19a19000b6fe3 20,22-33,62-63
+content/pages.mjs
+  s_21a28c4e69a102::t_43da1b6ca2e0d7 3-47
+content/provenance.json
+  s_21a28c4e69a102::t_c31b31d8ea56f6 11-16
+planning/design-directions.md
+  s_21a28c4e69a102::t_28f22941c1f8a1 1-49
+scripts/build.mjs
+  s_21a28c4e69a102::t_55692532f01fbf 12-13
+scripts/dev.mjs
+  s_21a28c4e69a102::t_718ff642508ad7 14
+site/assets/theatre.css
+  s_21a28c4e69a102::t_8bb1ad6f003173 1-124
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "18f6dfc80783fe83cf064b834dc0b9e6f11d8697",
+  "prompts": {},
+  "sessions": {
+    "s_21a28c4e69a102": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a070d0-c9a5-7960-a134-1be904f7c1cf",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

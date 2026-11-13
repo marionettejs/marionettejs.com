@@ -1,0 +1,21 @@
+content/case-studies/realworld-brief.txt
+  s_c4bc6730547ecf::t_15786a559fb36f 80,94
+content/case-studies/realworld.mjs
+  s_c4bc6730547ecf::t_17e46e355d068f 24-25,59,68,75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "78808387e704034b070b63b4680ca7411fc9d051",
+  "prompts": {},
+  "sessions": {
+    "s_c4bc6730547ecf": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1173c-535e-7761-afb0-f2bfe958d8fb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

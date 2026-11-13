@@ -1,0 +1,24 @@
+README.md
+  h_0f06c286dda36f 37-38,86-89
+content/docs-publication-edits.json
+  h_0f06c286dda36f 14-45
+scripts/agent-setup.mjs
+  h_0f06c286dda36f 20,47,57
+scripts/stage-stable-docs.mjs
+  h_0f06c286dda36f 1,37
+test/packaged-helper.test.mjs
+  h_0f06c286dda36f 1-52
+test/stage-stable-docs.test.mjs
+  h_0f06c286dda36f 67-77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f82ae2b8756abc736925c5c54a797de6e5e0c281",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+content/case-studies.mjs
+  h_0f06c286dda36f 29
+content/case-studies/realworld.mjs
+  h_0f06c286dda36f 23-27
+content/case-studies/roundingwell.mjs
+  h_0f06c286dda36f 31-35
+site/assets/case-studies.css
+  h_0f06c286dda36f 11-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "387373d3e02b8547c2f3776012eff4b91992bbc2",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+content/news/maintenance-research.mjs
+  h_0f06c286dda36f 46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2d0f4de7bb4a663cba662011aa4b5b73e8af7e35",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

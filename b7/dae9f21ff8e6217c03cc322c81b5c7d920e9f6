@@ -1,0 +1,31 @@
+.github/workflows/deploy.yml
+  s_85aebd1623278c::t_83bbe2b3c70510 53
+README.md
+  s_85aebd1623278c::t_98c9064e3daa20 21-22
+mcp/DEPLOYMENT.md
+  s_85aebd1623278c::t_5663593ae00674 74-75
+mcp/worker.mjs
+  s_85aebd1623278c::t_857869b976713e 15,49-57
+scripts/build-mcp.mjs
+  s_85aebd1623278c::t_45b938a969bb73 2,5-6
+scripts/verify-mcp.mjs
+  s_85aebd1623278c::t_eec69d6c29cf8d 7,15,135,139-143
+test/mcp-http.test.mjs
+  s_85aebd1623278c::t_da119fca09bb7a 2,24-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "b7dae9f21ff8e6217c03cc322c81b5c7d920e9f6",
+  "prompts": {},
+  "sessions": {
+    "s_85aebd1623278c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09566-a835-71d3-9051-74118051e3a8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

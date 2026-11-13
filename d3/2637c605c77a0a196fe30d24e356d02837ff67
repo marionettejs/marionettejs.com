@@ -1,0 +1,58 @@
+test/site.test.mjs
+  s_6967b709298859::t_6f9e32c69dc2d9 92-94
+site/demos/projects/list-detail/main.js
+  s_6967b709298859::t_e132b29bb5608e 6,8-10
+site/demos/projects/mission-control/main.js
+  s_6967b709298859::t_dd5e3d757aa31e 5
+content/examples.mjs
+  s_6967b709298859::t_09754a1924c99e 2-6,13,30
+site/assets/demo-projects.js
+  s_6967b709298859::t_50127db690d96d 5,7-8,10,14,17,23-24,26-27,29
+site/demos/projects/list-detail/todo-views.js
+  s_6967b709298859::t_2c1036f358155c 77,99,104
+scripts/build-demo-vendor.mjs
+  s_6967b709298859::t_31206aab57f3fa 2,8-9
+site/assets/todomvc-style.js
+  s_6967b709298859::t_462e428e6a2e3d 13,15
+README.md
+  s_6967b709298859::t_9c2daffb3d33e3 47
+site/demos/projects/owned-widget/main.js
+  s_6967b709298859::t_aaff1ebe5f23aa 5
+test/browser/agent-workshop.mjs
+  s_6967b709298859::t_a6d5e7b74caebf 298
+  s_6967b709298859::t_5197340f31f2d1 136-146,195-200,254-255,461-497,500-503,628-629,634,641-645
+site/assets/demo-project-tools.js
+  s_6967b709298859::t_601dff522ba6bf 23
+site/demos/projects/list-detail/lesson.js
+  s_6967b709298859::t_f9027feaf010ef 27-30
+site/demos/projects/mission-control/readiness.js
+  s_6967b709298859::t_f648bd6ea184fe 139-140
+site/demos/projects/mission-control/app.js
+  s_6967b709298859::t_c4eaac8dc7658d 57-62,78,84,87,166-169,171
+site/demos/projects/shared/lesson-ui.js
+  s_6967b709298859::t_ce786268a8e44e 243,245-246,248,256,263-264,278
+site/assets/playground-recipes.js
+  s_6967b709298859::t_17f74180279125 8
+site/assets/project-runtime.js
+  s_6967b709298859::t_5ae1b234f93281 16-21
+site/assets/source-editor.js
+  s_6967b709298859::t_f220bb7085736f 50,68,80-83,86-88,130-138
+site/demos/projects/mission-control/lesson.js
+  s_6967b709298859::t_28116d71d9d9de 51-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d32637c605c77a0a196fe30d24e356d02837ff67",
+  "prompts": {},
+  "sessions": {
+    "s_6967b709298859": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a086ed-5486-7a51-87c8-ca99b154049d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

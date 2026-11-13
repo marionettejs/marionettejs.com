@@ -1,0 +1,23 @@
+.github/workflows/check.yml
+  s_c4bc6730547ecf::t_f29b447f3a3b36 37-38
+site/assets/case-studies.css
+  s_c4bc6730547ecf::t_ef7144f8a010bb 74
+test/browser/case-studies.mjs
+  s_c4bc6730547ecf::t_f37e9edf9550e4 1-129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "02ca01502da555ee3faf2f41e9c940ea5f5b38a5",
+  "prompts": {},
+  "sessions": {
+    "s_c4bc6730547ecf": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1173c-535e-7761-afb0-f2bfe958d8fb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

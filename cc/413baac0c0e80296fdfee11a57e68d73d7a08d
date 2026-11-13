@@ -1,0 +1,205 @@
+AGENTS.md
+  s_930f3c9a37745c::t_972a693c8ddb1b 3-5
+README.md
+  s_930f3c9a37745c::t_05f00a1fe35017 1,10-24,148,239-242,245,247,250-290,294-298
+content/docs-publication-edits.json
+  s_930f3c9a37745c::t_5f42ddfb77ece6 2-3,5-6
+content/examples.mjs
+  s_930f3c9a37745c::t_17bd0919d0dc37 23
+content/library-docs/docs-sections.json
+  s_930f3c9a37745c::t_654231c06d9d4f 1
+content/library-docs/docs/agents.md
+  s_930f3c9a37745c::t_a2351406cba429 1-78
+content/library-docs/docs/api.md
+  s_930f3c9a37745c::t_7209e80fe0b1c8 1-59
+content/library-docs/docs/api/application.md
+  s_930f3c9a37745c::t_7ff38cf5cfed3e 1,3,5,7,9,11,13-16,18-21,23-32,34-38,40,42,44,46,48-55,57,59,61,63-70,72,74,76,78,80,82-86,88,90,92,94,96-101,103,105,107,109,111,113,115,117-121,123-190
+content/library-docs/docs/api/behavior.md
+  s_930f3c9a37745c::t_3acea06ac7ffba 1-95
+content/library-docs/docs/api/collection-view.md
+  s_930f3c9a37745c::t_0a6921bfcac79e 1,3,5-7,9-12,14-15,17-21,23,25,28-47,50,52,54,56,58-68,70,72,74-207,209
+content/library-docs/docs/api/errors.md
+  s_930f3c9a37745c::t_68fdd4e20416a8 1-43
+content/library-docs/docs/api/mnobject.md
+  s_930f3c9a37745c::t_08dd40fcf2073b 1-82
+content/library-docs/docs/api/providers/data.md
+  s_930f3c9a37745c::t_624b54dac2580e 1-62
+content/library-docs/docs/api/providers/dom.md
+  s_930f3c9a37745c::t_5107b439038b2a 1-29,32-85
+content/library-docs/docs/api/region.md
+  s_930f3c9a37745c::t_77268be17f91e2 1,3,5,7-66,68-156
+content/library-docs/docs/api/runtime.md
+  s_930f3c9a37745c::t_8f5e0e6df53e05 1,3,5,7,9,11-14,16,18-19,21,24,26,28,30,32-34,37-38,40-43,45-48,51,53,55-59,61,63-67,69,71,73,75-83,85,87,89,91,93,95-97,99,101,103,105
+content/library-docs/docs/api/shared/common.md
+  s_930f3c9a37745c::t_e1cb6b33364b19 1,3,5,7,9-10,12-16,20,23,25,27,29,31-35,37,39,41,43-48,50,52,54,56,58,60,62
+content/library-docs/docs/api/shared/events.md
+  s_930f3c9a37745c::t_7dfac9f32adf11 1-22,25-63
+content/library-docs/docs/api/shared/state.md
+  s_930f3c9a37745c::t_9638713f19a1ed 1,3,5,7-13,15,17,19-28,31,33-35,38,40,42,44,46-49,51,53,55,57,59,61,63,65
+content/library-docs/docs/api/shared/view-bindings.md
+  s_930f3c9a37745c::t_023cde70c1ff34 1,3,5,7,9-16,18,20,22-25,27-28,30,32-34,37,39,41,43,45,47,49-57,59,61,63,65,67,69-72,74,76,78,80,82,84,86,88,90-94,96,98,100,102,104,106,108,110,112-118,120,122,124,126,128-133,135
+content/library-docs/docs/api/view.md
+  s_930f3c9a37745c::t_7518f4c0ba0a76 1,3,5,7,9,11,13-17,19-23,25-71,74,76-83,85,87,89-145,147
+content/library-docs/docs/architecture.md
+  s_930f3c9a37745c::t_51b71b54715a04 1-34,36-67
+content/library-docs/docs/guides/accessibility-rendering.md
+  s_930f3c9a37745c::t_661a452440abd8 1-36,38-67,69
+content/library-docs/docs/guides/existing-html.md
+  s_930f3c9a37745c::t_9f62204b49538a 1,3,5,7-11,14,16,19-26,30-31,33,35,37,39,41,43,45
+content/library-docs/docs/guides/existing-ui.md
+  s_930f3c9a37745c::t_2174af3b7c578a 1-7,9-22,24,26,28-33,35-51
+content/library-docs/docs/guides/lists.md
+  s_930f3c9a37745c::t_061fb29cca3efb 1-73,75-93
+content/library-docs/docs/guides/local-editing.md
+  s_930f3c9a37745c::t_2d936cba3799f5 1,3,5,7,9-10,13-41,44,46,48,50,52
+content/library-docs/docs/guides/migration.md
+  s_930f3c9a37745c::t_304f92670b833c 1-68
+content/library-docs/docs/guides/production.md
+  s_930f3c9a37745c::t_a2d84b7e9ee042 1-37
+content/library-docs/docs/guides/retained-refresh.md
+  s_930f3c9a37745c::t_e0931470a674d3 1-126
+content/library-docs/docs/guides/routing.md
+  s_930f3c9a37745c::t_a9b12003bb65c7 1-36,38-48,50-52,55-59,62,64,66-80,82
+content/library-docs/docs/guides/testing.md
+  s_930f3c9a37745c::t_1d7debba75e1fd 1-17,19-21,25-74,76-180,182-190,192-208
+content/library-docs/docs/guides/typescript.md
+  s_930f3c9a37745c::t_9975727d4bd750 1,3,5,7,9,12-17,19-22,25-29,32,34,36,38,40,42-46,48-61,63-65,68-71,74,76,78,80,82-85,87-102,104-108,110,112-116,119,121,123-136,138-145,148,150
+content/library-docs/docs/guides/widgets.md
+  s_930f3c9a37745c::t_d4a80f221ed29e 1-34,36-40,42,44,46,48,50-53,55,57-65,67
+content/library-docs/docs/integrations/setup.md
+  s_930f3c9a37745c::t_bd537d2e827c74 1,3,5,7,9-10,13,15,17,19-23,25-27,30,32-33,35,37-41,45,47,49,51,53-54,56-58,60-63
+content/library-docs/docs/packages/adapters.md
+  s_930f3c9a37745c::t_188bb2f4cfec63 3,5-11,13,15,19,22,26-33,36-44,46,48,50,54,56-59,62,64,66-70,72-73,75-77,80,82,84-86,88-92,96-98,100-102,104-112,115,117,119,121,123,125,127-137,141-142,144-146,148-151,154,156,158,160-163,166-173
+content/library-docs/docs/packages/data.md
+  s_930f3c9a37745c::t_4202dd8704c61e 1,3,5,7,9,11-12,14-15,18-23,26,28-36,38,40,42-51,53,55,57,59-63,65,67,69,71,73,75-76,78-84,87,89-95,97,99-107,109,111-118,120,122,124,126-133,135,137,139,141,143,145,147,149,151,153-161,163,165,167,169,171-173,175-183,186,188-196,198,200
+content/library-docs/docs/packages/radio.md
+  s_930f3c9a37745c::t_565991e9f1fd3c 3-7,9-13,16,18-21,23-24,27-113,115,117-121,123-136,141-144,146-149,152-156,158-161,166-167,169-172,174-177,180-222
+content/library-docs/docs/packages/utils.md
+  s_930f3c9a37745c::t_51bf5b58db119d 3,5,7,10,12,14,16-17,19-40,42-51,54-109
+content/library-docs/docs/quick-start.md
+  s_930f3c9a37745c::t_f41908a38bbe50 1-60,62-77
+content/library-docs/docs/readme.md
+  s_930f3c9a37745c::t_32403eaa610218 1,3,5,7,9-11,13,15,17-40,42-44,46,48-52,54,56,58-66,68
+content/library-docs/docs/records.md
+  s_930f3c9a37745c::t_e4fa6cba4338ae 1,3,5-14,17-63,65,67,69,71-74,77
+content/library-docs/docs/tooling.md
+  s_930f3c9a37745c::t_7ed745573a191d 1,3,5,7-52,63-64,66,70,72,75,77-78,80,82,84-85,88,90,92,94,96-97,100-102,104,106-109,111
+content/library-docs/examples/records/README.md
+  s_930f3c9a37745c::t_b4e255ec7dc76d 1-41
+content/library-docs/examples/records/index.html
+  s_930f3c9a37745c::t_6ea0b14f74f593 1-21
+content/library-docs/examples/records/package-lock.json
+  s_930f3c9a37745c::t_cf6a32802c8503 2-1002,1004
+content/library-docs/examples/records/package.json
+  s_930f3c9a37745c::t_b8dd0c9354f706 2,4,6-8,10-13,16-24
+content/library-docs/examples/records/playwright.config.js
+  s_930f3c9a37745c::t_09d5b4e1554a95 1-24
+content/library-docs/examples/records/public/api/records.json
+  s_930f3c9a37745c::t_8eba3e1338010e 1-5
+content/library-docs/examples/records/scripts/build-local-packages.mjs
+  s_930f3c9a37745c::t_6718b01c42adb6 4-10,12-16
+content/library-docs/examples/records/src/main-application.js
+  s_930f3c9a37745c::t_8055c2283d2a47 1-38
+content/library-docs/examples/records/src/main.js
+  s_930f3c9a37745c::t_8c8b0b75adb2fc 1-6
+content/library-docs/examples/records/src/page.js
+  s_930f3c9a37745c::t_21111509d5cac9 3-11
+content/library-docs/examples/records/src/records-api.js
+  s_930f3c9a37745c::t_825ac6fb10bebf 1-5,7
+content/library-docs/examples/records/src/records-application.js
+  s_930f3c9a37745c::t_c20815545b23da 2-4,6,8,10-13,15-18,20-25,27,29-30,32-36
+content/library-docs/examples/records/src/records-views.js
+  s_930f3c9a37745c::t_1873e9335508b5 1-2,4-31,33-36,38-40,43,45-48,51-53,55-57
+content/library-docs/examples/records/src/setup.js
+  s_930f3c9a37745c::t_beb92c1c9cce5f 1-8
+content/library-docs/examples/records/src/styles.css
+  s_930f3c9a37745c::t_cd7dfe0bb140d9 1-20
+content/library-docs/examples/records/tests/records.spec.js
+  s_930f3c9a37745c::t_7e100ba5e94687 1,3-6,8-11,14-28,30-43,45-47,51-56,59-86,89-99,102-123,126-138,141-162,164-176,178-188,191-201,204-219,223-248,252-282,286-300,304-312,314-315,317-323,327-346,349-362,365-379
+content/library-docs/examples/records/vite.config.js
+  s_930f3c9a37745c::t_1ade0aa53d6914 1-5,7-17
+content/library-docs/manifest.json
+  s_930f3c9a37745c::t_309785b4cab583 4,7,9,14,16,19-21,23,26-28,30,35,37,40-42,44,47-51,54-55,57-58,61-62,64-65,68-72,75-76,78-79,82-83,85-86,89-93,96-100,103-107,110-114,117-121,124-128,131-135,138-142,145-149,152-156,159-163,166-170,173-177,180-184,187-191,194-198,201-205,208-212,215-219,222-226,229-233,236-240,243-247,250-254,257-261,264-268,271-275,284-285,289,293,297,300-301,304-305,308-309,312-313,316-317,320-321,324-325,328-329,332-333,336-337,340-341,344-345,348-349,352-353,356-357,360-361,364-365,368-369,372-373,376-377
+content/library-docs/skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_3678c4bdc8c096 3,6,8,10,12,14,16,19-57
+content/library-docs/skills/marionette/agents/openai.yaml
+  s_930f3c9a37745c::t_b92ab118cc4c4a 3
+content/library-docs/skills/marionette/scripts/docs.mjs
+  s_930f3c9a37745c::t_9321dd06f841a5 4-5,7,41,44,46,55-57,59,79-81,98-161
+content/library-docs/skills/marionette/scripts/search.mjs
+  s_930f3c9a37745c::t_7cba4d5252ce7f 1-20
+content/library-docs/skills/marionette/scripts/symbols.mjs
+  s_930f3c9a37745c::t_8600d21dd65e11 1-13,15-25,27-28,30-49,51,53-79,81-89
+content/pages.mjs
+  s_930f3c9a37745c::t_b5d17cc9638be1 31,74
+content/provenance.json
+  s_930f3c9a37745c::t_caa81f689a48e7 12
+mcp/README.md
+  s_930f3c9a37745c::t_73835753d9e842 9-12,16,129,137-139,144,147
+mcp/load.mjs
+  s_930f3c9a37745c::t_0e4d4d982b1708 1,10-11,17,19,42-53,56
+mcp/tools.mjs
+  s_930f3c9a37745c::t_33ed89cf4e9dc1 1,7,12,14-16,24,26,31,48,53,105
+package.json
+  s_930f3c9a37745c::t_29d0d9b900285f 6,24-25
+scripts/agent-discovery.mjs
+  s_930f3c9a37745c::t_6b9abeae1a6bf8 1,13-19,22-34,38,54-55,57,84,106
+scripts/benchmark-section-context.mjs
+  s_930f3c9a37745c::t_83ff7a9df1876f 6-9
+scripts/build-vendor.mjs
+  s_930f3c9a37745c::t_25494b8791ad81 9,32
+scripts/build.mjs
+  s_930f3c9a37745c::t_3c9b7b46e78226 81,102,113
+scripts/library-docs.mjs
+  s_930f3c9a37745c::t_fef50a8447890a 3,16-23,29,36,38-40,45-48,109,125-126,141-142,146,150-151,162,177
+scripts/publication-status.mjs
+  s_930f3c9a37745c::t_edd98b99b7002f 1-2
+scripts/published-docs.mjs
+  s_930f3c9a37745c::t_dcfa2659c3a51c 1,18-28,30-45,51-55
+scripts/verify-mcp.mjs
+  s_930f3c9a37745c::t_ff1754857ba884 1,40,48-51,97-98,105,110,126
+site/_redirects
+  s_930f3c9a37745c::t_c965f00269b121 14-16
+site/agent-prompt.md
+  s_930f3c9a37745c::t_292b879fb838be 118
+site/assets/playground-recipes.js
+  s_930f3c9a37745c::t_2dc050e774fbd0 186-188,226-227,264-266
+test/agent-discovery.test.mjs
+  s_930f3c9a37745c::t_ffe929ccc31ec1 7,9,22,43-44,70,108,126-145
+test/agent-setup.test.mjs
+  s_930f3c9a37745c::t_cafbfc47ea54f3 16-18
+test/browser/agent-workshop.mjs
+  s_930f3c9a37745c::t_d5d1a0294af6fc 830,832,835,844-845
+test/browser/docs-candidate.mjs
+  s_930f3c9a37745c::t_ea0a0845a67f79 1,3-17,19-20,22-43,45-46
+test/development-docs.test.mjs
+  s_930f3c9a37745c::t_e4a1535dc2ce51 6,8-11,13,16-17,20,22-24,26-28
+test/docs-sync.test.mjs
+  s_930f3c9a37745c::t_68e717624c54a3 13,15-17,139-140,142-143,146,149-153,163-164
+test/docs.test.mjs
+  s_930f3c9a37745c::t_ffe6798f5e0363 44,49,51,56-57,94,96-99,105-107,116,125,128,162,166,170-173,175-176,195,197,208,210,218
+test/import-docs.test.mjs
+  s_930f3c9a37745c::t_fea948aee49914 44,48-49
+test/mcp.test.mjs
+  s_930f3c9a37745c::t_587c188758ed46 43,45-50,54,62,70-72,74,76-77,80,83,88,93,103,108-114,117,123,128,133,136,139,162-164,169-171,174-176
+test/release.test.mjs
+  s_930f3c9a37745c::t_b59146ffb03f1a 12,27,30-31,33-39,67-69,132-134
+test/site.test.mjs
+  s_930f3c9a37745c::t_d4ae5c8f8c06de 60,69-73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "cc413baac0c0e80296fdfee11a57e68d73d7a08d",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+mcp/DEPLOYMENT.md
+  s_ecb51887ff50ee::t_b709baf746207f 45-60
+mcp/server.mjs
+  s_ecb51887ff50ee::t_bc8ce58d59b912 3,6
+mcp/tools.mjs
+  s_ecb51887ff50ee::t_105c7f07adb7d3 14-15,38-41,43-45,47-94
+mcp/worker.mjs
+  s_ecb51887ff50ee::t_7e367c2c1f3930 2,6
+scripts/benchmark-mcp.mjs
+  s_ecb51887ff50ee::t_e98715e89469fd 2-8,10-104,106-117
+scripts/verify-mcp.mjs
+  s_ecb51887ff50ee::t_98e012277b154f 46-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "dc973aadc36dfa54fc6175320d497888d196f81b",
+  "prompts": {},
+  "sessions": {
+    "s_ecb51887ff50ee": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a093d3-e274-7290-9915-277632761c5d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+test/release.test.mjs
+  s_d758dded79c97f::t_8195f576a254b7 61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "b1f3f1b35ab649a3e5566b33489e40de0ce69bcb",
+  "prompts": {},
+  "sessions": {
+    "s_d758dded79c97f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08c89-49f8-7150-871c-f9819ae99f74",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

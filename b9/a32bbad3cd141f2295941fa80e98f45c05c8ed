@@ -1,0 +1,34 @@
+test/mcp.test.mjs
+  s_dd1c0f2a0340dc::t_63450413ef264d 45-52,105
+  s_dd1c0f2a0340dc::t_e8925ca710670e 1-2,6-27,29-44,53-104,106-122,149
+  s_dd1c0f2a0340dc::t_c7d36affac29f8 28
+  s_dd1c0f2a0340dc::t_f67ab4dd132257 3-5,123-148
+mcp/server.mjs
+  s_dd1c0f2a0340dc::t_820c2786a6c8e7 1-12,15-16,18-66,68-71,73-75,78-80,87-118
+  s_dd1c0f2a0340dc::t_63450413ef264d 13-14,67,72,76-77,81-86
+  s_dd1c0f2a0340dc::t_e8925ca710670e 17
+mcp/README.md
+  s_dd1c0f2a0340dc::t_c7d36affac29f8 99
+  s_dd1c0f2a0340dc::t_f6ef41b43e0a44 1-53,58-98,100-102
+  s_dd1c0f2a0340dc::t_63450413ef264d 54-57
+package-lock.json
+  s_dd1c0f2a0340dc::t_6ce1827a0b0696 11-12,16-17,488-533,632-646,689-728,778-846
+package.json
+  s_dd1c0f2a0340dc::t_2e494a27f6bd93 16-17,20-21,25-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "b9a32bbad3cd141f2295941fa80e98f45c05c8ed",
+  "prompts": {},
+  "sessions": {
+    "s_dd1c0f2a0340dc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a084b0-1a02-7380-9397-01a2c9825349",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

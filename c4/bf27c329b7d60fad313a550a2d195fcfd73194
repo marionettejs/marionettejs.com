@@ -1,0 +1,19 @@
+mcp/tools.mjs
+  s_8bc4ebe3642b83::t_2e384bb96fbd54 7,10-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c4bf27c329b7d60fad313a550a2d195fcfd73194",
+  "prompts": {},
+  "sessions": {
+    "s_8bc4ebe3642b83": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0adca-119a-75a3-900a-83f3a223701a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

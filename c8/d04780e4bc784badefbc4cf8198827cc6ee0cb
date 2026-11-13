@@ -1,0 +1,191 @@
+mcp/DEPLOYMENT.md
+  s_9b715d9e600fb6::t_174bd43387a0d5 3
+AGENTS.md
+  s_9b715d9e600fb6::t_f06252457ac1e7 3
+README.md
+  s_9b715d9e600fb6::t_0450191c9be2db 1,104,264-271
+content/diagnostics-schema-provenance.json
+  s_9b715d9e600fb6::t_efbf6b9a3988f6 3
+content/docs-publication-edits.json
+  s_9b715d9e600fb6::t_6754624ba7bfe0 2,8,118,122-123,126-128,131-133
+content/library-docs/AGENTS.md
+  s_9b715d9e600fb6::t_4ea01b5b38337c 1-68
+content/library-docs/CONTRIBUTING.md
+  s_9b715d9e600fb6::t_cfba5a125f4285 1-181
+content/library-docs/SECURITY.md
+  s_9b715d9e600fb6::t_f92136509bd712 1-24
+content/library-docs/benchmarks/docs/README.md
+  s_9b715d9e600fb6::t_2a4b94d6baea51 1-64
+content/library-docs/benchmarks/docs/acceptance/run.mjs
+  s_9b715d9e600fb6::t_9c458b869dee18 1-106
+content/library-docs/benchmarks/docs/prepare.mjs
+  s_9b715d9e600fb6::t_5ce8719502bb31 2-4,6-29,31-37,39
+content/library-docs/benchmarks/docs/results/2026-09-08/README.md
+  s_9b715d9e600fb6::t_edc61c77f24b55 1-34
+content/library-docs/benchmarks/docs/results/2026-09-08/editable-list/REPORT.md
+  s_9b715d9e600fb6::t_adca9421dab6b3 1-51
+content/library-docs/benchmarks/docs/results/2026-09-08/editable-list/solution.mjs
+  s_9b715d9e600fb6::t_2e38b3e6fa5893 1-47
+content/library-docs/benchmarks/docs/results/2026-09-08/editable-list/validate.mjs
+  s_9b715d9e600fb6::t_af0a127b8bb9b8 1-74
+content/library-docs/benchmarks/docs/results/2026-09-08/latest-navigation/REPORT.md
+  s_9b715d9e600fb6::t_f2779ea610a96d 1-36
+content/library-docs/benchmarks/docs/results/2026-09-08/latest-navigation/smoke.test.mjs
+  s_9b715d9e600fb6::t_3c6dbb20720cae 3,5-78
+content/library-docs/benchmarks/docs/results/2026-09-08/latest-navigation/solution.mjs
+  s_9b715d9e600fb6::t_0f5d325e013600 1-49
+content/library-docs/benchmarks/docs/results/2026-09-08/provenance.json
+  s_9b715d9e600fb6::t_8367f57ccb6646 1-12
+content/library-docs/benchmarks/docs/results/2026-09-08/widget-lifetime/REPORT.md
+  s_9b715d9e600fb6::t_0622d1fe739f67 1-44
+content/library-docs/benchmarks/docs/results/2026-09-08/widget-lifetime/solution.mjs
+  s_9b715d9e600fb6::t_bc6d9164f505f3 1-10,12-20
+content/library-docs/benchmarks/docs/results/2026-09-08/widget-lifetime/validate.mjs
+  s_9b715d9e600fb6::t_847a33092a186c 1-56
+content/library-docs/benchmarks/docs/tasks/editable-list.md
+  s_9b715d9e600fb6::t_7c99c0fb1b9240 1-26
+content/library-docs/benchmarks/docs/tasks/latest-navigation.md
+  s_9b715d9e600fb6::t_ce95636cfe1226 1-24
+content/library-docs/benchmarks/docs/tasks/widget-lifetime.md
+  s_9b715d9e600fb6::t_514fe5061f6eb4 1-19
+content/library-docs/config/api-contracts/inventory.json
+  s_9b715d9e600fb6::t_ff227f9e2f4eda 1-8150
+content/library-docs/config/api-contracts/semantics.json
+  s_9b715d9e600fb6::t_619fe7f81e12f8 1-2397
+content/library-docs/config/diagnostics/catalog.json
+  s_9b715d9e600fb6::t_382872fcd38cf0 682-702
+content/library-docs/docs-site/README.md
+  s_9b715d9e600fb6::t_2bb2d6a4c9ca0c 1-150
+content/library-docs/docs/agent-tools.md
+  s_9b715d9e600fb6::t_02eb4426013645 92-114,121,135-137
+content/library-docs/docs/agents.md
+  s_9b715d9e600fb6::t_3e28e8a99cddad 17-18,31-33,121-129
+content/library-docs/docs/beta.md
+  s_9b715d9e600fb6::t_2d311dbbecbbde 3-6,17-18,24-35,87
+content/library-docs/docs/compact-reference.md
+  s_9b715d9e600fb6::t_7fe7e19d4539e3 1-118
+content/library-docs/docs/consumer-lint.md
+  s_9b715d9e600fb6::t_e6bba24d80430d 1-40
+content/library-docs/docs/data.api.md
+  s_9b715d9e600fb6::t_6c8b88b3140cc4 219
+content/library-docs/docs/development.md
+  s_9b715d9e600fb6::t_ef55cbd1a03b8d 8-37,40-41,66-67,96-97
+content/library-docs/docs/installation.md
+  s_9b715d9e600fb6::t_9b8c85a6ca8566 3-6,10,33,40,53-54,60-61,73,76,79,188,262,264
+content/library-docs/docs/maintainers/authorship-inventory.md
+  s_9b715d9e600fb6::t_4d219d0ec87e56 1-95
+content/library-docs/docs/maintainers/browser-contract-matrix.md
+  s_9b715d9e600fb6::t_77bff5bfa0e5b4 1-33
+content/library-docs/docs/maintainers/documentation-trial.md
+  s_9b715d9e600fb6::t_ea4cd8f740b504 1-86
+content/library-docs/docs/maintainers/documentation.md
+  s_9b715d9e600fb6::t_1c998a54df07a9 1-168
+content/library-docs/docs/maintainers/line-audit-core.md
+  s_9b715d9e600fb6::t_8e68162667f3f5 1-146
+content/library-docs/docs/maintainers/line-audit-integrations.md
+  s_9b715d9e600fb6::t_36f8b7b14b2cf2 1-130
+content/library-docs/docs/maintainers/line-audit-operations.md
+  s_9b715d9e600fb6::t_e58d9eb400da46 1-137
+content/library-docs/docs/maintainers/package-comment-audit.md
+  s_9b715d9e600fb6::t_36f57796c4193c 1-97
+content/library-docs/docs/maintainers/readme.md
+  s_9b715d9e600fb6::t_c3cc4cdffb58b9 1-103
+content/library-docs/docs/maintainers/reference-audit.md
+  s_9b715d9e600fb6::t_ef7087e6f0451a 1-100
+content/library-docs/docs/maintainers/release-checklist.md
+  s_9b715d9e600fb6::t_fc3221a553c844 1-138
+content/library-docs/docs/maintainers/source-comment-audit.md
+  s_9b715d9e600fb6::t_213c108395f89c 1-135
+content/library-docs/docs/maintainers/types.md
+  s_9b715d9e600fb6::t_61aa3591fd973b 1-172
+content/library-docs/docs/migration-from-v4.md
+  s_9b715d9e600fb6::t_44d4770967c299 23
+content/library-docs/docs/optional-backbone.md
+  s_9b715d9e600fb6::t_e6d7848c0cea3e 10
+content/library-docs/docs/performance-baselines.md
+  s_9b715d9e600fb6::t_745a52db9247f4 1-182
+content/library-docs/docs/readme.md
+  s_9b715d9e600fb6::t_c92a04e249b88a 8-9
+content/library-docs/docs/release-profile.md
+  s_9b715d9e600fb6::t_3f158eabe46f70 1-104
+content/library-docs/docs/release-promotion.md
+  s_9b715d9e600fb6::t_195ea09d1d8f42 1-239
+content/library-docs/manifest.json
+  s_9b715d9e600fb6::t_e3a4b3249b4c65 4-5,7,9,16,23-37,44,51-58,86,219,240,254,261,331,338,345,352-499,505-517,521,527-530,557,562-629
+content/library-docs/packages/adapters/readme.md
+  s_9b715d9e600fb6::t_dcd04acb22dd30 30,72,129,175,197
+content/library-docs/packages/data/readme.md
+  s_9b715d9e600fb6::t_d25ba0e9fdc3ee 10
+content/library-docs/packages/radio/readme.md
+  s_9b715d9e600fb6::t_29109c026b5d26 6
+content/library-docs/packages/utils/readme.md
+  s_9b715d9e600fb6::t_5ae1864677779c 7
+content/library-docs/scripts/api-contracts/README.md
+  s_9b715d9e600fb6::t_0a2803714ee21d 1-74
+content/library-docs/skills/marionette/SKILL.md
+  s_9b715d9e600fb6::t_a7f9c8398b96bf 55-64
+content/library-docs/test/fixtures/docs-application-guides/package.json
+  s_9b715d9e600fb6::t_39983d4edf9e08 4-10
+content/library-docs/test/fixtures/docs-application-guides/troubleshooting.mjs
+  s_9b715d9e600fb6::t_65315781449377 1-30
+content/library-docs/upgradeGuide.md
+  s_9b715d9e600fb6::t_bfb138a194fcae 7-34
+content/pages.mjs
+  s_9b715d9e600fb6::t_f356e2e3fa46e6 14
+content/social-card.svg
+  s_9b715d9e600fb6::t_02bed624011df3 20
+mcp/README.md
+  s_9b715d9e600fb6::t_d35f00141bde14 10,88-89,141
+scripts/agent-discovery.mjs
+  s_9b715d9e600fb6::t_62199425797645 44,75
+scripts/build-vendor.mjs
+  s_9b715d9e600fb6::t_271293113beb7f 11,29
+scripts/build.mjs
+  s_9b715d9e600fb6::t_6d947fc41649f9 60,87
+scripts/library-docs.mjs
+  s_9b715d9e600fb6::t_e4938ce28d723d 1,16,29,32,105,122,147,152,178-179
+scripts/published-docs.mjs
+  s_9b715d9e600fb6::t_0b1b29940f6147 15
+scripts/verify-mcp.mjs
+  s_9b715d9e600fb6::t_232912b2bd4ae6 75,78
+site/_redirects
+  s_9b715d9e600fb6::t_402fd4de17dc2e 1-10
+site/agent-prompt.md
+  s_9b715d9e600fb6::t_54a4f3c4dd1308 202,244
+site/assets/demo.js
+  s_9b715d9e600fb6::t_829aed99328b70 1
+site/assets/motion.js
+  s_9b715d9e600fb6::t_4a8806f38a2164 1
+site/assets/playground-recipes.js
+  s_9b715d9e600fb6::t_373710bf631e02 2
+site/assets/playground-runtime.js
+  s_9b715d9e600fb6::t_da57290b6ce7b8 1-2,179
+site/assets/playground.js
+  s_9b715d9e600fb6::t_df4cdd311ef71a 31
+test/browser/agent-workshop.mjs
+  s_9b715d9e600fb6::t_9574d5fae9ae62 189,208,223,225,228
+test/development-docs.test.mjs
+  s_9b715d9e600fb6::t_11eb067659e1f2 1,5,7-12,14,16,18,39,41,43
+test/docs.test.mjs
+  s_9b715d9e600fb6::t_a512a297e1ba8d 175
+test/playground.test.mjs
+  s_9b715d9e600fb6::t_af096adb9b0711 72
+test/site.test.mjs
+  s_9b715d9e600fb6::t_a9100412b39d9b 20,61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "c8d04780e4bc784badefbc4cf8198827cc6ee0cb",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

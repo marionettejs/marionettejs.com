@@ -1,0 +1,23 @@
+site/assets/demo-projects.js
+  s_6967b709298859::t_548f6b536c4d1f 26
+site/demos/projects/mission-control/lesson.js
+  s_6967b709298859::t_b1336d997160c7 70
+test/browser/agent-workshop.mjs
+  s_6967b709298859::t_27d0682afe312f 486-501
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5446f1d13d5865bff5697a3dfc41bffae8448722",
+  "prompts": {},
+  "sessions": {
+    "s_6967b709298859": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a086ed-5486-7a51-87c8-ca99b154049d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+mcp/DEPLOYMENT.md
+  s_fd459bdf096d6f::t_f9f39ce1cfd8d5 45-59
+mcp/server.mjs
+  s_fd459bdf096d6f::t_199d939dc3345f 3,6
+mcp/tools.mjs
+  s_fd459bdf096d6f::t_ff1a44917286bc 14-15,38-41,43-45,47-94
+mcp/worker.mjs
+  s_fd459bdf096d6f::t_c904670b2049fe 2,6
+scripts/benchmark-mcp.mjs
+  s_fd459bdf096d6f::t_2a8aaf8d824d52 2-8,10-102,104-114
+scripts/verify-mcp.mjs
+  s_4d56c1f4bdf7fe::t_d87e0017f3c6c4 46-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c6d57ee84eaefacf9d80734354ee7f7823facf1b",
+  "prompts": {},
+  "sessions": {
+    "s_4d56c1f4bdf7fe": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a093bc-e9ea-7e92-86db-45cb1f45595f",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_fd459bdf096d6f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09389-7143-7320-8968-211a01580156",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

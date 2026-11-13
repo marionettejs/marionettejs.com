@@ -1,0 +1,45 @@
+AGENTS.md
+  s_dca8c18c9e6753::t_2f6add0b9af6ac 3-6
+README.md
+  s_dca8c18c9e6753::t_7be92fa9032ec3 3-4,18-19,137,231-252
+content/diagnostics-schema-provenance.json
+  s_dca8c18c9e6753::t_9df9b368716748 1-7
+content/diagnostics-schema.json
+  s_dca8c18c9e6753::t_6c73c54d32570f 1-168
+content/docs-publication-edits.json
+  s_dca8c18c9e6753::t_c7c8dee726cee9 3,49-148
+content/thanks.mjs
+  s_dca8c18c9e6753::t_9157350ec224e4 3
+scripts/build.mjs
+  s_dca8c18c9e6753::t_dbfa9626567423 73-74
+scripts/library-docs.mjs
+  s_dca8c18c9e6753::t_8d908b4cb23108 4,114-115,124,127,130-136
+scripts/published-docs.mjs
+  s_dca8c18c9e6753::t_29a0408b733694 4,12
+site/_redirects
+  s_dca8c18c9e6753::t_781dc960fe5565 13-16
+site/assets/docs.css
+  s_dca8c18c9e6753::t_aaa2062f3b9adb 28
+test/docs.test.mjs
+  s_dca8c18c9e6753::t_25a7361acf11e8 130-168
+test/release.test.mjs
+  s_dca8c18c9e6753::t_737897ea9d1492 52-63
+test/site.test.mjs
+  s_dca8c18c9e6753::t_5918f20c4fdb6b 23-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "0526e781690823114b6dbbe77745f7ccb9b8348c",
+  "prompts": {},
+  "sessions": {
+    "s_dca8c18c9e6753": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a084b1-aeb2-7be3-b700-a14b00c1be44",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

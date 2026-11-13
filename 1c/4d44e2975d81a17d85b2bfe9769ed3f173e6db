@@ -1,0 +1,19 @@
+scripts/agent-setup.mjs
+  s_e04f4a475d624c::t_fa6daafc734970 93,96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "1c4d44e2975d81a17d85b2bfe9769ed3f173e6db",
+  "prompts": {},
+  "sessions": {
+    "s_e04f4a475d624c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10816-1fe4-71d2-af4c-a7ec26c4a1fb",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

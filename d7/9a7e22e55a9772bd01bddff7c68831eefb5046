@@ -1,0 +1,23 @@
+README.md
+  s_930f3c9a37745c::t_66f42f0cf17d5f 94-98
+scripts/build.mjs
+  s_930f3c9a37745c::t_367d1fd8914a87 81
+test/site.test.mjs
+  s_930f3c9a37745c::t_a2600376843249 38-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d79a7e22e55a9772bd01bddff7c68831eefb5046",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

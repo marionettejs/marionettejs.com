@@ -1,0 +1,92 @@
+content/library-docs/docs/quick-start.md
+  s_930f3c9a37745c::t_d098273fd2e9be 7,9,13,16-17
+mcp/README.md
+  s_930f3c9a37745c::t_030cf331c08707 237-242
+  s_930f3c9a37745c::t_2c88d3985772b9 234-236
+content/library-docs/docs/guides/routing.md
+  s_930f3c9a37745c::t_3cdca84bd1982f 76,78-176
+content/library-docs/docs/tooling.md
+  s_930f3c9a37745c::t_a81fe2b490b203 112-128
+scripts/verify-mcp.mjs
+  s_930f3c9a37745c::t_c64d928232ffa3 55,65
+scripts/library-docs.mjs
+  s_930f3c9a37745c::t_fd7d5b9d4cb222 159,163,165-168
+  s_930f3c9a37745c::t_47cb8c1c60f19d 172-173
+  s_930f3c9a37745c::t_03dc1afddbd35e 36,38
+  s_930f3c9a37745c::t_d272a0e7669185 164,169-171
+content/library-docs/manifest.json
+  s_930f3c9a37745c::t_6ab1595079dcab 7,9,16,23,37,44,51,177,205,233,275,289,297,301,377-381
+  s_930f3c9a37745c::t_309785b4cab583 79,86,100
+content/library-docs/docs/api/mnobject.md
+  s_930f3c9a37745c::t_08dd40fcf2073b 74
+scripts/benchmark-mcp.mjs
+  s_930f3c9a37745c::t_c64d928232ffa3 22
+test/mcp.test.mjs
+  s_930f3c9a37745c::t_81ef34ade780d2 46-50
+  s_930f3c9a37745c::t_0b726b6b9bc2f1 54-62
+  s_930f3c9a37745c::t_c64d928232ffa3 52,63-85,103-104
+content/library-docs/docs/agents.md
+  s_930f3c9a37745c::t_5ad7a31e25d360 3,7,13,15,18,20-42,46,48,50,52,54,56,59,62,64,66
+content/library-docs/docs/api/application.md
+  s_930f3c9a37745c::t_8945370eaf4003 159-162,190-193
+  s_930f3c9a37745c::t_7ff38cf5cfed3e 101
+mcp/tools.mjs
+  s_930f3c9a37745c::t_2c88d3985772b9 89
+  s_930f3c9a37745c::t_030cf331c08707 14-17,50-51,90
+content/library-docs/skills/marionette/scripts/docs.mjs
+  s_930f3c9a37745c::t_46c8005fe29942 7,45-49,159-172
+test/docs.test.mjs
+  s_930f3c9a37745c::t_5da4a8fe42cd1a 33
+  s_930f3c9a37745c::t_fd7d5b9d4cb222 9,14-32
+  s_930f3c9a37745c::t_39a383e8bff601 48-50
+.nvmrc
+  s_930f3c9a37745c::t_73cde594a7bf12 1
+test/import-docs.test.mjs
+  s_930f3c9a37745c::t_03dc1afddbd35e 49-50
+content/library-docs/docs/api/shared/events.md
+  s_930f3c9a37745c::t_7dfac9f32adf11 57
+test/mcp-sections.test.mjs
+  s_930f3c9a37745c::t_4b3f7214ba69f3 41-44,46-48,52-57,61,64-84,92,96,105-106
+  s_930f3c9a37745c::t_0b726b6b9bc2f1 4-5,49-51,58-60,62-63,85-91,93-95,97
+mcp/load.mjs
+  s_930f3c9a37745c::t_030cf331c08707 55
+content/library-docs/docs-sections.json
+  s_930f3c9a37745c::t_8296ceeabb68fa 1
+content/library-docs/docs-symbols.json
+  s_930f3c9a37745c::t_bbe04ef8fe8169 1
+content/library-docs/docs/api/behavior.md
+  s_930f3c9a37745c::t_3acea06ac7ffba 85
+README.md
+  s_930f3c9a37745c::t_94c5f29b4a9da6 86,274-296
+content/library-docs/skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_9f0962043e7946 8,10,15-37,41,43,45,47,49,51
+mcp/sections.mjs
+  s_930f3c9a37745c::t_2c88d3985772b9 1,4-8,10,14-17
+  s_930f3c9a37745c::t_030cf331c08707 3,9,13
+content/library-docs/docs/guides/local-editing.md
+  s_930f3c9a37745c::t_1ec5fa622cb147 50-138,142-143
+content/library-docs/docs/readme.md
+  s_930f3c9a37745c::t_691edce1f844da 5,7-9,16,20
+content/library-docs/docs/integrations/setup.md
+  s_930f3c9a37745c::t_0eb7d85a15b160 7
+content/library-docs/skills/marionette/scripts/search.mjs
+  s_930f3c9a37745c::t_2a22ffdccd23ea 1-7,10-52,55
+content/library-docs/docs/api.md
+  s_930f3c9a37745c::t_7fa17f08c5823c 59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "1ad67c139e47211e57322319e893dcac6b940bea",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

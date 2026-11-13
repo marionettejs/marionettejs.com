@@ -1,0 +1,23 @@
+README.md
+  s_8bc4ebe3642b83::t_69337bd355018e 21
+scripts/verify-mcp.mjs
+  s_8bc4ebe3642b83::t_6d6447b8603eaf 12,15-16,18,138
+test/mcp-http.test.mjs
+  s_8bc4ebe3642b83::t_5dbd137409d0ba 3-4,34-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "69aa5ecc739d98b59ab6cd649f8a75358b1dc525",
+  "prompts": {},
+  "sessions": {
+    "s_8bc4ebe3642b83": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0adca-119a-75a3-900a-83f3a223701a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

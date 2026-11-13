@@ -1,0 +1,16 @@
+test/browser/personal-preview.mjs
+  h_0f06c286dda36f 6-7,12-54
+site/assets/playground-export.js
+  h_0f06c286dda36f 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8dc376be5c9849af48f9e320371fdafcbdbc7f33",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

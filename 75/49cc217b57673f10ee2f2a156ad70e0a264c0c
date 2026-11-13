@@ -1,0 +1,21 @@
+content/case-studies/vikunja.mjs
+  s_c4bc6730547ecf::t_c64f2b6f33f32f 28
+site/assets/case-studies.css
+  s_c4bc6730547ecf::t_3b295e3d15804d 81
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7549cc217b57673f10ee2f2a156ad70e0a264c0c",
+  "prompts": {},
+  "sessions": {
+    "s_c4bc6730547ecf": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1173c-535e-7761-afb0-f2bfe958d8fb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

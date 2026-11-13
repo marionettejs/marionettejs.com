@@ -1,0 +1,32 @@
+planning/analytics.md
+  h_0f06c286dda36f 1-55
+scripts/build.mjs
+  h_0f06c286dda36f 31-34,51-54
+site/assets/analytics.js
+  h_0f06c286dda36f 1-38
+site/assets/demo.js
+  h_0f06c286dda36f 1,46
+site/assets/docs.js
+  h_0f06c286dda36f 1,12,50-53
+site/assets/examples.js
+  h_0f06c286dda36f 1,80,121,145,250,258
+site/assets/playground.js
+  h_0f06c286dda36f 1,132,192,240,266,282,339
+site/assets/site.js
+  h_0f06c286dda36f 1-3,30
+test/analytics.test.mjs
+  h_0f06c286dda36f 1-70
+test/site.test.mjs
+  h_0f06c286dda36f 115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "65bd666ec7bfe4af7bde13546b2113e6ceb4aba9",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

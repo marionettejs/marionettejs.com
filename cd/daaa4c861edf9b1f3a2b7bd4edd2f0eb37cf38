@@ -1,0 +1,101 @@
+site/assets/demo.js
+  s_930f3c9a37745c::t_9622b4dfa78ebf 86
+scripts/build.mjs
+  s_930f3c9a37745c::t_83dec21ddf2397 14,81,92
+scripts/dev.mjs
+  s_930f3c9a37745c::t_72c125d959c559 13-14
+content/docs-publication-edits.json
+  s_930f3c9a37745c::t_8084b3401a60e5 3,5
+package.json
+  s_930f3c9a37745c::t_83dec21ddf2397 11,29,34
+test/docs-sync.test.mjs
+  s_930f3c9a37745c::t_72c125d959c559 138,161
+test/docs.test.mjs
+  s_930f3c9a37745c::t_72c125d959c559 196,201-202,220,224
+test/mcp.test.mjs
+  s_930f3c9a37745c::t_72c125d959c559 48-53,212,222-223
+site/demos/projects/mission-control/app.js
+  s_930f3c9a37745c::t_8560098e9d4117 110-112,121-123,162
+AGENTS.md
+  s_930f3c9a37745c::t_f2504574cc071c 3-4,17-19,25-26
+README.md
+  s_930f3c9a37745c::t_ffda3b33c0bd3d 1,10,12-13,15-17,19-22,142,147-148,259-261,264-265,272-276
+content/library-docs/docs-sections.json
+  s_930f3c9a37745c::t_c98075c3ee10f6 1
+content/library-docs/docs/agents.md
+  s_930f3c9a37745c::t_1354ca82039644 62
+content/library-docs/docs/readme.md
+  s_930f3c9a37745c::t_8d17b172a9a105 16
+content/library-docs/manifest.json
+  s_930f3c9a37745c::t_b935c2c8718dfc 7,9,16,37,377
+content/pages.mjs
+  s_930f3c9a37745c::t_fe9b26d73ae95a 15,57
+content/provenance.json
+  s_930f3c9a37745c::t_45944561114fa8 3-4,7,9-10,12
+content/social-card.svg
+  s_930f3c9a37745c::t_4fd18ed65b7051 20
+mcp/README.md
+  s_930f3c9a37745c::t_9dca9815af3903 9-11,14-15
+package-lock.json
+  s_930f3c9a37745c::t_2bfd58c60b1a04 12,17,1630-1632,1636,1643-1645,1649,1656-1658,3327-3329,3337-3338
+scripts/agent-discovery.mjs
+  s_930f3c9a37745c::t_d4b25dc080f49b 54-55,57
+scripts/build-vendor.mjs
+  s_930f3c9a37745c::t_3b3f3c4890e0b0 9,11-14,30,33
+scripts/build-workshop-starter.mjs
+  s_930f3c9a37745c::t_a0fe78833e0b1f 8-16,18-20
+scripts/docs-sync/README.md
+  s_930f3c9a37745c::t_aa881ca4b60b3d 113-115
+scripts/library-docs.mjs
+  s_930f3c9a37745c::t_616e5b98bb97cf 126
+scripts/published-docs.mjs
+  s_930f3c9a37745c::t_5991f2d7127130 38
+site/agent-prompt.md
+  s_930f3c9a37745c::t_04bd8d2402ffb4 99,118,122,186,232
+site/assets/demo-projects.js
+  s_930f3c9a37745c::t_ad3563c68bf824 24
+site/assets/playground-export.js
+  s_930f3c9a37745c::t_f19949bd096843 1,12
+site/assets/playground-recipes.js
+  s_930f3c9a37745c::t_280c3da0de1058 3,5
+site/assets/playground-runtime.js
+  s_930f3c9a37745c::t_ab67e5f971c3ed 2,4-5,166
+site/assets/workshop-starter.js
+  s_930f3c9a37745c::t_34e924a055f276 1,7-15
+site/vendor/DEMOS-LICENSE.txt
+  s_930f3c9a37745c::t_c68a892f69c7b5 1,25,49,73
+site/vendor/MARIONETTE-LICENSE.txt
+  s_930f3c9a37745c::t_5e7fd805e2d72f 1,25,49
+site/vendor/demos.js
+  s_930f3c9a37745c::t_7136ee1da79f00 44,47-48,64-75,77,175,955,997,1221,1246,1316,1327,1481,1869,1889,2007,2639,2654,2950,3013,3304,3340,3488,3518,3523,3568,3570,3603,3607-3611,3613-3614,3624-3625,3630-3631,3633,3637,3639-3641,3643-3644,3646-3654,3656-3657,3659-3660,3662,3664-3707,3729,3732,3735,3738-3739,3741,3744,3747,3750-3751,3753-3758,3760-3779,3800-3801,3831,3845,3848,3852,3855-3870,3881-3883,3907,4027,4089,4092-4093,4109-4120,4122,4975
+site/vendor/demos.provenance.json
+  s_930f3c9a37745c::t_6ea302f3861f7c 2-5
+site/vendor/marionette.js
+  s_930f3c9a37745c::t_7d59b87b60bea4 44,47-48,64-75,77,175,959,1001,1225,1250,1320,1331,1485,1873,1893,2011,2643,2658,2954,3017,3308,3344,3492,3522,3527,3572,3574,3607,3611-3615,3617-3618,3628-3629,3634-3635,3637,3641,3643-3645,3647-3648,3650-3658,3660-3661,3663-3664,3666,3668-3711,3733,3736,3739,3742-3743,3745,3748,3751,3754-3755,3757-3762,3764-3783,3804-3805,3835,3849,3852,3856,3859-3874,3885-3887,3911,4031,4064
+test/agent-discovery.test.mjs
+  s_930f3c9a37745c::t_5107939218fc1e 44-45
+test/development-docs.test.mjs
+  s_930f3c9a37745c::t_b6b5ea63c56d59 6-8,11,16,30-32
+test/playground.test.mjs
+  s_930f3c9a37745c::t_9c4c56f441b5f2 15-16,34-36
+test/release.test.mjs
+  s_930f3c9a37745c::t_d1b3e6c9103fbd 30,34-35
+test/site.test.mjs
+  s_930f3c9a37745c::t_a24659e79a414c 12,22,62,74-75,78-80,114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "cddaaa4c861edf9b1f3a2b7bd4edd2f0eb37cf38",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

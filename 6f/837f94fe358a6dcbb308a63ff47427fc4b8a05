@@ -1,0 +1,32 @@
+AGENTS.md
+  h_0f06c286dda36f 11-12
+README.md
+  h_0f06c286dda36f 24-29,31-34
+mcp/README.md
+  h_0f06c286dda36f 10
+scripts/release-contract.mjs
+  h_0f06c286dda36f 2,8-9,11-21,38,46
+scripts/runtime-archives.mjs
+  h_0f06c286dda36f 1-59
+scripts/stage-stable-docs.mjs
+  h_0f06c286dda36f 1,5,9-12,14-61
+test/helpers/runtime-fixture.mjs
+  h_0f06c286dda36f 1-47
+test/release-contract.test.mjs
+  h_0f06c286dda36f 32-37,57-73
+test/runtime-archives.test.mjs
+  h_0f06c286dda36f 1-42
+test/stage-stable-docs.test.mjs
+  h_0f06c286dda36f 1-66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6f837f94fe358a6dcbb308a63ff47427fc4b8a05",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
