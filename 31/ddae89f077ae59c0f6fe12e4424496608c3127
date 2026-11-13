@@ -1,0 +1,14 @@
+test/browser/agent-workshop.mjs
+  h_0f06c286dda36f 19,21-29,31-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "31ddae89f077ae59c0f6fe12e4424496608c3127",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
