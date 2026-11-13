@@ -49,8 +49,8 @@ region.show(new View({ template: () => '<p id="bindings">' + Object.keys(binding
   await penPage.locator('#bindings').waitFor();
   assert.equal(await penPage.locator('#bindings').innerText(), exportedBindings);
   assert.equal(await penPage.locator('#runner-errors').isVisible(), false);
-  for (const code of [
-    `const html = text => '<button id="local-binding">' + text + '</button>';
+  for (const [snippet, code] of [
+    ['declarations', `const html = text => '<button id="local-binding">' + text + '</button>';
 class HtmlDomApi { static title = 'Local bindings'; }
 const source = 'source';
 const url = 'url';
@@ -59,11 +59,11 @@ const Local = View.extend({
   events: { 'click #local-binding'() { this.el.dataset.clicked = 'true'; } },
 });
 export const region = new Region({ el: '#app' });
-region.show(new Local());`,
-    `export const { html, HtmlDomApi } = { html: 'Local bindings', HtmlDomApi: 'source url' };
+region.show(new Local());`],
+    ['destructuring', `export const { html, HtmlDomApi } = { html: 'Local bindings', HtmlDomApi: 'source url' };
 export const region = new Region({ el: '#app' });
 region.show(new View({ template: () => '<button id="local-binding">' + html + ' ' + HtmlDomApi + '</button>',
-  events: { 'click #local-binding'() { this.el.dataset.clicked = 'true'; } } }));`,
+  events: { 'click #local-binding'() { this.el.dataset.clicked = 'true'; } } }));`],
   ]) {
     const app = { title: 'User-owned binding names', css: '', code };
     for (const path of ['CodePen', 'standalone']) {
@@ -79,7 +79,7 @@ region.show(new View({ template: () => '<button id="local-binding">' + html + ' 
       assert.equal(await frame.locator('#local-binding').evaluate(el => el.parentElement.dataset.clicked), 'true');
       assert.equal(await frame.locator('#local-binding').evaluate(() => typeof globalThis.html), 'function');
       await mkdir('output/playwright', { recursive: true });
-      await penPage.screenshot({ path: `output/playwright/local-bindings-${path}.png` });
+      await penPage.screenshot({ path: `output/playwright/local-bindings-${snippet}-${path}.png` });
     }
   }
   console.log('PASS local html/HtmlDomApi and export helper names: declarations and destructuring execute in CodePen and opaque standalone exports');

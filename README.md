@@ -350,8 +350,9 @@ Open the printed local URL, click **Run ownership checks**, and verify
 `18 BROWSER CHECKS PASSED`. This uses the real
 pinned library in the sandbox to exercise independent state, a nested control click,
 template data, replacement, and destruction. It is a browser check, not part of the
-Node-only test command. The build generates the agent brief's code example from the
-executable starter; a source test prevents the two from drifting.
+Node-only test command. The build generates the editor starter from `site/workshop/`;
+source checks keep the generated runtime strings aligned with that authored code.
+The agent brief is delivered separately from the starter.
 
 ## Documentation source
 

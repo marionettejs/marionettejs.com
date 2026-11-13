@@ -4,7 +4,7 @@ import documentation from './library-docs/manifest.json' with { type: 'json' };
 export const adoptionQuestions = [
   {
     question:'“What makes this useful for agent-led development?”',
-    answer:'Marionette gives each change a clear home. A Region owns a changing panel, a View owns its local interaction, a CollectionView manages rows, and an Application coordinates a feature’s lifetime. Your agent can read those contracts, implement a request, and explain where it belongs. You direct the behavior and keep following the code as the application grows. Start at /docs/agent-start/ and try a feature followed by a revision. The case studies cover measured development and performance results.'
+    answer:'Marionette gives each change a clear home. A Region owns a changing panel, a View owns its local interaction, a CollectionView manages rows, and an Application coordinates a feature’s lifetime. Your agent can read those contracts, implement a request, and explain where it belongs. You direct the behavior and keep following the code as the application grows. Start at /docs/agent-start/ and try a feature followed by a revision. The case studies cover documented development journeys and measured runtime performance.'
   },
   {
     question:'“Isn’t this the old Backbone and jQuery stack?”',
