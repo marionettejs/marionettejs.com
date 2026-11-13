@@ -322,7 +322,7 @@ try {
   await nav.goto(base); await nav.waitForFunction(() => window.MarionetteHero?.inspect().ready);
   await nav.waitForFunction(() => getComputedStyle(document.querySelector('.hero-support')).opacity === '1');
   const popupPromise = navContext.waitForEvent('page');
-  await nav.locator('.hero-explore').click({ button: 'middle' });
+  await nav.locator('.hero-explore').click({ modifiers: ['ControlOrMeta'] });
   const popup = await popupPromise; await popup.bringToFront(); await popup.waitForURL('**/why/'); assert.equal(new URL(popup.url()).pathname, '/why/');
   assert.equal(new URL(nav.url()).search, ''); await popup.close();
   await nav.locator('.hero-equip').focus();
