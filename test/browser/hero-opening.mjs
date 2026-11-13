@@ -5,12 +5,17 @@ import { builtSite } from './built-site.mjs';
 
 const { base, close } = await builtSite();
 let browser;
+const trackScroll = page => page.evaluate(() => {
+  const nativeScrollTo = window.scrollTo.bind(window);
+  window.actionScrolls = [];
+  window.scrollTo = (...args) => { window.actionScrolls.push(args[0]); return nativeScrollTo(...args); };
+});
 try {
   browser = await chromium.launch({ channel: 'chromium', headless: true });
   await mkdir('output/playwright', { recursive: true });
   const errors = [];
-  for (const width of [1440, 390]) {
-    const page = await browser.newPage({ viewport: { width, height: 1000 } });
+  for (const [width, reducedMotion] of [[1440, 'no-preference'], [390, 'no-preference'], [390, 'reduce']]) {
+    const page = await browser.newPage({ viewport: { width, height: 1000 }, reducedMotion });
     page.on('pageerror', error => errors.push(error.message));
     let release;
     const held = new Promise(resolve => { release = resolve; });
@@ -25,14 +30,19 @@ try {
       }).observe(document, { childList: true, subtree: true });
     });
     await page.goto(base);
-    const fallback = page.locator('[data-static-code] .hero-code-panel:not([hidden]) pre');
+    if (width === 390) {
+      assert.equal(await page.locator('[data-code-fallback]:visible').evaluate(el => el.open), false);
+      await page.locator('[data-code-fallback]:visible > summary').click();
+    }
+    const fallback = page.locator('[data-static-code] .hero-code-panel:not([hidden]) pre:visible');
     const first = await fallback.evaluate(el => ({ text: el.innerText, whitespace: getComputedStyle(el).whiteSpace, width: el.clientWidth, height: el.clientHeight }));
     assert.match(first.text, /const Heading = View.extend\(\{\n/);
     assert.match(first.text, /html`<h1>Pull a few strings\.<\/h1>`/);
     assert.doesNotMatch(first.text, /simplified Marionette sketch|loadCoolIdeas/);
     assert.equal(first.whitespace, 'pre');
-    assert.equal(await page.locator('[data-static-code] [role="tab"]:disabled').count(), 5);
-    await page.locator('.hero-code-frame').screenshot({ path: `output/playwright/hero-opening-static-${width}.png` });
+    assert.equal(await page.locator('[data-static-code]:visible [role="tab"]:disabled').count(), 5);
+    assert.equal(await page.getByRole('button', { name: 'Replay startup', exact: true }).count(), 1);
+    await page.locator('.hero-code-frame:visible').screenshot({ path: `output/playwright/hero-opening-static-${width}-${reducedMotion}.png` });
     let scroll = 0;
     if (width === 390) {
       await fallback.focus();
@@ -51,10 +61,29 @@ try {
       assert.equal(await page.evaluate(() => MarionetteHero.inspect().following), false);
     }
     assert.equal(await page.locator('.hero-code-tabs [role="tab"]:disabled').count(), 0);
-    await page.locator('.hero-code-frame').screenshot({ path: `output/playwright/hero-opening-live-${width}.png` });
+    assert.equal(await page.getByRole('button', { name: 'Replay startup', exact: true }).count(), 1);
+    await page.locator('.hero-code-frame').screenshot({ path: `output/playwright/hero-opening-live-${width}-${reducedMotion}.png` });
     await page.close();
   }
-  console.log('PASS opening: matching first/static/live View trace at desktop and 390px; delayed hydration retains reading focus, scroll and disclosure');
+  console.log('PASS opening: matching first/static/live View trace at desktop and 390px; delayed hydration retains reading focus, scroll and disclosure with normal/reduced motion');
+
+  const compact = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+  compact.on('pageerror', error => errors.push(error.message));
+  let releaseCompact;
+  const compactHeld = new Promise(resolve => { releaseCompact = resolve; });
+  await compact.route('**/assets/hero.js*', async route => { await compactHeld; await route.continue(); });
+  await compact.goto(base);
+  const closedHeight = await compact.locator('[data-code-fallback]:visible').evaluate(el => {
+    if (el.open) throw Error('Compact fallback must start closed');
+    return el.getBoundingClientRect().height;
+  });
+  assert.equal(await compact.locator('.hero-code-source:visible').count(), 0);
+  releaseCompact();
+  await compact.waitForFunction(() => window.MarionetteHero?.inspect().ready);
+  assert.equal(await compact.locator('.hero-live-code').evaluate(el => el.open), false);
+  assert.equal(await compact.locator('.hero-live-code').evaluate(el => el.getBoundingClientRect().height), closedHeight);
+  await compact.close();
+  console.log('PASS compact default disclosure stays closed with the same footprint through hydration; user-opened fallback stays open');
 
   for (const javaScriptEnabled of [false, true]) {
     const page = await browser.newPage({ javaScriptEnabled, viewport: { width: 390, height: 844 } });
@@ -65,7 +94,8 @@ try {
       await page.locator('.hero-unavailable').waitFor();
       await page.locator('.lifecycle-live').waitFor();
     }
-    const code = page.locator('[data-static-code] .hero-code-panel:not([hidden]) pre');
+    await page.locator('[data-code-fallback]:visible > summary').click();
+    const code = page.locator('[data-static-code] .hero-code-panel:not([hidden]) pre:visible');
     assert.match(await code.innerText(), /const Heading = View.extend\(\{\n/);
     assert.equal(await code.evaluate(el => getComputedStyle(el).whiteSpace), 'pre');
     await code.focus();
@@ -82,11 +112,12 @@ try {
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(base);
     await page.waitForFunction(() => window.MarionetteHero?.inspect().ready);
+    await trackScroll(page);
     if (width === 640) await page.addStyleTag({ content: '.site-header { position:sticky; top:12px; z-index:10; }' });
     if (width <= 420) await page.locator('.hero-code-toggle').click();
     const open = await page.locator('.hero-live-code').evaluate(el => el.open);
     for (const [index, id] of ['list', 'panel', 'idea', 'list'].entries()) {
-      await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
+      await page.evaluate(() => { scrollTo({ top: 0, behavior: 'instant' }); window.actionScrolls = []; });
       const action = page.locator(`[data-feature="${id}"]`);
       if (index % 2) {
         await action.evaluate(el => el.focus({ preventScroll: true }));
@@ -100,7 +131,11 @@ try {
           return document.querySelector('.hero-features-slot').getBoundingClientRect().top - bottom;
         });
         assert.ok(Math.abs(gap - 16) < 1, `${width}px actions sit below the navigation (${gap})`);
-      } else assert.equal(await page.evaluate(() => scrollY), 0, 'Desktop selection does not scroll');
+        assert.equal(await page.evaluate(() => window.actionScrolls.at(-1)?.behavior), 'instant');
+      } else {
+        assert.equal(await page.evaluate(() => scrollY), 0, 'Desktop selection does not scroll');
+        assert.equal(await page.evaluate(() => window.actionScrolls.length), 0);
+      }
       assert.equal(await action.evaluate(el => el === document.activeElement), true);
       assert.equal(await page.locator('.hero-live-code').evaluate(el => el.open), open);
     }
@@ -111,7 +146,9 @@ try {
   smooth.on('pageerror', error => errors.push(error.message));
   await smooth.goto(base);
   await smooth.waitForFunction(() => window.MarionetteHero?.inspect().ready);
+  await trackScroll(smooth);
   await smooth.locator('[data-feature="list"]').click();
+  assert.equal(await smooth.evaluate(() => window.actionScrolls.at(-1)?.behavior), 'smooth');
   await smooth.waitForFunction(() => Math.abs(document.querySelector('.hero-features-slot').getBoundingClientRect().top - 16) < 1);
   await smooth.close();
   assert.deepEqual(errors, []);

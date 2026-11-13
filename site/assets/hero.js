@@ -35,7 +35,7 @@ const CodeTrace = View.extend({
   },
   template: ({ panels, selected, manual, prefix, frame, completed }) => html`
     <div class="hero-code-heading"><span><img class="hero-code-mark" src="/assets/mark.svg" width="19" height="20" alt=""><i aria-hidden="true"></i> FOLLOW THE STRINGS</span>
-      <button type="button" class="hero-replay" aria-label="Replay header startup">Replay startup <span aria-hidden="true">↻</span></button></div>
+      <button type="button" class="hero-replay">Replay startup <span aria-hidden="true">↻</span></button></div>
     <div class="hero-code-tabs" role="tablist" aria-label="Hero code sketches">${panels.map(tab => html`
       <button type="button" role="tab" id=${prefix + '-tab-' + tab.id} data-code-tab=${tab.id}
         aria-selected=${selected === tab.id} aria-controls=${prefix + '-panel-' + tab.id}
@@ -377,7 +377,7 @@ const HeroShell = View.extend({
     this.showChildView('code', new CodeTrace());
     const compact = matchMedia('(max-width: 420px)');
     const disclosure = this.el.querySelector('.hero-live-code');
-    disclosure.open = !compact.matches;
+    disclosure.open = this.options.codeDisclosureOpen ?? !compact.matches;
     this.layoutLifetime = new AbortController();
     compact.addEventListener('change', () => { disclosure.open = !compact.matches; }, { signal: this.layoutLifetime.signal });
     this.once('destroy', () => this.layoutLifetime.abort());
@@ -537,7 +537,10 @@ async function loadAnswers(signal) {
   return answers;
 }
 const HeroApplication = Application.extend({
-  initialize({ codeReading }) { this.codeReading = codeReading; },
+  initialize({ codeReading, codeDisclosureOpen }) {
+    this.codeReading = codeReading;
+    this.codeDisclosureOpen = codeDisclosureOpen;
+  },
   viewEvents: { 'replay:startup': 'replay' },
   onBeforeStart() {
     this.showLoader();
@@ -552,7 +555,7 @@ const HeroApplication = Application.extend({
     this.showApp(answers);
   },
   showLoader() {
-    this.shell ||= new HeroShell();
+    this.shell ||= new HeroShell({ codeDisclosureOpen: this.codeDisclosureOpen });
     this.showView(this.shell);
     this.shell.cancelPendingIdea();
     Object.assign(this.shell.getState(), { answers: null, selection: '' });
@@ -564,13 +567,13 @@ const HeroApplication = Application.extend({
     this.shell.showChildView('loading', new Loader());
     const frames = startup();
     this.shell.getChildView('code').record(frames[0], { reset: true });
-    this.shell.getChildView('code').record(frames[1]);
-    this.shell.getChildView('code').record(frames[2]);
     if (this.codeReading) {
       this.shell.el.querySelector('.hero-live-code').open = true;
       this.shell.getChildView('code').continueReading(this.codeReading);
       this.codeReading = null;
     }
+    this.shell.getChildView('code').record(frames[1]);
+    this.shell.getChildView('code').record(frames[2]);
   },
   showApp(answers) {
     this.shell.activate(answers);
@@ -594,11 +597,12 @@ const HeroApplication = Application.extend({
 const host = document.querySelector('[data-home-hero]');
 host.classList.add('interactive-hero');
 host.closest('.opening-act').classList.add('interactive-opening');
-const fallbackCode = host.querySelector('[data-static-code] .hero-code-panel:not([hidden]) .hero-code-source');
+const fallbackRig = [...host.querySelectorAll('[data-code-fallback]')].find(el => getComputedStyle(el).display !== 'none');
+const fallbackCode = fallbackRig?.open ? fallbackRig.querySelector('.hero-code-panel:not([hidden]) .hero-code-source') : null;
 const focused = fallbackCode === document.activeElement;
 const codeReading = fallbackCode && (focused || fallbackCode.scrollTop || fallbackCode.scrollLeft)
   ? { focused, top: fallbackCode.scrollTop, left: fallbackCode.scrollLeft } : null;
-const application = new HeroApplication({ region: { el: host }, codeReading });
+const application = new HeroApplication({ region: { el: host }, codeReading, codeDisclosureOpen: fallbackRig?.open });
 Object.defineProperty(window, 'MarionetteHero', { configurable: true, value: Object.freeze({
   inspect() {
     const shell = application.getView();

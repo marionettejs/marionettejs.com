@@ -324,8 +324,9 @@ npm run test:browser
 `test:browser` serves the existing `dist/` on an ephemeral loopback port, so rebuild
 it after source changes. A bare Linux environment also needs Playwright's system
 dependencies (`npx playwright install --with-deps chromium`).
-It includes the workshop, homepage startup and recovery, list ownership, responsive
-panels, and HTML demo/export suites. The focused suites can also inspect an
+It includes the workshop, homepage startup and recovery, opening trace and mobile
+actions, list ownership, responsive panels, and HTML demo/export suites. The five
+focused suites can also inspect an
 existing preview with `MARIONETTE_PREVIEW_URL`; CI uses their own ephemeral servers.
 It runs pinned Chromium with experimental web-platform features for native WebMCP,
 fails on behavioral assertions, and writes a screenshot to `output/playwright/`.

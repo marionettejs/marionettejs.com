@@ -421,6 +421,11 @@ body { -webkit-font-smoothing:antialiased; }
 .hero-answer-links a { color:#f0b49f; text-underline-offset:4px; font-size:.8rem; }
 .hero-answer-links a span { margin-left:6px; }
 .hero-code-toggle { display:none; }
+.hero-code-fallback-compact { display:none; }
+@media(max-width:420px) {
+ .hero-code-fallback-wide { display:none; }
+ .hero-code-fallback-compact { display:block; }
+}
 .hero-live-code.rig { z-index:3; padding:90px 0 0; min-width:0; perspective:none; position:sticky; top:24px; margin-bottom:32px; }
 .hero-code-frame.demo { padding:0; border-color:#62504d; background:#181b20; overflow:hidden; box-shadow:0 18px 60px #0004; }
 .hero-code-heading { padding:15px 17px; display:flex; align-items:center; justify-content:space-between; gap:10px; background:#262124; border-bottom:1px solid #4b3838; }
