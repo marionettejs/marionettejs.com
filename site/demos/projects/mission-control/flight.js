@@ -332,6 +332,9 @@ const FlightDeck = View.extend({
   },
   onSettleFlight() {
     this.updateControls({ flying: false });
+    this.feedback(this.current.getState().status === 'failed'
+      ? 'Engine failed. No delivery was committed. Launch a fresh flight to retry.'
+      : 'Delivery finished. This flight committed once; launch a fresh flight to deliver again.');
   },
 });
 

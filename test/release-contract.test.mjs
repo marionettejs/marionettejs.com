@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readRuntimeMetadata, runtimePackages, stableRelease, validateRuntimeRelease } from '../scripts/release-contract.mjs';
+import { readRuntimeMetadata, runtimePackages, runtimeRelease, validateRuntimeRelease } from '../scripts/release-contract.mjs';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import { release, revision } from '../scripts/agent-setup.mjs';
@@ -21,7 +21,7 @@ function fixture(version = '5.0.0') {
 }
 
 test('runtime contract supports the published RC archive and stable archive shape', () => {
-  for (const version of ['5.0.0-rc.2', '5.0.0', '5.1.0']) assert.equal(validateRuntimeRelease(fixture(version)).packageVersion, version);
+  for (const version of ['5.0.0-rc.2', '5.0.0', '5.1.0', '5.1.1']) assert.equal(validateRuntimeRelease(fixture(version)).packageVersion, version);
 });
 
 test('runtime contract rejects local archives, loose pins, mismatched companions and dirty docs', () => {
@@ -54,19 +54,20 @@ test('agent installation follows locally validated package metadata without regi
   globalThis.fetch = () => { throw new Error('Unit tests must not fetch registry archives'); };
   try {
     const { version, manifest, lock } = await readRuntimeMetadata(fileURLToPath(new URL('../', import.meta.url)));
-    assert.equal(version, stableRelease, 'The current website must use the published stable runtime');
+    assert.equal(version, runtimeRelease, 'The current website must use the published stable runtime');
     assert.equal(release, version);
     assert.equal(revision, manifest.sourceRevision);
     assert.equal(release, provenance.packageVersion);
     const publication = JSON.parse(await readFile(new URL('../content/docs-publication-edits.json', import.meta.url)));
-    assert.equal(publication.releaseEvidence.packageVersion, version);
-    assert.equal(publication.releaseEvidence.sourceRevision, manifest.sourceRevision);
-    assert.equal(publication.releaseEvidence.contentSha256, manifest.contentSha256);
-    for (const name of runtimePackages) {
-      const key = `node_modules/${name}`;
-      const { version, resolved, integrity } = lock.packages[key];
-      assert.deepEqual(publication.releaseEvidence.archives[key], { version, resolved, integrity });
-    }
+    const archived = JSON.parse(await readFile(new URL('../content/library-docs/manifest.json', import.meta.url)));
+    assert.equal(publication.releaseEvidence.packageVersion, archived.packageVersion);
+    assert.equal(publication.releaseEvidence.sourceRevision, archived.sourceRevision);
+    assert.equal(publication.releaseEvidence.contentSha256, archived.contentSha256);
+    assert.notEqual(archived.packageVersion, version, 'A runtime patch does not rewrite the documentation archive');
+    const docs = JSON.parse(await readFile(new URL('../node_modules/marionette-docs/docs-manifest.json', import.meta.url)));
+    assert.deepEqual(docs, archived, 'The documentation archive still matches its installed release');
+    const { version: docsVersion, resolved, integrity } = lock.packages['node_modules/marionette-docs'];
+    assert.deepEqual({ version: docsVersion, resolved, integrity }, publication.releaseEvidence.archives['node_modules/marionette']);
   } finally { globalThis.fetch = previousFetch; }
 });
 
@@ -88,7 +89,7 @@ test('runtime metadata failures identify the violated invariant', () => {
 });
 
 test('prepared minor release does not admit arbitrary versions or prereleases', () => {
-  for (const version of ['5.1.0-rc.1', '5.2.0', '5.1.1', 'v5.1.0', '^5.1.0']) {
+  for (const version of ['5.1.0-rc.1', '5.2.0', '5.1.2', 'v5.1.0', '^5.1.0']) {
     assert.throws(() => validateRuntimeRelease(fixture(version)), /version format/);
   }
 });

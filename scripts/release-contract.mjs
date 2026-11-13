@@ -2,16 +2,18 @@ import { readFile } from 'node:fs/promises';
 import { verifyRuntimeBytes } from './runtime-archives.mjs';
 import { resolve } from 'node:path';
 
-// The live runtime stays pinned until registry-backed staging is complete.
+// Documentation staging retains its separately certified release targets.
 export const stableRelease = '5.1.0';
 export const preparedRelease = '5.1.0';
+// Browser examples can take a patch without replacing the documentation archive.
+export const runtimeRelease = '5.1.1';
 export const runtimePackages = ['marionette', '@mnjs/data', '@mnjs/utils', '@mnjs/radio'];
 
 // Metadata checks are necessary but not sufficient: readRuntimeRelease also
 // compares installed bytes with integrity-verified registry archives.
 export function validateRuntimeRelease({ version, manifest, packages, lock, pins }) {
   const checks = {
-    'version format': (/^(?:5\.0\.0(?:-rc\.\d+)?|5\.1\.0)$/.test(version)),
+    'version format': (/^(?:5\.0\.0(?:-rc\.\d+)?|5\.1\.[01])$/.test(version)),
     'docs manifest version': manifest.packageVersion === version,
     'package name': manifest.packageName === 'marionette',
     'clean source': manifest.sourceDirty === false,
@@ -39,7 +41,7 @@ export function validateRuntimeRelease({ version, manifest, packages, lock, pins
 
 // Metadata-only reads are useful after a clean install or in offline tests.
 // Publication/staging callers must use readRuntimeRelease for byte verification.
-export async function readRuntimeMetadata(root, { expectedVersion = stableRelease } = {}) {
+export async function readRuntimeMetadata(root, { expectedVersion = runtimeRelease } = {}) {
   const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
   const pkg = await json('package.json');
   const lock = await json('package-lock.json');

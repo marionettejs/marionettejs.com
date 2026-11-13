@@ -333,7 +333,7 @@ for (const tab of tabs) {
   });
 }
 // Carry the visibility boundary even if the next agent cannot reach this URL.
-const copyPrompt = `Visit ${location.origin}/, open the agent workshop, and read its instructions there to try the interaction with me. Use what you already know about me to make something recognizably personal. Use a browser preview I can see. If you can’t, say so; don’t create files, install anything, or start a local project.`;
+const copyPrompt = `Visit ${location.origin}/, open the agent workshop, and read its instructions before editing. Build the small app I choose; if I have not chosen one, use a permitted conversation detail to make something personal. Inspect the available runtime and existing code, keep ownership clear, and try the main interaction, keyboard use and relevant interrupted or repeated flows. Show me the browser preview, explain what changed and report observed evidence and unverified checks. If you cannot show a browser preview, say so; do not create files, install anything, or start a local project.`;
 const promptText = document.querySelector('#agent-invitation-prompt');
 promptText.value = copyPrompt;
 copyButton.disabled = false;

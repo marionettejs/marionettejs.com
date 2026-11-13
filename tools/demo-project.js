@@ -77,7 +77,7 @@ export function compileProject(input) {
     const resolveImport = node => {
       if (!node || node.type !== 'StringLiteral') throw new Error(file + ': dynamic imports need a literal project filename.');
       const specifier = node.value;
-      if (['marionette', '@mnjs/data'].includes(specifier)) return;
+      if (['marionette', '@mnjs/data', '@mnjs/html', '@mnjs/html/marionette'].includes(specifier)) return;
       if (!specifier.startsWith('./') || (!names.includes(specifier.slice(2)) && specifier !== './source.js')) throw new Error(file + ': unknown project import ' + specifier);
       edits.push({ start: node.start, end: node.end, value: JSON.stringify('demo:' + specifier.slice(2)) });
     };
@@ -101,7 +101,7 @@ export function compileProject(input) {
 }
 
 // A portable ZIP containing ordinary relative-import modules and the pinned runtime.
-export function projectArchive(input, vendor, license) {
+export function projectArchive(input, vendor, license, runtime = {}) {
   const compiled = compileProject(input);
   const files = {
     ...input.files,
@@ -109,8 +109,9 @@ export function projectArchive(input, vendor, license) {
     'style.css': '* { box-sizing: border-box; } body { margin: 0; font: 16px/1.5 system-ui; } button,input { font: inherit; max-width:100%; }\n' + input.css,
     'vendor/marionette.js': vendor,
     'vendor/LICENSE.txt': license,
-    'index.html': '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + escape(input.title) + '</title><link rel="stylesheet" href="style.css"><script type="importmap">{"imports":{"marionette":"./vendor/marionette.js","@mnjs/data":"./vendor/marionette.js"}}</script></head><body><main id="app"></main><script type="module" src="main.js"></script></body></html>',
-    'README.md': '# ' + input.title + '\n\nServe this folder over HTTP, for example `python3 -m http.server 8000`, then open http://localhost:8000. No build or package installation is needed.\n\nmain.js mounts the app and its lesson controller. app.js and feature modules run without the teaching controller; mount the exported View in your own Region. lesson.js contains narration and observations. lesson-ui.js renders the teaching interface. source.js is generated from this exported source snapshot for exact excerpts. All other JavaScript files are ordinary ES modules with explicit imports and exports.\n\nThe pinned Marionette and data runtime, with its licenses, is included in vendor/.\n',
+    'vendor/runtime.json': JSON.stringify(runtime, null, 2) + '\n',
+    'index.html': '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + escape(input.title) + '</title><link rel="stylesheet" href="style.css"><script type="importmap">{"imports":{"marionette":"./vendor/marionette.js","@mnjs/data":"./vendor/marionette.js","@mnjs/html":"./vendor/marionette.js","@mnjs/html/marionette":"./vendor/marionette.js"}}</script></head><body><main id="app"></main><script type="module" src="main.js"></script></body></html>',
+    'README.md': '# ' + input.title + '\n\nServe this folder over HTTP, for example `python3 -m http.server 8000`, then open http://localhost:8000. No build or package installation is needed.\n\nmain.js mounts the app and its lesson controller. app.js and feature modules run without the teaching controller; mount the exported View in your own Region. lesson.js contains narration and observations. lesson-ui.js renders the teaching interface. source.js is generated from this exported source snapshot for exact excerpts. All other JavaScript files are ordinary ES modules with explicit imports and exports.\n\nThe pinned Marionette, data, and HTML runtime, with its licenses, is included in vendor/.\n',
   };
   const encoder = new TextEncoder(), chunks = [], directory = [];
   let offset = 0;
@@ -131,9 +132,9 @@ export function projectArchive(input, vendor, license) {
 }
 
 // Native ESM linking retains cycles, live bindings, and module isolation.
-export function projectPen(input, vendor, license) {
+export function projectPen(input, vendor, license, runtime = {}) {
   const { project } = compileProject(input);
-  const data = JSON.stringify({project,vendor,license}).replaceAll('<','\\u003c');
+  const data = JSON.stringify({project,vendor,license,runtime}).replaceAll('<','\\u003c');
   return {
     title:input.title, description:'A Marionette module project. Every source file and the pinned runtime are included.',
     html:'<main id="app"></main>\n<script type="application/json" id="demo-project">'+data+'</script>',

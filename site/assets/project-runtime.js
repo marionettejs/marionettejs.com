@@ -2,7 +2,7 @@ export async function importProject(project, vendor, nonce) {
   const urls = [];
   const makeURL = source => { const url = URL.createObjectURL(new Blob([source], {type:'text/javascript'})); urls.push(url); return url; };
   const vendorURL = makeURL(vendor);
-  const imports = { marionette: vendorURL, '@mnjs/data': vendorURL };
+  const imports = { marionette: vendorURL, '@mnjs/data': vendorURL, '@mnjs/html': vendorURL, '@mnjs/html/marionette': vendorURL };
   for (const [file, source] of Object.entries(project.modules)) imports['demo:' + file] = makeURL(source);
   const map = document.createElement('script');
   map.type = 'importmap';

@@ -6,10 +6,17 @@ export const starter = {
 };
 export const runtime = {
   "package": "marionette",
-  "version": "5.1.0",
-  "revision": "86ee0599ee9c3e1ae472d7426fc3769bd66bdcbe",
+  "version": "5.1.1",
+  "revision": "8e4b36dbb9b926a733cd4f2aebd68ed19fb15288",
+  "bundleSha256": "5b65410bbb8518d566db7319cef8343d32a6bcc71087038aebe984b6631c0341",
   "data": {
     "package": "@mnjs/data",
-    "version": "5.1.0"
+    "version": "5.1.1",
+    "integrity": "sha512-mLatTdpSeYoqwZhbL/Mz+v1x1WSzzhqmk9cBXbdSRpwb+mgwINHecL9KXYDDTfud+hHee/996esLWMg+qTpQmw=="
+  },
+  "html": {
+    "package": "@mnjs/html",
+    "version": "1.0.0",
+    "integrity": "sha512-bx1iwgog6I9ePIZXxd+W5Z7CRf6MRkYxFuwgPogWWKv6n1d2s7m0KEav4emTVwVjC3dFt0Ep4igB851cMUrG/w=="
   }
 };

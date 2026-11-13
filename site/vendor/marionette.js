@@ -3966,7 +3966,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     return this._preparedView || this._displayedView;
   }
 });
-var version = "5.1.0";
+var version = "5.1.1";
 function copyApi(api) {
   return {
     ...api

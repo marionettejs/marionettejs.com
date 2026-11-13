@@ -161,17 +161,17 @@ test('publication status requires matching clean npm archive evidence', () => {
 test('publication evidence accepts only the exact versioned registry archive', async t => {
   const fixture = await mkdtemp(resolve(tmpdir(), 'marionette-publication-'));
   t.after(() => rm(fixture, { recursive: true, force: true }));
-  for (const directory of ['scripts', 'content', 'node_modules/marionette']) await mkdir(resolve(fixture, directory), { recursive: true });
+  for (const directory of ['scripts', 'content', 'node_modules/marionette-docs']) await mkdir(resolve(fixture, directory), { recursive: true });
   for (const source of ['scripts/published-docs.mjs', 'scripts/publication-status.mjs']) await cp(resolve(root, source), resolve(fixture, source));
   const manifest = { packageVersion: '5.0.0-rc.2', channel: 'latest', sourceRevision: 'a'.repeat(40), contentSha256: 'b'.repeat(64), sourceDirty: false };
   await writeFile(resolve(fixture, 'content/docs-publication-edits.json'), JSON.stringify({ packageVersion: manifest.packageVersion, channel: manifest.channel, status: 'release candidate (published on npm)', edits: [] }));
-  await writeFile(resolve(fixture, 'node_modules/marionette/package.json'), JSON.stringify({ version: manifest.packageVersion }));
-  await writeFile(resolve(fixture, 'node_modules/marionette/docs-manifest.json'), JSON.stringify(manifest));
+  await writeFile(resolve(fixture, 'node_modules/marionette-docs/package.json'), JSON.stringify({ version: manifest.packageVersion }));
+  await writeFile(resolve(fixture, 'node_modules/marionette-docs/docs-manifest.json'), JSON.stringify(manifest));
   await symlink(resolve(root, 'node_modules/marked'), resolve(fixture, 'node_modules/marked'), 'dir');
   const { publishedChannel } = await import(pathToFileURL(resolve(fixture, 'scripts/published-docs.mjs')));
   const lock = { version: manifest.packageVersion, resolved: 'https://registry.npmjs.org/marionette/-/marionette-5.0.0-rc.2.tgz',
     integrity: 'sha512-' + Buffer.alloc(64, 1).toString('base64') };
-  const writeLock = value => writeFile(resolve(fixture, 'package-lock.json'), JSON.stringify({ packages: { 'node_modules/marionette': value } }));
+  const writeLock = value => writeFile(resolve(fixture, 'package-lock.json'), JSON.stringify({ packages: { 'node_modules/marionette-docs': value } }));
   await writeLock(lock);
   assert.equal(publishedChannel(manifest), 'latest');
   for (const change of [{ resolved: 'https://registry.npmjs.org/marionette/5.0.0-rc.2' },

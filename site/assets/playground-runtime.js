@@ -101,7 +101,7 @@ function boot(config, loadProject) {
     } else {
       const vendorURL = URL.createObjectURL(new Blob([vendor], { type: 'text/javascript' }));
       const appURL = URL.createObjectURL(new Blob([
-        `import { View, Region, CollectionView, Behavior, Application, MnObject, Events, Model, Collection, DataApi, StateApi } from ${JSON.stringify(vendorURL)};\n`, app.code
+        `import { View, Region, CollectionView, Behavior, Application, MnObject, Events, Model, Collection, DataApi, StateApi, html, HtmlDomApi } from ${JSON.stringify(vendorURL)};\n`, app.code
       ], { type: 'text/javascript' }));
       try {
         library = await import(vendorURL);

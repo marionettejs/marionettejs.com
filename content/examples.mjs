@@ -1,4 +1,6 @@
 import { listRecipes } from '../site/assets/playground-recipes.js';
+import { escapeHtml } from '../scripts/html.mjs';
+const initialExercise = listRecipes()[0].nextChange;
 const pixelIcon = paths => `<svg viewBox="0 0 64 48" aria-hidden="true" shape-rendering="crispEdges">${paths}</svg>`;
 const chooser = {
   'list-detail': { icon: pixelIcon('<path fill="currentColor" d="M14 4h36v40H14z"/><path fill="#111415" d="M18 8h28v32H18z"/><path fill="currentColor" d="M22 12h4v4h-4zm8 0h12v4H30zM22 22h4v4h-4zm8 0h12v4H30zM22 32h4v4h-4zm8 0h12v4H30z"/>'), name: 'TodoMVC', hint: 'Changing lists · independent Views' },
@@ -22,7 +24,7 @@ export const examples = {
       <form id="example-codepen" action="https://codepen.io/pen/define" method="POST" target="_blank" rel="noopener noreferrer" hidden><input name="data" type="hidden"></form>
     </section>
 
-    <section class="example-next" aria-labelledby="example-next-title"><div><p class="eyebrow">YOUR NEXT DIRECTION</p><h2 id="example-next-title">Same app.<br><em>New request.</em></h2></div><div><p>Select TodoMVC, then download it and give your agent a small change to make:</p><blockquote>“Add a count of completed todos beside the filters. Keep my notes intact while I add, complete, and filter todos.”</blockquote><p>Give it the <a href="/docs/agent-start/">agent docs</a>, then check the behavior and ask it to explain the changed code. This is a suggested next exercise; the demos above run locally in your browser.</p><p>For a fuller application, the <a href="/docs/records/">Records guide</a> connects loading, selection, retry, and closing a feature. Its source gives your agent a practical example to work from.</p></div></section>
+    <section class="example-next" aria-labelledby="example-next-title"><div><p class="eyebrow">YOUR NEXT DIRECTION</p><h2 id="example-next-title">Same app.<br><em>New request.</em></h2></div><div><p>Download the selected demo and give your agent this small change, or choose your own:</p><blockquote id="example-next-request">${escapeHtml(initialExercise.request)}</blockquote><p id="example-next-acceptance">${escapeHtml(initialExercise.acceptance)}</p><p>Ask it to inspect the selected app and lesson modules first, identify the View, Region, state and external-work owners, and use the bundled runtime's matching APIs. Make the smallest change that fits those owners; preserve the lesson, editor and exports. Run the checks above, then explain the changed code, observed evidence and anything unverified. The <a href="/docs/agent-start/">agent docs</a> help with API lookup; package versions and optional integrations have separate contracts.</p><p>For a fuller application, the <a href="/docs/records/">Records guide</a> connects loading, selection, retry, and closing a feature. Its source gives your agent a practical example to work from.</p></div></section>
 
     <noscript><p>The interactive examples need JavaScript. Read the <a href="/docs/api/region/">Region guide</a> or <a href="/docs/api/application/">Application guide</a>.</p></noscript>
   </section>`

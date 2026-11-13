@@ -1,5 +1,7 @@
 import { View } from 'marionette';
 import { Model, StateApi } from '@mnjs/data';
+import { html } from '@mnjs/html';
+import { HtmlDomApi } from '@mnjs/html/marionette';
 import { RadioWidget } from './motion.js';
 
 // Start with Radio: its Regions own the controls and readout.
@@ -24,7 +26,7 @@ const RadioTuner = View.extend({
   template: ({
     playing,
     frequency,
-  }) => `<label class="tuning">Tune the wiggles <input type="range" min="1" max="9" value="${frequency}" aria-label="Radio frequency"></label>
+  }) => html`<label class="tuning">Tune the wiggles <input type="range" min="1" max="9" .value=${frequency} aria-label="Radio frequency"></label>
     <button class="pause-radio">${playing ? 'Pause' : 'Resume'} the radio</button>`,
   ui: {
     frequency: '[type=range]',
@@ -48,6 +50,9 @@ const RadioTuner = View.extend({
   },
 });
 RadioTuner.setStateApi(StateApi);
+// Scope incremental rendering to this leaf. The same template call site retains
+// its button and slider across playback renders, including keyboard focus.
+RadioTuner.setDomApi(HtmlDomApi);
 const Radio = View.extend({
   template:
     () => `<div class="radio-display"><div class="radio-dial">📻 &nbsp; FM 404 · SIGNAL FOUND</div>

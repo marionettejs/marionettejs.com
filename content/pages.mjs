@@ -1,10 +1,10 @@
-import { stableRelease } from '../scripts/release-contract.mjs';
+import { runtimeRelease } from '../scripts/release-contract.mjs';
 import { demosInvitation } from './examples.mjs';
 import { invitation } from './playground.mjs';
 export { why } from './why.mjs';
 import provenance from './provenance.json' with { type: 'json' };
 
-if (provenance.packageVersion !== stableRelease) throw new Error(`Expected a Marionette 5 package version, received ${provenance.packageVersion}.`);
+if (provenance.packageVersion !== runtimeRelease) throw new Error(`Expected a Marionette 5 package version, received ${provenance.packageVersion}.`);
 
 const demo = `<section class="demo application-demo" id="demo" aria-labelledby="demo-title">
   <div class="demo-heading"><span class="eyebrow" id="demo-title">APPLICATION / PREVIEW</span><span class="live-indicator">LIVE LIBRARY</span></div>

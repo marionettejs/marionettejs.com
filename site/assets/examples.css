@@ -42,6 +42,7 @@
 .example-next h2 { font-size:clamp(32px,4vw,45px); font-weight:500; line-height:1.1; letter-spacing:-.03em; }
 .example-next h2 em { color:#d97d64; font-family:Georgia,serif; font-weight:400; }
 .example-next p { color:#cbc2bb; font-size:14px; line-height:1.8; }
+.example-next p + p { margin-top:14px; }
 .example-next blockquote { margin:24px 0; padding:0 0 0 22px; border-left:2px solid #d97d64; color:#f4d9ca; font:22px/1.5 Georgia,serif; }
 .example-next a { color:#efb19b; text-underline-offset:3px; }
 @media(max-width:760px) { .examples-intro,.example-next { grid-template-columns:1fr; gap:8px; } .example-journey { grid-template-columns:1fr; gap:18px; } .example-next { margin-top:40px; } }

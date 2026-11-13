@@ -9,7 +9,7 @@ const declaration = JSON.parse(await readFile('content/docs-publication-edits.js
 
 test('canonical consumer guides replace obsolete instructional paths', async () => {
   const { manifest, pages } = await readSnapshot('content/library-docs');
-  assert.equal(manifest.packageVersion, installedPackage.version);
+  assert.equal(manifest.packageVersion, declaration.releaseEvidence.packageVersion);
   for (const source of ['docs/quick-start.md', 'docs/tooling.md', 'docs/guides/testing.md', 'docs/guides/production.md']) {
     const page = pages.find(page => page.source === source);
     assert.equal(await readFile(`dist/docs/markdown/${source}`, 'utf8'), page.markdown);
@@ -30,7 +30,9 @@ test('diagnostics use the matching catalog without obsolete example supplements'
   const demo = JSON.parse(await readFile('dist/reference/provenance.json', 'utf8'));
   assert.equal(demo.packageVersion, installedPackage.version);
   const manifest = JSON.parse(await readFile('dist/docs/manifest.json', 'utf8'));
-  assert.equal(demo.libraryRevision, manifest.sourceRevision);
+  assert.equal(manifest.sourceRevision, declaration.releaseEvidence.sourceRevision);
+  const installed = JSON.parse(await readFile('node_modules/marionette/docs-manifest.json', 'utf8'));
+  assert.equal(demo.libraryRevision, installed.sourceRevision);
 });
 
 test('the primary testing guide links helper setup from its article while preserving the manual recipe and archive', async () => {

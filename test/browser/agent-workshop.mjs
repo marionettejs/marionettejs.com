@@ -90,6 +90,24 @@ export function inspectRecipe() {
   assert.ok(appProof.preview.recipe.checks.every(check => check.observed));
   assert.equal(appProof.preview.recipe.checks.length, 2);
   console.log('PASS exported Application Region: async readiness, retained restart and synchronous stop');
+  await api('run', { title: 'Incremental workshop controls', css: '', code: [
+    'const Counter = View.extend({',
+    '  createState() { return { count: 0 }; },',
+    '  templateContext() { return this.getState(); },',
+    '  template: ({ count }) => html`<button id="increment">${count}</button>`,',
+    "  events: { 'click #increment'() { this.getState().count++; this.render(); } }",
+    '}).setDomApi(HtmlDomApi);',
+    'export const region = new Region({ el: "#app" });',
+    'region.show(new Counter());',
+  ].join('\n') });
+  const incremental = page.frameLocator('.workshop-preview iframe').locator('#increment');
+  await incremental.focus();
+  const originalControl = await incremental.elementHandle();
+  for (const key of ['Space', 'Enter', 'Space']) await incremental.press(key);
+  assert.equal(await incremental.innerText(), '3');
+  assert.equal(await originalControl.evaluate(el => el === document.activeElement && el === document.querySelector('#increment')), true);
+  assert.deepEqual((await api('inspect')).preview.errors, []);
+  console.log('PASS workshop HTML bindings: incremental control updates preserve keyboard focus');
   const personalChecks = await readFile('test/browser/workshop-checks.js', 'utf8');
   await api('run', { ...starter, code: `${starter.code}\n${personalChecks}` });
   await page.frameLocator('.workshop-preview iframe').locator('body').evaluate(() => {
@@ -378,10 +396,18 @@ Victory.prototype.onRender = function () {
   assert.equal(await flight.locator('.retired-flight .rocket').count(), 1);
   assert.equal(await flight.locator('.flight-deck').count(), 1);
   assert.match(await flight.locator('.station-status').textContent(), /^OPEN/);
-  await flight.locator('#launch-worker').click();
+  // Hold this flight pending while exercising failure. A free three-second
+  // flight can finish during browser scrolling on a loaded runner.
+  await flight.locator('#guided-flight').click();
+  await flight.locator('.beam-feedback').filter({ hasText: 'Paused at 50%' }).waitFor();
   await flight.locator('.flight-more > summary').click();
+  // Expanding the controls resizes the opaque preview asynchronously. Wait for
+  // the host to adopt that height before sending a real pointer click into it.
+  const failureHeight = await flight.locator('#app').evaluate(el => Math.ceil(el.getBoundingClientRect().height));
+  await galleryPage.waitForFunction(height => Number.parseFloat(document.querySelector('.example-preview iframe').style.height) === Math.max(500, Math.min(2800, height)), failureHeight);
   await flight.locator('#fail-worker').click();
   await flight.locator('.slot .result').filter({ hasText: 'Engine failed' }).waitFor();
+  assert.match(await flight.locator('.beam-feedback').innerText(), /Engine failed. No delivery was committed/);
   await flight.locator('#launch-worker').click();
   await flight.locator('.readiness-chapter').click();
   await flight.locator('#close-station').click();
@@ -440,6 +466,8 @@ Victory.prototype.onRender = function () {
     await galleryPage.waitForFunction(title => document.querySelector('#example-title').textContent === title && document.querySelector('#example-status').textContent.startsWith('Ready.'), recipe.title);
     const selected = await exampleApi('inspect', { includeSource: true });
     assert.equal(selected.selected, recipe.id);
+    assert.equal(await galleryPage.locator('#example-next-request').innerText(), recipe.nextChange.request);
+    assert.equal(await galleryPage.locator('#example-next-acceptance').innerText(), recipe.nextChange.acceptance);
     assert.deepEqual(selected.draft.files, recipe.sourceFiles);
     assert.deepEqual(selected.preview.errors, []);
     const excerpt = preview().locator('.source-excerpt').first();
@@ -532,6 +560,22 @@ Victory.prototype.onRender = function () {
     if (recipe.id === 'owned-widget') {
       await penPage.locator('[aria-label="Radio frequency"]').fill('9');
       await penPage.locator('.pause-radio').click();
+      await penPage.evaluate(() => {
+        window.tunerButton = document.querySelector('.pause-radio');
+        window.tunerSlider = document.querySelector('[aria-label="Radio frequency"]');
+      });
+      for (const key of ['Space', 'Space', 'Enter', 'Enter']) {
+        await penPage.locator('.pause-radio').press(key);
+        assert.equal(await penPage.evaluate(() =>
+          document.activeElement === window.tunerButton &&
+          document.querySelector('.pause-radio') === window.tunerButton &&
+          document.querySelector('[aria-label="Radio frequency"]') === window.tunerSlider &&
+          window.tunerSlider.value === '9'), true, 'Playback renders retain both controls, tuning and keyboard focus');
+      }
+      await penPage.locator('[aria-label="Radio frequency"]').focus();
+      await penPage.keyboard.press('ArrowLeft');
+      assert.equal(await penPage.locator('[aria-label="Radio frequency"]').inputValue(), '8');
+      await penPage.keyboard.press('ArrowRight');
       assert.equal(await penPage.evaluate(() => window.demoInspection().views.find(item => item.name === 'first-widget').view.widget.getState().frequency), 9);
       const reattachment = await penPage.evaluate(() => {
         const station = window.demoInspection().views.find(item => item.name === 'shell').view;

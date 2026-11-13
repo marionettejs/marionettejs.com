@@ -77,9 +77,9 @@ test('all local JavaScript imports and CSS imports resolve in the built output',
   }
 });
 
-test('published demo runtime and documentation match the installed artifact',async()=>{
+test('published demo runtime matches the installed artifact',async()=>{
   const provenance=JSON.parse(await readFile(resolve(out,'reference/provenance.json'),'utf8'));
-  assert.equal(provenance.packageVersion, '5.1.0');
+  assert.equal(provenance.packageVersion, '5.1.1');
   const homepage = await readFile(resolve(out,'index.html'),'utf8');
   assert.match(homepage, /MARIONETTE 5\.1/);
   assert.doesNotMatch(homepage, /Marionette 5 RC|MARIONETTE 5\.0 · RC/);
@@ -94,9 +94,11 @@ test('published demo runtime and documentation match the installed artifact',asy
   const installed = JSON.parse(await readFile(new URL('../node_modules/marionette/docs-manifest.json', import.meta.url), 'utf8'));
   assert.equal(provenance.packageVersion, installed.packageVersion);
   assert.equal(provenance.libraryRevision, installed.sourceRevision);
-  assert.equal(manifest.packageVersion, installedPackage.version);
-  assert.equal(manifest.sourceRevision, installed.sourceRevision);
-  assert.equal(manifest.contentSha256, installed.contentSha256);
+  // The immutable documentation snapshot keeps its own release identity.
+  const publication = JSON.parse(await readFile(resolve(root, 'content/docs-publication-edits.json'), 'utf8'));
+  assert.equal(manifest.packageVersion, publication.releaseEvidence.packageVersion);
+  assert.equal(manifest.sourceRevision, publication.releaseEvidence.sourceRevision);
+  assert.equal(manifest.contentSha256, publication.releaseEvidence.contentSha256);
   assert.equal(manifest.sourceDirty, false);
   assert.match(await readFile(resolve(out,'vendor/MARIONETTE-LICENSE.txt'),'utf8'),/MIT/);
 });

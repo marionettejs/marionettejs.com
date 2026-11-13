@@ -430,11 +430,16 @@ archive, including its revision, content digest and locked registry integrity.
 After an authorized release, upgrade the exact core/data pins together:
 
 ```sh
-npm install --save-dev --save-exact marionette@5.1.0 @mnjs/data@5.1.0
+npm install --save-dev --save-exact marionette@5.1.1 @mnjs/data@5.1.1 @mnjs/html@1.0.0
 npm ls marionette @mnjs/data @mnjs/radio @mnjs/utils
 ```
 
-Require all four installed versions to match. The vendor builder reads the package's
+Require all four core/data/radio/utils versions to match; HTML is versioned separately.
+The browser demos and Backstage currently use core/data 5.1.1 and HTML 1.0.0.
+The immutable documentation archive and its release evidence remain at 5.1.0;
+`marionette-docs` installs that exact npm alias for the build publication gate.
+Downloaded demos include `vendor/runtime.json` with runtime source, versions,
+archive integrities and the bundled runtime hash. The vendor builder reads the package's
 root `docs-manifest.json` and requires clean source, matching exact pins and registry
 archive URLs/integrities for core, data, radio and utils. Rebuild with
 `npm run vendor:build` and `npm run vendor:demos`; verify both resulting hashes and

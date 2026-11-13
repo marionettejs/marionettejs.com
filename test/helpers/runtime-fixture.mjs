@@ -3,10 +3,10 @@ import { execFileSync } from 'node:child_process';
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { runtimePackages, stableRelease } from '../../scripts/release-contract.mjs';
+import { runtimePackages, runtimeRelease } from '../../scripts/release-contract.mjs';
 
 // Synthetic archives exercise the real verification path; never publication evidence.
-export async function runtimeFixture(t, version = stableRelease, mutate) {
+export async function runtimeFixture(t, version = runtimeRelease, mutate) {
   const root = await mkdtemp(join(tmpdir(), 'runtime-fixture-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   const json = (path, value) => writeFile(path, JSON.stringify(value));

@@ -2,7 +2,7 @@ import { projects } from './demo-projects.js';
 import todoCSS from './todomvc-style.js';
 import { runtime } from './workshop-starter.js';
 
-export const recipeRuntime = Object.freeze({ ...runtime, data: Object.freeze({ ...runtime.data }) });
+export const recipeRuntime = Object.freeze({ ...runtime, data: Object.freeze({ ...runtime.data }), html: Object.freeze({ ...runtime.html }) });
 
 const css = `
 body { background:#f6f0e3; color:#292c35; }
@@ -176,6 +176,7 @@ const spacingCSS = `
 export const recipes = [
 {
   "id": "list-detail",
+  nextChange: {'request': 'Add a completed-todo count beside the filters. Keep the notes draft, input identity and keyboard focus intact while tasks change.', 'acceptance': 'Add, complete, filter, edit and remove tasks; check the count against the Collection. In the notes field, type a draft and press Enter repeatedly to change the neighboring row: the same input, draft and focus must survive.'},
   "title": "TodoMVC, one View at a time",
   "summary": "@mnjs/data Models and Collection drive TodoMVC. CollectionView observes membership; modelEvents render changed rows and collectionEvents update counts. A separate notes Region preserves draft, focus and identity.",
   "docs": [
@@ -216,6 +217,7 @@ export const recipes = [
 },
 {
   "id": "owned-widget",
+  nextChange: {'request': 'Add a Reset tuning button to the tuner that restores frequency 4 without restarting playback or replacing the radio. Keep widget ownership and cleanup in the Radio View.', 'acceptance': 'Change frequency with the keyboard, pause, reset tuning, and resume with Space repeatedly: retain the controls and focus, reset to 4, and preserve playback state. Swap twice, broadcast after each swap, then close: each retired widget must dispose once and hear no new broadcasts.'},
   "title": "Radio Ghostbusters",
   "summary": "A View explicitly releases an application-owned widget subscription in onBeforeDestroy. Region replacement destroys its previous View; parent teardown destroys the replacement.",
   "docs": [
@@ -247,13 +249,15 @@ export const recipes = [
   css: css + lessonCSS + spacingCSS + motionCSS,
   readingGuide: [
     { label: '1. Attach the integration', file: 'radio-view.js', symbol: 'Radio.onAttach', detail: 'Radio.onAttach creates the widget. Read releaseWidget and the detach/destroy hooks in this same View.' },
-    { label: '2. Replace the child', file: 'app.js', symbol: 'RadioStation.onClickReplaceRadio', detail: 'RadioStation.onClickReplaceRadio replaces a Region child. Marionette invokes cleanup on the old View.' },
-    { label: '3. Challenge the retired receiver', file: 'app.js', symbol: 'RadioStation.onClickBroadcast', detail: 'RadioStation.onClickBroadcast sends an external broadcast. RadioLesson checks that only the live widget received it.' },
+    { label: '2. Keep tuner controls', file: 'radio-view.js', symbol: 'RadioTuner.template', detail: 'RadioTuner uses @mnjs/html at one template call site. Its scoped HtmlDomApi keeps the button and slider across playback renders; ordinary string templates replace their contents.' },
+    { label: '3. Replace the child', file: 'app.js', symbol: 'RadioStation.onClickReplaceRadio', detail: 'RadioStation.onClickReplaceRadio replaces a Region child. Marionette invokes cleanup on the old View.' },
+    { label: '4. Challenge the retired receiver', file: 'app.js', symbol: 'RadioStation.onClickBroadcast', detail: 'RadioStation.onClickBroadcast sends an external broadcast. RadioLesson checks that only the live widget received it.' },
   ],
   sourceFiles: projects['owned-widget']
 },
 {
   "id": "mission-control",
+  nextChange: {'request': 'Add a completed-deliveries count to the flight screen. Count only a delivery that finishes; keep the counter with its owning screen and reset it when that screen closes.', 'acceptance': 'Finish a flight, cancel another, and replace one midflight: only the completed flight counts. Cancel preparation, retry, fail preparation and retry again; close during a flight, then reopen. No late delivery may change the new screen or its count.'},
   "title": "Cheese Patrol",
   "summary": "Application readiness prepares the station before attaching a flight screen. Each rocket View owns a three-second delivery. Fire a beam at 40–60% progress to cancel it; misses leave the flight alive. Cancel preparation, fail it, retry, cancel or replace a flight, or stop the Application to destroy the entire screen and its work.",
   "docs": [
