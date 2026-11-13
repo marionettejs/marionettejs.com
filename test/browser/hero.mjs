@@ -6,7 +6,9 @@ import { builtSite } from './built-site.mjs';
 const { base, close } = await builtSite();
 let browser;
 try {
-  browser = await chromium.launch({ headless: true });
+  // Exercise native new-tab actions in full Chromium. Headless shell has a
+  // modifier/middle-click regression: microsoft/playwright#42142.
+  browser = await chromium.launch({ channel: 'chromium', headless: true });
   await mkdir('output/playwright', { recursive: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1080 } });
   const errors = [];
