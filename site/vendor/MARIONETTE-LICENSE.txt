@@ -1,4 +1,4 @@
-marionette@5.1.0
+marionette@5.1.1
 MIT License
 
 Copyright (c) 2020 Paul Falgout
@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-@mnjs/utils@5.1.0
+@mnjs/utils@5.1.1
 MIT License
 
 Copyright (c) 2020 Paul Falgout
@@ -46,7 +46,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-@mnjs/radio@5.1.0
+@mnjs/radio@5.1.1
 MIT License
 
 Copyright (c) 2020 Paul Falgout

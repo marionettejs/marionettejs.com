@@ -5,7 +5,7 @@ import { pagePath, trackPublicClick } from './analytics.js';
 const controls = [
   ['[data-phase="0"]', 'lifecycle.show'], ['[data-phase="1"]', 'lifecycle.replace'],
   ['[data-phase="2"]', 'lifecycle.empty'], ['.sequence-play', 'lifecycle.play'],
-  ['.motion-toggle', 'motion.toggle'], ['#application-slot button', 'ownership.select'],
+  ['.motion-toggle', 'motion.toggle'], ['.hero-feature', 'ownership.select'],
   ['[data-agent-copy]', 'invitation.copy'], ['#copy-adoption-prompt', 'adoption.copy'],
   ['[data-workshop-close]', 'workshop.close'], ['[data-workshop-run]', 'workshop.run'],
   ['[data-workshop-stop]', 'workshop.stop'], ['[data-workshop-download]', 'workshop.download'],

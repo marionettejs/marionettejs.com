@@ -1,6 +1,14 @@
+import { setDomApi, setDataApi, setStateApi } from 'marionette';
+import { DataApi, StateApi } from '@mnjs/data';
+import { HtmlDomApi } from '@mnjs/html/marionette';
 import { Todos } from './app.js';
 import { TodoLesson } from './lesson.js';
 export { inspectRecipe } from './lesson-ui.js';
+
+// Configure the app adapters once, before constructing Views or Regions.
+setDomApi(HtmlDomApi);
+setDataApi(DataApi);
+setStateApi(StateApi);
 
 export const controller = new TodoLesson({
   ViewClass: Todos,

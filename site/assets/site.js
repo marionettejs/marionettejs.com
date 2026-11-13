@@ -27,11 +27,11 @@ for (const button of document.querySelectorAll('[data-analytics-opt-out]')) {
   });
 }
 
-if (document.querySelector('#application-slot')) {
-  import('./demo.js').catch(() => {
-    document.querySelector('#application-slot').textContent = 'The application example could not load. You can still explore the lifecycle illustration below and read the guide.';
-  });
-}
+const homeHero = document.querySelector('[data-home-hero]');
+if (homeHero) import('./hero.js').catch(() => {
+  // Keep the readable static header if this optional module cannot load.
+  homeHero.classList.add('hero-unavailable');
+});
 if (document.querySelector('[data-story]')) {
   import('./motion.js').catch(() => {
     document.documentElement.classList.add('motion-off');

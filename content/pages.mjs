@@ -1,26 +1,23 @@
-import { stableRelease } from '../scripts/release-contract.mjs';
+import { runtimeRelease } from '../scripts/release-contract.mjs';
 import { demosInvitation } from './examples.mjs';
 import { invitation } from './playground.mjs';
 export { why } from './why.mjs';
 import provenance from './provenance.json' with { type: 'json' };
 
-if (provenance.packageVersion !== stableRelease) throw new Error(`Expected a Marionette 5 package version, received ${provenance.packageVersion}.`);
-
-const demo = `<section class="demo application-demo" id="demo" aria-labelledby="demo-title">
-  <div class="demo-heading"><span class="eyebrow" id="demo-title">APPLICATION / PREVIEW</span><span class="live-indicator">LIVE LIBRARY</span></div>
-  <div id="application-slot"><p class="empty-region">Enable JavaScript to explore a small Marionette application.</p></div>
-</section>`;
+if (provenance.packageVersion !== runtimeRelease) throw new Error(`Expected a Marionette 5 package version, received ${provenance.packageVersion}.`);
 
 export const home = {title:`Marionette 5 — JavaScript library for agent-led development`,description:'A JavaScript UI library for agent-led development. Your agent learns the patterns; you direct the application and follow the code. Build with Marionette 5.',active:'home',body:`
 <div class="opening-act"><svg class="opening-thread" aria-hidden="true"><path/></svg>
-<section class="night-hero">
-  <div class="night-copy"><p class="eyebrow"><span class="signal-dot"></span> MARIONETTE ${provenance.packageVersion.split('.').slice(0, 2).join('.')}</p><h1>Pull a few<br><em>strings.</em></h1><p class="night-intro">A JavaScript UI library for<br><strong>agent-led development.</strong></p><p class="hero-purpose">Your agent learns the patterns.<br>You direct the application.<br>The code stays yours to follow.</p><div class="night-actions"><a class="button" href="/why/">Explore Marionette <span aria-hidden="true">↗</span></a><a class="text-link" href="/docs/agent-start/">Equip your agent →</a></div></div>
-  <div class="rig" data-rig>
-    <div class="rig-decoration" aria-hidden="true"><div class="rig-control"><span class="yoke-pin pin-left"></span><img src="/assets/mark.svg" width="68" height="70" alt=""><span class="yoke-pin pin-right"></span></div><svg class="rig-strings" viewBox="0 0 560 96" preserveAspectRatio="none"><path d="M84 0 V96 M476 0 V96"/><circle cx="84" cy="94" r="3"/><circle cx="476" cy="94" r="3"/></svg><span class="rig-annotation">A PLACE FOR EVERYTHING.</span></div>
-    ${demo}
-    <p class="rig-caption">A little application. <span>Pick a piece of work.</span></p>
-  </div>
-  <div class="hero-bottom" aria-hidden="true"></div>
+<section class="night-hero interactive-hero" id="demo" data-home-hero>
+  <div class="hero-shell"><div class="night-copy"><p class="eyebrow"><span class="signal-dot"></span> MARIONETTE ${provenance.packageVersion.split('.').slice(0, 2).join('.')}</p><h1>Pull a few<br><em>strings.</em></h1><p class="night-intro">A JavaScript UI library for<br><strong>agent-led development.</strong></p><div class="night-actions hero-choices"><a class="button" href="/why/">Explore Marionette <span aria-hidden="true">↗</span></a><a class="text-link" href="/docs/agent-start/">Equip your agent →</a></div><div class="hero-answer"><p class="hero-initial-purpose">Your agent learns the patterns.<br>You direct the application.<br>The code stays yours to follow.</p><noscript><p>Enable JavaScript to try the list, changing panels, and async Application.</p></noscript></div></div>
+  <div class="rig hero-live-code"><section class="demo hero-code-frame" aria-label="An illustrative Marionette sketch"><div class="hero-code-heading"><span>FOLLOW THE STRINGS</span></div><pre class="hero-code-source"><code>// A feature prepares before it starts.
+async prepareStart(_options, { signal }) {
+  return await loadCoolIdeas({ signal });
+}
+onStart(_app, _options, ideas) {
+  // Our app-defined helper.
+  this.showApp(ideas);
+}</code></pre></section><p class="rig-caption">An illustrative sketch. <span>A few strings worth following.</span></p></div></div>
 </section>
 ${invitation}
 </div>
@@ -35,7 +32,8 @@ ${invitation}
  </div>
 </section>
 <section class="ownership" id="ownership" aria-labelledby="structure-title">
- <div class="structure-copy"><p class="eyebrow">02 / A PLACE FOR THE WHOLE APPLICATION</p><h2 id="structure-title">More than a View.<br><span>Thankfully.</span></h2><p>Screens, changing lists, and work that starts and stops with a feature. Each gets a clear owner your agent can build on.</p><a class="text-link" href="/why/">Why that might matter now →</a></div>
+ <div class="hero-ambient ownership-ambient" aria-hidden="true"><div class="hero-ambient-light"></div><div class="hero-ambient-texture"></div></div>
+ <div class="structure-copy"><p class="eyebrow">02 / A PLACE FOR THE WHOLE APPLICATION</p><h2 id="structure-title">Give every part<br><span>a place to work.</span></h2><p>Screens, changing lists, and work that starts and stops with a feature. Each gets a clear owner you can build on. Compose Views, Regions and CollectionViews into an interface you can keep changing.</p><a class="text-link" href="/why/">Build on that structure →</a></div>
  <figure class="structure-map" aria-label="Example application structure: an Application owns a child Application, which displays a screen View. The screen has list and detail Regions. A CollectionView owns the list's row Views. A Behavior adds reusable interaction to the screen.">
   <div class="structure-app"><div class="structure-heading"><span class="signal-dot"></span><strong>Application</strong><small>start → stop</small></div>
    <div class="structure-feature"><div class="structure-feature-heading"><strong>Workspace</strong><span>child Application</span></div>

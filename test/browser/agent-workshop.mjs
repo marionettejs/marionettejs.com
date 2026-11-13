@@ -16,15 +16,23 @@ const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
 const { base, close } = await staticServer({ root, types });
 const browser = await chromium.launch({ headless: true, args: ['--enable-experimental-web-platform-features'] });
 try {
-  const failedDemo = await browser.newPage();
+  const failedHero = await browser.newPage();
   const fallbackErrors = [];
-  failedDemo.on('pageerror', error => fallbackErrors.push(error.message));
-  await failedDemo.route('**/assets/demo.js*', route => route.abort());
-  await failedDemo.goto(`${base}/`);
-  await failedDemo.locator('#application-slot').filter({ hasText: 'The application example could not load.' }).waitFor();
+  failedHero.on('pageerror', error => fallbackErrors.push(error.message));
+  await failedHero.route('**/assets/hero.js*', route => route.abort());
+  await failedHero.goto(`${base}/`);
+  await failedHero.locator('[data-home-hero].hero-unavailable').waitFor();
+  await failedHero.locator('.lifecycle-live').waitFor();
+  await failedHero.locator('[data-phase="1"][type="button"]').click();
+  assert.match(await failedHero.locator('#lifecycle-events').innerText(), /NotesView: destroy.*TasksView: attach/);
+  assert.equal(await failedHero.locator('[data-home-hero] h1').innerText(), 'Pull a few\nstrings.');
+  assert.match(await failedHero.locator('.hero-initial-purpose').innerText(), /Your agent learns the patterns/);
+  assert.equal(await failedHero.evaluate(() => typeof window.MarionetteHero), 'undefined');
+  await failedHero.goto(`${base}/#playground`);
+  await failedHero.waitForFunction(() => window.MarionettePlayground && document.querySelector('#playground').open);
   assert.deepEqual(fallbackErrors, []);
-  await failedDemo.close();
-  console.log('PASS homepage demo failure: readable host fallback without a missing-status error');
+  await failedHero.close();
+  console.log('PASS hero module failure: readable homepage fallback, working lifecycle illustration and independent Backstage');
   const page = await browser.newPage({ reducedMotion: 'reduce' });
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.message));
@@ -90,6 +98,38 @@ export function inspectRecipe() {
   assert.ok(appProof.preview.recipe.checks.every(check => check.observed));
   assert.equal(appProof.preview.recipe.checks.length, 2);
   console.log('PASS exported Application Region: async readiness, retained restart and synchronous stop');
+  await api('run', { title: 'Incremental workshop controls', css: '', code: [
+    'const Counter = View.extend({',
+    '  createState() { return { count: 0 }; },',
+    '  templateContext() { return this.getState(); },',
+    '  template: ({ count }) => html`<button id="increment">${count}</button>`,',
+    "  events: { 'click #increment'() { this.getState().count++; this.render(); } }",
+    '}).setDomApi(HtmlDomApi);',
+    'export const region = new Region({ el: "#app" });',
+    'region.show(new Counter());',
+  ].join('\n') });
+  const incremental = page.frameLocator('.workshop-preview iframe').locator('#increment');
+  await incremental.focus();
+  const originalControl = await incremental.elementHandle();
+  for (const key of ['Space', 'Enter', 'Space']) await incremental.press(key);
+  assert.equal(await incremental.innerText(), '3');
+  assert.equal(await originalControl.evaluate(el => el === document.activeElement && el === document.querySelector('#increment')), true);
+  assert.deepEqual((await api('inspect')).preview.errors, []);
+  console.log('PASS workshop HTML bindings: incremental control updates preserve keyboard focus');
+  await api('run', { title: 'Locally declared template names', css: '', code: `
+const html = '<button id="local-template">Local template</button>';
+const HtmlDomApi = { name: 'local adapter' };
+export const region = new Region({ el: '#app' });
+region.show(new View({ template: () => html,
+  events: { 'click #local-template'({ delegateTarget }) { delegateTarget.textContent = HtmlDomApi.name; } } }));
+` });
+  const localTemplate = page.frameLocator('.workshop-preview iframe').locator('#local-template');
+  await localTemplate.waitFor();
+  await localTemplate.press('Space');
+  assert.equal(await localTemplate.innerText(), 'local adapter');
+  assert.deepEqual((await api('inspect')).preview.errors, []);
+  assert.equal(await page.evaluate(() => typeof globalThis.HtmlDomApi), 'undefined', 'Supplied APIs stay inside the preview');
+  console.log('PASS live workshop: local template names shadow supplied APIs without collisions or host globals');
   const personalChecks = await readFile('test/browser/workshop-checks.js', 'utf8');
   await api('run', { ...starter, code: `${starter.code}\n${personalChecks}` });
   await page.frameLocator('.workshop-preview iframe').locator('body').evaluate(() => {
@@ -114,13 +154,17 @@ export function inspectRecipe() {
   assert.equal(missingObserver.preview.recipe.checks.at(-1).observed, false);
   assert.match(missingObserver.preview.recipe.checks.at(-1).id, /Direct model changes/);
   // Raw listeners on retained controls outlive Marionette delegation cleanup.
-  const leakedHandler = starter.code.replace('Victory.setDataApi(DataApi);', `
-Victory.setDataApi(DataApi);
+  const leakedHandler = starter.code.replace('const VictoryList =', `
+const leakedControls = new WeakSet();
 Victory.prototype.onRender = function () {
-  this.getUI('toggle')[0].addEventListener('click', function () {
+  const control = this.getUI('toggle')[0];
+  if (leakedControls.has(control)) return;
+  leakedControls.add(control);
+  control.addEventListener('click', function () {
     if (!this.isConnected) throw new Error('Unowned listener survives');
   });
-};`);
+};
+const VictoryList =`);
   await api('run', { ...starter, code: `${leakedHandler}\n${personalChecks}` });
   await page.frameLocator('.workshop-preview iframe').locator('body').evaluate(() => {
     window.dispatchEvent(new Event('run-workshop-checks'));
@@ -378,10 +422,18 @@ Victory.prototype.onRender = function () {
   assert.equal(await flight.locator('.retired-flight .rocket').count(), 1);
   assert.equal(await flight.locator('.flight-deck').count(), 1);
   assert.match(await flight.locator('.station-status').textContent(), /^OPEN/);
-  await flight.locator('#launch-worker').click();
+  // Hold this flight pending while exercising failure. A free three-second
+  // flight can finish during browser scrolling on a loaded runner.
+  await flight.locator('#guided-flight').click();
+  await flight.locator('.beam-feedback').filter({ hasText: 'Paused at 50%' }).waitFor();
   await flight.locator('.flight-more > summary').click();
+  // Expanding the controls resizes the opaque preview asynchronously. Wait for
+  // the host to adopt that height before sending a real pointer click into it.
+  const failureHeight = await flight.locator('#app').evaluate(el => Math.ceil(el.getBoundingClientRect().height));
+  await galleryPage.waitForFunction(height => Number.parseFloat(document.querySelector('.example-preview iframe').style.height) === Math.max(500, Math.min(2800, height)), failureHeight);
   await flight.locator('#fail-worker').click();
   await flight.locator('.slot .result').filter({ hasText: 'Engine failed' }).waitFor();
+  assert.match(await flight.locator('.beam-feedback').innerText(), /Engine failed. No delivery was committed/);
   await flight.locator('#launch-worker').click();
   await flight.locator('.readiness-chapter').click();
   await flight.locator('#close-station').click();
@@ -440,6 +492,8 @@ Victory.prototype.onRender = function () {
     await galleryPage.waitForFunction(title => document.querySelector('#example-title').textContent === title && document.querySelector('#example-status').textContent.startsWith('Ready.'), recipe.title);
     const selected = await exampleApi('inspect', { includeSource: true });
     assert.equal(selected.selected, recipe.id);
+    assert.equal(await galleryPage.locator('#example-next-request').innerText(), recipe.nextChange.request);
+    assert.equal(await galleryPage.locator('#example-next-acceptance').innerText(), recipe.nextChange.acceptance);
     assert.deepEqual(selected.draft.files, recipe.sourceFiles);
     assert.deepEqual(selected.preview.errors, []);
     const excerpt = preview().locator('.source-excerpt').first();
@@ -532,6 +586,22 @@ Victory.prototype.onRender = function () {
     if (recipe.id === 'owned-widget') {
       await penPage.locator('[aria-label="Radio frequency"]').fill('9');
       await penPage.locator('.pause-radio').click();
+      await penPage.evaluate(() => {
+        window.tunerButton = document.querySelector('.pause-radio');
+        window.tunerSlider = document.querySelector('[aria-label="Radio frequency"]');
+      });
+      for (const key of ['Space', 'Space', 'Enter', 'Enter']) {
+        await penPage.locator('.pause-radio').press(key);
+        assert.equal(await penPage.evaluate(() =>
+          document.activeElement === window.tunerButton &&
+          document.querySelector('.pause-radio') === window.tunerButton &&
+          document.querySelector('[aria-label="Radio frequency"]') === window.tunerSlider &&
+          window.tunerSlider.value === '9'), true, 'Playback renders retain both controls, tuning and keyboard focus');
+      }
+      await penPage.locator('[aria-label="Radio frequency"]').focus();
+      await penPage.keyboard.press('ArrowLeft');
+      assert.equal(await penPage.locator('[aria-label="Radio frequency"]').inputValue(), '8');
+      await penPage.keyboard.press('ArrowRight');
       assert.equal(await penPage.evaluate(() => window.demoInspection().views.find(item => item.name === 'first-widget').view.widget.getState().frequency), 9);
       const reattachment = await penPage.evaluate(() => {
         const station = window.demoInspection().views.find(item => item.name === 'shell').view;

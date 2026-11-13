@@ -1,12 +1,13 @@
 import { View } from 'marionette';
-import { Model, StateApi } from '@mnjs/data';
+import { Model } from '@mnjs/data';
+import { html } from '@mnjs/html';
 import { RadioWidget } from './motion.js';
 
 // Start with Radio: its Regions own the controls and readout.
 // RadioWidget in motion.js owns animation and the external subscription.
 const RadioReadout = View.extend({
   template: ({ frames, deliveries }) =>
-    `<small class="radio-frames">${frames} animation frames</small><p class="widget">📡 Broadcasts heard: ${deliveries}</p>`,
+    html`<small class="radio-frames">${frames} animation frames</small><p class="widget">📡 Broadcasts heard: ${deliveries}</p>`,
 });
 const RadioTuner = View.extend({
   createState() {
@@ -24,7 +25,7 @@ const RadioTuner = View.extend({
   template: ({
     playing,
     frequency,
-  }) => `<label class="tuning">Tune the wiggles <input type="range" min="1" max="9" value="${frequency}" aria-label="Radio frequency"></label>
+  }) => html`<label class="tuning">Tune the wiggles <input type="range" min="1" max="9" .value=${frequency} aria-label="Radio frequency"></label>
     <button class="pause-radio">${playing ? 'Pause' : 'Resume'} the radio</button>`,
   ui: {
     frequency: '[type=range]',
@@ -47,11 +48,12 @@ const RadioTuner = View.extend({
     this.triggerMethod('change:playback');
   },
 });
-RadioTuner.setStateApi(StateApi);
+// The same template call site retains the button and slider across playback
+// renders, including keyboard focus. main.js configures HtmlDomApi for all Views.
 const Radio = View.extend({
   template:
-    () => `<div class="radio-display"><div class="radio-dial">📻 &nbsp; FM 404 · SIGNAL FOUND</div>
-    <div class="equalizer" aria-label="Live radio waveform">${'<i></i>'.repeat(9)}</div><div class="readout"></div></div><div class="tuner"></div>`,
+    () => html`<div class="radio-display"><div class="radio-dial">📻 &nbsp; FM 404 · SIGNAL FOUND</div>
+    <div class="equalizer" aria-label="Live radio waveform">${Array.from({ length: 9 }, () => html`<i></i>`)}</div><div class="readout"></div></div><div class="tuner"></div>`,
   ui: {
     bars: '.equalizer i',
   },
@@ -127,9 +129,9 @@ const RetiredRadio = View.extend({
     levels,
     frames,
     deliveries,
-  }) => `<p>RETIRED RADIO — its last frame, frozen. No ghost wiggles.</p>
+  }) => html`<p>RETIRED RADIO — its last frame, frozen. No ghost wiggles.</p>
     <div class="radio-display"><div class="radio-dial">📻 &nbsp; FM 404 · SIGNAL FOUND</div>
-    <div class="equalizer">${levels.map(level => `<i style="transform:scaleY(${level})"></i>`).join('')}</div>
+    <div class="equalizer">${levels.map(level => html`<i style="transform:scaleY(${level})"></i>`)}</div>
     <small class="radio-frames">${frames} animation frames</small><p class="widget">📡 Broadcasts heard: ${deliveries}</p></div>`,
 });
 

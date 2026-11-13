@@ -17,6 +17,13 @@ test('the demo bundle matches the pinned core and data provenance', async () => 
   assert.equal(metadata.dataVersion, recipeRuntime.data.version);
   assert.equal(metadata.dataVersion, data.version);
   assert.equal(metadata.dataIntegrity, data.integrity);
+  const html = lock.packages['node_modules/@mnjs/html'];
+  assert.equal(metadata.htmlVersion, html.version);
+  assert.equal(metadata.htmlVersion, recipeRuntime.html.version);
+  assert.equal(metadata.htmlIntegrity, html.integrity);
+  const licenses = (await read('site/vendor/DEMOS-LICENSE.txt')).toString();
+  assert.ok(licenses.includes('@mnjs/html@' + html.version));
+  assert.ok(licenses.includes('BSD 3-Clause License'));
   assert.equal(metadata.bundleSha256, createHash('sha256').update(await read('site/vendor/demos.js')).digest('hex'));
 });
 
@@ -26,7 +33,7 @@ for (const recipe of recipes) {
     const compiled = compileProject(input);
     assert.equal(compiled.project.entry,'main.js');
     for (const [file,source] of Object.entries(recipe.sourceFiles)) {
-      const directory = ['html.js','lesson-ui.js'].includes(file) ? 'shared' : recipe.id;
+      const directory = file === 'lesson-ui.js' ? 'shared' : recipe.id;
       assert.equal(source,await readFile(new URL('../site/demos/projects/'+directory+'/'+file,import.meta.url),'utf8'),'Generated registry must match the actual module');
       if (!['main.js','lesson.js','lesson-ui.js'].includes(file)) {
         assert.doesNotMatch(source,/\b(demoInspector|explain|story)\s*[.(]/);
@@ -38,7 +45,7 @@ for (const recipe of recipes) {
       assert.ok(section,entry.symbol);
       assert.equal(recipe.sourceFiles[entry.file].split('\n').slice(section.line-1,section.endLine).join('\n').trimEnd().replace(/,$/,''),section.text.trimEnd().replace(/,$/,''));
     }
-    const archive=projectArchive(input,'export const View = {};','MIT');
+    const archive=projectArchive(input,'export const View = {};','MIT',recipeRuntime);
     assert.equal(archive.type,'application/zip');
     const bytes = Buffer.from(await archive.arrayBuffer());
     assert.equal(bytes.readUInt32LE(0),0x04034b50);
@@ -46,6 +53,9 @@ for (const recipe of recipes) {
     for (const [file, source] of Object.entries(input.files)) assert.equal(zip.readAsText(file), source);
     assert.equal(zip.readAsText('vendor/marionette.js'), 'export const View = {};');
     assert.equal(zip.readAsText('vendor/LICENSE.txt'), 'MIT');
+    assert.deepEqual(JSON.parse(zip.readAsText('vendor/runtime.json')), recipeRuntime);
+    const imports = JSON.parse(zip.readAsText('index.html').match(/<script type="importmap">(.*?)<\/script>/)[1]).imports;
+    for (const name of ['marionette', '@mnjs/data', '@mnjs/html', '@mnjs/html/marionette']) assert.equal(imports[name], './vendor/marionette.js');
     // The independent reader must reject a changed payload with its original CRC.
     const corrupt = Buffer.from(bytes);
     const nameLength = corrupt.readUInt16LE(26);
@@ -77,6 +87,7 @@ test('edited method excerpts come from the edited snapshot, with HTML escaped',(
   assert.match(sections['app.js']['Todos.addTodo'].text,/<script>test<\/script>/);
   assert.doesNotMatch(sections['app.js']['Todos.addTodo'].highlighted,/<script>/);
   assert.match(sections['app.js']['Todos.addTodo'].highlighted,/&lt;script&gt;/);
+  assert.equal(sections['app.js']['Todos.addTodo'].parts.map(part => part.text).join(''), sections['app.js']['Todos.addTodo'].text);
 });
 
 test('editor highlights incomplete drafts safely and finds symbols without resolving imports', () => {

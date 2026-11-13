@@ -145,6 +145,8 @@ async function select(input) {
   selected = getRecipe(input);
   track('example_select');
   title.textContent = selected.title;
+  page.querySelector('#example-next-request').textContent = selected.nextChange.request;
+  page.querySelector('#example-next-acceptance').textContent = selected.nextChange.acceptance;
   code.value = selected.sourceFiles['app.js'];
   lesson.value = selected.sourceFiles['lesson.js'];
   for (const element of page.querySelectorAll('[data-extra-source]')) element.remove();
@@ -244,8 +246,8 @@ loadAssets().catch(report);
 codepen.addEventListener('submit', event => {
   event.preventDefault();
   try {
-    const pen = projectPen(draft(), exportAssets.vendor, exportAssets.license);
-    pen.description = `A Marionette example: https://marionettejs.com/demos/#${selected.id}\nRuntime: ${recipeRuntime.version}`;
+    const pen = projectPen(draft(), exportAssets.vendor, exportAssets.license, recipeRuntime);
+    pen.description = `A Marionette example: https://marionettejs.com/demos/#${selected.id}\nRuntime: ${recipeRuntime.version} · source ${recipeRuntime.revision} · @mnjs/html ${recipeRuntime.html.version}`;
     codepen.elements.data.value = JSON.stringify(pen);
     codepen.submit();
     track('example_codepen');
@@ -254,7 +256,7 @@ codepen.addEventListener('submit', event => {
 page.querySelector('[data-example-download]').addEventListener('click', async () => {
   try {
     const app = draft(), { vendor, license } = await loadAssets();
-    const url = URL.createObjectURL(projectArchive(app, vendor, license));
+    const url = URL.createObjectURL(projectArchive(app, vendor, license, recipeRuntime));
     const link = document.createElement('a'); link.href = url; link.download = selected.id + '.zip'; link.click();
     track('example_download');
     setTimeout(() => URL.revokeObjectURL(url), 1000);

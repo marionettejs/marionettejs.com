@@ -1,9 +1,10 @@
 import { View, CollectionView } from 'marionette';
-import { Model, Collection, DataApi, StateApi } from '@mnjs/data';
-import { escapeHTML } from './html.js';
+import { Model, Collection } from '@mnjs/data';
+import { html } from '@mnjs/html';
 
 // TodoMVC-style editing with independent Marionette owners.
-// Model, Collection and DataApi are supplied by the pinned @mnjs/data bundle.
+// Model and Collection come from the pinned @mnjs/data bundle.
+// main.js configures the HTML, data and observable-state adapters.
 // @mnjs/data owns the todos; CollectionView observes membership and each
 // TodoItem observes its Model. Local editing state belongs to the row View.
 const Todo = Model.extend({
@@ -35,11 +36,11 @@ const TodoItem = View.extend({
   templateContext() {
     return this.getState();
   },
-  template: ({ title, completed, editing }) => `
-    <input class="toggle" type="checkbox" aria-label="Complete todo" ${completed ? 'checked' : ''}>
-    <label class="todo-title" tabindex="0" role="button" title="Double-click to edit">${escapeHTML(title)}</label>
+  template: ({ title, completed, editing }) => html`
+    <input class="toggle" type="checkbox" aria-label="Complete todo" .checked=${completed}>
+    <label class="todo-title" tabindex="0" role="button" title="Double-click to edit">${title}</label>
     <button class="delete-todo" aria-label="Delete todo">×</button>
-    <input class="edit" aria-label="Edit todo title" value="${escapeHTML(title)}" ${editing ? '' : 'hidden'}>`,
+    <input class="edit" aria-label="Edit todo title" .value=${title} ?hidden=${!editing}>`,
   ui: {
     toggle: '.toggle',
     title: '.todo-title',
@@ -122,11 +123,12 @@ const TodoItem = View.extend({
     this.model.set('title', title);
   },
   endEdit() {
+    // Reset the live value too: an unchanged binding leaves a cancelled draft alone.
+    this.getUI('edit')[0].value = this.model.get('title');
     this.getState().editing = false;
     this.render();
   },
 });
-TodoItem.setDataApi(DataApi);
 const TodoList = CollectionView.extend({
   tagName: 'ul',
   childView: TodoItem,
@@ -141,7 +143,6 @@ const TodoList = CollectionView.extend({
     this.collection.remove(model);
   },
 });
-TodoList.setDataApi(DataApi);
 const TodoFooter = View.extend({
   createState() {
     return new Model({ count: 0, remaining: 0, filter: 'all' });
@@ -152,10 +153,10 @@ const TodoFooter = View.extend({
   templateContext() {
     return this.getState().toObject();
   },
-  template: ({ count, remaining, filter }) => `<footer class="todo-footer" ${count ? '' : 'hidden'}>
+  template: ({ count, remaining, filter }) => html`<footer class="todo-footer" ?hidden=${!count}>
     <span id="todo-count" role="status"><strong>${remaining}</strong> item${remaining === 1 ? '' : 's'} left</span>
-    <nav aria-label="Filter todos">${['all', 'active', 'completed'].map(name => `<a href="#/${name === 'all' ? '' : name}" data-filter="${name}" ${filter === name ? 'aria-current="page"' : ''}>${name[0].toUpperCase() + name.slice(1)}</a>`).join('')}</nav>
-    <button id="clear-completed" ${remaining === count ? 'hidden' : ''}>Clear completed</button></footer>`,
+    <nav aria-label="Filter todos">${['all', 'active', 'completed'].map(name => html`<a href="#/${name === 'all' ? '' : name}" data-filter="${name}" aria-current=${filter === name ? 'page' : 'false'}>${name[0].toUpperCase() + name.slice(1)}</a>`)}</nav>
+    <button id="clear-completed" ?hidden=${remaining === count}>Clear completed</button></footer>`,
   ui: {
     filters: '[data-filter]',
     clear: '#clear-completed',
@@ -171,6 +172,5 @@ const TodoFooter = View.extend({
     this.triggerMethod('select:filter', event.delegateTarget.dataset.filter);
   },
 });
-TodoFooter.setStateApi(StateApi);
 
 export { TodoCollection, TodoItem, TodoList, TodoFooter };

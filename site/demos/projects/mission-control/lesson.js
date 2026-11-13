@@ -165,7 +165,7 @@ export const MissionLesson = LessonController.extend({
       'This excerpt shows the actual await, cancellation guard, and delivery write in Mission.fly. The guided flight pauses halfway; the game keeps moving.',
     );
     story(
-      'The cheese is in transit. It does not count as delivered just because we feel optimistic.',
+      'The cheese is in transit. Its View owns the job from launch through delivery.',
     );
   },
   onPauseFlight() {

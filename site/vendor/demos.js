@@ -876,8 +876,8 @@ function monitorViewEvents(view) {
 var TemplateRenderMixin = {
   _renderTemplate(template) {
     const data = this.mixinTemplateContext(this.serializeData()) || {};
-    const html = this._renderHtml(template, data);
-    this.attachElContent(html);
+    const html2 = this._renderHtml(template, data);
+    this.attachElContent(html2);
   },
   getTemplate() {
     return this.template;
@@ -914,8 +914,8 @@ var TemplateRenderMixin = {
   _renderHtml(template, data) {
     return template(data);
   },
-  attachElContent(html) {
-    this.Dom.setContents(this.el, html);
+  attachElContent(html2) {
+    this.Dom.setContents(this.el, html2);
   }
 };
 var CommonMixin = {
@@ -1173,8 +1173,8 @@ var DomApi = {
     }
     parent.replaceChild(newEl, oldEl);
   },
-  setContents(el, html) {
-    el.innerHTML = html ?? "";
+  setContents(el, html2) {
+    el.innerHTML = html2 ?? "";
   },
   setAttributes(el, attrs) {
     const attrsType = typeof attrs;
@@ -3962,7 +3962,7 @@ var ApplicationBase = /* @__PURE__ */ ((methods) => {
     return this._preparedView || this._displayedView;
   }
 });
-var version = "5.1.0";
+var version = "5.1.1";
 function copyApi(api) {
   return {
     ...api
@@ -4824,8 +4824,8 @@ Object.assign(Collection.prototype, Events2, {
       return Array.isArray(models) ? added : void 0;
     }
     this._bindModels(added);
-    const at = Number.isInteger(options.at) ? Math.max(0, Math.min(options.at, this.models.length)) : this.models.length;
-    this.models.splice(at, 0, ...added);
+    const at2 = Number.isInteger(options.at) ? Math.max(0, Math.min(options.at, this.models.length)) : this.models.length;
+    this.models.splice(at2, 0, ...added);
     this.length = this.models.length;
     const change = {
       kind: "update",
@@ -5016,6 +5016,306 @@ var DataApi2 = {
     }, context);
   }
 };
+
+// node_modules/@mnjs/html/dist/renderer.js
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+var N = globalThis;
+var I = void 0;
+var J = N.trustedTypes;
+var Q = J ? J.createPolicy("mnjs-html", { createHTML: (t) => t }) : void 0;
+var X = document;
+var l = () => X.createComment("");
+var D = (t) => null === t || "object" != typeof t && "function" != typeof t;
+var Y = Array.isArray;
+var Z = (t) => (i, ...s) => ({ _$mnHtmlType$: t, strings: i, values: s });
+var html = Z(1);
+var svg = Z(2);
+var mathml = Z(3);
+var noChange2 = /* @__PURE__ */ Symbol.for("mn-html-noChange");
+var nothing = /* @__PURE__ */ Symbol.for("mn-html-nothing");
+var tt = /* @__PURE__ */ new WeakMap();
+var it = X.createTreeWalker(X, 129);
+function st(t, i) {
+  if (!Y(t) || !t.hasOwnProperty("raw")) {
+    throw new Error("invalid template strings array");
+  }
+  return void 0 !== Q ? Q.createHTML(i) : i;
+}
+var et = (t, i, s) => "@" === t || /^on/i.test(i) && (void 0 === t || ("." === t ? i === i.toLowerCase() && i in s : i.toLowerCase() in s));
+var nt = (t, i) => {
+  const s = X.createElement("template");
+  return s.innerHTML = t, s;
+};
+var ot;
+var _installTemplatePreparation = (t) => {
+  ot ??= t;
+};
+function ht(t, i, s = t, e) {
+  if (i === noChange2) return i;
+  let n = void 0 !== e ? s._$12?.[e] : s._$13;
+  const o = D(i) ? void 0 : i._$mnHtmlDirective$;
+  return n?.constructor !== o && (n?._$notifyDirectiveConnectionChanged?.(false), void 0 === o ? n = void 0 : (n = new o(t), n._$6(t, s, e)), void 0 !== e ? (s._$12 ??= [])[e] = n : s._$13 = n), void 0 !== n && (i = ht(t, n._$5(t, i.values), n, e)), i;
+}
+var rt = class {
+  constructor(t, i) {
+    this._$14 = [], this._$0 = void 0, this._$15 = t, this._$1 = i;
+  }
+  get parentNode() {
+    return this._$1.parentNode;
+  }
+  get _$7() {
+    return this._$1._$7;
+  }
+  _$16(t) {
+    const { el: { content: i }, parts: s } = this._$15, e = (t?.creationScope ?? X).importNode(i, true);
+    it.currentNode = e;
+    let n = it.nextNode(), o = 0, h = 0, r = s[0];
+    for (; void 0 !== r; ) {
+      if (o === r.index) {
+        let i2;
+        2 === r.type ? i2 = new p(n, n.nextSibling, this, t) : 1 === r.type ? i2 = new r.ctor(n, r.name, r.strings, this, t) : 6 === r.type && (i2 = new ut(n, this, t)), this._$14.push(i2), r = s[++h];
+      }
+      o !== r?.index && (n = it.nextNode(), o++);
+    }
+    return it.currentNode = X, e;
+  }
+  _$17(t) {
+    let i = 0;
+    for (const s of this._$14) void 0 !== s && (void 0 !== s.strings ? (s._$9(t, s, i), i += s.strings.length - 2) : s._$9(t[i])), i++;
+  }
+};
+var p = class _p {
+  get _$7() {
+    return this._$1?._$7 ?? this._$18;
+  }
+  constructor(t, i, s, e) {
+    this.type = 2, this._$2 = nothing, this._$0 = void 0, this._$b = t, this._$c = i, this._$1 = s, this.options = e, this._$18 = e?.isConnected ?? true;
+  }
+  get parentNode() {
+    let t = this._$b.parentNode;
+    const i = this._$1;
+    return void 0 !== i && 11 === t?.nodeType && (t = i.parentNode), t;
+  }
+  get startNode() {
+    return this._$b;
+  }
+  get endNode() {
+    return this._$c;
+  }
+  _$9(t, i = this) {
+    t = ht(this, t, i), D(t) ? t === nothing || null == t || "" === t ? (this._$2 !== nothing && this._$d(), this._$2 = nothing) : t !== this._$2 && t !== noChange2 && this._$19(t) : void 0 !== t._$mnHtmlType$ ? this._$1a(t) : void 0 !== t.nodeType ? this._$1b(t) : ((t2) => Y(t2) || "function" == typeof t2?.[Symbol.iterator])(t) ? this._$1c(t) : this._$19(t);
+  }
+  _$1d(t) {
+    return this._$b.parentNode.insertBefore(t, this._$c);
+  }
+  _$1b(t) {
+    this._$2 !== t && (this._$d(), this._$2 = this._$1d(t));
+  }
+  _$19(t) {
+    if (this._$2 !== nothing && D(this._$2)) {
+      const i = this._$b.nextSibling;
+      i.data = t;
+    } else this._$1b(X.createTextNode(t));
+    this._$2 = t;
+  }
+  _$1a(t) {
+    const { values: i } = t, s = this._$1e(t);
+    if (this._$2?._$15 === s) this._$2._$17(i);
+    else {
+      const t2 = new rt(s, this), e = t2._$16(this.options);
+      t2._$17(i), this._$1b(e), this._$2 = t2;
+    }
+  }
+  _$1e(t) {
+    let i = tt.get(t.strings);
+    if (void 0 === i) {
+      if (void 0 === ot) throw new Error("MN_HTML_TEMPLATE_PREPARATION: import the public renderer entrypoint.");
+      tt.set(t.strings, i = ot(t, this.options));
+    }
+    return i;
+  }
+  _$1c(t) {
+    Y(this._$2) || (this._$d(), this._$2 = []);
+    const i = this._$2;
+    let s, e = 0;
+    for (const n of t) e === i.length ? i.push(s = new _p(this._$1d(l()), this._$1d(l()), this, this.options)) : s = i[e], s._$9(n), e++;
+    e < i.length && (this._$d(s && s._$c.nextSibling, e), i.length = e);
+  }
+  _$d(t = this._$b.nextSibling, i) {
+    for (this._$3?.(false, true, i); t !== this._$c; ) {
+      const i2 = t.nextSibling;
+      t.remove(), t = i2;
+    }
+  }
+  setConnected(t) {
+    void 0 === this._$1 && (this._$18 = t, this._$3?.(t));
+  }
+};
+var at = class {
+  get tagName() {
+    return this.element.tagName;
+  }
+  get _$7() {
+    return this._$1._$7;
+  }
+  constructor(t, i, s, e, n) {
+    this.type = 1, this._$2 = nothing, this._$0 = void 0, this.element = t, this.name = i, this._$1 = e, this.options = n, s.length > 2 || "" !== s[0] || "" !== s[1] ? (this._$2 = new Array(s.length - 1).fill(new String()), this.strings = s) : this._$2 = nothing;
+  }
+  _$9(t, i = this, s, e) {
+    const n = this.strings;
+    let o = false;
+    if (void 0 === n) t = ht(this, t, i, 0), o = !D(t) || t !== this._$2 && t !== noChange2, o && (this._$2 = t);
+    else {
+      const e2 = t;
+      let h, r;
+      for (t = n[0], h = 0; h < n.length - 1; h++) r = ht(this, e2[s + h], i, h), r === noChange2 && (r = this._$2[h]), o ||= !D(r) || r !== this._$2[h], r === nothing ? t = nothing : t !== nothing && (t += (r ?? "") + n[h + 1]), this._$2[h] = r;
+    }
+    o && !e && this._$1f(t);
+  }
+  _$1f(t) {
+    t === nothing ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
+  }
+};
+var ct = class extends at {
+  constructor() {
+    super(...arguments), this.type = 3;
+  }
+  _$1f(t) {
+    this.element[this.name] = t === nothing ? void 0 : t;
+  }
+};
+var lt = class extends at {
+  constructor() {
+    super(...arguments), this.type = 4;
+  }
+  _$1f(t) {
+    this.element.toggleAttribute(this.name, !!t && t !== nothing);
+  }
+};
+var ut = class {
+  constructor(t, i, s) {
+    this.element = t, this.type = 6, this._$0 = void 0, this._$1 = i, this.options = s;
+  }
+  get _$7() {
+    return this._$1._$7;
+  }
+  _$9(t) {
+    ht(this, t);
+  }
+};
+
+// node_modules/@mnjs/html/dist/template.js
+var X2 = document;
+var it2 = X2.createTreeWalker(X2, 129);
+var dt = "$lit$";
+var $t = `lit$${Math.random().toFixed(9).slice(2)}$`;
+var _t = "?" + $t;
+var vt = `<${_t}>`;
+var yt = "[ 	\n\f\r]";
+var xt = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g;
+var Tt = /--!?>/g;
+var Et = />/g;
+var Mt = new RegExp(`>|${yt}(?:([^\\s"'>=/]+)(${yt}*=${yt}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g");
+var bt = /'/g;
+var At = /"/g;
+var Nt = /^(?:script|style|textarea|title)$/i;
+var Pt = class {
+  constructor({ strings: t, _$mnHtmlType$: e }, s) {
+    let r;
+    this.parts = [];
+    let i = 0, n = 0;
+    const o = t.length - 1, a = this.parts, [p2, g] = ((t2, e2) => {
+      const s2 = t2.length - 1, r2 = [];
+      let i2, n2 = 2 === e2 ? "<svg>" : 3 === e2 ? "<math>" : "", o2 = xt;
+      for (let e3 = 0; e3 < s2; e3++) {
+        const s3 = t2[e3];
+        let a3, l2, p3 = -1, g2 = 0;
+        for (; g2 < s3.length && (o2.lastIndex = g2, l2 = o2.exec(s3), null !== l2); ) g2 = o2.lastIndex, o2 === xt ? "!--" === l2[1] ? ">" === s3[g2] ? g2++ : "-" === s3[g2] && ">" === s3[g2 + 1] ? g2 += 2 : o2 = Tt : void 0 !== l2[1] ? o2 = Et : void 0 !== l2[2] ? (Nt.test(l2[2]) && (i2 = new RegExp(`</${l2[2]}`, "g")), o2 = Mt) : void 0 !== l2[3] && (o2 = Mt) : o2 === Mt ? ">" === l2[0] ? (o2 = i2 ?? xt, p3 = -1) : void 0 === l2[1] ? p3 = -2 : (p3 = o2.lastIndex - l2[2].length, a3 = l2[1], o2 = void 0 === l2[3] ? Mt : '"' === l2[3] ? At : bt) : o2 === At || o2 === bt ? o2 = Mt : o2 === Tt || o2 === Et ? o2 = xt : (o2 = Mt, i2 = void 0);
+        const c = o2 === Mt && t2[e3 + 1].startsWith("/>") ? " " : "";
+        n2 += o2 === xt ? s3 + vt : p3 >= 0 ? (r2.push(a3), s3.slice(0, p3) + dt + s3.slice(p3) + $t + c) : s3 + $t + (-2 === p3 ? e3 : c);
+      }
+      const a2 = n2 + (t2[s2] || "<?>") + (2 === e2 ? "</svg>" : 3 === e2 ? "</math>" : "");
+      return [st(t2, a2), r2];
+    })(t, e);
+    this.el = nt(p2, s), it2.currentNode = this.el.content;
+    try {
+      if (2 === e || 3 === e) {
+        const t2 = this.el.content.firstChild;
+        t2.replaceWith(...t2.childNodes);
+      }
+      for (; null !== (r = it2.nextNode()) && a.length < o; ) {
+        if (1 === r.nodeType) {
+          if (r.hasAttributes()) for (const t2 of r.getAttributeNames()) if (t2.endsWith(dt)) {
+            const e2 = g[n++], s2 = r.getAttribute(t2).split($t), o2 = /([.?@])?(.*)/.exec(e2);
+            if (et(o2[1], o2[2], r)) throw new Error(`MN_HTML_EVENT_BINDING: ${e2} is not supported; use Marionette events or triggers.`);
+            a.push({ type: 1, index: i, name: o2[2], strings: s2, ctor: "." === o2[1] ? ct : "?" === o2[1] ? lt : at }), r.removeAttribute(t2);
+          } else t2.startsWith($t) && (a.push({ type: 6, index: i }), r.removeAttribute(t2));
+          if (Nt.test(r.tagName)) {
+            const t2 = r.textContent.split($t), e2 = t2.length - 1;
+            if (e2 > 0) {
+              r.textContent = J ? J.emptyScript : "";
+              for (let s2 = 0; s2 < e2; s2++) r.append(t2[s2], l()), it2.nextNode(), a.push({ type: 2, index: ++i });
+              r.append(t2[e2], l());
+            }
+          }
+        } else if (8 === r.nodeType) if (r.data === _t) a.push({ type: 2, index: i });
+        else {
+          let t2 = -1;
+          for (; -1 !== (t2 = r.data.indexOf($t, t2 + 1)); ) a.push({ type: 7, index: i }), t2 += $t.length - 1;
+        }
+        i++;
+      }
+      I && I({ kind: "template prep", template: this, clonableTemplate: this.el, parts: this.parts, strings: t });
+    } finally {
+      it2.currentNode = X2;
+    }
+  }
+};
+var prepareTemplate = (t, e) => new Pt(t, e);
+_installTemplatePreparation(prepareTemplate);
+
+// node_modules/@mnjs/html/dist/index.js
+/** @license Copyright 2017 Google LLC. SPDX-License-Identifier: BSD-3-Clause */
+
+// node_modules/@mnjs/html/dist/marionette-core.js
+/**
+ * @license
+ * Adapter derived from Marionette's MIT-licensed lit-html adapter.
+ * Copyright (c) 2020 Paul Falgout
+ * See THIRD_PARTY_NOTICES.md for its complete license and provenance.
+ */
+var H = /* @__PURE__ */ new WeakMap();
+var B = /* @__PURE__ */ new WeakSet();
+function setContents(t, e) {
+  let n = H.get(t);
+  if (!n) {
+    const e2 = t.ownerDocument.createComment(""), o = t.ownerDocument.createComment("");
+    t.replaceChildren(e2, o), n = new p(e2, o, void 0, { isConnected: B.has(t), renderBefore: o }), H.set(t, n);
+  }
+  n._$9(e);
+}
+function notifyAttach(t) {
+  B.add(t), H.get(t)?.setConnected(true);
+}
+function notifyDetach(t) {
+  B.delete(t), H.get(t)?.setConnected(false);
+}
+var HtmlDomApi = { setContents, notifyAttach, notifyDetach, detachContents: function(t) {
+  H.get(t)?.setConnected(false), H.delete(t), t.replaceChildren();
+} };
+
+// node_modules/@mnjs/html/dist/marionette.js
+/**
+ * @license
+ * Adapter derived from Marionette's MIT-licensed lit-html adapter.
+ * Copyright (c) 2020 Paul Falgout
+ * See THIRD_PARTY_NOTICES.md for its complete license and provenance.
+ */
 export {
   Application,
   Behavior,
@@ -5024,6 +5324,7 @@ export {
   DataApi2 as DataApi,
   DomApi,
   Events,
+  HtmlDomApi,
   MarionetteError,
   MnObject,
   Model,
@@ -5034,6 +5335,7 @@ export {
   View,
   createMarionette,
   extend2 as extend,
+  html,
   monitorViewEvents,
   setDataApi,
   setDomApi,

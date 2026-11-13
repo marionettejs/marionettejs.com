@@ -24,6 +24,6 @@ await writeFile(resolve(root, 'content/provenance.json'), JSON.stringify({
   publication: `Marionette ${version} public website`,
   bundleSha256: createHash('sha256').update(vendor).digest('hex'),
   documentationManifest: '/docs/manifest.json',
-  documentationNote: 'The browser demos and documentation use the matching published package. /docs/manifest.json records the documentation source identity.'
+  documentationNote: 'Browser examples use this published runtime. The separately pinned documentation archive and reading copies are identified by /docs/manifest.json and /docs/publication.json.'
 }, null, 2) + '\n');
 console.log(`Bundled marionette@${version} and matching radio/utils from npm.`);

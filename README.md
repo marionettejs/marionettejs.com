@@ -1,100 +1,57 @@
-# Marionette website — v5 documentation integration
+# Marionette website
 
-The live site is marionettejs.com; www.marionettejs.com and v5.marionettejs.com
-also work. Cloudflare Pages serves one complete artifact.
-The apex is canonical; v5 remains a noindexed mirror.
+Marionette is a JavaScript UI library for interactive browser applications.
+Compose screens with Views and Regions, manage changing rows with CollectionView,
+and coordinate startup and cleanup with Application. Use incremental HTML
+templates and keep the changing parts of the interface working together.
 
-Source lives in `marionettejs/marionettejs.com`. Earlier design commits and checkouts remain
-preserved in the old website repository. The local preview still binds to loopback.
+This repository brings those patterns to marionettejs.com: interactive demos,
+Backstage, versioned documentation, case studies and the documentation MCP.
+Start new applications with `@mnjs/html`, compose screens with Views and Regions,
+and give changing rows to CollectionView. Native string templates and other
+rendering integrations remain supported.
 
-## Stable 5.1.0 transition
+## Work on the site
 
-This branch imports published **5.1.0** from source
-`86ee0599ee9c3e1ae472d7426fc3769bd66bdcbe`. The [publication run](https://github.com/marionettejs/marionette/actions/runs/43281587960)
-promoted [certification 43276377466](https://github.com/marionettejs/marionette/actions/runs/43276377466);
-the [stable release](https://github.com/marionettejs/marionette/releases/tag/v5.1.0)
-contains the matching archives and evidence. The four runtime registry integrities
-and staged documentation manifest match those certified published bytes.
-The documentation content digest is
-`27f2f2e672e33c297ac8c1bcf22290c3a7d07c6da68661ea746da5d288f8950f`.
+Use Node 24, then run:
 
-Use this procedure for the stable import and its review. Merging to main deploys
-both site and MCP and still requires separate approval.
+```sh
+npm ci
+npm run dev
+```
 
-1. Obtain the release owner's final published source revision and registry readback
-   for all five packages (core, data, radio, utils and adapters), along with the
-   certification artifact identity. The release owner verifies adapters separately;
-   the website staging script checks only core, data, radio and utils.
-   A successful unpublished build is insufficient.
-2. With Node 24, run the exact stable install command in the publication section
-   below, then `npm ci`. Review the four runtime lock entries, including transitive
-   radio/utils. Never hand-author registry URLs, integrity values or archive hashes.
-3. Run `npm run docs:stage-stable -- <certified-40-character-source-revision>`.
-   This downloads the four exact locked registry archives, verifies their SHA-512
-   integrities, and compares every installed file with the archive bytes (including
-   runtime code and docs). It rejects linked, modified, missing or extra files;
-   neither package metadata nor the hidden npm lockfile is proof of installed bytes.
-   Registry access and `tar` are required for staging and `vendor:build`;
-   `vendor:demos` also needs registry access or a warm npm cache for its fresh install.
-   `vendor:demos` verifies the core bundle hash and uses a fresh script-free `npm ci`
-   for data; ordinary tests use local metadata and fixture archives without registry reads.
-   It requires 5.1.0 and the certified revision, then verifies every documentation/asset hash.
-   It exports package bytes plus generated archive evidence to `output/stable-docs`;
-   the evidence file is `output/stable-docs/stable-docs-evidence.json`. Docs and evidence appear together
-   only after every write succeeds. It refuses an existing export directory. Before staging a new version in the same checkout, move an old completed export to a new version-and-revision-labelled directory (for example, `output/stable-docs-5.0.0-0f2284ad`). Keep its evidence; do not delete or overwrite it. Then rerun staging into the empty destination. Failed
-   runs can be retried; an abruptly terminated run may leave an unused `.stable-docs-*`
-   sibling in `output/`, which can be removed once that process has stopped.
-   Compare its digest and revision with the release owner's published artifact evidence.
-4. Run `npm run docs:import -- output/stable-docs`. Reconcile **every** reading-copy
-   overlay in `content/docs-publication-edits.json` against the new archive. Remove
-   changes already in the archive and obsolete RC2 limitations; retain only reviewed
-   editorial changes with correct before/after hashes and source identity. Set its
-   packageVersion to `5.1.0` and status to `stable release (published on npm)` only
-   with that evidence. Review title edits, navigation and supplemental guides too;
-   remove a supplemental copy when the package now supplies the same guide.
-   Never edit archive bytes.
-5. Run `npm run vendor:build`, then `npm run vendor:demos`, then `npm run check`.
-   Commit the actual lockfile, archive, declaration, bundles, licenses, provenance
-   and generated workshop changes together. Setup instructions derive their exact
-   version/revision from that provenance. MCP and discovery outputs derive theirs
-   from the imported publication. Do not replace historical case-study versions,
-   benchmark evidence, original prompts or the v4 archive.
-6. Run `node scripts/check-agent-site.mjs --local --report output/agent-retrieval.json`
-   and the full browser checks in `.github/workflows/check.yml`. The sync validator
-   is for an overlay-only sync PR; this transition instead runs the archive, corpus,
-   import, sync and MCP tests through `npm run check`. Inspect desktop/narrow documentation,
-   homepage title/social metadata, install links, agent setup, llms output and MCP
-   catalog/lookup. Current instructions must no longer call stable a candidate;
-   immutable historical RC2 evidence and generic candidate tests remain valid.
-7. Retain the staged archive URLs/integrities, source revision and content digest
-   under `releaseEvidence` in `content/docs-publication-edits.json`, with the
-   certification/publication run links and separate adapter readback. This structured
-   evidence is committed and served at `/docs/publication.json`. Update this status
-   and the PR with the verification results.
-   Obtain separate merge/deployment approval. This preparation does not authorize
-   package publication, a site deployment, or changes to credentials/settings.
+The preview binds to loopback. `npm run check` builds the website and MCP artifact
+and runs the unit/integration suite. Browser checks are listed in
+`.github/workflows/check.yml`. Source copy lives in `content/`, workshop guidance
+in `site/agent-prompt.md`, and runnable demo modules in `site/demos/projects/`.
 
-Reading-copy PR #73 (`automation/library-docs-sync`, reviewed head `5a2ed828`)
-was merged into main at `46c3402` and integrated into this branch. Its four
-changes are supplied by the stable archive:
-package identity guidance in `docs/agents.md` and `docs/readme.md`, explicit child
-startup cancellation in `docs/api/application.md`, and Backbone reorder guidance
-in `docs/packages/adapters.md`. The latter limitation still applies in stable;
-its guidance is retained in the package, not duplicated in a website overlay.
-The old navigation warning is stale; stable supplies the framework-migration guide
-and navigation directly. Of the 23 previous reading overlays, only the website's
-shorter architecture heading remains. Four later reading edits clarify the View
-lifecycle diagram, exclusive child-start coordination, data persistence scope,
-and client installation verification without changing the archived package.
-The duplicate supplemental migration guide is now replaced by its exact packaged
-copy and is available through MCP too.
-Do not reintroduce stale RC2 overlays after stable import. Historical RC2
-evidence remains in Git and case-study assets.
+## Runtime and documentation
+
+The browser demos and Backstage use Marionette and `@mnjs/data` **5.1.1**, with
+`@mnjs/html` **1.0.0**. Package pins, installed archive identities, bundle hashes
+and licenses travel together through the preview and exports.
+
+The immutable documentation archive is **5.1.0**, from source
+`86ee0599ee9c3e1ae472d7426fc3769bd66bdcbe`. `marionette-docs` installs that exact
+npm alias for the publication gate. Reviewed reading copies track their source
+updates separately. `/reference/provenance.json`, `/docs/manifest.json` and
+`/docs/publication.json` expose these identities.
+
+The [5.1.0 release](https://github.com/marionettejs/marionette/releases/tag/v5.1.0)
+and [publication run](https://github.com/marionettejs/marionette/actions/runs/43281587960)
+retain the original release evidence. The [release runbook](release/5.1.0-readiness.md)
+records the archive import. Keep historical results and archive bytes intact.
+
+Cloudflare Pages serves one complete artifact. marionettejs.com is canonical;
+www.marionettejs.com and the noindexed v5.marionettejs.com mirror serve the same
+site. Merging to main deploys the website and MCP through the reviewed workflow;
+merge and deployment require explicit authorization.
 
 ## Versioned integration
 
-The documentation archive, browser demos and workshops use the exact published
-package pinned in `package-lock.json`. Import consumer docs with `npm run docs:import -- /path/to/export`.
+Browser runtime and documentation archive packages are pinned separately in
+`package-lock.json`. Import a reviewed documentation export with
+`npm run docs:import -- /path/to/export`.
 Website retrieval includes reviewed reading-copy edits and supplemental guides;
 MCP retrieval serves only the immutable imported corpus. Both expose the same
 packaged records assets.
@@ -240,10 +197,10 @@ npm run dev
 Open <http://127.0.0.1:4175/>. The server rebuilds and reloads on source changes.
 Use `MARIONETTE_PREVIEW_PORT` to select a different explicit port if necessary.
 
-## Prototype pages
+## Pages and experiences
 
-- Homepage: dark interactive composition, draft brand assets, candid positioning, and a real Application with a screen View, CollectionView, and detail Region.
-- `/why/`: adoption criteria, community/hiring concerns, the AI-slop question, and evidence boundaries.
+- Homepage: dark interactive composition, brand assets, application-focused copy, and a real Application with a screen View, CollectionView, and detail Region.
+- `/why/`: application patterns, recommended integrations, working examples and a concrete first-feature plan.
 - `/docs/`: the canonical documentation snapshot, with local search, task navigation, diagnostics, and copyable Markdown.
 - `/thanks/`: GitHub Sponsors support, the merch store, credits and review tools, and maintainer acknowledgements. Future supporter names belong here only after confirmation and permission.
 - `/llms.txt`: a compact task-oriented entry point with explicit version/status.
@@ -263,13 +220,12 @@ WebMCP tools, or the visible editor. Open does not run code. Updates show public
 build notes and can change the draft before running. Notes describe useful choices
 and observed results, including a candid impression of the library.
 
-Default scope: one small app, a few notes, one interaction test, and at most two
-repair attempts. Source is omitted from repeated tool responses unless requested.
-There is no automatic local-project fallback. The user must be able to see the
-browser; otherwise the agent explains the missing capability and stops execution.
-Only an explicit Download app click writes a standalone HTML file. Drafts stay in
-this tab until reload. The export includes the pinned runtime and MIT license and
-needs no installation or server.
+The workshop builds one useful app with the supplied Marionette, data and HTML
+APIs. Agents try the interaction, keyboard use, relevant interrupted/repeated flows,
+and desktop/narrow layouts, then explain the changed code and remaining checks.
+Source is available separately when requested. Work stays in the visible browser;
+drafts remain in this tab until reload. Download exports a standalone HTML file
+with the pinned runtime and MIT/BSD notices, ready to open without a server.
 
 After the first successful app run, a Next steps section appears below the editor
 and preview and stays available while editing. “View on CodePen” sends the current
@@ -277,15 +233,14 @@ draft and pinned runtime/license to CodePen’s prefill editor on an explicit cl
 are public. “Share this experience” shares the public workshop URL only, with no app
 source, title, or build notes.
 
-This uses an opaque-origin iframe and restrictive CSP, not a hardened hostile-code
-execution service. Script-initiated self-navigation and CPU exhaustion need stronger
-controls before public use. See `planning/agent-discovered-playground.md` for the
-reassessment and remaining gates.
+Backstage uses an opaque-origin iframe and restrictive CSP for user-directed
+workshop code. Hosting arbitrary untrusted programs requires stronger navigation
+and resource controls; see `planning/agent-discovered-playground.md` for that boundary.
 
 ## Source and assets
 
 `content/pages.mjs` contains the page copy and templates. `site/assets/` contains
-CSS, the live example, and copied draft brand SVGs. `scripts/build.mjs` produces
+CSS, the live example, and brand SVGs. `scripts/build.mjs` produces
 static files in ignored `dist/`. `scripts/dev.mjs` serves only that output.
 
 `site/vendor/marionette.js` bundles the exact published `marionette` version
@@ -293,32 +248,34 @@ with matching `@mnjs/radio` and `@mnjs/utils` from package-lock.json. Run
 `npm run vendor:build` after an intentional package upgrade. It verifies the
 package/docs versions, bundles ESM with esbuild, includes all MIT licenses, and
 records the npm integrity and resulting bundle hash in `content/provenance.json`.
-The homepage and playground use that runtime. Imported documentation must match
-its package version and source revision before publication.
+The interactive homepage, demos and Backstage use `site/vendor/demos.js`, which
+bundles that pinned core together with data and HTML rendering support.
+The installed `marionette-docs` alias provides the archive’s matching publication
+evidence independently of runtime updates.
 
-## Launch copy
+## Editorial direction
 
-Public-facing copy is written for the intended completed Marionette 5.0 launch,
-as requested by Paul. This is an editorial assumption, not a release action.
-Preserve the actual pinned runtime/version in provenance.
-Do not invent benchmark numbers, migration results, or adoption claims.
+Lead with what Marionette enables and give builders a clear next step. Use direct,
+specific language. Put concrete integration limits beside the relevant choice;
+avoid repeating hypothetical caveats after every benefit. Keep measured results
+tied to their case studies and preserve exact runtime and documentation identities.
 
 ## In-page workshop instructions
 
 The invitation opens the workshop directly. Its Agent instructions disclosure
-contains the same compiled brief served at `/agent-prompt.md`, including the exact
-executable starter. Browser-only agents can read it without navigating away. The
+contains the same compiled brief served at `/agent-prompt.md`, with the exact
+executable starter available separately in the editor. Browser-only agents can read it without navigating away. The
 copied invitation asks agents to open the workshop and read the instructions there;
 the brief defines the personal app outcome, runtime contracts, and relevant checks.
 
 ## Project-fit review
 
-The adoption page offers a copyable prompt for the visitor’s own agent. Detailed
-objections and evidence limits live in `/adoption-review.md`, linked from page
+The adoption page offers a copyable prompt for the visitor’s own agent. A first-feature
+planning brief lives in `/adoption-review.md`, linked from page
 metadata, `/llms.txt`, and the copied prompt. They are generated from
-`content/adoption.mjs` and kept out of the human page’s reading flow. The review
-covers both new projects and existing applications; it does not launch the playground or
-authorize installation or migration.
+`content/adoption.mjs` and kept out of the human page’s reading flow. The brief connects requirements to an implementation and revision plan for a new
+project or a feature boundary in an existing application. The user chooses when
+to start implementation.
 
 ## Motion behavior
 
@@ -367,6 +324,9 @@ npm run test:browser
 `test:browser` serves the existing `dist/` on an ephemeral loopback port, so rebuild
 it after source changes. A bare Linux environment also needs Playwright's system
 dependencies (`npx playwright install --with-deps chromium`).
+It includes the workshop, homepage startup and recovery, list ownership, responsive
+panels, and HTML demo/export suites. The four focused suites can also inspect an
+existing preview with `MARIONETTE_PREVIEW_URL`; CI uses their own ephemeral servers.
 It runs pinned Chromium with experimental web-platform features for native WebMCP,
 fails on behavioral assertions, and writes a screenshot to `output/playwright/`.
 The browser command is separate from the Node checks; it needs Chromium installed.
@@ -394,8 +354,9 @@ Open the printed local URL, click **Run ownership checks**, and verify
 `18 BROWSER CHECKS PASSED`. This uses the real
 pinned library in the sandbox to exercise independent state, a nested control click,
 template data, replacement, and destruction. It is a browser check, not part of the
-Node-only test command. The build generates the agent brief's code example from the
-executable starter; a source test prevents the two from drifting.
+Node-only test command. The build generates the editor starter from `site/workshop/`;
+source checks keep the generated runtime strings aligned with that authored code.
+The agent brief is delivered separately from the starter.
 
 ## Documentation source
 
@@ -425,16 +386,25 @@ package artifact, with its own corpus hash and source identity. Both use the sam
 packaged records source assets. The browser workshop identifies its exact runtime
 independently.
 
-Published documentation labels require a clean snapshot matching the installed npm
-archive, including its revision, content digest and locked registry integrity.
-After an authorized release, upgrade the exact core/data pins together:
+The documentation publication gate checks the installed archive’s revision,
+content digest and locked registry integrity. Staging verifies the exact
+`marionette-docs` npm alias against its locked registry archive, then exports that
+package’s documentation and records its archive identity. Demo runtime versions
+remain independent; npm-installed dependencies inside the docs alias are separate
+packages and stay outside the documentation export. Pin core/data together when
+updating the browser runtime:
 
 ```sh
-npm install --save-dev --save-exact marionette@5.1.0 @mnjs/data@5.1.0
+npm install --save-dev --save-exact marionette@5.1.1 @mnjs/data@5.1.1 @mnjs/html@1.0.0
 npm ls marionette @mnjs/data @mnjs/radio @mnjs/utils
 ```
 
-Require all four installed versions to match. The vendor builder reads the package's
+Require all four core/data/radio/utils versions to match; HTML is versioned separately.
+The browser demos and Backstage currently use core/data 5.1.1 and HTML 1.0.0.
+The immutable documentation archive and its release evidence remain at 5.1.0;
+`marionette-docs` installs that exact npm alias for the build publication gate.
+Downloaded demos include `vendor/runtime.json` with runtime source, versions,
+archive integrities and the bundled runtime hash. The vendor builder reads the package's
 root `docs-manifest.json` and requires clean source, matching exact pins and registry
 archive URLs/integrities for core, data, radio and utils. Rebuild with
 `npm run vendor:build` and `npm run vendor:demos`; verify both resulting hashes and
@@ -446,8 +416,8 @@ archive before setting published metadata. Run `npm run check`,
 `npm run test:docs:browser`, `npm run test:browser` and
 `node test/browser/personal-preview.mjs`, plus the deployment runbook's HTTP MCP
 verification. A local candidate import may be checked before publication, with
-its candidate status retained. Final deployment must use the matching registry
-runtime and verified publication metadata.
+its candidate status retained. Final deployment includes the verified browser runtime and the separately pinned
+documentation publication metadata.
 
 
 Marked escapes raw HTML and blocks unsafe URL schemes. Pagefind builds a static

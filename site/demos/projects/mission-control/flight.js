@@ -1,6 +1,6 @@
 import { View } from 'marionette';
 import { animateFlight } from './motion.js';
-import { escapeHTML } from './html.js';
+import { html } from '@mnjs/html';
 
 // Region replacement destroys the old Mission. Its owned AbortController
 // cancels the flight; only successful completion updates the View's state.
@@ -24,7 +24,7 @@ function flightContext({ progress, status, commits }) {
     left: 10 + 80 * progress,
   };
 }
-const flightTemplate = ({ left, icon, message }) => `
+const flightTemplate = ({ left, icon, message }) => html`
   <div class="flight-path">
     <span class="planet earth">🌍</span>
     <div class="beam-zone" aria-hidden="true"></div>
@@ -124,12 +124,12 @@ const RetiredFlight = View.extend({
     return flightContext(this.model);
   },
   template: model =>
-    '<small>RETIRED FLIGHT — frozen at the moment its View left</small>' + flightTemplate(model),
+    html`<small>RETIRED FLIGHT — frozen at the moment its View left</small>${flightTemplate(model)}`,
 });
 // The beam is a sibling View, so its flash survives a hit destroying the ship.
 const Beam = View.extend({
   className: 'beam',
-  template: () => '',
+  template: () => html``,
   flash() {
     this.animation = this.el.animate(
       [
@@ -155,7 +155,7 @@ const BeamFeedback = View.extend({
   attributes: {
     role: 'status',
   },
-  template: ({ message }) => escapeHTML(message),
+  template: ({ message }) => html`${message}`,
 });
 const FlightControls = View.extend({
   className: 'controls',
@@ -177,12 +177,12 @@ const FlightControls = View.extend({
     flying,
     exploring,
     paused,
-  }) => `<button id="guided-flight">Guided flight · pause halfway</button>
-    <button id="cancel-flight" ${paused ? '' : 'disabled'}>Cancel this flight</button>
+  }) => html`<button id="guided-flight">Guided flight · pause halfway</button>
+    <button id="cancel-flight" ?disabled=${!paused}>Cancel this flight</button>
     <p class="fine flight-game-label">Or play: launch a three-second courier and time your beam.</p>
     <button id="launch-worker">Launch / restart 🚀</button>
-    <button id="fire-beam" ${flying ? '' : 'disabled'}>Fire beam ⚡</button>
-    <details class="flight-more" ${exploring ? 'open' : ''}><summary>Try an engine failure</summary><button id="fail-worker" ${flying ? '' : 'disabled'}>Break the engine 💥</button></details>`,
+    <button id="fire-beam" ?disabled=${!flying}>Fire beam ⚡</button>
+    <details class="flight-more" ?open=${exploring}><summary>Try an engine failure</summary><button id="fail-worker" ?disabled=${!flying}>Break the engine 💥</button></details>`,
   ui: {
     guided: '#guided-flight',
     cancel: '#cancel-flight',
@@ -201,7 +201,7 @@ const FlightControls = View.extend({
 });
 const FlightDeck = View.extend({
   className: 'flight-deck',
-  template: () => `
+  template: () => html`
     <div class="flight-arena">
       <div class="slot flight-slot">${flightTemplate(
         flightContext({
@@ -332,6 +332,9 @@ const FlightDeck = View.extend({
   },
   onSettleFlight() {
     this.updateControls({ flying: false });
+    this.feedback(this.current.getState().status === 'failed'
+      ? 'Engine failed. No delivery was committed. Launch a fresh flight to retry.'
+      : 'Delivery finished. This flight committed once; launch a fresh flight to deliver again.');
   },
 });
 

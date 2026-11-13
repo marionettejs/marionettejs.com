@@ -1,7 +1,8 @@
 # Website prototype
 
 This integration uses the exact published package in package-lock.json for the
-documentation, browser demos and workshops: Marionette 5.0.0 stable.
+browser demos and workshops: Marionette 5.1.1 stable.
+The documentation archive remains separately pinned in content/library-docs/manifest.json.
 README.md records the verified publication and import procedure. Preserve historical
 RC evidence in case studies, benchmarks and Git history.
 A build or import does not establish deployment or publication approval.
@@ -17,7 +18,7 @@ v4.marionettejs.com GitHub Pages archive while those releases have consumers.
 This is the independent website repository. The earlier prototype and design
 options remain in their existing checkouts; preserve them. Keep the website independent of the library's working directory.
 Use the exact published release pinned in package-lock.json for the demos and
-personal workshop. Runtime and documentation versions and source revisions must
+personal workshop. Runtime versions and source revisions must
 match the installed artifact; a local build does not establish deployment.
 Rebuild core with `npm run vendor:build`,
 then the core/data consumer bundle with `npm run vendor:demos`; never substitute
@@ -39,6 +40,12 @@ The demo must use real Marionette Views/Regions and public lifecycle APIs.
 Plans and original assets live in ../marionettejs-branding. No fabricated benchmarks,
 endorsements, release readiness, or testimonials. Keep public-facing copy candid,
 lightly humorous, and precise about what has actually been demonstrated.
+Lead with what Marionette is, what builders can make, and a clear next step.
+Lead with the chosen agent-led workflow: the user directs the application and
+can follow the code. Support that promise with concrete running applications,
+accurate code, and the documentation and tooling an agent can use. Keep the voice
+positive and precise. Put concrete limits beside the choices they affect; avoid
+repeating hypothetical caveats after each benefit.
 
 ## Consumer documentation
 

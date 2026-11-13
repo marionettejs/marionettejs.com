@@ -2,7 +2,7 @@ import { lstat, mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
-import { readRuntimeRelease, runtimePackages, stableRelease, preparedRelease } from './release-contract.mjs';
+import { readDocumentationRelease, stableRelease, preparedRelease } from './release-contract.mjs';
 import { readSnapshot } from './library-docs.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -12,8 +12,7 @@ export async function stageStableDocs(revision, { directory = root, targetVersio
     throw new Error('Usage: npm run docs:stage-stable -- <certified published source revision> [target stable version]');
   }
   if (![stableRelease, preparedRelease].includes(targetVersion)) throw new Error(`Unsupported stable release target: ${targetVersion}`);
-  const { version, manifest, lock } = await readRuntimeRelease(directory, { request, expectedVersion: targetVersion });
-  if (version !== targetVersion) throw new Error(`Expected installed ${targetVersion}; found ${version}. Install the published stable packages before staging.`);
+  const { version, manifest, packageRoot, archive } = await readDocumentationRelease(directory, { request, expectedVersion: targetVersion });
   if (manifest.sourceRevision !== revision) throw new Error(`Certified source revision mismatch: requested ${revision}; installed ${manifest.sourceRevision}. Check the release owner’s published evidence.`);
   const destination = resolve(directory, 'output/stable-docs');
   const exists = await lstat(destination).then(() => true, error => {
@@ -25,7 +24,6 @@ export async function stageStableDocs(revision, { directory = root, targetVersio
   let exported;
   try {
     // Read the installed docs in place without copying dist or adding a manifest.
-    const packageRoot = resolve(directory, 'node_modules/marionette');
     const snapshot = await readDocs(packageRoot, { manifestName: 'docs-manifest.json' });
     // The content digest excludes routing/title metadata, so bind the entire manifest.
     if (!isDeepStrictEqual(snapshot.manifest, manifest)) {
@@ -43,11 +41,8 @@ export async function stageStableDocs(revision, { directory = root, targetVersio
     await write(join(exported, 'manifest.json'), JSON.stringify(snapshot.manifest, null, 2) + '\n');
     await write(join(exported, 'stable-docs-evidence.json'), JSON.stringify({
       packageVersion: version, sourceRevision: revision, contentSha256: manifest.contentSha256,
-      archives: Object.fromEntries(runtimePackages.map(name => {
-        const key = `node_modules/${name}`;
-        const { version, resolved, integrity } = lock.packages[key];
-        return [key, { version, resolved, integrity }];
-      }))
+      installedAs: 'marionette-docs',
+      archives: { 'node_modules/marionette': archive }
     }, null, 2) + '\n');
     await publish(exported, destination);
     return { version, count: snapshot.pages.length, destination };

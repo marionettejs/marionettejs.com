@@ -90,7 +90,7 @@ try {
   await control.evaluate(() => localStorage.removeItem('marionette-analytics-opt-out'));
   const demo = await slow.newPage();
   await demo.goto('https://marionettejs.com/', { waitUntil: 'domcontentloaded' });
-  await demo.locator('#application-slot button').first().waitFor({ timeout: 3000 });
+  await demo.locator('.hero-feature').first().waitFor({ timeout: 3000 });
   await slow.close();
   console.log('PASS stalled analytics module: opt-out and real homepage demo work immediately');
 
@@ -108,8 +108,8 @@ try {
   await independent.getByRole('button', { name: 'Turn off PostHog analytics' }).click();
   assert.equal(await independent.evaluate(() => localStorage.getItem('marionette-analytics-opt-out')), '1');
   await independent.goto('https://marionettejs.com/');
-  await independent.locator('#application-slot button').first().waitFor();
-  await independent.locator('#application-slot button').last().click();
+  await independent.locator('.hero-feature').first().waitFor();
+  await independent.locator('.hero-feature').last().click();
   await unavailable.close();
   console.log('PASS missing analytics boundary/config: privacy controls and homepage demo remain available');
 

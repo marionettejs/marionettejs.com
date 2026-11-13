@@ -1,6 +1,10 @@
-import { View, Region } from '../vendor/marionette.js';
+import { View, Region, html } from './demo-setup.js';
 
-const rig = document.querySelector('[data-rig]');
+let rig;
+let rigLifetime;
+const hero = document.querySelector('[data-home-hero]');
+const ambientSections = [hero, document.querySelector('#ownership')].filter(Boolean);
+const ambientLightPositions = new WeakMap();
 const scene = document.querySelector('.ownership-scene');
 const description = document.querySelector('#phase-description');
 const command = document.querySelector('#story-command');
@@ -31,7 +35,7 @@ function record(name, event) {
 }
 const Card = View.extend({
   templateContext() { return this.options; },
-  template:({ name, number }) => `<span>VIEW / ${number}</span><strong>${name}</strong><div class="skeleton"><i></i><i></i><i></i></div><small>rendered → attached</small>`
+  template:({ name, number }) => html`<span>VIEW / ${number}</span><strong>${name}</strong><div class="skeleton"><i></i><i></i><i></i></div><small>rendered → attached</small>`
 });
 const NotesView = Card.extend({ className:'diagram-view old-view' });
 const TasksView = Card.extend({ className:'diagram-view new-view' });
@@ -101,10 +105,26 @@ function advance() {
 }
 function render() {
   frame = 0;
+  if (opening?.classList.contains('interactive-opening')) connectThread();
   const off = paused || reduced.matches || document.hidden;
   document.documentElement.classList.toggle('motion-off', off);
-  rig.style.setProperty('--rig-tilt', `${off ? 0 : pointerX * 10}deg`);
-  rig.style.setProperty('--rig-y', `${off ? 0 : pointerY * 6}px`);
+  for (const section of ambientSections) {
+    // Reuse the existing event-driven frame; no autonomous animation loop.
+    const box = off ? null : section.getBoundingClientRect();
+    const travel = off ? 0 : section === hero ? (80 - box.top) / Math.max(box.height, 1)
+      : (innerHeight * .75 - box.top) / Math.max(innerHeight * .75 + box.height * .5, 1);
+    const progress = Math.max(0, Math.min(1, travel));
+    const x = (section === hero ? 32 + progress * 40 : 22 + progress * 30).toFixed(2);
+    const y = (68 - progress * 24).toFixed(2);
+    const position = `${x},${y}`;
+    if (position !== ambientLightPositions.get(section)) {
+      section.style.setProperty('--hero-light-x', `${x}%`);
+      section.style.setProperty('--hero-light-y', `${y}%`);
+      ambientLightPositions.set(section, position);
+    }
+  }
+  rig?.style.setProperty('--rig-tilt', `${off ? 0 : pointerX * 10}deg`);
+  rig?.style.setProperty('--rig-y', `${off ? 0 : pointerY * 6}px`);
   const sceneBox = scene.getBoundingClientRect();
   scene.style.setProperty('--scene-lift', `${off ? 0 : Math.max(-12, Math.min(12, (innerHeight / 2 - sceneBox.top) * .04))}px`);
   let starTilt = 0;
@@ -145,14 +165,6 @@ play.addEventListener('click', () => {
   playback = setTimeout(advance, 2400);
 });
 toggle.addEventListener('click', () => { paused = !paused; refreshMotion(); });
-rig.addEventListener('pointermove', event => {
-  if (!finePointer.matches || paused || reduced.matches) return;
-  const box = rig.getBoundingClientRect();
-  pointerX = (event.clientX - box.left) / box.width - .5;
-  pointerY = (event.clientY - box.top) / box.height - .5;
-  requestRender();
-});
-rig.addEventListener('pointerleave', () => { pointerX = 0; pointerY = 0; requestRender(); });
 addEventListener('scroll', requestRender, { passive:true });
 addEventListener('resize', requestRender);
 document.addEventListener('visibilitychange', () => {
@@ -162,7 +174,9 @@ document.addEventListener('visibilitychange', () => {
 reduced.addEventListener('change', refreshMotion);
 addEventListener('pagehide', event => {
   stopPlayback(); clearGhost(); cancelAnimationFrame(frame); frame = 0;
-  if (!event.persisted) { region.off(); region.destroy(); }
+  if (!event.persisted) {
+    region.off(); region.destroy(); rigLifetime?.abort(); heroMountObserver.disconnect();
+  }
 });
 addEventListener('pageshow', requestRender);
 for (const button of controls) button.disabled = false;
@@ -186,13 +200,18 @@ addEventListener('blur', () => { invitationPointer = null; requestRender(); });
 finePointer.addEventListener('change', () => { invitationPointer = null; requestRender(); });
 function connectThread() {
   if (innerWidth <= 760) { opening.classList.remove('thread-connected'); return; }
+  const cardElement = opening.querySelector('.demo');
+  const bandElement = opening.querySelector('.hero-bottom');
+  // The static fallback has no live rig or connector band. It remains readable
+  // while the independent lifecycle illustration starts, even if hero.js fails.
+  if (!cardElement || !bandElement) { opening.classList.remove('thread-connected'); return; }
   const bounds = opening.getBoundingClientRect();
-  const card = opening.querySelector('.demo').getBoundingClientRect();
-  const band = opening.querySelector('.hero-bottom').getBoundingClientRect();
+  const card = cardElement.getBoundingClientRect();
+  const band = bandElement.getBoundingClientRect();
   // Measure the fixed suspension point, not the star's animated bounds.
   const mark = invitationMark.parentElement.getBoundingClientRect();
-  const x1 = card.right - bounds.left - 22;
-  const y1 = card.bottom - bounds.top;
+  const x1 = card.right - bounds.left - (opening.classList.contains('interactive-opening') ? 6 : 22);
+  const y1 = (opening.classList.contains('interactive-opening') ? card.top : card.bottom) - bounds.top;
   const x2 = mark.left + mark.width / 2 - bounds.left;
   const y2 = mark.top + (mark.height - invitationMark.offsetHeight) / 2 - bounds.top;
   const bend = band.top + band.height / 2 - bounds.top;
@@ -203,6 +222,33 @@ function connectThread() {
 }
 const layoutObserver = new ResizeObserver(connectThread);
 layoutObserver.observe(opening);
-layoutObserver.observe(rig);
 layoutObserver.observe(invitationMark);
-connectThread();
+function bindHeroRig() {
+  const next = hero?.querySelector('[data-rig]');
+  if (next === rig) return;
+  if (rig) layoutObserver.unobserve(rig);
+  rigLifetime?.abort();
+  rig = next;
+  pointerX = pointerY = 0;
+  if (rig) {
+    rigLifetime = new AbortController();
+    rig.addEventListener('pointermove', event => {
+      if (!finePointer.matches || paused || reduced.matches) return;
+      const box = rig.getBoundingClientRect();
+      pointerX = (event.clientX - box.left) / box.width - .5;
+      pointerY = (event.clientY - box.top) / box.height - .5;
+      requestRender();
+    }, { signal: rigLifetime.signal });
+    rig.addEventListener('pointerleave', () => {
+      pointerX = pointerY = 0; requestRender();
+    }, { signal: rigLifetime.signal });
+    layoutObserver.observe(rig);
+  }
+  connectThread();
+  requestRender();
+}
+// Observe only root replacement: code highlights and ordinary app updates do not
+// retrigger this. The hero may mount before or after this independent module.
+const heroMountObserver = new MutationObserver(bindHeroRig);
+if (hero) heroMountObserver.observe(hero, { childList: true });
+bindHeroRig();

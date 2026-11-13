@@ -49,9 +49,10 @@ export function validatePublication(manifest, declaration, installed) {
 }
 
 function installedPublicationEvidence() {
-  const pkg = JSON.parse(readFileSync(new URL('../node_modules/marionette/package.json', import.meta.url), 'utf8'));
-  const manifest = JSON.parse(readFileSync(new URL('../node_modules/marionette/docs-manifest.json', import.meta.url), 'utf8'));
-  const lock = JSON.parse(readFileSync(new URL('../package-lock.json', import.meta.url), 'utf8')).packages['node_modules/marionette'];
+  // Keep the installed documentation evidence independent of browser patches.
+  const pkg = JSON.parse(readFileSync(new URL('../node_modules/marionette-docs/package.json', import.meta.url), 'utf8'));
+  const manifest = JSON.parse(readFileSync(new URL('../node_modules/marionette-docs/docs-manifest.json', import.meta.url), 'utf8'));
+  const lock = JSON.parse(readFileSync(new URL('../package-lock.json', import.meta.url), 'utf8')).packages['node_modules/marionette-docs'];
   return { ...manifest, registryArchive: lock.version === pkg.version &&
     lock.resolved === `https://registry.npmjs.org/marionette/-/marionette-${pkg.version}.tgz`, integrity: lock.integrity };
 }

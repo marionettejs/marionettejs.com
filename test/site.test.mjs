@@ -6,6 +6,23 @@ import { resolve, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
+import { parse } from '@babel/parser';
+
+function moduleImports(source) {
+  const imports = [];
+  const visit = node => {
+    if (!node || typeof node !== 'object') return;
+    if (['ImportDeclaration', 'ImportExpression', 'ExportNamedDeclaration', 'ExportAllDeclaration'].includes(node.type) && node.source?.value) imports.push(node.source.value);
+    if (node.type === 'CallExpression' && node.callee.type === 'Import' && node.arguments[0]?.value) imports.push(node.arguments[0].value);
+    for (const [key, value] of Object.entries(node)) {
+      if (['loc', 'comments', 'tokens', 'errors'].includes(key)) continue;
+      if (Array.isArray(value)) value.forEach(visit);
+      else if (value && typeof value === 'object') visit(value);
+    }
+  };
+  visit(parse(source, { sourceType:'module' }));
+  return imports;
+}
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const out=resolve(root,'dist');
@@ -68,18 +85,19 @@ test('every built page has valid local links, fragments, and asset references',a
 });
 
 test('all local JavaScript imports and CSS imports resolve in the built output',async()=>{
-  for(const file of ['assets/site.js','assets/demo.js','assets/motion.js','assets/playground.js','assets/examples.js','assets/playground-runtime.js','assets/playground.css','assets/site.css','assets/night.css','assets/docs.js','assets/docs.css','assets/case-studies.css','assets/news.css','assets/news.js']){
+  for(const file of ['assets/site.js','assets/hero.js','assets/motion.js','assets/playground.js','assets/examples.js','assets/playground-runtime.js','assets/playground.css','assets/site.css','assets/night.css','assets/docs.js','assets/docs.css','assets/case-studies.css','assets/news.css','assets/news.js']){
     const body=await readFile(resolve(out,file),'utf8');
-    for(const match of body.matchAll(/(?:from\s*|import\(|@import url\()['"]([^'"]+)['"]/g)){
-      const target=resolve(dirname(resolve(out,file)),match[1].split('?')[0]);
-      assert.ok((await stat(target)).isFile(),`${file}: ${match[1]}`);
+    const imports = file.endsWith('.js') ? moduleImports(body) : [...body.matchAll(/@import url\(['"]([^'"]+)['"]/g)].map(match => match[1]);
+    for(const path of imports){
+      const target=resolve(dirname(resolve(out,file)),path.split('?')[0]);
+      assert.ok((await stat(target)).isFile(),`${file}: ${path}`);
     }
   }
 });
 
-test('published demo runtime and documentation match the installed artifact',async()=>{
+test('published demo runtime matches the installed artifact',async()=>{
   const provenance=JSON.parse(await readFile(resolve(out,'reference/provenance.json'),'utf8'));
-  assert.equal(provenance.packageVersion, '5.1.0');
+  assert.equal(provenance.packageVersion, '5.1.1');
   const homepage = await readFile(resolve(out,'index.html'),'utf8');
   assert.match(homepage, /MARIONETTE 5\.1/);
   assert.doesNotMatch(homepage, /Marionette 5 RC|MARIONETTE 5\.0 · RC/);
@@ -94,9 +112,11 @@ test('published demo runtime and documentation match the installed artifact',asy
   const installed = JSON.parse(await readFile(new URL('../node_modules/marionette/docs-manifest.json', import.meta.url), 'utf8'));
   assert.equal(provenance.packageVersion, installed.packageVersion);
   assert.equal(provenance.libraryRevision, installed.sourceRevision);
-  assert.equal(manifest.packageVersion, installedPackage.version);
-  assert.equal(manifest.sourceRevision, installed.sourceRevision);
-  assert.equal(manifest.contentSha256, installed.contentSha256);
+  // The immutable documentation snapshot keeps its own release identity.
+  const publication = JSON.parse(await readFile(resolve(root, 'content/docs-publication-edits.json'), 'utf8'));
+  assert.equal(manifest.packageVersion, publication.releaseEvidence.packageVersion);
+  assert.equal(manifest.sourceRevision, publication.releaseEvidence.sourceRevision);
+  assert.equal(manifest.contentSha256, publication.releaseEvidence.contentSha256);
   assert.equal(manifest.sourceDirty, false);
   assert.match(await readFile(resolve(out,'vendor/MARIONETTE-LICENSE.txt'),'utf8'),/MIT/);
 });
@@ -143,7 +163,12 @@ test('vendor bundles are requested by content, so a rebuild is always a new URL'
   const bundles = Object.fromEntries(await Promise.all(['marionette', 'demos'].map(async name =>
     [name, version(await readFile(resolve(out, `vendor/${name}.js`)))])));
   let checked = 0;
-  for (const name of ['demo.js', 'motion.js', 'playground.js', 'examples.js']) {
+  const setupVersion = version(await readFile(resolve(out, 'assets/demo-setup.js')));
+  for (const name of ['hero.js', 'motion.js']) {
+    const source = await readFile(resolve(out, 'assets', name), 'utf8');
+    assert.ok(source.includes(`from './demo-setup.js?v=${setupVersion}'`), `${name}: setup must carry its content version`);
+  }
+  for (const name of ['demo-setup.js', 'playground.js', 'examples.js']) {
     const module = await readFile(resolve(out, 'assets', name), 'utf8');
     const references = [...module.matchAll(/(['"])((?:\.\.)?\/vendor\/(marionette|demos)\.js)(\?v=([a-f0-9]+))?\1/g)];
     assert.ok(references.length, name);
