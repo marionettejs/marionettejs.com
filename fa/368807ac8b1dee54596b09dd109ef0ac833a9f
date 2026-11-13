@@ -1,0 +1,42 @@
+.github/workflows/check.yml
+  h_0f06c286dda36f 33
+AGENTS.md
+  h_0f06c286dda36f 44-47
+README.md
+  h_0f06c286dda36f 251-252,327-329
+content/pages.mjs
+  h_0f06c286dda36f 14-15,18,20
+package.json
+  h_0f06c286dda36f 18
+site/assets/hero.js
+  h_0f06c286dda36f 28-30,266,269,271,626
+site/assets/motion.js
+  h_0f06c286dda36f 3-4,126-127,177-179,203-207,209-210,226-254
+site/assets/night.css
+  h_0f06c286dda36f 504-505
+site/assets/site.js
+  h_0f06c286dda36f 30-34,36
+test/browser/agent-workshop.mjs
+  h_0f06c286dda36f 24-27,35
+test/browser/built-site.mjs
+  h_0f06c286dda36f 1-13
+test/browser/hero-list.mjs
+  h_0f06c286dda36f 3-6,8-9,17,64
+test/browser/hero-panels.mjs
+  h_0f06c286dda36f 3-6,8-9,72
+test/browser/hero.mjs
+  h_0f06c286dda36f 1,5-7,9,55-56,249-314,337
+test/browser/html-demos.mjs
+  h_0f06c286dda36f 1-2,6,12,15,17,209-210
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fa368807ac8b1dee54596b09dd109ef0ac833a9f",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
