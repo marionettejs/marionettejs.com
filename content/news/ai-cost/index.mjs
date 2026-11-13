@@ -8,7 +8,7 @@ const article = readFileSync(new URL('./article.html', import.meta.url), 'utf8')
 
 export const aiCost = {
   title: 'The AI Cost of Marionette',
-  description: 'Four agent-generated applications per framework. What Codex used, what it built, and how Marionette compares.',
+  description: 'Following Nolan Lawson’s “The AI cost of JavaScript frameworks,” we ran the same benchmark task with Codex, Marionette included: four builds per framework, comparing agent effort, delivered quality and source size.',
   path: '/news/ai-cost-of-marionette/',
   categories: ['Research'],
   date: '2026-11-12',
