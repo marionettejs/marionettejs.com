@@ -88,6 +88,8 @@ test('edited method excerpts come from the edited snapshot, with HTML escaped',(
   assert.doesNotMatch(sections['app.js']['Todos.addTodo'].highlighted,/<script>/);
   assert.match(sections['app.js']['Todos.addTodo'].highlighted,/&lt;script&gt;/);
   assert.equal(sections['app.js']['Todos.addTodo'].parts.map(part => part.text).join(''), sections['app.js']['Todos.addTodo'].text);
+  assert.ok(sections['app.js']['Todos.addTodo'].parts.some(part => part.type === 'comment' && part.text === '// </code><script>test</script>'));
+  assert.match(sections['app.js']['Todos.addTodo'].highlighted, /<span class="syntax-comment">\/\/ &lt;\/code&gt;&lt;script&gt;test&lt;\/script&gt;<\/span>/);
 });
 
 test('editor highlights incomplete drafts safely and finds symbols without resolving imports', () => {

@@ -24,9 +24,12 @@ function highlightParts(source, tokens, start = 0, end = source.length) {
   parts.push({ text: source.slice(cursor, end) });
   return parts;
 }
-function highlightTokens(source, tokens, start = 0, end = source.length) {
-  return highlightParts(source, tokens, start, end).map(({ text, type }) =>
+function highlightMarkup(parts) {
+  return parts.map(({ text, type }) =>
     type ? `<span class="syntax-${type}">${escape(text)}</span>` : escape(text)).join('');
+}
+function highlightTokens(source, tokens, start = 0, end = source.length) {
+  return highlightMarkup(highlightParts(source, tokens, start, end));
 }
 
 function visitSections(node, section) {
@@ -91,8 +94,9 @@ export function compileProject(input) {
       const lines = source.slice(0, node.start).split('\n');
       const start = node.start - lines.at(-1).length;
       const end = node.end;
-      const highlighted = highlightTokens(source, ast.tokens, start, end);
-      sections[file][name] = { file, symbol: name.replace(/\.completion$/, ''), line: lines.length, endLine: source.slice(0, end).split('\n').length, text: source.slice(start, end), highlighted, parts: highlightParts(source, ast.tokens, start, end) };
+      const parts = highlightParts(source, ast.tokens, start, end);
+      const highlighted = highlightMarkup(parts);
+      sections[file][name] = { file, symbol: name.replace(/\.completion$/, ''), line: lines.length, endLine: source.slice(0, end).split('\n').length, text: source.slice(start, end), highlighted, parts };
     };
     walk(ast.program, node => {
       if (['ImportDeclaration', 'ExportAllDeclaration', 'ExportNamedDeclaration'].includes(node.type) && node.source) resolveImport(node.source);
