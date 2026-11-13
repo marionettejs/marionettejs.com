@@ -247,9 +247,9 @@ test('release-rebased source revisions resolve relative and branch links without
   const sample = { ...page, markdown: page.markdown + links.map(([href], index) => `\n[Example ${index}](${href})\n`).join('') };
   const html = renderMarkdown(sample, pages, manifest).html;
   const markdown = deriveMarkdown(sample, pages, manifest);
-  for (const [, expected] of links) {
-    assert.ok(html.includes(`href="${expected}"`), expected);
-    assert.ok(markdown.includes(`](${expected})`), expected);
+  for (const [index, [, expected]] of links.entries()) {
+    assert.ok(html.includes(`<a href="${expected}">Example ${index}</a>`), `HTML Example ${index}: ${expected}`);
+    assert.ok(markdown.includes(`[Example ${index}](${expected})`), `Markdown Example ${index}: ${expected}`);
   }
 });
 
@@ -274,9 +274,9 @@ test('divergent reading revisions pin source links while retaining archive and h
     markdown: '# Example\n' + links.map(([href], index) => `\n[Example ${index}](${href})\n`).join('') };
   const html = renderMarkdown(page, [], manifest).html;
   const markdown = deriveMarkdown(page, [], manifest);
-  for (const [, expected] of links) {
-    assert.ok(html.includes(`href="${expected}"`), expected);
-    assert.ok(markdown.includes(`](${expected})`), expected);
+  for (const [index, [, expected]] of links.entries()) {
+    assert.ok(html.includes(`<a href="${expected}">Example ${index}</a>`), `HTML Example ${index}: ${expected}`);
+    assert.ok(markdown.includes(`[Example ${index}](${expected})`), `Markdown Example ${index}: ${expected}`);
   }
   assert.ok(markdown.includes(`reading source revision ${revision}`));
 });
