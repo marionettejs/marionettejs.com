@@ -11,14 +11,14 @@ const demo = `<section class="demo application-demo" id="demo" aria-labelledby="
   <div id="application-slot"><p class="empty-region">Enable JavaScript to explore a small Marionette application.</p></div>
 </section>`;
 
-export const home = {title:`Marionette 5 — Structure for interactive JavaScript apps`,description:'A JavaScript UI library for interactive browser applications. Compose screens with Views and Regions, manage changing lists, and coordinate feature startup and cleanup.',active:'home',body:`
+export const home = {title:`Marionette 5 — JavaScript library for agent-led development`,description:'A JavaScript UI library for agent-led development. Your agent learns the patterns; you direct the application and follow the code. Build with Marionette 5.',active:'home',body:`
 <div class="opening-act"><svg class="opening-thread" aria-hidden="true"><path/></svg>
 <section class="night-hero">
-  <div class="night-copy"><p class="eyebrow"><span class="signal-dot"></span> MARIONETTE ${provenance.packageVersion.split('.').slice(0, 2).join('.')}</p><h1>Build apps.<br><em>Keep control.</em></h1><p class="night-intro">A JavaScript UI library for<br><strong>interactive browser applications.</strong></p><p class="hero-purpose">Compose screens with Views and Regions.<br>Give changing lists and async work a clear owner.<br>Keep each part working as the app grows.</p><div class="night-actions"><a class="button" href="/demos/">Try the apps &amp; code <span aria-hidden="true">↗</span></a><a class="text-link" href="/docs/quick-start/">Build your first View →</a></div></div>
+  <div class="night-copy"><p class="eyebrow"><span class="signal-dot"></span> MARIONETTE ${provenance.packageVersion.split('.').slice(0, 2).join('.')}</p><h1>Pull a few<br><em>strings.</em></h1><p class="night-intro">A JavaScript UI library for<br><strong>agent-led development.</strong></p><p class="hero-purpose">Your agent learns the patterns.<br>You direct the application.<br>The code stays yours to follow.</p><div class="night-actions"><a class="button" href="/why/">Explore Marionette <span aria-hidden="true">↗</span></a><a class="text-link" href="/docs/agent-start/">Equip your agent →</a></div></div>
   <div class="rig" data-rig>
     <div class="rig-decoration" aria-hidden="true"><div class="rig-control"><span class="yoke-pin pin-left"></span><img src="/assets/mark.svg" width="68" height="70" alt=""><span class="yoke-pin pin-right"></span></div><svg class="rig-strings" viewBox="0 0 560 96" preserveAspectRatio="none"><path d="M84 0 V96 M476 0 V96"/><circle cx="84" cy="94" r="3"/><circle cx="476" cy="94" r="3"/></svg><span class="rig-annotation">A PLACE FOR EVERYTHING.</span></div>
     ${demo}
-    <p class="rig-caption">One application. <span>Three independently changing parts.</span></p>
+    <p class="rig-caption">A little application. <span>Pick a piece of work.</span></p>
   </div>
   <div class="hero-bottom" aria-hidden="true"></div>
 </section>
