@@ -33,7 +33,7 @@ for (const recipe of recipes) {
     const compiled = compileProject(input);
     assert.equal(compiled.project.entry,'main.js');
     for (const [file,source] of Object.entries(recipe.sourceFiles)) {
-      const directory = ['html.js','lesson-ui.js'].includes(file) ? 'shared' : recipe.id;
+      const directory = file === 'lesson-ui.js' ? 'shared' : recipe.id;
       assert.equal(source,await readFile(new URL('../site/demos/projects/'+directory+'/'+file,import.meta.url),'utf8'),'Generated registry must match the actual module');
       if (!['main.js','lesson.js','lesson-ui.js'].includes(file)) {
         assert.doesNotMatch(source,/\b(demoInspector|explain|story)\s*[.(]/);
@@ -87,6 +87,7 @@ test('edited method excerpts come from the edited snapshot, with HTML escaped',(
   assert.match(sections['app.js']['Todos.addTodo'].text,/<script>test<\/script>/);
   assert.doesNotMatch(sections['app.js']['Todos.addTodo'].highlighted,/<script>/);
   assert.match(sections['app.js']['Todos.addTodo'].highlighted,/&lt;script&gt;/);
+  assert.equal(sections['app.js']['Todos.addTodo'].parts.map(part => part.text).join(''), sections['app.js']['Todos.addTodo'].text);
 });
 
 test('editor highlights incomplete drafts safely and finds symbols without resolving imports', () => {

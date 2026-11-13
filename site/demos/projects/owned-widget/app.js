@@ -1,10 +1,11 @@
 import { View } from 'marionette';
+import { html } from '@mnjs/html';
 import { Radio } from './radio-view.js';
 
 // The station replaces its radio through a Region, then challenges cleanup.
 // radio-view.js owns the widget; motion.js implements the integration.
 const RadioStation = View.extend({
-  template: () => `
+  template: () => html`
     <div class="slot"></div>
     <div class="controls"><button id="replace-widget">1. Swap radio</button>
     <button id="broadcast-radio">2. Broadcast again 📡</button>

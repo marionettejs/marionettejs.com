@@ -1,7 +1,7 @@
 import { View, Application } from 'marionette';
 import { FlightDeck } from './flight.js';
 import { animateHangar } from './motion.js';
-import { escapeHTML } from './html.js';
+import { html } from '@mnjs/html';
 
 // Application readiness is a different boundary: there is no flight screen
 // until preparation succeeds. Stop cancels this start; failure rejects it.
@@ -11,7 +11,7 @@ const PreparationStatus = View.extend({
   attributes: {
     role: 'status',
   },
-  template: ({ message }) => escapeHTML(message),
+  template: ({ message }) => html`${message}`,
 });
 const StationLoader = View.extend({
   regions: {
@@ -51,7 +51,7 @@ const StationLoader = View.extend({
   ui: {
     doors: '.hangar-door',
   },
-  template: ({ phase, message }) => `
+  template: ({ phase, message }) => html`
     <section class="station-loader" data-phase="${phase}">
       <div class="hangar" aria-label="Ship waiting for the hangar to open">
         <span class="hangar-ship" aria-hidden="true">🚀</span>
@@ -139,20 +139,20 @@ const StationControls = View.extend({
     this.model.exploring = !this.model.exploring;
     this.triggerMethod('toggle:exploration', this.model.exploring);
   },
-  template: ({ phase, exploring, preparationStep }) => `
-    <button id="open-station" ${['open', 'destroyed'].includes(phase) ? 'disabled' : ''}>${phase === 'open' ? 'Hangar open' : 'Open hangar · ' + preparationStep + '/4'}</button>
-    <details class="station-more" ${exploring ? 'open' : ''}><summary>Explore the whole station’s lifetime</summary>
+  template: ({ phase, exploring, preparationStep }) => html`
+    <button id="open-station" ?disabled=${['open', 'destroyed'].includes(phase)}>${phase === 'open' ? 'Hangar open' : 'Open hangar · ' + preparationStep + '/4'}</button>
+    <details class="station-more" ?open=${exploring}><summary>Explore the whole station’s lifetime</summary>
     <p class="fine">Compare cancellation with failure. Closing a ready station also destroys its root View and any ship it owns.</p>
-    <button id="close-station" ${['opening', 'open'].includes(phase) ? '' : 'disabled'}>${phase === 'opening' ? 'Cancel opening' : 'Close station'}</button>
-    <button id="fail-preparation" ${phase === 'opening' ? '' : 'disabled'}>Break the antenna</button>
-    <button id="destroy-station" ${phase === 'destroyed' ? 'disabled' : ''}>Destroy station</button></details>
-    <button id="reset-station" ${phase === 'destroyed' ? '' : 'hidden'}>Reset Cheese Patrol</button>`,
+    <button id="close-station" ?disabled=${!['opening', 'open'].includes(phase)}>${phase === 'opening' ? 'Cancel opening' : 'Close station'}</button>
+    <button id="fail-preparation" ?disabled=${phase !== 'opening'}>Break the antenna</button>
+    <button id="destroy-station" ?disabled=${phase === 'destroyed'}>Destroy station</button></details>
+    <button id="reset-station" ?hidden=${phase !== 'destroyed'}>Reset Cheese Patrol</button>`,
 });
 const MissionChapters = View.extend({
   className: 'mission-chapters',
-  template: ({ chapter, ready }) => `
+  template: ({ chapter, ready }) => html`
     <button class="readiness-chapter" aria-pressed="${chapter === 1}">1. When may the app appear?</button>
-    <button class="flight-chapter" aria-pressed="${chapter === 2}" ${ready ? '' : 'disabled'}>2. What happens to unfinished work?</button>`,
+    <button class="flight-chapter" aria-pressed="${chapter === 2}" ?disabled=${!ready}>2. What happens to unfinished work?</button>`,
   ui: {
     readiness: '.readiness-chapter',
     flight: '.flight-chapter',

@@ -64,12 +64,16 @@ const recipeModule = await versionImports(await readModule('playground-recipes.j
 const sourceEditorModule = await versionImports(await readModule('source-editor.js'));
 const examplesModule = await versionImports(await readModule('examples.js'), { ...runtimeDependency, './playground-export.js': exportModule, './playground-recipes.js': recipeModule, './source-editor.js': sourceEditorModule });
 const workshopModule = await versionImports(await readModule('playground.js'), { ...runtimeDependency, './playground-export.js': exportModule, './playground-recipes.js': recipeModule });
-const demoModule = await versionImports(await readModule('demo.js'));
+const demoSetupModule = await readModule('demo-setup.js');
+const demoDependencies = { './demo-setup.js': demoSetupModule };
+const motionModule = await versionImports(await readModule('motion.js'), demoDependencies);
+const heroModule = await versionImports(await readModule('hero.js'), demoDependencies);
 const docsModule = await versionImports(await readModule('docs.js'));
 const posthogBundle = await bundle({ entryPoints: [resolve(root, 'site/assets/analytics-posthog.js')], bundle: true, format: 'esm', minify: true, write: false, external: ['./analytics.js'], legalComments: 'inline' });
 const posthogModule = await versionImports(posthogBundle.outputFiles[0].text);
 const clicksModule = await versionImports(await readModule('analytics-clicks.js'));
-const modules = { './analytics-clicks.js': clicksModule, './motion.js': await readModule('motion.js'), './analytics-posthog.js': posthogModule, './analytics-config.js': await readModule('analytics-config.js'), './analytics.js': analyticsSource, './demo.js': demoModule, './docs.js': docsModule, './playground-runtime.js': runtimeModule, './playground-export.js': exportModule, './playground-recipes.js': recipeModule, './source-editor.js': sourceEditorModule, './examples.js': examplesModule, './playground.js': workshopModule };
+const modules = { './analytics-clicks.js': clicksModule, './motion.js': motionModule, './demo-setup.js': demoSetupModule, './analytics-posthog.js': posthogModule, './analytics-config.js': await readModule('analytics-config.js'), './analytics.js': analyticsSource, './docs.js': docsModule, './playground-runtime.js': runtimeModule, './playground-export.js': exportModule, './playground-recipes.js': recipeModule, './source-editor.js': sourceEditorModule, './examples.js': examplesModule, './playground.js': workshopModule };
+modules['./hero.js'] = heroModule;
 let entryModule = await versionImports(await readModule('site.js'), modules);
 for (const [expression, path] of entryModule.matchAll(/import\('(\.\/[^']+\.js)'\)/g)) {
   const source = modules[path] ??= await readModule(path);

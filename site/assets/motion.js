@@ -1,6 +1,9 @@
-import { View, Region } from '../vendor/marionette.js';
+import { View, Region, html } from './demo-setup.js';
 
 const rig = document.querySelector('[data-rig]');
+const hero = document.querySelector('[data-home-hero]');
+const ambientSections = [hero, document.querySelector('#ownership')].filter(Boolean);
+const ambientLightPositions = new WeakMap();
 const scene = document.querySelector('.ownership-scene');
 const description = document.querySelector('#phase-description');
 const command = document.querySelector('#story-command');
@@ -31,7 +34,7 @@ function record(name, event) {
 }
 const Card = View.extend({
   templateContext() { return this.options; },
-  template:({ name, number }) => `<span>VIEW / ${number}</span><strong>${name}</strong><div class="skeleton"><i></i><i></i><i></i></div><small>rendered → attached</small>`
+  template:({ name, number }) => html`<span>VIEW / ${number}</span><strong>${name}</strong><div class="skeleton"><i></i><i></i><i></i></div><small>rendered → attached</small>`
 });
 const NotesView = Card.extend({ className:'diagram-view old-view' });
 const TasksView = Card.extend({ className:'diagram-view new-view' });
@@ -101,8 +104,24 @@ function advance() {
 }
 function render() {
   frame = 0;
+  if (opening?.classList.contains('interactive-opening')) connectThread();
   const off = paused || reduced.matches || document.hidden;
   document.documentElement.classList.toggle('motion-off', off);
+  for (const section of ambientSections) {
+    // Reuse the existing event-driven frame; no autonomous animation loop.
+    const box = off ? null : section.getBoundingClientRect();
+    const travel = off ? 0 : section === hero ? (80 - box.top) / Math.max(box.height, 1)
+      : (innerHeight * .75 - box.top) / Math.max(innerHeight * .75 + box.height * .5, 1);
+    const progress = Math.max(0, Math.min(1, travel));
+    const x = (section === hero ? 32 + progress * 40 : 22 + progress * 30).toFixed(2);
+    const y = (68 - progress * 24).toFixed(2);
+    const position = `${x},${y}`;
+    if (position !== ambientLightPositions.get(section)) {
+      section.style.setProperty('--hero-light-x', `${x}%`);
+      section.style.setProperty('--hero-light-y', `${y}%`);
+      ambientLightPositions.set(section, position);
+    }
+  }
   rig.style.setProperty('--rig-tilt', `${off ? 0 : pointerX * 10}deg`);
   rig.style.setProperty('--rig-y', `${off ? 0 : pointerY * 6}px`);
   const sceneBox = scene.getBoundingClientRect();
@@ -191,8 +210,8 @@ function connectThread() {
   const band = opening.querySelector('.hero-bottom').getBoundingClientRect();
   // Measure the fixed suspension point, not the star's animated bounds.
   const mark = invitationMark.parentElement.getBoundingClientRect();
-  const x1 = card.right - bounds.left - 22;
-  const y1 = card.bottom - bounds.top;
+  const x1 = card.right - bounds.left - (opening.classList.contains('interactive-opening') ? 6 : 22);
+  const y1 = (opening.classList.contains('interactive-opening') ? card.top : card.bottom) - bounds.top;
   const x2 = mark.left + mark.width / 2 - bounds.left;
   const y2 = mark.top + (mark.height - invitationMark.offsetHeight) / 2 - bounds.top;
   const bend = band.top + band.height / 2 - bounds.top;

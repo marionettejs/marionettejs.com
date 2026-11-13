@@ -1,6 +1,13 @@
+import { setDomApi, setStateApi } from 'marionette';
+import { StateApi } from '@mnjs/data';
+import { HtmlDomApi } from '@mnjs/html/marionette';
 import { RadioStation } from './app.js';
 import { RadioLesson } from './lesson.js';
 export { inspectRecipe } from './lesson-ui.js';
+
+// Configure the app adapters once, before constructing Views or Regions.
+setDomApi(HtmlDomApi);
+setStateApi(StateApi);
 
 export const controller = new RadioLesson({
   ViewClass: RadioStation,

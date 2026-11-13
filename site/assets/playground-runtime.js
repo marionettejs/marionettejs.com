@@ -9,7 +9,7 @@ export { starter };
 // naturally shadow these supplied APIs without sharing a lexical declaration.
 export function provideWorkshopBindings(library) {
   for (const name of ['View', 'Region', 'CollectionView', 'Behavior', 'Application',
-    'MnObject', 'Events', 'Model', 'Collection', 'DataApi', 'StateApi', 'html', 'HtmlDomApi']) {
+    'MnObject', 'Events', 'setDomApi', 'setDataApi', 'setStateApi', 'Model', 'Collection', 'DataApi', 'StateApi', 'html', 'HtmlDomApi']) {
     Object.defineProperty(globalThis, name, { value: library[name], configurable: true, writable: true });
   }
 }

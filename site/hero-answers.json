@@ -1,0 +1,33 @@
+{
+  "intro": {
+    "intro": true,
+    "body": "Your agent learns the patterns.\nYou direct the application.\nThe code stays yours to follow."
+  },
+  "panel": {
+    "eyebrow": "A CHANGING PANEL",
+    "title": "A panel changes. The page stays put.",
+    "body": "A Region gives a changing part of the page one owner. Show a new View there, and Marionette destroys the old one.",
+    "points": [
+      "Your controls keep their identity.",
+      "The replaced View gets a clean exit."
+    ],
+    "links": [
+      {
+        "label": "Read about Regions",
+        "href": "/docs/api/region/"
+      }
+    ]
+  },
+  "panelAgain": {
+    "eyebrow": "A CHANGING PANEL",
+    "title": "A new answer. The same place.",
+    "body": "That was another View replacement. The heading, controls and code pane stayed where they were. Give the changing part a home and leave the rest alone.",
+    "points": [],
+    "links": [
+      {
+        "label": "Try the full demos",
+        "href": "/demos/"
+      }
+    ]
+  }
+}

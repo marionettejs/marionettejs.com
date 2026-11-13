@@ -1,6 +1,11 @@
+import { setDomApi } from 'marionette';
+import { HtmlDomApi } from '@mnjs/html/marionette';
 import { StationConsole } from './app.js';
 import { MissionLesson } from './lesson.js';
 export { inspectRecipe } from './lesson-ui.js';
+
+// Configure the template adapter before constructing Views or Regions.
+setDomApi(HtmlDomApi);
 
 export const controller = new MissionLesson({
   ViewClass: StationConsole,

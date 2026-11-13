@@ -146,13 +146,17 @@ region.show(new View({ template: () => html,
   assert.equal(missingObserver.preview.recipe.checks.at(-1).observed, false);
   assert.match(missingObserver.preview.recipe.checks.at(-1).id, /Direct model changes/);
   // Raw listeners on retained controls outlive Marionette delegation cleanup.
-  const leakedHandler = starter.code.replace('Victory.setDataApi(DataApi);', `
-Victory.setDataApi(DataApi);
+  const leakedHandler = starter.code.replace('const VictoryList =', `
+const leakedControls = new WeakSet();
 Victory.prototype.onRender = function () {
-  this.getUI('toggle')[0].addEventListener('click', function () {
+  const control = this.getUI('toggle')[0];
+  if (leakedControls.has(control)) return;
+  leakedControls.add(control);
+  control.addEventListener('click', function () {
     if (!this.isConnected) throw new Error('Unowned listener survives');
   });
-};`);
+};
+const VictoryList =`);
   await api('run', { ...starter, code: `${leakedHandler}\n${personalChecks}` });
   await page.frameLocator('.workshop-preview iframe').locator('body').evaluate(() => {
     window.dispatchEvent(new Event('run-workshop-checks'));

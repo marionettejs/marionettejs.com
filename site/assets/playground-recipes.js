@@ -249,7 +249,7 @@ export const recipes = [
   css: css + lessonCSS + spacingCSS + motionCSS,
   readingGuide: [
     { label: '1. Attach the integration', file: 'radio-view.js', symbol: 'Radio.onAttach', detail: 'Radio.onAttach creates the widget. Read releaseWidget and the detach/destroy hooks in this same View.' },
-    { label: '2. Keep tuner controls', file: 'radio-view.js', symbol: 'RadioTuner.template', detail: 'RadioTuner uses @mnjs/html at one template call site. Its scoped HtmlDomApi keeps the button and slider across playback renders; ordinary string templates replace their contents.' },
+    { label: '2. Keep tuner controls', file: 'radio-view.js', symbol: 'RadioTuner.template', detail: 'RadioTuner uses @mnjs/html at one template call site. Global HtmlDomApi setup in main.js keeps the button and slider across playback renders.' },
     { label: '3. Replace the child', file: 'app.js', symbol: 'RadioStation.onClickReplaceRadio', detail: 'RadioStation.onClickReplaceRadio replaces a Region child. Marionette invokes cleanup on the old View.' },
     { label: '4. Challenge the retired receiver', file: 'app.js', symbol: 'RadioStation.onClickBroadcast', detail: 'RadioStation.onClickBroadcast sends an external broadcast. RadioLesson checks that only the live widget received it.' },
   ],

@@ -11,16 +11,22 @@ const walk = (node, visit) => {
     else if (value && typeof value === 'object') walk(value, visit);
   }
 };
-function highlightTokens(source, tokens, start = 0, end = source.length) {
-  let cursor = start, highlighted = '';
+function highlightParts(source, tokens, start = 0, end = source.length) {
+  let cursor = start;
+  const parts = [];
   for (const token of tokens.filter(token => token.start >= start && token.end <= end)) {
-    highlighted += escape(source.slice(cursor, token.start));
+    parts.push({ text: source.slice(cursor, token.start) });
     const label = token.type.label || token.type;
     const type = token.type.keyword ? 'keyword' : ['string', 'template'].includes(label) ? 'string' : label === 'num' ? 'number' : String(label).startsWith('Comment') ? 'comment' : label === 'name' ? 'name' : 'punctuation';
-    highlighted += `<span class="syntax-${type}">${escape(source.slice(token.start, token.end))}</span>`;
+    parts.push({ type, text: source.slice(token.start, token.end) });
     cursor = token.end;
   }
-  return highlighted + escape(source.slice(cursor, end));
+  parts.push({ text: source.slice(cursor, end) });
+  return parts;
+}
+function highlightTokens(source, tokens, start = 0, end = source.length) {
+  return highlightParts(source, tokens, start, end).map(({ text, type }) =>
+    type ? `<span class="syntax-${type}">${escape(text)}</span>` : escape(text)).join('');
 }
 
 function visitSections(node, section) {
@@ -86,7 +92,7 @@ export function compileProject(input) {
       const start = node.start - lines.at(-1).length;
       const end = node.end;
       const highlighted = highlightTokens(source, ast.tokens, start, end);
-      sections[file][name] = { file, symbol: name.replace(/\.completion$/, ''), line: lines.length, endLine: source.slice(0, end).split('\n').length, text: source.slice(start, end), highlighted };
+      sections[file][name] = { file, symbol: name.replace(/\.completion$/, ''), line: lines.length, endLine: source.slice(0, end).split('\n').length, text: source.slice(start, end), highlighted, parts: highlightParts(source, ast.tokens, start, end) };
     };
     walk(ast.program, node => {
       if (['ImportDeclaration', 'ExportAllDeclaration', 'ExportNamedDeclaration'].includes(node.type) && node.source) resolveImport(node.source);

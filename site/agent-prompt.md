@@ -9,16 +9,18 @@ and follow its scoped exercise.
 
 Bundled runtime: `marionette@{{runtimeVersion}}`.
 Supplied bindings: `View`, `Region`, `CollectionView`, `Behavior`, `Application`,
-`MnObject`, `Events`; `@mnjs/data` `Model`, `Collection`, `DataApi`, `StateApi`;
+`MnObject`, `Events`, `setDomApi`, `setDataApi`, `setStateApi`;
+`@mnjs/data` `Model`, `Collection`, `DataApi`, `StateApi`;
 `@mnjs/html` 1.0.0 `html`, `HtmlDomApi`. These are available directly in the preview;
 module-local declarations take precedence. Mount in `<main id="app"></main>` and
 export its Region as `export const region = ...`.
 
-- Start new Views with `html` tagged templates and configure each relevant class
-  with `YourView.setDomApi(HtmlDomApi)` before creating it. Keep controls at stable
-  template call sites so data updates retain their DOM identity. `template(data)`
-  receives data; use `templateContext()` for View values. Native string templates also work and replace their contents: escape
-  user text and give independently changing inputs their own View.
+- Call `setDomApi(HtmlDomApi)` before constructing Views and Regions, then use
+  `html` tagged templates throughout the app. Keep stable template call sites to
+  retain control identity. Use `templateContext()` for View values.
+  Interpolate user text directly; use `.value=${draft}` for input values
+  and `?disabled=${busy}` for boolean attributes. Keep independently changing
+  inputs in their own View.
 - Read existing code and try its behavior before editing. Identify the owners of
   Views, Regions, state, subscriptions and pending work. Build the change within
   those owners. The starter is available when useful.
@@ -30,10 +32,10 @@ export its Region as `export const region = ...`.
   Pass the exported Region to `app.start({ region })`. Other lifecycle callbacks
   are synchronous. Local async UI can stay in its View; guard late results and
   abort pending work when its owner ends.
-- Connect observable records with `YourView.setDataApi(DataApi)` and
-  `YourList.setDataApi(DataApi)` plus selected `modelEvents`/`collectionEvents`.
-  Fresh `createState()` objects hold local state; observable state uses
-  `setStateApi(StateApi)`. Plain snapshots work directly.
+- Set `setDataApi(DataApi)` once in setup for observable records, then select
+  `modelEvents`/`collectionEvents`. Fresh `createState()` objects hold local state;
+  call `setStateApi(StateApi)` in setup when using observable state. Plain snapshots
+  work directly.
 - Use `ui`, semantic `triggers` and DOM `events`; `event.delegateTarget` is the
   matched control. Prevent default on form submit and capture drafts on input.
   Regions destroy replaced Views. Use `listenTo`, release external work in its

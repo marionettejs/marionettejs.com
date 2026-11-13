@@ -1,11 +1,12 @@
 import { View } from 'marionette';
+import { html } from '@mnjs/html';
 import { MissionControl, StationLoader, StationControls, MissionChapters } from './readiness.js';
 
 // Two lessons, one Application. This shell coordinates chapter navigation.
 // readiness.js gates the root View; flight.js owns each cancellable delivery.
 const StationConsole = View.extend({
   className: 'mission-console',
-  template: () => `
+  template: () => html`
     <div class="chapters-slot"></div>
     <div class="controls-slot station-controls"></div>
     <div class="station-stage">

@@ -6,21 +6,17 @@ import provenance from './provenance.json' with { type: 'json' };
 
 if (provenance.packageVersion !== runtimeRelease) throw new Error(`Expected a Marionette 5 package version, received ${provenance.packageVersion}.`);
 
-const demo = `<section class="demo application-demo" id="demo" aria-labelledby="demo-title">
-  <div class="demo-heading"><span class="eyebrow" id="demo-title">APPLICATION / PREVIEW</span><span class="live-indicator">LIVE LIBRARY</span></div>
-  <div id="application-slot"><p class="empty-region">Enable JavaScript to explore a small Marionette application.</p></div>
-</section>`;
-
 export const home = {title:`Marionette 5 — JavaScript library for agent-led development`,description:'A JavaScript UI library for agent-led development. Your agent learns the patterns; you direct the application and follow the code. Build with Marionette 5.',active:'home',body:`
 <div class="opening-act"><svg class="opening-thread" aria-hidden="true"><path/></svg>
-<section class="night-hero">
-  <div class="night-copy"><p class="eyebrow"><span class="signal-dot"></span> MARIONETTE ${provenance.packageVersion.split('.').slice(0, 2).join('.')}</p><h1>Pull a few<br><em>strings.</em></h1><p class="night-intro">A JavaScript UI library for<br><strong>agent-led development.</strong></p><p class="hero-purpose">Your agent learns the patterns.<br>You direct the application.<br>The code stays yours to follow.</p><div class="night-actions"><a class="button" href="/why/">Explore Marionette <span aria-hidden="true">↗</span></a><a class="text-link" href="/docs/agent-start/">Equip your agent →</a></div></div>
-  <div class="rig" data-rig>
-    <div class="rig-decoration" aria-hidden="true"><div class="rig-control"><span class="yoke-pin pin-left"></span><img src="/assets/mark.svg" width="68" height="70" alt=""><span class="yoke-pin pin-right"></span></div><svg class="rig-strings" viewBox="0 0 560 96" preserveAspectRatio="none"><path d="M84 0 V96 M476 0 V96"/><circle cx="84" cy="94" r="3"/><circle cx="476" cy="94" r="3"/></svg><span class="rig-annotation">A PLACE FOR EVERYTHING.</span></div>
-    ${demo}
-    <p class="rig-caption">A little application. <span>Pick a piece of work.</span></p>
-  </div>
-  <div class="hero-bottom" aria-hidden="true"></div>
+<section class="night-hero interactive-hero" id="demo" data-home-hero>
+  <div class="hero-shell"><div class="night-copy"><p class="eyebrow"><span class="signal-dot"></span> MARIONETTE ${provenance.packageVersion.split('.').slice(0, 2).join('.')}</p><h1>Pull a few<br><em>strings.</em></h1><p class="night-intro">A JavaScript UI library for<br><strong>agent-led development.</strong></p><div class="night-actions hero-choices"><a class="button" href="/why/">Explore Marionette <span aria-hidden="true">↗</span></a><a class="text-link" href="/docs/agent-start/">Equip your agent →</a></div><div class="hero-answer"><p class="hero-initial-purpose">Your agent learns the patterns.<br>You direct the application.<br>The code stays yours to follow.</p><noscript><p>Enable JavaScript to try the list, changing panels, and async Application.</p></noscript></div></div>
+  <div class="rig hero-live-code"><section class="demo hero-code-frame" aria-label="An illustrative Marionette sketch"><div class="hero-code-heading"><span>FOLLOW THE STRINGS</span></div><pre class="hero-code-source"><code>// A feature prepares before it starts.
+async prepareStart() {
+  return await loadCoolIdeas();
+}
+onStart(_app, _options, ideas) {
+  this.showApp(ideas);
+}</code></pre></section><p class="rig-caption">A real Application. <span>A few strings worth following.</span></p></div></div>
 </section>
 ${invitation}
 </div>
@@ -35,7 +31,8 @@ ${invitation}
  </div>
 </section>
 <section class="ownership" id="ownership" aria-labelledby="structure-title">
- <div class="structure-copy"><p class="eyebrow">02 / A PLACE FOR THE WHOLE APPLICATION</p><h2 id="structure-title">Give every part<br><span>a place to work.</span></h2><p>Screens, changing lists, and work that starts and stops with a feature. Each gets a clear owner you can build on. Start new apps with <code>@mnjs/html</code> for incremental templates, then compose them with Views, Regions and CollectionViews.</p><a class="text-link" href="/why/">Build on that structure →</a></div>
+ <div class="hero-ambient ownership-ambient" aria-hidden="true"><div class="hero-ambient-light"></div><div class="hero-ambient-texture"></div></div>
+ <div class="structure-copy"><p class="eyebrow">02 / A PLACE FOR THE WHOLE APPLICATION</p><h2 id="structure-title">Give every part<br><span>a place to work.</span></h2><p>Screens, changing lists, and work that starts and stops with a feature. Each gets a clear owner you can build on. Compose Views, Regions and CollectionViews into an interface you can keep changing.</p><a class="text-link" href="/why/">Build on that structure →</a></div>
  <figure class="structure-map" aria-label="Example application structure: an Application owns a child Application, which displays a screen View. The screen has list and detail Regions. A CollectionView owns the list's row Views. A Behavior adds reusable interaction to the screen.">
   <div class="structure-app"><div class="structure-heading"><span class="signal-dot"></span><strong>Application</strong><small>start → stop</small></div>
    <div class="structure-feature"><div class="structure-feature-heading"><strong>Workspace</strong><span>child Application</span></div>
@@ -51,8 +48,8 @@ ${invitation}
   <figcaption><span>State + events</span><span>Keep the pieces talking.</span></figcaption>
  </figure>
 </section>
-<section class="night-honesty" aria-labelledby="honesty-title"><p class="eyebrow">03 / BUILT FOR THE NEXT REQUEST</p><h2 id="honesty-title">Build a feature.<br>Change your mind.<br><em>Keep going.</em></h2><div><p>That list needs a filter. The editor should keep its draft. A second feature needs the same data.</p><p>Marionette gives each change a clear owner. Views handle interaction, Regions manage changing panels, and Applications coordinate work across a feature. You can follow the result and direct what happens next.</p><p>See that workflow in the RealWorld case study: an agent-built Conduit application, three development stages, and measured comparisons with other implementations.</p><a class="text-link" href="/case-studies/realworld/">Read the RealWorld case study →</a></div><span class="honesty-mark" aria-hidden="true">*</span></section>
-<section class="night-closing" aria-labelledby="v5-title"><p class="eyebrow">YES, THAT MARIONETTE.</p><h2 id="v5-title">A familiar name.<br><em>Fewer strings attached.</em></h2><p>An independent core. HTML templates. Your choice of data and integrations.</p><a class="text-link" href="/why/#integrations">Pick your tools <span aria-hidden="true">↗</span></a></section>
+<section class="night-honesty" aria-labelledby="honesty-title"><p class="eyebrow">03 / REASONABLE SUPERVISION</p><h2 id="honesty-title">We’re optimistic<br>about agents.<br><em>We’ve also read<br>the diffs.</em></h2><div><p>An agent can write the next feature. You should be able to follow what changed.</p><p>Marionette makes ownership explicit, gives changes a place to belong, and keeps the structure visible to whoever reads the diff.</p><p>Our RealWorld case study follows an agent-built Conduit application through implementation, review, and a measured comparison with other examples.</p><a class="text-link" href="/case-studies/realworld/">Read the RealWorld case study →</a></div><span class="honesty-mark" aria-hidden="true">*</span></section>
+<section class="night-closing" aria-labelledby="v5-title"><p class="eyebrow">YES, THAT MARIONETTE.</p><h2 id="v5-title">A familiar name.<br><em>Fewer strings attached.</em></h2><p>No Backbone, jQuery, or Underscore required.</p><a class="text-link" href="/why/#integrations">Pick your tools <span aria-hidden="true">↗</span></a></section>
 ${demosInvitation}
 <section class="home-support" aria-labelledby="home-support-title">
  <div><p class="eyebrow">OPEN SOURCE / HUMAN MAINTAINED</p><h2 id="home-support-title">A little help behind the strings.</h2><p>Support the maintenance, docs, and releases through GitHub Sponsors.<br>Or put your very specific taste in JavaScript on a T-shirt.</p><a class="text-link" href="/thanks/">Meet the people and tools behind Marionette →</a></div>

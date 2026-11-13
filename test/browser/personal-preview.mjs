@@ -35,7 +35,7 @@ try {
   // Exercise every supplied binding in both paths, including those unused by the starter.
   const bindings = { title: 'Runtime bindings', css: '', code: `
 await Promise.resolve();
-const bindings = { View, Region, CollectionView, Behavior, Application, MnObject, Events, Model, Collection, DataApi, StateApi, html, HtmlDomApi };
+const bindings = { View, Region, CollectionView, Behavior, Application, MnObject, Events, setDomApi, setDataApi, setStateApi, Model, Collection, DataApi, StateApi, html, HtmlDomApi };
 for (const [name, value] of Object.entries(bindings)) {
   if (value == null) throw new Error('Missing runtime binding: ' + name);
 }

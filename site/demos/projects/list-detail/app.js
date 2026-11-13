@@ -1,5 +1,5 @@
 import { View } from 'marionette';
-import { DataApi } from '@mnjs/data';
+import { html } from '@mnjs/html';
 import { TodoCollection, TodoList, TodoFooter } from './todo-views.js';
 import { PlanningNotes } from './planning-notes.js';
 
@@ -9,7 +9,7 @@ const Todos = View.extend({
   initialize() {
     this.collection = new TodoCollection([{ title: 'Finish one small thing' }]);
   },
-  template: () => `
+  template: () => html`
     <section class="todoapp" aria-label="Todo list">
       <h2 class="todos-heading">todos</h2>
       <label class="sr-only" for="new-todo">What needs to be done?</label>
@@ -152,6 +152,5 @@ const Todos = View.extend({
     this.triggerMethod('change:neighbor');
   },
 });
-Todos.setDataApi(DataApi);
 
 export { Todos };

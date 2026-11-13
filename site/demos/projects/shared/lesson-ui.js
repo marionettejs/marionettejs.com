@@ -1,5 +1,5 @@
 import { View, Region, CollectionView, MnObject } from 'marionette';
-import { escapeHTML } from './html.js';
+import { html } from '@mnjs/html';
 import { sections } from './source.js';
 
 const Story = View.extend({
@@ -8,27 +8,27 @@ const Story = View.extend({
   attributes: {
     role: 'status',
   },
-  template: ({ text }) => escapeHTML(text),
+  template: ({ text }) => html`${text}`,
 });
 const Explanation = View.extend({
   tagName: 'section',
   className: 'lesson-step',
-  template: ({ title, excerpts, observation, steps }) => `
-    <small>FOLLOW THE CONNECTION</small><h2>${escapeHTML(title)}</h2>
-    <ol class="cause-chain">${steps.map(step => `<li>${escapeHTML(step)}</li>`).join('')}</ol>
+  template: ({ title, excerpts, observation, steps }) => html`
+    <small>FOLLOW THE CONNECTION</small><h2>${title}</h2>
+    <ol class="cause-chain">${steps.map(step => html`<li>${step}</li>`)}</ol>
     ${excerpts
       .map(excerpt =>
         excerpt
-          ? `
-      <section class="source-excerpt" data-source-file="${escapeHTML(excerpt.file)}" data-source-symbol="${escapeHTML(excerpt.symbol)}">
-        <button class="source-link" data-file="${escapeHTML(excerpt.file)}" data-symbol="${escapeHTML(excerpt.symbol)}">${escapeHTML(excerpt.file)} · ${escapeHTML(excerpt.symbol)} ↗</button>
+          ? html`
+      <section class="source-excerpt" data-source-file="${excerpt.file}" data-source-symbol="${excerpt.symbol}">
+        <button class="source-link" data-file="${excerpt.file}" data-symbol="${excerpt.symbol}">${excerpt.file} · ${excerpt.symbol} ↗</button>
         <small class="source-caption">RUNNING SOURCE · LINES ${excerpt.line}–${excerpt.endLine}</small>
-        <div class="source-lines"><pre><code>${excerpt.highlighted}</code></pre></div>
+        <div class="source-lines"><pre><code>${excerpt.parts.map(({ text, type }) =>
+          type ? html`<span class="syntax-${type}">${text}</span>` : text)}</code></pre></div>
       </section>`
-          : '<p class="source-missing">This method was removed or renamed in the running source. Use the source files below to inspect your edit.</p>',
-      )
-      .join('')}
-    <p>${escapeHTML(observation)}</p>`,
+          : html`<p class="source-missing">This method was removed or renamed in the running source. Use the source files below to inspect your edit.</p>`,
+      )}
+    <p>${observation}</p>`,
   ui: {
     source: '.source-link',
   },
@@ -48,10 +48,9 @@ const ObjectBoard = View.extend({
   template: ({ objects }) =>
     objects
       .map(
-        ([name, status, detail]) => `<section>
-    <h3>${escapeHTML(name)}</h3><strong>${escapeHTML(status)}</strong><p>${escapeHTML(detail)}</p></section>`,
-      )
-      .join(''),
+        ([name, status, detail]) => html`<section>
+    <h3>${name}</h3><strong>${status}</strong><p>${detail}</p></section>`,
+      ),
 });
 const Receipt = View.extend({
   tagName: 'li',
@@ -64,7 +63,7 @@ const Receipt = View.extend({
     return this.getState();
   },
   template: ({ label, observed }) =>
-    `${observed === null ? '○' : observed ? '✓' : '✗'} ${escapeHTML(label)}`,
+    html`${observed === null ? '○' : observed ? '✓' : '✗'} ${label}`,
   onRender() {
     const observed = this.getState().observed;
 
@@ -80,11 +79,11 @@ const Receipts = CollectionView.extend({
 });
 const Lesson = View.extend({
   className: 'lesson',
-  template: ({ icon, title, introduction, question }) => `<header class="hero">
-    <span class="mascot" aria-hidden="true">${escapeHTML(icon)}</span>
-    <div><div class="kicker">A SMALL EXPERIMENT</div><h1>${escapeHTML(title)}</h1></div></header>
-    ${question ? `<h2 class="lesson-question">${escapeHTML(question)}</h2>` : ''}
-    <p class="lede">${escapeHTML(introduction)}</p>
+  template: ({ icon, title, introduction, question }) => html`<header class="hero">
+    <span class="mascot" aria-hidden="true">${icon}</span>
+    <div><div class="kicker">A SMALL EXPERIMENT</div><h1>${title}</h1></div></header>
+    ${question ? html`<h2 class="lesson-question">${question}</h2>` : null}
+    <p class="lede">${introduction}</p>
     <div class="lesson-layout">
       <div class="lesson-play"><div id="experiment"></div><div class="retired-slot"></div></div>
       <aside class="lesson-explanation" aria-label="Code and consequence"><div class="explanation-slot"></div><div class="story-slot"></div></aside>
