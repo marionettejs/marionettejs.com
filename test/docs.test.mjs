@@ -1,4 +1,4 @@
-import { publishedMarkdown } from '../scripts/published-docs.mjs';
+import { publishedMarkdown, readingRevision } from '../scripts/published-docs.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, writeFile, mkdtemp, rm, cp } from 'node:fs/promises';
@@ -233,7 +233,7 @@ test('diagnostic link rewrites preserve fenced, indented, and inline code exampl
 test('release-rebased source revisions resolve relative and branch links without rewriting explicit commits', async () => {
   const { manifest, pages } = await readSnapshot(source);
   const page = pages.find(page => page.source === 'docs/guides/routing.md');
-  const revision = manifest.sourceRevision;
+  const revision = readingRevision(page, manifest);
   const base = manifest.sourceRepository + '/blob/';
   const links = [
     [`${base}${manifest.sourceRevision}/test/routing-check.mjs#example`, `${base}${manifest.sourceRevision}/test/routing-check.mjs#example`],
@@ -251,6 +251,34 @@ test('release-rebased source revisions resolve relative and branch links without
     assert.ok(html.includes(`href="${expected}"`), expected);
     assert.ok(markdown.includes(`](${expected})`), expected);
   }
+});
+
+test('divergent reading revisions pin source links while retaining archive and historical identities', () => {
+  const archiveRevision = 'a'.repeat(40);
+  const revision = 'b'.repeat(40);
+  const historicalRevision = 'c'.repeat(40);
+  const repository = 'https://github.com/marionettejs/marionette';
+  const manifest = { sourceRepository: repository, sourceRevision: archiveRevision };
+  const links = [
+    ['../../test/routing-check.mjs#example', `${repository}/blob/${revision}/test/routing-check.mjs#example`],
+    ...['master', 'main', 'v5'].flatMap(branch => [
+      [`${repository}/blob/${branch}/test/routing-check.mjs`, `${repository}/blob/${revision}/test/routing-check.mjs`],
+      [`${repository}/tree/${branch}/packages/test/examples`, `${repository}/tree/${revision}/packages/test/examples`],
+    ]),
+    ...[archiveRevision, historicalRevision].flatMap(commit => [
+      [`${repository}/blob/${commit}/docs/readme.md`, `${repository}/blob/${commit}/docs/readme.md`],
+      [`${repository}/tree/${commit}/packages/test/examples`, `${repository}/tree/${commit}/packages/test/examples`],
+    ]),
+  ];
+  const page = { source: 'docs/guides/example.md', sourceRevision: revision, sha256: 'd'.repeat(64),
+    markdown: '# Example\n' + links.map(([href], index) => `\n[Example ${index}](${href})\n`).join('') };
+  const html = renderMarkdown(page, [], manifest).html;
+  const markdown = deriveMarkdown(page, [], manifest);
+  for (const [, expected] of links) {
+    assert.ok(html.includes(`href="${expected}"`), expected);
+    assert.ok(markdown.includes(`](${expected})`), expected);
+  }
+  assert.ok(markdown.includes(`reading source revision ${revision}`));
 });
 
 test('release-profile support verifies its bytes without admitting arbitrary config assets', async t => {

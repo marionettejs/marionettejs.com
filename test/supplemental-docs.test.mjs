@@ -21,7 +21,8 @@ test('stable migration guide comes from the package and is available through web
   assert.equal(await read('dist/docs/markdown/' + source), guide.markdown);
   const html = await read('dist/docs/guides/framework-migration/index.html');
   assert.ok(html.includes('Migrate from another UI framework'));
-  assert.ok(html.includes(manifest.sourceRevision));
+  assert.ok(html.includes(`${manifest.sourceRevision.slice(0, 8)} snapshot.`));
+  assert.ok(html.includes(`Reading source: ${readingRevision(guide, manifest)}.`));
   assert.ok(html.includes('href="/docs/manifest.json">Snapshot manifest'));
   for (const path of ['dist/docs/guides/framework-migration.md', 'dist/llms-full.txt', 'dist/docs/bundles/guides.txt']) {
     const text = await read(path);
@@ -30,10 +31,17 @@ test('stable migration guide comes from the package and is available through web
   }
   assert.ok((await read('dist/docs/llms.txt')).includes('/docs/guides/framework-migration.md'));
   const corpus = JSON.parse(await read('dist/docs/corpus.json'));
+  assert.equal(corpus.sourceRevision, manifest.sourceRevision);
   const document = corpus.documents.find(item => item.id === source);
-  assert.equal(document.sourceRevision, manifest.sourceRevision);
+  assert.equal(document.sourceRevision, readingRevision(guide, manifest));
+  assert.ok(document.markdown.includes(`base revision ${manifest.sourceRevision};`));
   assert.equal(document.sourceSha256, hash(guide.markdown));
   assert.deepEqual(JSON.parse(await read('dist/docs/manifest.json')), manifest);
+  const mcp = await loadSnapshot();
+  assert.equal(mcp.provenance.sourceRevision, manifest.sourceRevision);
+  const archivedGuide = mcp.documents.find(item => item.id === source);
+  assert.equal(archivedGuide.sourceRevision, manifest.sourceRevision);
+  assert.equal(archivedGuide.markdown, guide.markdown);
   const client = new Client({ name: 'guide-publication-test', version: '1.0.0' });
   await client.connect(new StdioClientTransport({ command: process.execPath, args: ['mcp/server.mjs'] }));
   try {
