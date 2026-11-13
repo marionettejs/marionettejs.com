@@ -108,6 +108,20 @@ export function inspectRecipe() {
   assert.equal(await originalControl.evaluate(el => el === document.activeElement && el === document.querySelector('#increment')), true);
   assert.deepEqual((await api('inspect')).preview.errors, []);
   console.log('PASS workshop HTML bindings: incremental control updates preserve keyboard focus');
+  await api('run', { title: 'Locally declared template names', css: '', code: `
+const html = '<button id="local-template">Local template</button>';
+const HtmlDomApi = { name: 'local adapter' };
+export const region = new Region({ el: '#app' });
+region.show(new View({ template: () => html,
+  events: { 'click #local-template'({ delegateTarget }) { delegateTarget.textContent = HtmlDomApi.name; } } }));
+` });
+  const localTemplate = page.frameLocator('.workshop-preview iframe').locator('#local-template');
+  await localTemplate.waitFor();
+  await localTemplate.press('Space');
+  assert.equal(await localTemplate.innerText(), 'local adapter');
+  assert.deepEqual((await api('inspect')).preview.errors, []);
+  assert.equal(await page.evaluate(() => typeof globalThis.HtmlDomApi), 'undefined', 'Supplied APIs stay inside the preview');
+  console.log('PASS live workshop: local template names shadow supplied APIs without collisions or host globals');
   const personalChecks = await readFile('test/browser/workshop-checks.js', 'utf8');
   await api('run', { ...starter, code: `${starter.code}\n${personalChecks}` });
   await page.frameLocator('.workshop-preview iframe').locator('body').evaluate(() => {

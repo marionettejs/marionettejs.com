@@ -10,9 +10,9 @@ and follow its scoped exercise.
 Bundled runtime: `marionette@{{runtimeVersion}}`.
 Supplied bindings: `View`, `Region`, `CollectionView`, `Behavior`, `Application`,
 `MnObject`, `Events`; `@mnjs/data` `Model`, `Collection`, `DataApi`, `StateApi`;
-`@mnjs/html` 1.0.0 `html`, `HtmlDomApi`. Use these bindings directly and reserve
-their names in app code. Mount in `<main id="app"></main>` and export its Region
-as `export const region = ...`.
+`@mnjs/html` 1.0.0 `html`, `HtmlDomApi`. These are available directly in the preview;
+module-local declarations take precedence. Mount in `<main id="app"></main>` and
+export its Region as `export const region = ...`.
 
 - Start new Views with `html` tagged templates and configure each relevant class
   with `YourView.setDomApi(HtmlDomApi)` before creating it. Keep controls at stable

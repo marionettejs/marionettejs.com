@@ -35,7 +35,7 @@ try {
   // Exercise every supplied binding in both paths, including those unused by the starter.
   const bindings = { title: 'Runtime bindings', css: '', code: `
 await Promise.resolve();
-const bindings = { View, Region, CollectionView, Behavior, Application, MnObject, Events, Model, Collection, DataApi, StateApi };
+const bindings = { View, Region, CollectionView, Behavior, Application, MnObject, Events, Model, Collection, DataApi, StateApi, html, HtmlDomApi };
 for (const [name, value] of Object.entries(bindings)) {
   if (value == null) throw new Error('Missing runtime binding: ' + name);
 }
@@ -49,6 +49,40 @@ region.show(new View({ template: () => '<p id="bindings">' + Object.keys(binding
   await penPage.locator('#bindings').waitFor();
   assert.equal(await penPage.locator('#bindings').innerText(), exportedBindings);
   assert.equal(await penPage.locator('#runner-errors').isVisible(), false);
+  for (const code of [
+    `const html = text => '<button id="local-binding">' + text + '</button>';
+class HtmlDomApi { static title = 'Local bindings'; }
+const source = 'source';
+const url = 'url';
+const Local = View.extend({
+  template: () => html(HtmlDomApi.title + ' ' + source + ' ' + url),
+  events: { 'click #local-binding'() { this.el.dataset.clicked = 'true'; } },
+});
+export const region = new Region({ el: '#app' });
+region.show(new Local());`,
+    `export const { html, HtmlDomApi } = { html: 'Local bindings', HtmlDomApi: 'source url' };
+export const region = new Region({ el: '#app' });
+region.show(new View({ template: () => '<button id="local-binding">' + html + ' ' + HtmlDomApi + '</button>',
+  events: { 'click #local-binding'() { this.el.dataset.clicked = 'true'; } } }));`,
+  ]) {
+    const app = { title: 'User-owned binding names', css: '', code };
+    for (const path of ['CodePen', 'standalone']) {
+      if (path === 'CodePen') await loadPen(app);
+      else {
+        await penPage.goto('about:blank');
+        await penPage.setContent(standaloneDocument(app, vendor, license, randomUUID()));
+      }
+      const frame = path === 'CodePen' ? penPage : penPage.frameLocator('iframe');
+      await frame.locator('#local-binding').waitFor();
+      assert.equal(await frame.locator('#local-binding').innerText(), 'Local bindings source url');
+      await frame.locator('#local-binding').press('Space');
+      assert.equal(await frame.locator('#local-binding').evaluate(el => el.parentElement.dataset.clicked), 'true');
+      assert.equal(await frame.locator('#local-binding').evaluate(() => typeof globalThis.html), 'function');
+      await mkdir('output/playwright', { recursive: true });
+      await penPage.screenshot({ path: `output/playwright/local-bindings-${path}.png` });
+    }
+  }
+  console.log('PASS local html/HtmlDomApi and export helper names: declarations and destructuring execute in CodePen and opaque standalone exports');
   assert.deepEqual(penErrors, []);
   await penPage.close();
   console.log('PASS personal CodePen export: unchanged starter, module JS panel, all workshop bindings, rendered data interactions');

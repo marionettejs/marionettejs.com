@@ -382,10 +382,12 @@ packaged records source assets. The browser workshop identifies its exact runtim
 independently.
 
 The documentation publication gate checks the installed archive’s revision,
-content digest and locked registry integrity. The current staging script reads
-the root `marionette` install rather than the `marionette-docs` alias: stage a
-different documentation release in an isolated checkout with matching target-version
-core/data pins. Browser runtime updates are separate; pin core/data together:
+content digest and locked registry integrity. Staging verifies the exact
+`marionette-docs` npm alias against its locked registry archive, then exports that
+package’s documentation and records its archive identity. Demo runtime versions
+remain independent; npm-installed dependencies inside the docs alias are separate
+packages and stay outside the documentation export. Pin core/data together when
+updating the browser runtime:
 
 ```sh
 npm install --save-dev --save-exact marionette@5.1.1 @mnjs/data@5.1.1 @mnjs/html@1.0.0

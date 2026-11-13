@@ -11,7 +11,7 @@ export const runtimePackages = ['marionette', '@mnjs/data', '@mnjs/utils', '@mnj
 
 // Metadata checks are necessary but not sufficient: readRuntimeRelease also
 // compares installed bytes with integrity-verified registry archives.
-export function validateRuntimeRelease({ version, manifest, packages, lock, pins }) {
+function validateManifest(version, manifest) {
   const checks = {
     'version format': (/^(?:5\.0\.0(?:-rc\.\d+)?|5\.1\.[01])$/.test(version)),
     'docs manifest version': manifest.packageVersion === version,
@@ -24,6 +24,10 @@ export function validateRuntimeRelease({ version, manifest, packages, lock, pins
   for (const [label, valid] of Object.entries(checks)) {
     if (!valid) throw new Error(`Invalid runtime documentation: ${label}`);
   }
+}
+
+export function validateRuntimeRelease({ version, manifest, packages, lock, pins }) {
+  validateManifest(version, manifest);
   for (const name of ['marionette', '@mnjs/data']) {
     if (pins[name] !== version || lock.packages[''].devDependencies[name] !== version) throw new Error(`Expected exact runtime pin: ${name}@${version}`);
   }
@@ -57,4 +61,31 @@ export async function readRuntimeRelease(root, options) {
   const release = await readRuntimeMetadata(root, options);
   await verifyRuntimeBytes(root, runtimePackages, release.lock, options);
   return release;
+}
+
+// Documentation is supplied by its own pinned core archive. Demo packages and
+// npm-installed dependencies inside that alias do not enter the docs export.
+export async function readDocumentationRelease(root, { expectedVersion = stableRelease, ...options } = {}) {
+  const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
+  const pkg = await json('package.json');
+  const lock = await json('package-lock.json');
+  const name = 'marionette-docs';
+  const packageRoot = resolve(root, 'node_modules', name);
+  const installed = await json(`node_modules/${name}/package.json`);
+  const manifest = await json(`node_modules/${name}/docs-manifest.json`);
+  const version = installed.version;
+  if (version !== expectedVersion) throw new Error(`Expected installed documentation ${expectedVersion}; found ${version}. Install the pinned documentation alias before staging.`);
+  const pin = `npm:marionette@${version}`;
+  if (pkg.devDependencies[name] !== pin || lock.packages[''].devDependencies[name] !== pin) throw new Error(`Expected exact documentation pin: ${name}@${pin}`);
+  validateManifest(version, manifest);
+  const entry = lock.packages[`node_modules/${name}`];
+  if (installed.name !== 'marionette' || entry?.name !== 'marionette' || entry.version !== version ||
+      entry.resolved !== `https://registry.npmjs.org/marionette/-/marionette-${version}.tgz` ||
+      !/^sha512-[A-Za-z0-9+/]{86}==$/.test(entry.integrity ?? '') ||
+      Buffer.from(entry.integrity.slice(7), 'base64').toString('base64') !== entry.integrity.slice(7)) {
+    throw new Error(`Expected locked published documentation archive: marionette@${version}`);
+  }
+  await verifyRuntimeBytes(root, [name], lock, { ...options, ignoreInstalledDependencies: true });
+  const { resolved, integrity } = entry;
+  return { version, manifest, packageRoot, archive: { version, resolved, integrity } };
 }

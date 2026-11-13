@@ -5,6 +5,15 @@ export const version = runtime.version;
 export const revision = runtime.revision;
 export { starter };
 
+// Called only inside the preview or export window. Module-local declarations
+// naturally shadow these supplied APIs without sharing a lexical declaration.
+export function provideWorkshopBindings(library) {
+  for (const name of ['View', 'Region', 'CollectionView', 'Behavior', 'Application',
+    'MnObject', 'Events', 'Model', 'Collection', 'DataApi', 'StateApi', 'html', 'HtmlDomApi']) {
+    Object.defineProperty(globalThis, name, { value: library[name], configurable: true, writable: true });
+  }
+}
+
 export function validateApp(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input) ||
       Object.keys(input).some(key => !['title', 'code', 'css'].includes(key))) {
@@ -34,7 +43,7 @@ export function validateAction(input) {
 const scriptJSON = value => JSON.stringify(value).replaceAll('<', '\\u003c').replaceAll('>', '\\u003e').replaceAll('&', '\\u0026');
 const html = value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 
-function boot(config, loadProject) {
+function boot(config, loadProject, provideBindings) {
   const { app, vendor, token, standalone, version, revision, project } = config;
   const postToParent = parent.postMessage.bind(parent);
   const errors = [];
@@ -100,11 +109,10 @@ function boot(config, loadProject) {
       send();
     } else {
       const vendorURL = URL.createObjectURL(new Blob([vendor], { type: 'text/javascript' }));
-      const appURL = URL.createObjectURL(new Blob([
-        `import { View, Region, CollectionView, Behavior, Application, MnObject, Events, Model, Collection, DataApi, StateApi, html, HtmlDomApi } from ${JSON.stringify(vendorURL)};\n`, app.code
-      ], { type: 'text/javascript' }));
+      const appURL = URL.createObjectURL(new Blob([app.code], { type: 'text/javascript' }));
       try {
         library = await import(vendorURL);
+        provideBindings(library);
         appModule = await import(appURL);
         ready = true;
       } catch (error) { record(error); }
@@ -158,7 +166,7 @@ export function runnerDocument({ app, vendor, token, standalone = false, project
   validateApp(app);
   if (!/^[a-f0-9-]+$/.test(token)) throw new Error('Invalid runner token.');
   const csp = `default-src 'none'; script-src 'nonce-${token}' blob:; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; font-src 'none'; media-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'`;
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${html(app.title)}</title><style>*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,sans-serif}button,input,select,textarea{font:inherit;max-width:100%}:focus-visible{outline:3px solid #2869e8;outline-offset:3px}#runner-errors{white-space:pre-wrap;overflow-wrap:anywhere;background:#2e1518;color:#ffd1cb;padding:20px;font:12px/1.6 monospace}</style></head><body><main id="app"></main><pre id="runner-errors" hidden role="alert"></pre><script nonce="${token}" type="module">(${boot.toString()})(${scriptJSON({ app, vendor, token, standalone, version, revision, project })}, ${importProject.toString()});</script></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${html(app.title)}</title><style>*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,sans-serif}button,input,select,textarea{font:inherit;max-width:100%}:focus-visible{outline:3px solid #2869e8;outline-offset:3px}#runner-errors{white-space:pre-wrap;overflow-wrap:anywhere;background:#2e1518;color:#ffd1cb;padding:20px;font:12px/1.6 monospace}</style></head><body><main id="app"></main><pre id="runner-errors" hidden role="alert"></pre><script nonce="${token}" type="module">(${boot.toString()})(${scriptJSON({ app, vendor, token, standalone, version, revision, project })}, ${importProject.toString()}, ${provideWorkshopBindings.toString()});</script></body></html>`;
 }
 
 export function standaloneDocument(app, vendor, license, token) {
