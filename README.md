@@ -325,7 +325,7 @@ npm run test:browser
 it after source changes. A bare Linux environment also needs Playwright's system
 dependencies (`npx playwright install --with-deps chromium`).
 It includes the workshop, homepage startup and recovery, list ownership, responsive
-panels, and HTML demo/export suites. The four focused suites can also inspect an
+panels, and HTML demo/export suites. The focused suites can also inspect an
 existing preview with `MARIONETTE_PREVIEW_URL`; CI uses their own ephemeral servers.
 It runs pinned Chromium with experimental web-platform features for native WebMCP,
 fails on behavioral assertions, and writes a screenshot to `output/playwright/`.

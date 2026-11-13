@@ -1,83 +1,19 @@
 // The homepage is a small Application with independently owned interactions.
 import { Application, View, CollectionView, html, Model, Collection, DataApi, setDataApi } from './demo-setup.js';
+import { startup, startupSource, interactionSource, listSource, ideaSource, sentenceEventsSource, codeTabs, initialCodePanels, isFocusedCodeLine } from './hero-code.js';
 
 // Configure the optional hero's observable data adapter once at its entry.
 setDataApi(DataApi);
 
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-// Teaching sketches intentionally omit the experiment's timing and observation code.
-const source = (topic, sections, tab = 'view') => ({
-  tab,
-  file: `hero.js · ${topic}`,
-  before: '// A simplified Marionette sketch.',
-  methods: sections.map(([name, label, code]) => ({ name, label: '// ' + label, lines: code.split('\n') })),
-  after: '',
-});
-const headingSource = () => source('a first entrance', [
-  ['template', 'A View renders its state.', [
-    'const Heading = View.extend({',
-    '  createState: () => ({ visible: false }),',
-    '  templateContext() { return this.getState(); },',
-    '  template: ({ visible }) => visible',
-    '    ? html`<h1>Pull a few strings.</h1>` : null',
-    '});',
-  ].join('\n')],
-  ['heading', 'Now give it the stage.', 'heading.getState().visible = true;\nheading.render();'],
-]);
-const startupSource = () => source('Application startup', [
-  ['showLoader', 'Our app-defined helper shows the loader.', 'onBeforeStart() {\n  this.showLoader();\n}'],
-  ['prepareStart', 'Preparation is the awaited hook.', 'async prepareStart(_options, { signal }) {\n  return await loadCoolIdeas({ signal });\n}'],
-  ['onStart', 'Ready? Call our app-defined helper.', 'onStart(_app, _options, ideas) {\n  this.showApp(ideas);\n}'],
-], 'application');
-const startup = () => [
-  { title: 'Show the heading', active: 'heading', source: headingSource() },
-  { title: 'Show a loader', active: 'showLoader', source: startupSource() },
-  { title: 'Wait for something good', active: 'prepareStart', source: startupSource() },
-  { title: 'Show the ready app', active: 'onStart', source: startupSource() },
-];
-function interactionSource(id) {
-  if (id === 'panel') return source('View events + a Region', [
-    ['handler', 'The View handles the next-panel click.', "events: { 'click .next-panel': 'onNextPanel' },\nonNextPanel() {\n  this.showPanel(nextAnswer());\n}"],
-    ['region', 'Its Region replaces the content View.', "showPanel(answer) {\n  this.showChildView('panel',\n    new Answer({ model: answer }));\n}"],
-  ], 'events');
-  return source('View events + Regions', [
-    ['handler', 'The View handles a click.', `events: { 'click .${id}': 'onChoose' },\nonChoose() {\n  this.triggerMethod('choose:answer', '${id}');\n}`],
-    ['region', 'Its owner changes one part.', "showAnswer(name) {\n  this.showChildView('answer',\n    new Answer({ model: answers[name] }));\n}"],
-  ], 'events');
-}
-const listSource = () => ({ ...source('a changing data Collection', [
-  ['add', 'CollectionView observes the Collection.', "addRow() {\n  this.collection.add({ label: nextIdea });\n}"],
-  ['remove', 'Remove the Model. Its row View follows.', 'removeRow(row) {\n  this.collection.remove(row.model);\n}'],
-], 'lists'), before: "// A simplified Marionette sketch.\nimport { Collection } from '@mnjs/data';\nconst rows = new Collection();" });
-const ideaSource = () => source('an async sentence Application', [
-  ['showLoader', 'A fresh run starts with a loader.', "const Sentences = Application.extend({\n  onBeforeStart() {\n    this.showLoader();\n  },"],
-  ['prepareStart', 'Choose a value while we wait.', "  async prepareStart(_options, { signal }) {\n    const mood = await choose(Moods, { signal });\n    return `A ${mood} robot learns to tap dance.`;\n  },"],
-  ['onStart', 'The new sentence reaches onStart.', "  onStart(_app, _options, sentence) {\n    this.showSentence(sentence);\n  }\n});\n\nconst sentences = new Sentences();"],
-], 'application');
-const sentenceEventsSource = () => source('a click starts another run', [
-  ['events', 'Marionette delegates the View events.', "const SentenceView = View.extend({\n  events: {\n    'click .another-sentence': 'onAnotherSentence',\n    'click .cancel': 'onCancel'\n  },"],
-  ['restart', 'The click handler asks the Application.', '  onAnotherSentence() {\n    sentences.restart();\n  },'],
-  ['cancel', 'Cancel only this unfinished run.', '  onCancel() {\n    sentences.stop();\n  }\n});'],
-], 'events');
-
-const codeTabs = [
-  { id: 'application', label: 'Application.js' }, { id: 'view', label: 'View.js' },
-  { id: 'events', label: 'Events.js' }, { id: 'lists', label: 'List.js' }, { id: 'async', label: 'Startup.js' },
-];
-const codeSketch = frame => html`${frame.source.before ? html`<span class="hero-code-line hero-code-muted">${frame.source.before}</span><span class="hero-code-line hero-code-blank" aria-hidden="true"></span>` : null}${frame.source.methods.map(({ name, lines, label }) => html`${label ? html`<span class="hero-code-line hero-code-muted">${label}</span>` : null}<span class="hero-code-method" data-active=${name === frame.active}>${lines.map(line => html`<span class="hero-code-line" data-focus=${name === frame.active && /getState\(\).visible|heading.render\(|showChildView\(|await |this.showApp\(|this.showLoader\(|triggerMethod\(|addChildView\(|removeChildView\(|collection.add\(|collection.remove\(|sentences.restart\(|sentences.stop\(/.test(line)}>${line}</span>`)}</span><span class="hero-code-line hero-code-blank" aria-hidden="true"></span>`)}${frame.source.after ? html`<span class="hero-code-line hero-code-muted">${frame.source.after}</span>` : null}`;
+const codeSketch = frame => html`${frame.source.before ? html`<span class="hero-code-line hero-code-muted">${frame.source.before}</span><span class="hero-code-line hero-code-blank" aria-hidden="true"></span>` : null}${frame.source.methods.map(({ name, lines, label }) => html`${label ? html`<span class="hero-code-line hero-code-muted">${label}</span>` : null}<span class="hero-code-method" data-active=${name === frame.active}>${lines.map(line => html`<span class="hero-code-line" data-focus=${isFocusedCodeLine(name, frame.active, line)}>${line}</span>`)}</span><span class="hero-code-line hero-code-blank" aria-hidden="true"></span>`)}${frame.source.after ? html`<span class="hero-code-line hero-code-muted">${frame.source.after}</span>` : null}`;
 
 const CodeTrace = View.extend({
   className: 'hero-code',
   createState() {
     return {
       selected: 'view', manual: false, pinned: null, scroll: {},
-      panels: {
-        application: { title: 'Application startup', source: startupSource() },
-        view: { title: 'A View renders its state', source: headingSource() },
-        events: { title: 'View events and Regions', source: interactionSource('panel') },
-        lists: { title: 'A changing list', source: listSource() },
-        async: { title: 'Header startup', source: startupSource() },
-      },
+      panels: initialCodePanels(),
     };
   },
   initialize() {
@@ -132,6 +68,14 @@ const CodeTrace = View.extend({
     const state = this.getState();
     const code = this.el.querySelector('.hero-code-panel:not([hidden]) .hero-code-source');
     if (code) state.scroll[state.selected] = code.scrollTop;
+  },
+  continueReading({ focused, top, left }) {
+    this.onReadCode();
+    const code = this.el.querySelector('.hero-code-panel:not([hidden]) .hero-code-source');
+    code.scrollTop = top;
+    code.scrollLeft = left;
+    if (focused) code.focus({ preventScroll: true });
+    this.saveScroll();
   },
   restoreScroll({ follow = false } = {}) {
     const state = this.getState();
@@ -474,6 +418,7 @@ const HeroShell = View.extend({
   onSelectFeature({ id }) {
     const state = this.getState();
     if (!state.answers) return;
+    this.revealMobileActions();
     if (id === 'idea') { this.loadIdea(); return; }
     this.cancelPendingIdea();
     state.selection = id;
@@ -485,6 +430,16 @@ const HeroShell = View.extend({
       this.showChildView('answer', new PanelAnswer({ panels: [state.answers.panel, state.answers.panelAgain], index: state.panel++ % 2 }));
       this.onSwapPanel();
     }
+  },
+  revealMobileActions() {
+    // Match the stacked layout; desktop selections keep their scroll position.
+    if (!matchMedia('(max-width: 760px)').matches) return;
+    const header = document.querySelector('.site-header');
+    const style = getComputedStyle(header);
+    const clearance = ['fixed', 'sticky'].includes(style.position)
+      ? header.getBoundingClientRect().height + (Number.parseFloat(style.top) || 0) : 0;
+    const top = this.el.querySelector('.hero-features-slot').getBoundingClientRect().top + scrollY - clearance - 16;
+    scrollTo({ top, behavior: reducedMotion.matches || document.documentElement.classList.contains('motion-off') ? 'instant' : 'smooth' });
   },
   onSwapPanel() { this.getChildView('code').choose('panel'); },
   onTraceList(active) {
@@ -582,6 +537,7 @@ async function loadAnswers(signal) {
   return answers;
 }
 const HeroApplication = Application.extend({
+  initialize({ codeReading }) { this.codeReading = codeReading; },
   viewEvents: { 'replay:startup': 'replay' },
   onBeforeStart() {
     this.showLoader();
@@ -610,6 +566,11 @@ const HeroApplication = Application.extend({
     this.shell.getChildView('code').record(frames[0], { reset: true });
     this.shell.getChildView('code').record(frames[1]);
     this.shell.getChildView('code').record(frames[2]);
+    if (this.codeReading) {
+      this.shell.el.querySelector('.hero-live-code').open = true;
+      this.shell.getChildView('code').continueReading(this.codeReading);
+      this.codeReading = null;
+    }
   },
   showApp(answers) {
     this.shell.activate(answers);
@@ -633,7 +594,11 @@ const HeroApplication = Application.extend({
 const host = document.querySelector('[data-home-hero]');
 host.classList.add('interactive-hero');
 host.closest('.opening-act').classList.add('interactive-opening');
-const application = new HeroApplication({ region: { el: host } });
+const fallbackCode = host.querySelector('[data-static-code] .hero-code-panel:not([hidden]) .hero-code-source');
+const focused = fallbackCode === document.activeElement;
+const codeReading = fallbackCode && (focused || fallbackCode.scrollTop || fallbackCode.scrollLeft)
+  ? { focused, top: fallbackCode.scrollTop, left: fallbackCode.scrollLeft } : null;
+const application = new HeroApplication({ region: { el: host }, codeReading });
 Object.defineProperty(window, 'MarionetteHero', { configurable: true, value: Object.freeze({
   inspect() {
     const shell = application.getView();

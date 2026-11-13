@@ -15,7 +15,7 @@
     "docs:import": "node scripts/import-docs.mjs",
     "vendor:build": "node scripts/build-vendor.mjs",
     "mcp": "node mcp/server.mjs",
-    "test:browser": "node test/browser/agent-workshop.mjs && node test/browser/hero.mjs && node test/browser/hero-list.mjs && node test/browser/hero-panels.mjs && node test/browser/html-demos.mjs",
+    "test:browser": "node test/browser/agent-workshop.mjs && node test/browser/hero.mjs && node test/browser/hero-opening.mjs && node test/browser/hero-list.mjs && node test/browser/hero-panels.mjs && node test/browser/html-demos.mjs",
     "mcp:build": "npm run build",
     "mcp:dev": "wrangler dev --ip 127.0.0.1",
     "mcp:deploy": "wrangler deploy",

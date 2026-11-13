@@ -53,7 +53,8 @@ try {
   assert.equal(await page.locator('.hero-heading h1').innerText(), 'Pull a few\nstrings.');
   assert.match(await page.locator('.night-intro').innerText(), /agent-led development/);
   // The connector is checked visually and geometrically below the complete hero.
-  assert.match(await source().textContent(), /simplified Marionette sketch/);
+  assert.match(await source().textContent(), /onBeforeStart\(\)/);
+  assert.doesNotMatch(await source().textContent(), /simplified Marionette sketch/);
   assert.doesNotMatch(await source().textContent(), /dataset|revealHeading/);
   assert.match(await source().textContent(), /prepareStart\(_options, \{ signal \}\)/);
   await page.waitForFunction(() => document.querySelector('.phase-controls button:not(:disabled)'));
