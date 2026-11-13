@@ -57,7 +57,7 @@ export const TodoLesson = LessonController.extend({
       explain(
         'Filtering changes which rows are attached.',
         at('Todos.refresh'),
-        'CollectionView applies the filter. It does not rebuild the notes Region.',
+        'CollectionView applies the filter while the notes Region stays intact.',
       ),
     );
   },
@@ -108,7 +108,7 @@ export const TodoLesson = LessonController.extend({
     explain(
       'The neighboring row changed. Your input stayed put.',
       at('Todos.changeNeighbor'),
-      'The list and notes have separate Regions. This check compares the actual input and row objects; it is not a visual imitation.',
+      'The list and notes have separate Regions. The inspector compares the input and row objects, checks the draft, and checks keyboard focus.',
       [
         'The Collection changed.',
         'CollectionView updated its child.',

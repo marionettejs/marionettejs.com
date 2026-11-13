@@ -22,9 +22,11 @@ The **skill** guides development using your application's installed, version-mat
 **Setup: Marionette ${release}.**
 `;
 
-export const setupPrerequisites = `For a new application, run this in its project directory (Node.js 24 or newer):
+export const setupPrerequisites = `For a new application, start with Marionette and incremental HTML templates
+(Node.js 24 or newer). Run this in the project directory, then follow the
+[quick start](https://marionettejs.com/docs/quick-start/) to put a View on screen:
 
-${fence(`npm install marionette@${release}`)}
+${fence(`npm install --save-exact marionette@${release} @mnjs/html@1.0.0`)}
 
 Already using Marionette v5? Keep your installed version and copy its complete skill folder, including the lookup scripts. The copy commands use Node.js on macOS, Linux, or PowerShell. Plugin commands use Bash, zsh, or PowerShell 7+ and stop on failure. Copying stops if the skill folder already exists; review an existing installation before replacing it.
 `;
@@ -40,7 +42,7 @@ Open Codex in this project. Type \`$marionette\` in your prompt or find it in \`
 
 ${fence('$marionette Build a small feature using the installed Marionette docs.', 'text')}
 
-OpenAI directory publication is not complete. Use this project skill for now. [Codex skill setup](https://learn.chatgpt.com/docs/build-skills).
+Use the complete project skill above to equip Codex. [Codex skill setup](https://learn.chatgpt.com/docs/build-skills).
 ` },
   { id: 'claude', name: 'Claude Code', markdown: `### Claude Code
 
@@ -72,7 +74,7 @@ ${copySkill('.cursor/skills')}
 
 Open the project in Cursor. In Agent chat, type \`/\` and select \`marionette\`, then describe your feature. Check Customize → Skills if it does not appear.
 
-The publisher application has been submitted; an approved marketplace listing has not been confirmed. Use the project skill meanwhile. [Cursor skill setup](https://cursor.com/docs/skills).
+Use the complete project skill above to equip Cursor. [Cursor skill setup](https://cursor.com/docs/skills).
 ` },
   { id: 'other', name: 'Other agents', markdown: `### Other agents
 

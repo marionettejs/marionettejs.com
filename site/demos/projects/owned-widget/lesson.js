@@ -51,14 +51,14 @@ export const RadioLesson = LessonController.extend({
         { file: 'app.js', symbol: 'RadioStation.onClickReplaceRadio' },
         { file: 'radio-view.js', symbol: 'Radio.releaseWidget' },
       ],
-      'The frozen radio is a portrait. Broadcast again to check the actual retired widget—freezing a picture alone proves nothing.',
+      'The frozen radio preserves its final frame. Broadcast again and compare the live and retired receivers’ counters.',
       [
         'The Region replaced its child.',
         'Marionette invoked View cleanup.',
         'Our code destroyed the widget.',
       ],
     );
-    story('A still picture is not proof of cleanup. Can the old receiver still hear us?');
+    story('Send another broadcast. The live receiver should hear it; the retired receiver should stay quiet.');
   },
   onSendBroadcast() {
     const current = this.view.current;
@@ -78,7 +78,7 @@ export const RadioLesson = LessonController.extend({
     explain(
       'A new broadcast cannot reach the retired receiver.',
       { file: 'motion.js', symbol: 'RadioWidget.onBeforeDestroy' },
-      'Marionette calls our cleanup hook; the widget removes its external listener. An abandoned chart or editor needs the same handoff to stop receiving updates.',
+      'Marionette calls our cleanup hook; the widget removes its external listener. Use the same handoff to release a chart or editor when its View leaves.',
       [
         'You sent another broadcast.',
         'The current receiver heard it.',

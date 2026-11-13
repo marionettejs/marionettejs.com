@@ -40,6 +40,10 @@ The demo must use real Marionette Views/Regions and public lifecycle APIs.
 Plans and original assets live in ../marionettejs-branding. No fabricated benchmarks,
 endorsements, release readiness, or testimonials. Keep public-facing copy candid,
 lightly humorous, and precise about what has actually been demonstrated.
+Lead with what Marionette is, what builders can make, and a clear next step.
+Explain the product through concrete applications and code before introducing
+agent workflows. Put concrete limits beside the choices they affect; avoid
+repeating hypothetical caveats after each benefit.
 
 ## Consumer documentation
 

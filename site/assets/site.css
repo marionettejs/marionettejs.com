@@ -287,6 +287,14 @@ h1 {
   min-width:0;
   overflow-wrap:break-word;
 }
+.prose pre {
+  max-width:100%;
+  overflow:auto;
+  padding:18px;
+  margin:24px 0;
+  border:1px solid var(--line);
+  font:.875rem/1.65 var(--mono);
+}
 .prose section {
   margin-bottom:60px;
   scroll-margin-top:25px;

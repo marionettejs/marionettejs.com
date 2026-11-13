@@ -333,7 +333,7 @@ for (const tab of tabs) {
   });
 }
 // Carry the visibility boundary even if the next agent cannot reach this URL.
-const copyPrompt = `Visit ${location.origin}/, open the agent workshop, and read its instructions before editing. Build the small app I choose; if I have not chosen one, use a permitted conversation detail to make something personal. Inspect the available runtime and existing code, keep ownership clear, and try the main interaction, keyboard use and relevant interrupted or repeated flows. Show me the browser preview, explain what changed and report observed evidence and unverified checks. If you cannot show a browser preview, say so; do not create files, install anything, or start a local project.`;
+const copyPrompt = `Visit ${location.origin}/ and open Backstage. Read the agent instructions, then build the small app I choose, or use a permitted conversation detail for an idea. Use the bundled Marionette and HTML tools to make something I can use and keep changing. Show me the running app, try its main interaction and keyboard use, then help me direct the next change. Keep the work in the visible browser workshop; if that browser capability is unavailable, tell me what is needed.`;
 const promptText = document.querySelector('#agent-invitation-prompt');
 promptText.value = copyPrompt;
 copyButton.disabled = false;

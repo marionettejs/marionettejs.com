@@ -1,7 +1,7 @@
 const tools = [
   ['OpenAI', 'https://openai.com/', 'For ChatGPT credits supporting Marionette’s open-source development.'],
   ['GitHub &amp; Copilot', 'https://github.com/features/copilot', 'For Copilot access and credits, plus GitHub’s repository hosting and CI.'],
-  ['CodeRabbit', 'https://www.coderabbit.ai/', 'For automated reviews that help find what a convincing diff can hide.'],
+  ['CodeRabbit', 'https://www.coderabbit.ai/', 'For automated reviews that help improve each change.'],
   ['cubic', 'https://www.cubic.dev/', 'For another careful pass over changes and their consequences.'],
   ['Greptile', 'https://www.greptile.com/', 'For code review and an extra set of questions before a change lands.'],
   ['Cloudflare', 'https://developers.cloudflare.com/pages/', 'For free website hosting and DNS that help keep Marionette available.']
@@ -22,7 +22,7 @@ export const thanks = {
     <div class="thanks-label"><span class="eyebrow">01 / SUPPORTERS</span><span class="thanks-star" aria-hidden="true">✳</span></div>
     <div class="thanks-content">
       <h2 id="support-title">Help with what comes next.</h2>
-      <p>GitHub sponsorship helps Paul make time for maintenance, documentation, and whatever the next browser breaks. It also helps cover the AI tokens used in that work; the human still checks the diffs.</p>
+      <p>GitHub sponsorship gives Paul time for releases, documentation, new examples, and maintenance. It also helps cover the AI tools used to build and review that work.</p>
       <p>Marionette is free and open source. If it’s useful to you, helping sustain the work is a lovely way to say so.</p>
       <p>Send a one-time tip, become a String Puller, or be Suspiciously Helpful. Monthly sponsors can request recognition here: a name at $5, or a name and link at $25. Recognition is optional.</p>
       <a class="button" href="https://github.com/sponsors/paulfalgout">Sponsor Marionette <span aria-hidden="true">↗</span></a>
