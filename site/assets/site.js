@@ -27,10 +27,13 @@ for (const button of document.querySelectorAll('[data-analytics-opt-out]')) {
   });
 }
 
-const heroReady = document.querySelector('[data-home-hero]')
-  ? import('./hero.js') : Promise.resolve();
+const homeHero = document.querySelector('[data-home-hero]');
+if (homeHero) import('./hero.js').catch(() => {
+  // Keep the readable static header if this optional module cannot load.
+  homeHero.classList.add('hero-unavailable');
+});
 if (document.querySelector('[data-story]')) {
-  heroReady.then(() => import('./motion.js')).catch(() => {
+  import('./motion.js').catch(() => {
     document.documentElement.classList.add('motion-off');
   });
 }

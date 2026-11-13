@@ -25,9 +25,9 @@ const headingSource = () => source('a first entrance', [
   ['heading', 'Now give it the stage.', 'heading.getState().visible = true;\nheading.render();'],
 ]);
 const startupSource = () => source('Application startup', [
-  ['showLoader', 'Show something while we wait.', 'onBeforeStart() {\n  this.showLoader();\n}'],
-  ['prepareStart', 'Preparation is the awaited hook.', 'async prepareStart() {\n  return await loadCoolIdeas();\n}'],
-  ['onStart', 'Ready? Show the app.', 'onStart(_app, _options, ideas) {\n  this.showApp(ideas);\n}'],
+  ['showLoader', 'Our app-defined helper shows the loader.', 'onBeforeStart() {\n  this.showLoader();\n}'],
+  ['prepareStart', 'Preparation is the awaited hook.', 'async prepareStart(_options, { signal }) {\n  return await loadCoolIdeas({ signal });\n}'],
+  ['onStart', 'Ready? Call our app-defined helper.', 'onStart(_app, _options, ideas) {\n  this.showApp(ideas);\n}'],
 ], 'application');
 const startup = () => [
   { title: 'Show the heading', active: 'heading', source: headingSource() },
@@ -263,12 +263,12 @@ const CodeTrace = View.extend({
 const Answer = View.extend({
   className: 'hero-answer',
   attributes: { 'aria-label': 'Interactive example result' },
-  template: ({ eyebrow, title, body, intro = false, points = [], links = [], another = false }) => intro ? html`<p class="hero-initial-purpose">${body.split('\n').map((line, index) => html`${index ? html`<br>` : null}${line}`)}</p>` : html`
+  template: ({ eyebrow, title, body, intro = false, points = [], links = [], another = false, retry = false }) => intro ? html`<p class="hero-initial-purpose">${body.split('\n').map((line, index) => html`${index ? html`<br>` : null}${line}`)}</p>` : html`
     <p class="hero-answer-eyebrow">${eyebrow}</p><h2>${title}</h2><p>${body}</p>
     ${points.length ? html`<ul>${points.map(point => html`<li>${point}</li>`)}</ul>` : null}
-    <div class="hero-answer-links">${links.map(link => html`<a href=${link.href}>${link.label} <span aria-hidden="true">↗</span></a>`)}</div>
+    <div class="hero-answer-links">${retry ? html`<button type="button" class="hero-retry-startup">Retry startup <span aria-hidden="true">↻</span></button>` : null}${links.map(link => html`<a href=${link.href}>${link.label} <span aria-hidden="true">↗</span></a>`)}</div>
     ${another ? html`<button type="button" class="hero-another-idea">Another sentence <span aria-hidden="true">↻</span></button>` : null}`,
-  triggers: { 'click .hero-another-idea': 'load:idea' },
+  triggers: { 'click .hero-another-idea': 'load:idea', 'click .hero-retry-startup': 'replay:startup' },
 });
 const SentenceAnswer = Answer.extend({ className: 'hero-answer hero-sentence-answer' });
 const PanelContent = Answer.extend({ className: 'hero-panel-detail' });
@@ -623,7 +623,7 @@ const HeroApplication = Application.extend({
     this.shell.getRegion('loading').empty();
     this.shell.showChildView('answer', new Answer({ model: new Model({
       eyebrow: 'TRY THAT AGAIN', title: 'The header couldn’t prepare its answers.',
-      body: 'Replay startup to retry, or keep exploring the guides below.',
+      body: 'Try startup again, or keep exploring the guides below.', retry: true,
       links: [{ label: 'Why Marionette', href: '/why/' }, { label: 'Agent setup', href: '/docs/agent-start/' }],
     }) }));
     this.shell.getChildView('code').record({ title: error.message, active: 'prepareStart', source: startupSource() }, { reset: true });

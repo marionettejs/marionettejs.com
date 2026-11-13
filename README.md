@@ -248,7 +248,8 @@ with matching `@mnjs/radio` and `@mnjs/utils` from package-lock.json. Run
 `npm run vendor:build` after an intentional package upgrade. It verifies the
 package/docs versions, bundles ESM with esbuild, includes all MIT licenses, and
 records the npm integrity and resulting bundle hash in `content/provenance.json`.
-The homepage uses that core runtime. Demos and Backstage also bundle data and HTML.
+The interactive homepage, demos and Backstage use `site/vendor/demos.js`, which
+bundles that pinned core together with data and HTML rendering support.
 The installed `marionette-docs` alias provides the archive’s matching publication
 evidence independently of runtime updates.
 
@@ -323,6 +324,9 @@ npm run test:browser
 `test:browser` serves the existing `dist/` on an ephemeral loopback port, so rebuild
 it after source changes. A bare Linux environment also needs Playwright's system
 dependencies (`npx playwright install --with-deps chromium`).
+It includes the workshop, homepage startup and recovery, list ownership, responsive
+panels, and HTML demo/export suites. The four focused suites can also inspect an
+existing preview with `MARIONETTE_PREVIEW_URL`; CI uses their own ephemeral servers.
 It runs pinned Chromium with experimental web-platform features for native WebMCP,
 fails on behavioral assertions, and writes a screenshot to `output/playwright/`.
 The browser command is separate from the Node checks; it needs Chromium installed.

@@ -1,8 +1,12 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
-const base = process.env.MARIONETTE_PREVIEW_URL || 'http://127.0.0.1:4175';
-const browser = await chromium.launch({ headless: true });
+import { builtSite } from './built-site.mjs';
+import { mkdir } from 'node:fs/promises';
+const { base, close } = await builtSite();
+let browser;
 try {
+  browser = await chromium.launch({ headless: true });
+  await mkdir('output/playwright', { recursive: true });
   const page = await browser.newPage({ reducedMotion: 'reduce' });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -65,4 +69,4 @@ try {
   assert.equal(await staticPage.getByRole('link', { name:/Explore Marionette/ }).count(), 1);
   assert.match(await staticPage.locator('.hero-initial-purpose').innerText(), /The code stays yours to follow/);
   console.log('PASS normal homepage remains readable without JavaScript; Lit wording rendered; no page exceptions.');
-} finally { await browser.close(); }
+} finally { await browser?.close(); await close(); }

@@ -1,6 +1,7 @@
 import { View, Region, html } from './demo-setup.js';
 
-const rig = document.querySelector('[data-rig]');
+let rig;
+let rigLifetime;
 const hero = document.querySelector('[data-home-hero]');
 const ambientSections = [hero, document.querySelector('#ownership')].filter(Boolean);
 const ambientLightPositions = new WeakMap();
@@ -122,8 +123,8 @@ function render() {
       ambientLightPositions.set(section, position);
     }
   }
-  rig.style.setProperty('--rig-tilt', `${off ? 0 : pointerX * 10}deg`);
-  rig.style.setProperty('--rig-y', `${off ? 0 : pointerY * 6}px`);
+  rig?.style.setProperty('--rig-tilt', `${off ? 0 : pointerX * 10}deg`);
+  rig?.style.setProperty('--rig-y', `${off ? 0 : pointerY * 6}px`);
   const sceneBox = scene.getBoundingClientRect();
   scene.style.setProperty('--scene-lift', `${off ? 0 : Math.max(-12, Math.min(12, (innerHeight / 2 - sceneBox.top) * .04))}px`);
   let starTilt = 0;
@@ -164,14 +165,6 @@ play.addEventListener('click', () => {
   playback = setTimeout(advance, 2400);
 });
 toggle.addEventListener('click', () => { paused = !paused; refreshMotion(); });
-rig.addEventListener('pointermove', event => {
-  if (!finePointer.matches || paused || reduced.matches) return;
-  const box = rig.getBoundingClientRect();
-  pointerX = (event.clientX - box.left) / box.width - .5;
-  pointerY = (event.clientY - box.top) / box.height - .5;
-  requestRender();
-});
-rig.addEventListener('pointerleave', () => { pointerX = 0; pointerY = 0; requestRender(); });
 addEventListener('scroll', requestRender, { passive:true });
 addEventListener('resize', requestRender);
 document.addEventListener('visibilitychange', () => {
@@ -181,7 +174,9 @@ document.addEventListener('visibilitychange', () => {
 reduced.addEventListener('change', refreshMotion);
 addEventListener('pagehide', event => {
   stopPlayback(); clearGhost(); cancelAnimationFrame(frame); frame = 0;
-  if (!event.persisted) { region.off(); region.destroy(); }
+  if (!event.persisted) {
+    region.off(); region.destroy(); rigLifetime?.abort(); heroMountObserver.disconnect();
+  }
 });
 addEventListener('pageshow', requestRender);
 for (const button of controls) button.disabled = false;
@@ -205,9 +200,14 @@ addEventListener('blur', () => { invitationPointer = null; requestRender(); });
 finePointer.addEventListener('change', () => { invitationPointer = null; requestRender(); });
 function connectThread() {
   if (innerWidth <= 760) { opening.classList.remove('thread-connected'); return; }
+  const cardElement = opening.querySelector('.demo');
+  const bandElement = opening.querySelector('.hero-bottom');
+  // The static fallback has no live rig or connector band. It remains readable
+  // while the independent lifecycle illustration starts, even if hero.js fails.
+  if (!cardElement || !bandElement) { opening.classList.remove('thread-connected'); return; }
   const bounds = opening.getBoundingClientRect();
-  const card = opening.querySelector('.demo').getBoundingClientRect();
-  const band = opening.querySelector('.hero-bottom').getBoundingClientRect();
+  const card = cardElement.getBoundingClientRect();
+  const band = bandElement.getBoundingClientRect();
   // Measure the fixed suspension point, not the star's animated bounds.
   const mark = invitationMark.parentElement.getBoundingClientRect();
   const x1 = card.right - bounds.left - (opening.classList.contains('interactive-opening') ? 6 : 22);
@@ -222,6 +222,33 @@ function connectThread() {
 }
 const layoutObserver = new ResizeObserver(connectThread);
 layoutObserver.observe(opening);
-layoutObserver.observe(rig);
 layoutObserver.observe(invitationMark);
-connectThread();
+function bindHeroRig() {
+  const next = hero?.querySelector('[data-rig]');
+  if (next === rig) return;
+  if (rig) layoutObserver.unobserve(rig);
+  rigLifetime?.abort();
+  rig = next;
+  pointerX = pointerY = 0;
+  if (rig) {
+    rigLifetime = new AbortController();
+    rig.addEventListener('pointermove', event => {
+      if (!finePointer.matches || paused || reduced.matches) return;
+      const box = rig.getBoundingClientRect();
+      pointerX = (event.clientX - box.left) / box.width - .5;
+      pointerY = (event.clientY - box.top) / box.height - .5;
+      requestRender();
+    }, { signal: rigLifetime.signal });
+    rig.addEventListener('pointerleave', () => {
+      pointerX = pointerY = 0; requestRender();
+    }, { signal: rigLifetime.signal });
+    layoutObserver.observe(rig);
+  }
+  connectThread();
+  requestRender();
+}
+// Observe only root replacement: code highlights and ordinary app updates do not
+// retrigger this. The hero may mount before or after this independent module.
+const heroMountObserver = new MutationObserver(bindHeroRig);
+if (hero) heroMountObserver.observe(hero, { childList: true });
+bindHeroRig();

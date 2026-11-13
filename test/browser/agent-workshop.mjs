@@ -21,7 +21,10 @@ try {
   failedHero.on('pageerror', error => fallbackErrors.push(error.message));
   await failedHero.route('**/assets/hero.js*', route => route.abort());
   await failedHero.goto(`${base}/`);
-  await failedHero.waitForFunction(() => document.documentElement.classList.contains('motion-off'));
+  await failedHero.locator('[data-home-hero].hero-unavailable').waitFor();
+  await failedHero.locator('.lifecycle-live').waitFor();
+  await failedHero.locator('[data-phase="1"][type="button"]').click();
+  assert.match(await failedHero.locator('#lifecycle-events').innerText(), /NotesView: destroy.*TasksView: attach/);
   assert.equal(await failedHero.locator('[data-home-hero] h1').innerText(), 'Pull a few\nstrings.');
   assert.match(await failedHero.locator('.hero-initial-purpose').innerText(), /Your agent learns the patterns/);
   assert.equal(await failedHero.evaluate(() => typeof window.MarionetteHero), 'undefined');
@@ -29,7 +32,7 @@ try {
   await failedHero.waitForFunction(() => window.MarionettePlayground && document.querySelector('#playground').open);
   assert.deepEqual(fallbackErrors, []);
   await failedHero.close();
-  console.log('PASS hero module failure: readable homepage fallback and independent Backstage');
+  console.log('PASS hero module failure: readable homepage fallback, working lifecycle illustration and independent Backstage');
   const page = await browser.newPage({ reducedMotion: 'reduce' });
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.message));

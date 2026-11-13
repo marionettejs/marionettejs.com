@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
-const browser = await chromium.launch({ headless: true });
+import { builtSite } from './built-site.mjs';
+import { mkdir } from 'node:fs/promises';
+const { base, close } = await builtSite();
+let browser;
 try {
+  browser = await chromium.launch({ headless: true });
+  await mkdir('output/playwright', { recursive: true });
  const page = await browser.newPage(); const errors = [];
  page.on('pageerror', error => errors.push(error.message));
  await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -9,7 +14,7 @@ try {
  const footprint = () => page.locator('.hero-interaction-stage').evaluate(el => {const r=el.getBoundingClientRect();return {x:r.x,y:r.y+scrollY,width:r.width,height:r.height};});
  for (const width of [1440,792,390,320]) {
   await page.setViewportSize({ width, height: 1080 });
-  await page.goto('http://127.0.0.1:4175/');
+  await page.goto(base);
   await page.waitForFunction(() => window.MarionetteHero?.inspect().ready);
   const initial = await footprint();
   for (const index of [0,1,2]) {
@@ -56,4 +61,4 @@ try {
  }
  assert.deepEqual(errors,[]);
  console.log('PASS no list/page exceptions.');
-} finally { await browser.close(); }
+} finally { await browser?.close(); await close(); }

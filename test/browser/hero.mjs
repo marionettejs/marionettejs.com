@@ -1,10 +1,12 @@
-// Focused homepage Application check. Uses the existing preview server.
+// Focused homepage Application check against the built site on an ephemeral port.
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { chromium } from 'playwright';
-const base = process.env.MARIONETTE_PREVIEW_URL || 'http://127.0.0.1:4175';
-const browser = await chromium.launch({ headless: true });
+import { builtSite } from './built-site.mjs';
+const { base, close } = await builtSite();
+let browser;
 try {
+  browser = await chromium.launch({ headless: true });
   await mkdir('output/playwright', { recursive: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1080 } });
   const errors = [];
@@ -50,7 +52,8 @@ try {
   assert.match(await page.locator('.night-intro').innerText(), /agent-led development/);
   // The connector is checked visually and geometrically below the complete hero.
   assert.match(await source().textContent(), /simplified Marionette sketch/);
-  assert.doesNotMatch(await source().textContent(), /dataset|signal|revealHeading/);
+  assert.doesNotMatch(await source().textContent(), /dataset|revealHeading/);
+  assert.match(await source().textContent(), /prepareStart\(_options, \{ signal \}\)/);
   await page.waitForFunction(() => document.querySelector('.phase-controls button:not(:disabled)'));
   const mark = page.locator('.hero-live-code .rig-control img');
   const markBefore = await mark.evaluate(el => getComputedStyle(el).transform);
@@ -243,6 +246,72 @@ try {
   console.log('PASS normal homepage uses the Application with no legacy header or page errors');
   await page.close();
 
+  // The lifecycle story works before either the hero module or its data is ready.
+  // Releasing the module also exercises motion binding to the newly mounted rig.
+  for (const resource of ['module', 'answers']) {
+    const delayed = await browser.newPage({ viewport: { width: 1440, height: 1080 }, reducedMotion: 'reduce' });
+    delayed.on('pageerror', error => errors.push(error.message));
+    let release;
+    let markHeld;
+    const held = new Promise(resolve => { markHeld = resolve; });
+    await delayed.route(resource === 'module' ? '**/assets/hero.js*' : '**/hero-answers.json', route => {
+      release = () => route.continue();
+      markHeld();
+    });
+    await delayed.goto(base);
+    await held;
+    await delayed.locator('.lifecycle-live').waitFor();
+    assert.equal(await delayed.evaluate(() => Boolean(window.MarionetteHero?.inspect().ready)), false);
+    await delayed.locator('[data-phase="1"][type="button"]').click();
+    assert.match(await delayed.locator('#lifecycle-events').innerText(), /NotesView: destroy.*TasksView: attach/);
+    await release();
+    await delayed.waitForFunction(() => window.MarionetteHero?.inspect().ready);
+    await delayed.locator('.interactive-opening.thread-connected').waitFor();
+    assert.equal(await delayed.evaluate(() => {
+      const opening = document.querySelector('.opening-act');
+      const card = opening.querySelector('.demo').getBoundingClientRect();
+      const bounds = opening.getBoundingClientRect();
+      const path = opening.querySelector('.opening-thread path').getAttribute('d');
+      const [, x, y] = path.match(/^M ([\d.]+) ([\d.]+)/).map(Number);
+      return Math.abs(x - (card.right - bounds.left - 6)) < 1 && Math.abs(y - (card.top - bounds.top)) < 1;
+    }), true, 'Connector uses the mounted live code panel');
+    await delayed.evaluate(() => scrollTo(0, 150));
+    await delayed.waitForFunction(() => {
+      const opening = document.querySelector('.opening-act');
+      const [, , y] = opening.querySelector('.opening-thread path').getAttribute('d').match(/^M ([\d.]+) ([\d.]+)/).map(Number);
+      return Math.abs(y - (opening.querySelector('.demo').getBoundingClientRect().top - opening.getBoundingClientRect().top)) < 1;
+    });
+    await delayed.close();
+  }
+  console.log('PASS delayed hero module/data: independent lifecycle controls, live rig binding and sticky connector');
+
+  const failed = await browser.newPage({ viewport: { width: 320, height: 844 }, reducedMotion: 'reduce' });
+  failed.on('pageerror', error => errors.push(error.message));
+  await failed.route('**/hero-answers.json', route => route.fulfill({ status: 503, body: 'Test failure' }));
+  await failed.goto(base);
+  await failed.getByRole('heading', { name: 'The header couldn’t prepare its answers.' }).waitFor();
+  await failed.locator('.lifecycle-live').waitFor();
+  const retry = failed.getByRole('button', { name: 'Retry startup', exact: true });
+  assert.equal(await failed.locator('.hero-live-code').evaluate(el => el.open), false);
+  assert.equal(await retry.isVisible(), true, 'Retry is outside the collapsed code disclosure');
+  assert.equal(await retry.evaluate(el => {
+    const rect = el.getBoundingClientRect();
+    const slot = el.closest('.hero-answer-slot').getBoundingClientRect();
+    return rect.left >= 0 && rect.right <= innerWidth && rect.bottom <= slot.bottom + 1;
+  }), true, 'Narrow retry fits the reserved panel');
+  await failed.locator('[data-phase="1"][type="button"]').click();
+  assert.match(await failed.locator('#lifecycle-events').innerText(), /TasksView: attach/);
+  await failed.screenshot({ path: 'output/playwright/hero-retry-320.png', fullPage: true });
+  const timeOrigin = await failed.evaluate(() => performance.timeOrigin);
+  await failed.unroute('**/hero-answers.json');
+  await retry.focus();
+  await retry.press('Enter');
+  await failed.waitForFunction(() => window.MarionetteHero?.inspect().ready);
+  assert.equal(await failed.evaluate(() => performance.timeOrigin), timeOrigin);
+  assert.match(await failed.locator('.hero-initial-purpose').innerText(), /Your agent learns the patterns/);
+  await failed.close();
+  console.log('PASS failed startup: independent lifecycle and visible 320px keyboard retry without reload');
+
   // Real links: no timer/preventDefault; modified click opens a new tab.
   const navContext = await browser.newContext();
   const nav = await navContext.newPage();
@@ -265,4 +334,4 @@ try {
   console.log('PASS navigation: ordinary Explore link, keyboard Equip link, modified-click new tab');
 
 
-} finally { await browser.close(); }
+} finally { await browser?.close(); await close(); }

@@ -30,7 +30,7 @@ jobs:
         run: node scripts/check-agent-site.mjs --local --report output/agent-retrieval.json
       - name: Verify provisioned browser
         run: node --input-type=module -e "import { chromium } from 'playwright'; const browser = await chromium.launch(); console.log('Chromium', browser.version()); await browser.close();"
-      - name: Verify real workshop behavior
+      - name: Verify workshop, homepage and demo behavior
         run: npm run test:browser
       - name: Verify standard analytics and visitor opt-outs
         run: |

@@ -41,8 +41,10 @@ Plans and original assets live in ../marionettejs-branding. No fabricated benchm
 endorsements, release readiness, or testimonials. Keep public-facing copy candid,
 lightly humorous, and precise about what has actually been demonstrated.
 Lead with what Marionette is, what builders can make, and a clear next step.
-Explain the product through concrete applications and code before introducing
-agent workflows. Put concrete limits beside the choices they affect; avoid
+Lead with the chosen agent-led workflow: the user directs the application and
+can follow the code. Support that promise with concrete running applications,
+accurate code, and the documentation and tooling an agent can use. Keep the voice
+positive and precise. Put concrete limits beside the choices they affect; avoid
 repeating hypothetical caveats after each benefit.
 
 ## Consumer documentation

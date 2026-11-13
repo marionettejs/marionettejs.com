@@ -1,18 +1,20 @@
-// Focused renderer migration checks against the existing local preview.
-// Run npm run build first. One isolated headless browser, no extra server.
+// Focused renderer migration checks against the built site on an ephemeral port.
+// Run npm run build first. One isolated headless browser per suite.
 import assert from 'node:assert/strict';
 import { readFile, mkdir } from 'node:fs/promises';
 import { chromium } from 'playwright';
+import { builtSite } from './built-site.mjs';
 import AdmZip from 'adm-zip';
 import { recipes, recipeRuntime } from '../../site/assets/playground-recipes.js';
 import { projectArchive, projectPen } from '../../tools/demo-project.js';
 import { starter } from '../../site/assets/playground-runtime.js';
 
-const base = process.env.MARIONETTE_PREVIEW_URL || 'http://127.0.0.1:4175';
+const { base, close } = await builtSite();
 const vendor = await readFile('site/vendor/demos.js', 'utf8');
 const license = await readFile('site/vendor/DEMOS-LICENSE.txt', 'utf8');
-const browser = await chromium.launch({ headless: true });
+let browser;
 try {
+  browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -204,5 +206,6 @@ record.set('id', 'first');`;
   assert.deepEqual(errors, []);
   console.log('PASS Backstage: 18 ownership checks plus hostile attribute interpolation, no page errors');
 } finally {
-  await browser.close();
+  await browser?.close();
+  await close();
 }
