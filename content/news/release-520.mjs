@@ -14,8 +14,7 @@ export const release520Post = {
   image: {
     src: '/assets/news/Skeletor-Marionette-Hero.webp',
     width: 1600, height: 900,
-    // Confirm against the selected Library artwork before publishing this branch.
-    alt: 'Skeletor and Marionette release artwork.'
+    alt: 'Skeletor as a marionette, holding a backbone on a stage framed by red curtains.'
   },
   author: { '@type': 'Organization', name: 'Marionette project', url: 'https://marionettejs.com' },
   article: true,
