@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "subject": "Marionette 5.2.0 website documentation archive promotion",
+  "verifiedPullRequestHead": "f49bd5078db89720e86a6c12b6ae23fa9c7cdd5e",
+  "source": {
+    "packageVersion": "5.2.0",
+    "revision": "1b694b5420391f4800f00cb032981262d0b3b2a0",
+    "documentationSha256": "04653e8449f3c3f36afc582c12411fdd77175dbc0e2f14633c415d12f5302dc6",
+    "pages": 47,
+    "assets": 27
+  },
+  "hostedValidation": {
+    "repository": "marionettejs/marionettejs.com",
+    "workflow": "Agent website checks",
+    "runId": 45022905336,
+    "runUrl": "https://github.com/marionettejs/marionettejs.com/actions/runs/45022905336",
+    "jobId": 137209513924,
+    "jobUrl": "https://github.com/marionettejs/marionettejs.com/actions/runs/45022905336/job/137209513924",
+    "conclusion": "success",
+    "checkoutRevision": "196c5a085d60237ec558b988f0bbf91c331c978b",
+    "checkoutKind": "GitHub synthetic merge of the verified PR head into f1d6c24896e21c9ceaadf58e5be056aaf7a7e8df",
+    "observedLogExcerpts": [
+      "2026-11-22T12:34:26.8309098Z ℹ 87 complete documents, 1 complete examples, 275 equivalent tool calls",
+      "2026-11-22T12:34:31.2407036Z ℹ tests 203",
+      "2026-11-22T12:34:31.2407665Z ℹ pass 203",
+      "2026-11-22T12:34:31.2407944Z ℹ fail 0",
+      "2026-11-22T12:34:31.4998019Z PASS: 105 readable resources, 0 failures; 5.2.0 @ 1b694b5420391f4800f00cb032981262d0b3b2a0",
+      "2026-11-22T12:34:31.8975998Z Chromium 153.0.8010.12",
+      "2026-11-22T12:36:40.4821491Z Verified 94 documentation page/viewport combinations and rendered search."
+    ],
+    "totals": {
+      "tests": 203,
+      "passed": 203,
+      "failed": 0,
+      "mcpCompleteDocuments": 87,
+      "mcpCompleteExamples": 1,
+      "mcpEquivalentHttpStdioCalls": 275,
+      "httpReadableResources": 105,
+      "httpFailures": 0,
+      "documentationPageViewportCombinations": 94
+    },
+    "browserStepsPassed": [
+      "Workshop, homepage and demo behavior",
+      "Standard analytics and visitor opt-outs",
+      "Documentation layout and search",
+      "News filtering and article presentation",
+      "Held release article preview",
+      "Case-study images and chart",
+      "Agent setup and copy controls",
+      "Personal app export and form boundary"
+    ],
+    "artifact": {
+      "id": 14754840686,
+      "name": "agent-site-evidence",
+      "url": "https://github.com/marionettejs/marionettejs.com/actions/runs/45022905336/artifacts/14754840686",
+      "digest": "sha256:989060d9f5df59aecebc896be791405f388aa3e1f7a6503f217e38a2347ef5a1",
+      "expiresAt": "2026-12-22T12:33:35Z",
+      "limitation": "The hosted artifact has a retention limit. This committed report preserves the observed identities, totals and exact log excerpts."
+    }
+  },
+  "toolchains": {
+    "librarySource": {
+      "revision": "1b694b5420391f4800f00cb032981262d0b3b2a0",
+      "rootPackagePlaywright": "1.65.1",
+      "rootLockPlaywright": "1.65.1",
+      "rootLockPlaywrightCore": "1.65.1",
+      "rootLockGitBlob": "0f186755133bc74b6770f868accf252dd6c0fe3b",
+      "rootLockUrl": "https://github.com/marionettejs/marionette/blob/1b694b5420391f4800f00cb032981262d0b3b2a0/package-lock.json",
+      "releaseProfileUrl": "https://github.com/marionettejs/marionette/blob/1b694b5420391f4800f00cb032981262d0b3b2a0/config/release-profile.json",
+      "profileBrowserBuildsVerifiedAgainstRegistryPackage": "playwright-core@1.65.1",
+      "browserBuilds": [
+        {
+          "name": "chromium",
+          "version": "159.0.8154.6",
+          "revision": "1255"
+        },
+        {
+          "name": "firefox",
+          "version": "159.0",
+          "revision": "1572"
+        },
+        {
+          "name": "webkit",
+          "version": "27.2",
+          "revision": "2388"
+        }
+      ]
+    },
+    "recordsExample": {
+      "lockfile": "content/library-docs/examples/records/package-lock.json",
+      "ownDevDependencies": {
+        "vite": "8.3.7"
+      },
+      "linkedSourceDevDependencyMetadata": [
+        {
+          "entry": "../..",
+          "playwright": "1.65.0"
+        },
+        {
+          "entry": "../../packages/html",
+          "playwright": "1.65.0"
+        }
+      ],
+      "installedPlaywrightRunnerEntry": false,
+      "execution": "The packaged README installs the repository root and runs npx playwright from that root. The records example lockfile's linked-source metadata does not select the root runner. That metadata is stale relative to the root, but is preserved as immutable release content."
+    },
+    "website": {
+      "playwright": "1.63.0",
+      "chromium": "153.0.8010.12",
+      "scope": "Website verification toolchain, independently pinned from the library release profile."
+    }
+  },
+  "reviewDispositions": [
+    {
+      "thread": "PRRT_kwDOUQGEg866juq7",
+      "finding": "Validation totals lack durable evidence",
+      "decision": "fixed",
+      "reason": "The release receipt now links the successful organization-controlled CI run/job and this committed report, with the tested PR head, checkout merge, totals and exact log excerpts."
+    },
+    {
+      "thread": "PRRT_kwDOUQGEg866juq9",
+      "finding": "General-v5 source README lacks a 5.2.0 identifier",
+      "decision": "no_overlay_needed",
+      "reason": "The released source intentionally describes v5 and directs readers to their installed package. The installed package and manifest identify 5.2.0; generated website release badges, Markdown provenance and MCP provenance carry the exact 5.2.0 identity. No false version label remains. Editing the immutable source or adding redundant prose would not correct a consumer error."
+    },
+    {
+      "thread": "PRRT_kwDOUQGEg866jurK",
+      "finding": "Router verification fixture names Marionette 5.1.0",
+      "decision": "already_explicit_historical_fixture",
+      "reason": "The paragraph states that its exact published versions identify the reproducible documentation fixture rather than every compatible application's required versions; it links Router 0.1.1's recorded source and independent validation run. The guide does not claim this fixture was rerun with core 5.2.0. Replacing its historical versions would fabricate new verification."
+    },
+    {
+      "thread": "PRRT_kwDOUQGEg866jurO",
+      "finding": "Release profile 1.65.1 disagrees with the installed source runner",
+      "decision": "different_lockfile_scopes",
+      "reason": "The certified repository root package and installed-runner lock entries are all 1.65.1, matching the profile and registry browser builds. The 1.65.0 values are linked-source devDependency metadata inside the separate records example lockfile, which has no installed Playwright runner entry. Preserve the released asset rather than rewrite its hashes or downgrade the correct profile."
+    },
+    {
+      "thread": "PRRT_kwDOUQGEg866jurQ",
+      "finding": "Adapters supports loses its release identity",
+      "decision": "no_material_overlay_needed",
+      "reason": "The versioned archive and generated metadata identify adapters documentation as 5.2.0. The generic package compatibility statement accurately matches the published adapters 5.2.0 peer range marionette ^5.0.1. It avoids implying identical core/adapter versions are required. A repeated release number would not change the supported contract."
+    }
+  ],
+  "limitations": [
+    "This report records the successful run for f49bd5078db89720e86a6c12b6ae23fa9c7cdd5e; subsequent changes require current-head CI.",
+    "Website verification does not certify the library's own release runner or claim new Router 5.2 fixture execution.",
+    "No deployment or live website/MCP verification is established by these results."
+  ]
+}
