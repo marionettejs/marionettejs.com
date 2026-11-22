@@ -35,7 +35,7 @@
     "ajv": "8.20.0",
     "esbuild": "0.28.2",
     "marionette": "5.1.1",
-    "marionette-docs": "npm:marionette@5.1.0",
+    "marionette-docs": "npm:marionette@5.2.0",
     "marked": "18.0.12",
     "pagefind": "1.5.2",
     "playwright": "1.63.0",

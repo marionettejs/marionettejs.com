@@ -77,9 +77,9 @@ test('supplemental sources allow an empty manifest but reject corrupt bytes and 
   await assert.rejects(readSupplementalPages(directory, []), /hash mismatch/);
 });
 
-test('previous supplemental guides are now immutable 5.1 archive and MCP documents', async () => {
+test('previous supplemental guides remain immutable archive and MCP documents', async () => {
   const { manifest, pages } = await readSnapshot('content/library-docs');
-  assert.equal(manifest.packageVersion, '5.1.0');
+  assert.equal(manifest.packageVersion, '5.2.0');
   assert.deepEqual(await readSupplementalPages('content/supplemental-docs', pages), []);
   const mcp = await loadSnapshot();
   const worker = JSON.parse(await read('output/mcp/snapshot.json'));

@@ -31,16 +31,17 @@ The browser demos and Backstage use Marionette and `@mnjs/data` **5.1.1**, with
 `@mnjs/html` **1.0.0**. Package pins, installed archive identities, bundle hashes
 and licenses travel together through the preview and exports.
 
-The immutable documentation archive is **5.1.0**, from source
-`86ee0599ee9c3e1ae472d7426fc3769bd66bdcbe`. `marionette-docs` installs that exact
+The immutable documentation archive is **5.2.0**, from source
+`1b694b5420391f4800f00cb032981262d0b3b2a0`. `marionette-docs` installs that exact
 npm alias for the publication gate. Reviewed reading copies track their source
 updates separately. `/reference/provenance.json`, `/docs/manifest.json` and
 `/docs/publication.json` expose these identities.
 
-The [5.1.0 release](https://github.com/marionettejs/marionette/releases/tag/v5.1.0)
-and [publication run](https://github.com/marionettejs/marionette/actions/runs/43281587960)
-retain the original release evidence. The [release runbook](release/5.1.0-readiness.md)
-records the archive import. Keep historical results and archive bytes intact.
+The [5.2.0 release](https://github.com/marionettejs/marionette/releases/tag/v5.2.0)
+and [5.2.0 archive receipt](release/5.2.0-readiness.md) identify the imported package.
+The [5.1.0 receipt](release/5.1.0-readiness.md) and its original archive remain
+recoverable from the recorded repository revision and published npm package.
+Keep historical results and archive bytes intact.
 
 Cloudflare Pages serves one complete artifact. marionettejs.com is canonical;
 www.marionettejs.com and the noindexed v5.marionettejs.com mirror serve the same
@@ -402,7 +403,7 @@ npm ls marionette @mnjs/data @mnjs/radio @mnjs/utils
 
 Require all four core/data/radio/utils versions to match; HTML is versioned separately.
 The browser demos and Backstage currently use core/data 5.1.1 and HTML 1.0.0.
-The immutable documentation archive and its release evidence remain at 5.1.0;
+The immutable documentation archive and its release evidence are at 5.2.0;
 `marionette-docs` installs that exact npm alias for the build publication gate.
 Downloaded demos include `vendor/runtime.json` with runtime source, versions,
 archive integrities and the bundled runtime hash. The vendor builder reads the package's
@@ -487,9 +488,11 @@ October 6, 2026, separately from its Git merge and deployment timestamps.
 The launch hero's lossless WebP derivative is used in-page; the original PNG is
 preserved for source and social previews, with unchanged artwork and dimensions.
 
-## Preparing the 5.1 release
+## Documentation releases
 
-See [the 5.1 website and MCP handoff](release/5.1.0-readiness.md) for the
-registry-backed import, companion-package checks, announcement and deployment
-gates. This branch contains the verified 5.1 runtime and immutable MCP corpus.
-It does not change the deployed website or MCP until an authorized deployment.
+See [the 5.2.0 archive receipt](release/5.2.0-readiness.md) for the current docs
+import and publication sequence. The historical
+[5.1 website and MCP handoff](release/5.1.0-readiness.md) retains its registry-backed
+import, companion-package checks, announcement and deployment gates. Browser
+examples remain on 5.1.1 while the immutable docs and MCP corpus are 5.2.0.
+An authorized merge publishes the website and MCP through the shared workflow.
