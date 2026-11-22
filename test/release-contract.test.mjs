@@ -21,7 +21,7 @@ function fixture(version = '5.0.0') {
 }
 
 test('runtime contract supports the published RC archive and stable archive shape', () => {
-  for (const version of ['5.0.0-rc.2', '5.0.0', '5.1.0', '5.1.1']) assert.equal(validateRuntimeRelease(fixture(version)).packageVersion, version);
+  for (const version of ['5.0.0-rc.2', '5.0.0', '5.1.0', '5.1.1', '5.2.0']) assert.equal(validateRuntimeRelease(fixture(version)).packageVersion, version);
 });
 
 test('runtime contract rejects local archives, loose pins, mismatched companions and dirty docs', () => {
@@ -89,7 +89,7 @@ test('runtime metadata failures identify the violated invariant', () => {
 });
 
 test('prepared minor release does not admit arbitrary versions or prereleases', () => {
-  for (const version of ['5.1.0-rc.1', '5.2.0', '5.1.2', 'v5.1.0', '^5.1.0']) {
+  for (const version of ['5.2.0-rc.1', '5.3.0', '5.1.2', 'v5.1.0', '^5.1.0']) {
     assert.throws(() => validateRuntimeRelease(fixture(version)), /version format/);
   }
 });

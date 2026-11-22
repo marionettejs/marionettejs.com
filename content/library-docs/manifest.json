@@ -1,33 +1,33 @@
 {
   "schemaVersion": 1,
   "packageName": "marionette",
-  "packageVersion": "5.1.0",
+  "packageVersion": "5.2.0",
   "channel": "latest",
   "sourceRepository": "https://github.com/marionettejs/marionette",
-  "sourceRevision": "86ee0599ee9c3e1ae472d7426fc3769bd66bdcbe",
+  "sourceRevision": "1b694b5420391f4800f00cb032981262d0b3b2a0",
   "sourceDirty": false,
-  "contentSha256": "27f2f2e672e33c297ac8c1bcf22290c3a7d07c6da68661ea746da5d288f8950f",
+  "contentSha256": "04653e8449f3c3f36afc582c12411fdd77175dbc0e2f14633c415d12f5302dc6",
   "pages": [
     {
       "source": "docs/readme.md",
       "route": "docs",
       "title": "Marionette v5 documentation",
       "section": "Start here",
-      "sha256": "78d0d1167d5b6cecf63224a585c4fc20dcc60f6f9b81f469a3de282da72940c3"
+      "sha256": "2743f502dc9fbe6706cff830a66df57453269ea0f37bb4d388274b44324d914a"
     },
     {
       "source": "docs/quick-start.md",
       "route": "docs/quick-start",
       "title": "Install and render a View",
       "section": "Start here",
-      "sha256": "03816d6c0ea54c6dd231c6bdc8575770084c7747590a191c2d80be8a3db5a9e9"
+      "sha256": "01a286ad6064295a618aee486631cd93c8c33392af2146a1d4bdf637b824b91e"
     },
     {
       "source": "docs/architecture.md",
       "route": "docs/architecture",
       "title": "Building features with Marionette v5",
       "section": "Start here",
-      "sha256": "805f023f29e1a9212b3969a5783f7cb15300fbddd1738dac42def02d0679f777"
+      "sha256": "7d39e55ef81af4188fc9a445c5778047086b2751d6a5c8b77c33bbd09192c70f"
     },
     {
       "source": "docs/agents.md",
@@ -41,7 +41,7 @@
       "route": "docs/api",
       "title": "API reference",
       "section": "Start here",
-      "sha256": "d080362cc304a43dff25e8022d245c37242a002e9c21a5b4e8a91863285f4b97"
+      "sha256": "7639d9468c6f0ba961bb3dc7cb92c3358615e062538bc97eea3f759dc7f453cf"
     },
     {
       "source": "docs/api/application.md",
@@ -132,7 +132,7 @@
       "route": "docs/api/providers/dom",
       "title": "Rendering and DOM providers",
       "section": "Provider interfaces",
-      "sha256": "2710c726815b4e88554ba26c6a7d967086d42d52f1f82fedc081f2e68d8a3800"
+      "sha256": "71c4597df4cca59e9a76ec766a122980a2369f9199bb841c0660a73e00241639"
     },
     {
       "source": "docs/api/providers/data.md",
@@ -167,7 +167,7 @@
       "route": "docs/packages/adapters",
       "title": "@mnjs/adapters: optional integrations",
       "section": "Companion packages",
-      "sha256": "cb6dcdfbf540ab71c999e5c9f9afd236c4ff8c61bcf286f4e28949750736bdb5"
+      "sha256": "2b302b7c5a00d60bb5dc423525124a8c8bc0dd74a96403c863558bbe764158a8"
     },
     {
       "source": "packages/html/guide.md",
@@ -188,21 +188,21 @@
       "route": "docs/packages/router",
       "title": "@mnjs/router: feature-owned routing",
       "section": "Companion packages",
-      "sha256": "4ffaffa6f7cf268c85ebdab1941cdcdc2bb629f1d4c5b7a1ab7e3d7aa79ee905"
+      "sha256": "a5cabbeda5e7d72799c6e6a24b04afd6996d074a8b994c1cdbde412112aa2627"
     },
     {
       "source": "docs/integrations/setup.md",
       "route": "docs/integrations/setup",
       "title": "Setup and data",
       "section": "Integration guides",
-      "sha256": "2966287a7aa431343caab17f0e68be5ab8d438a7721220ba4dcdda9c463894fa"
+      "sha256": "070bf5dd7323383d66cbd1fee4c9171dff1153fd40125419bd12ae6035508563"
     },
     {
       "source": "docs/guides/framework-migration.md",
       "route": "docs/guides/framework-migration",
       "title": "Migrate from another UI framework",
       "section": "Guides",
-      "sha256": "e7ac10883024de08c638af9d00e8723d0052089823a2d3df6ba07a98ece132ee"
+      "sha256": "84185fbee650a5c55c9a5c030bf18533ef3fcc449d28fb643600ea6100932f66"
     },
     {
       "source": "docs/guides/migration.md",
@@ -258,7 +258,7 @@
       "route": "docs/guides/routing",
       "title": "Connect navigation to feature ownership",
       "section": "Guides",
-      "sha256": "81ae31347ab714326ec54675a3b3cd1fcb837503a84b65dd470007641bd541ea"
+      "sha256": "0691b9231282343599eef32bce74d245de8fb1f4b88958db87937fe97ea47fd6"
     },
     {
       "source": "docs/guides/fragment-navigation.md",
@@ -307,7 +307,7 @@
       "route": "docs/guides/production",
       "title": "Build and deploy an application",
       "section": "Guides",
-      "sha256": "9cc4fe8b322c01352ced938aac28c802ea64196876cf02c40d38938a0c80b176"
+      "sha256": "a5b1fc81382f09d35eabe457612714aeae9305de876406aa718f412a046bb556"
     },
     {
       "source": "docs/records.md",
@@ -328,14 +328,14 @@
       "route": "docs/packages/test",
       "title": "Testing helpers",
       "section": "Development packages",
-      "sha256": "52808cd7fa3782b70ae10d70e27fd3a7142f435f5731ce60ef05807d8ab4d099"
+      "sha256": "e98a832091b7f9e552e0e7367986409bcf99782eacdec5b7477ea2c461cc5ec9"
     },
     {
       "source": "packages/test/guide.md",
       "route": "docs/packages/test/guide",
       "title": "Testing helper reference",
       "section": "Development packages",
-      "sha256": "12847f0479024db98b322d9c5005f878820e4551f3952b411895c95264223ac3"
+      "sha256": "fefcc8071ee4a1b83e1bb3ed36092db3a58d87f5c587bcc35bc46e23ee9bc22e"
     }
   ],
   "assets": [
@@ -349,7 +349,7 @@
     },
     {
       "source": "config/release-profile.json",
-      "sha256": "a103773e32cb3c3c593a8c010b5ede5548974dfe701f3eb38a7bb95baf443c57"
+      "sha256": "49380b9e31d7549db8cf8041e02bebcb12b583dd72f794f89ab7a740fe4e80c4"
     },
     {
       "source": "skills/marionette/SKILL.md",
@@ -381,11 +381,11 @@
     },
     {
       "source": "examples/records/package-lock.json",
-      "sha256": "dd624698b1499563b2c27e5c2831ed6a83ac380ad383a0f18526b0689f13e414"
+      "sha256": "c6d49c7ee884c13b0b8e93984ac9128561b1581796d99da253a8ecc6026104f7"
     },
     {
       "source": "examples/records/package.json",
-      "sha256": "0dcceea7e0accaa4808435644d1e1e0748fdd74bfbc44827e68edc406e268f06"
+      "sha256": "73212bf8a4dc614c0bb73b11ca1bcbd3d48e44c6718d81e7fa289c1ab868d854"
     },
     {
       "source": "examples/records/playwright.config.js",
@@ -441,11 +441,11 @@
     },
     {
       "source": "docs-sections.json",
-      "sha256": "eb24bcb2f0382ceffb04b2cffd3514ffd23c8e09ac5de1f35d4a4e28c2be2678"
+      "sha256": "9ae27bada6c7ea013109b175ba20bf239a75a6280b3426294ca1371415f0de83"
     },
     {
       "source": "docs-symbols.json",
-      "sha256": "ebccf6fa5fecb7574fbed2716eb1fe7c06059e114a1a492227f8aacbaa709331"
+      "sha256": "8648b71f86272271d6fddd2662b342938723baf67197551c038f9608c01696b4"
     }
   ]
 }

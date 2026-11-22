@@ -7,7 +7,7 @@ import { stageStableDocs } from '../scripts/stage-stable-docs.mjs';
 import { readSnapshot } from '../scripts/library-docs.mjs';
 import { runtimeFixture as makeRuntimeFixture } from './helpers/runtime-fixture.mjs';
 
-async function documentationFixture(t, version = '5.1.0', mutate) {
+async function documentationFixture(t, version = '5.2.0', mutate) {
   const fixture = await makeRuntimeFixture(t, version, mutate);
   const { root, lock } = fixture;
   await cp(join(root, 'node_modules/marionette'), join(root, 'node_modules/marionette-docs'), { recursive: true });
@@ -26,7 +26,7 @@ async function documentationFixture(t, version = '5.1.0', mutate) {
 
 const absent = path => assert.rejects(readFile(path), { code: 'ENOENT' });
 
-test('documentation alias stages 5.1.0 independently of the 5.1.1 demo and refuses overwrite', async t => {
+test('documentation alias stages 5.2.0 independently of the 5.1.1 demo and refuses overwrite', async t => {
   const { root, request, requests, manifest, lock } = await documentationFixture(t);
   const { destination, count } = await stageStableDocs(manifest.sourceRevision, { directory: root, request });
   assert.equal(count, manifest.pages.length);
@@ -34,7 +34,7 @@ test('documentation alias stages 5.1.0 independently of the 5.1.1 demo and refus
   const evidencePath = join(destination, 'stable-docs-evidence.json');
   const bytes = await readFile(evidencePath);
   const evidence = JSON.parse(bytes);
-  assert.equal(evidence.packageVersion, '5.1.0');
+  assert.equal(evidence.packageVersion, '5.2.0');
   assert.deepEqual(requests, [lock.packages['node_modules/marionette-docs'].resolved]);
   assert.equal(evidence.sourceRevision, manifest.sourceRevision);
   assert.equal(evidence.contentSha256, manifest.contentSha256);
@@ -49,7 +49,7 @@ test('documentation alias stages 5.1.0 independently of the 5.1.1 demo and refus
 test('stable staging diagnoses invalid revision, RC install and certified revision mismatch', async t => {
   await assert.rejects(stageStableDocs('typo'), /Usage:/);
   const rc = await documentationFixture(t, '5.0.0-rc.2');
-  await assert.rejects(stageStableDocs(rc.manifest.sourceRevision, { directory: rc.root, request: rc.request }), /Expected installed documentation 5.1.0; found 5.0.0-rc.2/);
+  await assert.rejects(stageStableDocs(rc.manifest.sourceRevision, { directory: rc.root, request: rc.request }), /Expected installed documentation 5.2.0; found 5.0.0-rc.2/);
   const stable = await documentationFixture(t);
   await assert.rejects(stageStableDocs('a'.repeat(40), { directory: stable.root, request: stable.request }), /Certified source revision mismatch: requested a{40}; installed/);
   await absent(join(stable.root, 'output/stable-docs/manifest.json'));
@@ -81,7 +81,7 @@ for (const failure of ['docs', 'evidence', 'rename']) {
 }
 
 test('staging rejects invalid documentation hashes even inside an integrity-matching archive', async t => {
-  const { root, request, manifest } = await documentationFixture(t, '5.1.0', installed => writeFile(join(installed, 'docs/quick-start.md'), 'invalid documentation'));
+  const { root, request, manifest } = await documentationFixture(t, '5.2.0', installed => writeFile(join(installed, 'docs/quick-start.md'), 'invalid documentation'));
   await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request }), /Documentation hash mismatch: docs\/quick-start.md/);
   await absent(join(root, 'output/stable-docs/manifest.json'));
 });
@@ -122,19 +122,19 @@ for (const changed of ['packageVersion', 'sourceRevision', 'contentSha256', 'rou
 
 // Synthetic fixtures verify the next-release path, not publication readiness.
 test('current stable release rejects wrong targets and keeps all archive verification', async t => {
-  const { root, request, manifest } = await documentationFixture(t, '5.1.0');
+  const { root, request, manifest } = await documentationFixture(t, '5.2.0');
   await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request, targetVersion: '5.0.0' }), /Unsupported stable release target/);
-  await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request, targetVersion: '5.2.0' }), /Unsupported stable release target/);
-  const { destination, version } = await stageStableDocs(manifest.sourceRevision, { directory: root, request, targetVersion: '5.1.0' });
-  assert.equal(version, '5.1.0');
-  assert.equal((await readSnapshot(destination)).manifest.packageVersion, '5.1.0');
+  await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request, targetVersion: '5.3.0' }), /Unsupported stable release target/);
+  const { destination, version } = await stageStableDocs(manifest.sourceRevision, { directory: root, request, targetVersion: '5.2.0' });
+  assert.equal(version, '5.2.0');
+  assert.equal((await readSnapshot(destination)).manifest.packageVersion, '5.2.0');
 });
 
 
-test('5.1 staging rejects changed installed runtime bytes before export', async t => {
-  const { root, request, manifest } = await documentationFixture(t, '5.1.0');
+test('5.2 staging rejects changed installed runtime bytes before export', async t => {
+  const { root, request, manifest } = await documentationFixture(t, '5.2.0');
   await writeFile(join(root, 'node_modules/marionette-docs/dist/index.js'), 'changed runtime');
-  await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request, targetVersion: '5.1.0' }), /Installed registry bytes differ/);
+  await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request, targetVersion: '5.2.0' }), /Installed registry bytes differ/);
   await absent(join(root, 'output/stable-docs/manifest.json'));
 });
 
@@ -149,7 +149,7 @@ test('documentation staging excludes npm-installed dependencies from archive byt
   await assert.rejects(stageStableDocs(manifest.sourceRevision, { directory: root, request }), /Installed registry bytes differ: marionette-docs\/dist\/extra.js/);
   await rm(extra);
   const { destination } = await stageStableDocs(manifest.sourceRevision, { directory: root, request });
-  assert.equal((await readSnapshot(destination)).manifest.packageVersion, '5.1.0');
+  assert.equal((await readSnapshot(destination)).manifest.packageVersion, '5.2.0');
   await absent(join(destination, 'node_modules/dependency/index.js'));
 });
 
@@ -158,7 +158,7 @@ test('documentation staging rejects loose alias pins, wrong archives and invalid
     const { root, request, manifest, lock } = await documentationFixture(t);
     if (failure === 'pin') {
       const pkg = JSON.parse(await readFile(join(root, 'package.json')));
-      pkg.devDependencies['marionette-docs'] = 'npm:marionette@^5.1.0';
+      pkg.devDependencies['marionette-docs'] = 'npm:marionette@^5.2.0';
       await writeFile(join(root, 'package.json'), JSON.stringify(pkg));
     } else {
       const entry = lock.packages['node_modules/marionette-docs'];

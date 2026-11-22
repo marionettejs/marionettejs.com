@@ -3,8 +3,8 @@ import { verifyRuntimeBytes } from './runtime-archives.mjs';
 import { resolve } from 'node:path';
 
 // Documentation staging retains its separately certified release targets.
-export const stableRelease = '5.1.0';
-export const preparedRelease = '5.1.0';
+export const stableRelease = '5.2.0';
+export const preparedRelease = '5.2.0';
 // Browser examples can take a patch without replacing the documentation archive.
 export const runtimeRelease = '5.1.1';
 export const runtimePackages = ['marionette', '@mnjs/data', '@mnjs/utils', '@mnjs/radio'];
@@ -13,7 +13,7 @@ export const runtimePackages = ['marionette', '@mnjs/data', '@mnjs/utils', '@mnj
 // compares installed bytes with integrity-verified registry archives.
 function validateManifest(version, manifest) {
   const checks = {
-    'version format': (/^(?:5\.0\.0(?:-rc\.\d+)?|5\.1\.[01])$/.test(version)),
+    'version format': (/^(?:5\.0\.0(?:-rc\.\d+)?|5\.1\.[01]|5\.2\.0)$/.test(version)),
     'docs manifest version': manifest.packageVersion === version,
     'package name': manifest.packageName === 'marionette',
     'clean source': manifest.sourceDirty === false,

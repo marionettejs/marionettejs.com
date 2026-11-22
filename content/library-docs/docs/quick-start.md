@@ -1,10 +1,10 @@
 # Install and render a View
 
-This guide targets Marionette 5.1.0 and is verified on the supported Node LTS lines: Node 22.22.2+ (22.x) or 24.15.0+ (24.x). Use the latest patch of either line. Newer Node versions may install; Node 26 remains advisory until its LTS support is verified. The [documentation index](readme.md) identifies this package version.
+This guide belongs to the installed Marionette package. Supported consumer Node LTS lines are 22.22.2+ (22.x), 24.15.0+ (24.x) and 26.x, with required installed-package verification at each floor and latest patch. Use the latest patch of a supported line. Optional companions have their own requirements; `@mnjs/router` requires Node 24.15.0 or newer. The [documentation index](readme.md) routes to the bundled guides.
 
 ## Install matching packages
 
-Use matching `5.1.0` versions of `marionette`, `@mnjs/utils`, and `@mnjs/radio` to preserve their shared runtime identity. Optional Data 5.1.0 has a nonoptional Utils peer `^5.0.1`; Adapters 5.1.0 supports core `^5.0.1`. Neither requires an identical package version. Keep one shared Utils instance across core, Radio, and Data. Pin the selected versions explicitly for reproducible installs. The independently versioned renderer below does not need `@mnjs/adapters`.
+Use matching versions of `marionette`, `@mnjs/utils`, and `@mnjs/radio` to preserve their shared runtime identity. Optional Data has a nonoptional Utils peer `^5.0.1`; Adapters supports core `^5.0.1`. Neither requires an identical package version. Keep one shared Utils instance across core, Radio, and Data. Pin the selected versions explicitly for reproducible installs. The independently versioned renderer below does not need `@mnjs/adapters`.
 
 ## Create the project
 
@@ -24,9 +24,11 @@ mkdir marionette-example
 cd marionette-example
 npm init -y
 npm pkg set type=module scripts.dev="vite" scripts.build="vite build"
-npm install --ignore-scripts --save-exact marionette@5.1.0 @mnjs/utils@5.1.0 @mnjs/radio@5.1.0 @mnjs/html@1.0.0
-npm install --ignore-scripts --save-dev --save-exact vite@8.3.0
+npm install --ignore-scripts --save-exact marionette@5.2.0 @mnjs/utils@5.2.0 @mnjs/radio@5.2.0 @mnjs/html@1.0.0
+npm install --ignore-scripts --save-dev vite@8
 ```
+
+The Vite command selects the latest release within the supported Vite 8 major. Commit the generated `package-lock.json` and use `npm ci` to reproduce that dependency graph; update Vite as new fixes become available.
 
 This first UI uses `marionette`, `html` from `@mnjs/html`, and its `@mnjs/html/marionette` DOM adapter. Core also depends on `@mnjs/utils` and `@mnjs/radio`; the command pins those dependencies to the same release. `@mnjs/data` is optional and is added in the [data setup guide](integrations/setup.md).
 
