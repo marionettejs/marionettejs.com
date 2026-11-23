@@ -17,7 +17,7 @@ test('an older editorial feature stays selected while the remaining feed stays c
   assert.deepEqual(sortNewsItems(entries).map(entry => entry.path), ['/new/', '/middle/', '/old-feature/', '/undated/']);
   assert.deepEqual(entries, original);
   assert.equal(selectNewsLayout(entries, '/missing/').featured, undefined);
-  assert.equal(featuredNewsPath, '/news/ai-cost-of-marionette/');
+  assert.equal(featuredNewsPath, '/news/react-show-your-work/');
 });
 
 test('the requested taxonomy supports research case studies and a dated Story article', () => {
@@ -75,4 +75,30 @@ test('story titles, image descriptions and metadata are escaped in visible HTML'
   assert.ok(page.body.includes('<h1>Title &lt;em&gt;text&lt;/em&gt;</h1>'));
   assert.ok(page.body.includes('alt="alt&quot; data-injected=&quot;yes"'));
   assert.ok(!page.body.includes('alt="alt" data-injected="yes"'));
+});
+
+test('the browser benchmark is featured with both images while the agent benchmark stays published', async () => {
+  const feed = await readFile(new URL('../dist/news/index.html', import.meta.url), 'utf8');
+  assert.match(feed, /class="news-card news-feature"[^>]*data-news-path="\/news\/react-show-your-work\//);
+  assert.match(feed, /class="news-card"[^>]*data-news-path="\/news\/ai-cost-of-marionette\//);
+  const article = await readFile(new URL('../dist/news/react-show-your-work/index.html', import.meta.url), 'utf8');
+  assert.match(article, /<h1>React Should Have to Compete<\/h1>/);
+  assert.match(article, /<img src="\/assets\/news\/react-show-your-work\/hero\.webp" width="1672" height="941"/);
+  assert.match(article, /<img src="\/assets\/news\/react-show-your-work\/chrome158-keyed-results\.jpg" width="883" height="1356"/);
+  assert.match(article, /<figcaption>Speed · <a href="https:\/\/krausest\.github\.io\/js-framework-benchmark\/2026\/chrome158\.html">/);
+  assert.deepEqual(
+    [...article.matchAll(/aria-label="([^"]+ comparison)" tabindex="0"><table>/g)].map(match => match[1]),
+    ['Speed comparison', 'Memory comparison', 'Code shipped comparison']
+  );
+  assert.match(feed, /src="\/assets\/news\/react-show-your-work\/hero\.webp"/);
+  assert.match(article, /property="og:image" content="https:\/\/marionettejs\.com\/assets\/news\/react-show-your-work\/hero\.png"/);
+  assert.match(article, /<a href="\/news\/ai-cost-of-marionette\/">We ran his task with Codex<\/a>/);
+  assert.equal((article.match(/class="news-benchmark-crop"/g) || []).length, 3);
+  assert.equal((article.match(/<th(?: [^>]*)?>Marionette<\/th>/g) || []).length, 3);
+  assert.equal((article.match(/<th(?: [^>]*)?>Marionette with Backbone<\/th>/g) || []).length, 3);
+  const related = article.match(/<footer class="news-related"[^>]*>.*?<\/footer>/s)?.[0] ?? '';
+  assert.match(related, /href="\/news\/ai-cost-of-marionette\/"/);
+  assert.match(related, /src="\/assets\/news\/ai-cost\/hero\.png"/);
+  assert.match(related, />The AI Cost of Marionette<\/h2>/);
+  assert.match(article, /property="og:type" content="article"/);
 });

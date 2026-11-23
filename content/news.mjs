@@ -1,3 +1,4 @@
+import { reactShowYourWork } from './news/react-show-your-work/index.mjs';
 import { aiCost } from './news/ai-cost/index.mjs';
 import { release510Post } from './news/release-510.mjs';
 import { release520Post } from './news/release-520.mjs';
@@ -28,9 +29,9 @@ export const announcement = {
   image: { src: '/assets/news/introducing-marionette-5.png', displaySrc: '/assets/news/introducing-marionette-5.webp', width: 1672, height: 941, alt: 'Fry under “You” and Bender holding tokens under “Your Agent”: “Take my tokens!” Marionette v5 available now.' }
 };
 export { storeStory, storeStoryPage, maintenanceResearch, maintenanceResearchPage };
-export const newsPosts = [aiCost, announcement, storeStory, maintenanceResearch, ...(release510Post ? [release510Post] : []), release520Post];
+export const newsPosts = [reactShowYourWork, aiCost, announcement, storeStory, maintenanceResearch, ...(release510Post ? [release510Post] : []), release520Post];
 // Change this path to make an editorial selection; publication dates do not choose it.
-export const featuredNewsPath = aiCost.path;
+export const featuredNewsPath = reactShowYourWork.path;
 export const sortNewsItems = entries => [...entries].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 export function selectNewsLayout(entries, featuredPath) {
   const ordered = sortNewsItems(entries);

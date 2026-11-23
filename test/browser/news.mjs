@@ -4,10 +4,12 @@ import { chromium } from 'playwright';
 import { staticServer } from './static-server.mjs';
 import { resolve } from 'node:path';
 import { newsItems, newsPosts, featuredNewsPath } from '../../content/news.mjs';
+import { reactShowYourWork } from '../../content/news/react-show-your-work/index.mjs';
+import { aiCost } from '../../content/news/ai-cost/index.mjs';
 
 const categoryCount = category => newsItems.filter(item => item.categories.includes(category)).length;
 
-const { base, close } = process.env.NEWS_PREVIEW_URL ? { base: process.env.NEWS_PREVIEW_URL, close: async () => {} } : await staticServer({ root: resolve('dist'), types: { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.webp': 'image/webp', '.png': 'image/png', '.svg': 'image/svg+xml' } });
+const { base, close } = process.env.NEWS_PREVIEW_URL ? { base: process.env.NEWS_PREVIEW_URL, close: async () => {} } : await staticServer({ root: resolve('dist'), types: { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml' } });
 const browser = await chromium.launch({ headless: true });
 await mkdir('output/playwright/news', { recursive: true });
 try {
@@ -104,6 +106,48 @@ try {
         assert.equal(await page.locator('#race').isVisible(), true);
         await method.locator('summary').press('Enter');
         assert.equal(await method.evaluate(el => el.open), false);
+      }
+      if (route === reactShowYourWork.path) {
+        assert.deepEqual((await page.locator('.news-prose h2').allTextContents()).slice(0, 3), ['Speed', 'Memory', 'Code shipped']);
+        const crops = await page.locator('.news-benchmark-crop').evaluateAll(links => links.map(link => {
+          const img = link.querySelector('img');
+          const bounds = link.getBoundingClientRect();
+          const imageBounds = img.getBoundingClientRect();
+          const scale = imageBounds.width / img.naturalWidth;
+          return {
+            screenshotWidth: img.naturalWidth,
+            screen: bounds.height,
+            full: imageBounds.height,
+            start: (bounds.top - imageBounds.top) / scale,
+            end: (bounds.bottom - imageBounds.top) / scale,
+            clips: getComputedStyle(link).overflow === 'hidden',
+            href: link.getAttribute('href')
+          };
+        }));
+        assert.equal(crops.length, 3);
+        assert.ok(crops.every(crop => crop.screenshotWidth === 883 && crop.clips && crop.screen < crop.full && crop.href.endsWith('/chrome158-keyed-results.jpg')));
+        [[0, 733], [737, 1029], [1033, 1356]].forEach(([start, end], index) => {
+          assert.ok(Math.abs(crops[index].start - start) < 0.25, `crop ${index} starts at its source row at width ${width}`);
+          assert.ok(Math.abs(crops[index].end - end) < 0.25, `crop ${index} ends at its source row at width ${width}`);
+        });
+        const hero = page.locator('.news-hero img');
+        assert.equal(await hero.getAttribute('src'), '/assets/news/react-show-your-work/hero.webp');
+        assert.equal(await hero.evaluate(img => img.naturalWidth), 1672);
+        assert.equal(await hero.evaluate(img => img.naturalHeight), 941);
+        for (const label of ['Speed comparison', 'Memory comparison', 'Code shipped comparison']) {
+          assert.equal(await page.getByRole('region', { name: label }).count(), 1);
+        }
+        const related = page.locator('footer[aria-label="Related story"]');
+        const link = related.getByRole('link', { name: 'The AI Cost of Marionette' });
+        assert.equal(await link.count(), 1);
+        assert.equal(await link.getAttribute('href'), aiCost.path);
+        await link.focus();
+        assert.equal(await link.evaluate(el => el === document.activeElement), true);
+        if (width === 390) {
+          await page.keyboard.press('Enter');
+          await page.waitForURL(base + aiCost.path);
+          await page.goto(base + route);
+        }
       }
       if (route === '/news/ai-cost-of-marionette/') {
         assert.equal(await page.locator('[data-benchmark]').count(), 7);

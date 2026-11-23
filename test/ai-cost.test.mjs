@@ -2,13 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { aiCost, aiCostPage } from '../content/news/ai-cost/index.mjs';
-import { featuredNewsPath, newsPosts } from '../content/news.mjs';
+import { newsPosts } from '../content/news.mjs';
 import { metrics, rowsFor, renderChart } from '../site/assets/news/ai-cost/charts.js';
 
 const body = aiCostPage.body;
 const data = JSON.parse(body.match(/<script id="benchmark-data" type="application\/json">(.*?)<\/script>/s)[1]);
-test('the article is the featured, registered research post with publication metadata', () => {
-  assert.equal(featuredNewsPath, aiCost.path);
+test('the article remains a registered research post with publication metadata', () => {
   assert.ok(newsPosts.includes(aiCost));
   assert.equal(aiCostPage.article, true);
   assert.equal(aiCostPage.author.name, 'Paul Falgout');
