@@ -1,3 +1,4 @@
+import { chineseBenchmarkPath, renderChineseBenchmarkPage } from '../content/zh-CN/react-show-your-work/index.mjs';
 import { reactShowYourWork, reactShowYourWorkPage } from '../content/news/react-show-your-work/index.mjs';
 import { aiCost, aiCostPage } from '../content/news/ai-cost/index.mjs';
 import { release510Post, release510Page } from '../content/news/release-510.mjs';
@@ -108,6 +109,12 @@ for (const [route, page] of pages) {
   await mkdir(resolve(out,route), {recursive:true});
   await writeFile(resolve(out, route, 'index.html'), shell({...page, route: route ? `/${route}/` : '/'}));
 }
+// Publish the localized feature directly without adding it to the English catalogs.
+const chineseBenchmarkDirectory = resolve(out, chineseBenchmarkPath.slice(1));
+await mkdir(chineseBenchmarkDirectory, { recursive: true });
+await writeFile(resolve(chineseBenchmarkDirectory, 'index.html'), renderChineseBenchmarkPage({
+  stylesheets: ['site', 'night', 'case-studies', 'news'].map(name => stylesheetUrls[name]), siteRevision
+}));
 await mkdir(resolve(out,'reference'), {recursive:true});
 await cp(resolve(root,'content/provenance.json'),resolve(out,'reference/provenance.json'));
 await writeFile(resolve(out,'adoption-review.md'), `# Build a first feature with Marionette v5\n\nMarionette gives applications explicit ownership, incremental HTML templates and coordinated feature lifetimes. Use /why/ for the working arrangement and the questions below to connect those patterns to your application.\n\nStart new applications with @mnjs/html. Views own interactions, Regions manage changing panels, CollectionViews own rows, and Applications coordinate startup and shutdown. /docs/agent-start/ routes implementation tasks; /reference/provenance.json identifies the browser runtime, and /docs/manifest.json identifies the documentation archive. Use installed package docs for exact API contracts.\n\n${adoptionQuestions.map(({question,answer}) => `## ${question}\n\n${answer}`).join('\n\n')}\n\n## Plan the first feature\n\n${adoptionPrompt.replace('[page URL]', '/why/').replace('[review brief URL]', '/adoption-review.md')}\n`);
@@ -115,7 +122,7 @@ await writeFile(resolve(out,'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${
 // Cloudflare's HTML processing rewrites these pages and drops their ETag, leaving
 // crawlers no validator and no way to notice a release. /docs/* and /errors/* opt
 // out in site/_headers already; these are the remaining published pages.
-const revalidated = pages.map(([route]) => `/${route}${route ? '/' : ''}\n  Cache-Control: public, max-age=0, must-revalidate, no-transform\n`).join('\n');
+const revalidated = [...pages, [chineseBenchmarkPath.slice(1, -1)]].map(([route]) => `/${route}${route ? '/' : ''}\n  Cache-Control: public, max-age=0, must-revalidate, no-transform\n`).join('\n');
 await writeFile(resolve(out,'_headers'), 'https://v5.marionettejs.com/*\n  X-Robots-Tag: noindex, follow\n\nhttps://marionette-v5.pages.dev/*\n  X-Robots-Tag: noindex, follow\n\n' + await readFile(resolve(root, 'site/_headers'), 'utf8') + '\n' + revalidated);
 await writeFile(resolve(out,'404.html'),shell({title:'Page not found — Marionette',description:'Return to Marionette.',noindex:true,active:'',body:'<section class="article-heading"><p class="eyebrow">404 / A MISSING PIECE</p><h1>This one has no home.</h1><p>That page is not here.</p><a class="button" href="/">Back to Marionette ↗</a></section>'}));
 const docsCount = await buildLibraryDocs({ directory: resolve(root, 'content/library-docs'), out, shell });
