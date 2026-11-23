@@ -1,0 +1,20 @@
+.github/workflows/docs-sync.yml
+  h_0f06c286dda36f 13-15,33-34
+scripts/docs-sync/prepare.mjs
+  h_0f06c286dda36f 69-98,112,114,119
+scripts/docs-sync/publish.mjs
+  h_0f06c286dda36f 4,14,30,37
+test/docs-sync.test.mjs
+  h_0f06c286dda36f 8,82,87,217-286
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "507c9a4436c0ca8dfc808391b03c2299c2bdd786",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

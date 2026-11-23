@@ -1,0 +1,16 @@
+scripts/stage-stable-docs.mjs
+  h_0f06c286dda36f 9,27-31
+test/stage-stable-docs.test.mjs
+  h_0f06c286dda36f 5,79-99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b6df9106a2d76bda8920a2cbcf2358e2e179e6f8",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

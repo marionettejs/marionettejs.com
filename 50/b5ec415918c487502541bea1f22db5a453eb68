@@ -1,0 +1,92 @@
+content/pages.mjs
+  h_0f06c286dda36f 11-19,34-35,51-52
+content/why.mjs
+  h_0f06c286dda36f 17,23,26
+scripts/build.mjs
+  h_0f06c286dda36f 67-70,75-76
+site/agent-prompt.md
+  h_0f06c286dda36f 12-13,18-23,35-38
+site/assets/analytics-clicks.js
+  h_0f06c286dda36f 8
+site/assets/demo-project-tools.js
+  h_0f06c286dda36f 23,25,27-30,32,34,36,38,45,52
+site/assets/demo-projects.js
+  h_0f06c286dda36f 4-5,7-9,12-13,15,17,20-22,24,26
+site/assets/demo-setup.js
+  h_0f06c286dda36f 1-6
+site/assets/hero-marks.svg
+  h_0f06c286dda36f 1
+site/assets/hero.js
+  h_0f06c286dda36f 1-658
+site/assets/motion.js
+  h_0f06c286dda36f 1,4-6,37,107,110-124,213-214
+site/assets/night.css
+  h_0f06c286dda36f 388-721
+site/assets/playground-recipes.js
+  h_0f06c286dda36f 252
+site/assets/playground-runtime.js
+  h_0f06c286dda36f 12
+site/assets/site.js
+  h_0f06c286dda36f 30-31,33
+site/assets/workshop-starter.js
+  h_0f06c286dda36f 4
+site/demos/projects/list-detail/app.js
+  h_0f06c286dda36f 2,12
+site/demos/projects/list-detail/main.js
+  h_0f06c286dda36f 1-3,8-12
+site/demos/projects/list-detail/planning-notes.js
+  h_0f06c286dda36f 2,10
+site/demos/projects/list-detail/todo-views.js
+  h_0f06c286dda36f 2-3,6-7,39-41,43,126-127,156,158-159
+site/demos/projects/mission-control/app.js
+  h_0f06c286dda36f 2,9
+site/demos/projects/mission-control/flight.js
+  h_0f06c286dda36f 3,27,127,132,158,180-181,184-185,204
+site/demos/projects/mission-control/main.js
+  h_0f06c286dda36f 1-2,7-9
+site/demos/projects/mission-control/readiness.js
+  h_0f06c286dda36f 4,14,54,142-144,146-149,153,155
+site/demos/projects/owned-widget/app.js
+  h_0f06c286dda36f 2,8
+site/demos/projects/owned-widget/main.js
+  h_0f06c286dda36f 1-3,8-11
+site/demos/projects/owned-widget/radio-view.js
+  h_0f06c286dda36f 2,10,51-52,55-56,132,134
+site/demos/projects/shared/lesson-ui.js
+  h_0f06c286dda36f 2,11,16-18,22-24,26-27,29-31,51-53,66,82-86
+site/hero-answers.json
+  h_0f06c286dda36f 1-33
+site/workshop/app.js
+  h_0f06c286dda36f 1,4-6,11-13,40,52-53,70
+test/browser/agent-workshop.mjs
+  h_0f06c286dda36f 149-150,152-155,158-159
+test/browser/analytics.mjs
+  h_0f06c286dda36f 93,111-112
+test/browser/hero-list.mjs
+  h_0f06c286dda36f 1-59
+test/browser/hero-panels.mjs
+  h_0f06c286dda36f 1-68
+test/browser/hero.mjs
+  h_0f06c286dda36f 1-268
+test/browser/html-demos.mjs
+  h_0f06c286dda36f 1-208
+test/browser/personal-preview.mjs
+  h_0f06c286dda36f 38
+test/demo-project.test.mjs
+  h_0f06c286dda36f 36,90
+test/site.test.mjs
+  h_0f06c286dda36f 9-25,88,90-93,166-171
+tools/demo-project.js
+  h_0f06c286dda36f 14-16,18,21,24-29,95
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "50b5ec415918c487502541bea1f22db5a453eb68",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

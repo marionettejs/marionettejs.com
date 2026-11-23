@@ -1,0 +1,21 @@
+README.md
+  s_a55b221deb2b5b::t_a2a66803cbb68e 385
+content/case-studies/realworld.mjs
+  s_a55b221deb2b5b::t_caa0e348641901 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d6dad42d7e8b202532537f7f019ed02d81878dab",
+  "prompts": {},
+  "sessions": {
+    "s_a55b221deb2b5b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1081d-6770-7200-a029-da5237cc2cbd",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

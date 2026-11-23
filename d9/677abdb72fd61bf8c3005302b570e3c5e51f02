@@ -1,0 +1,25 @@
+content/library-docs/docs-sections.json
+  s_930f3c9a37745c::t_58a021e1f7a8e6 1
+content/library-docs/docs/records.md
+  s_930f3c9a37745c::t_874a2f7cb02a83 71
+content/library-docs/examples/records/README.md
+  s_930f3c9a37745c::t_94bebba8f6989b 34
+content/library-docs/manifest.json
+  s_930f3c9a37745c::t_86e56203f473c8 7,9,268,309,377
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d9677abdb72fd61bf8c3005302b570e3c5e51f02",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+test/browser/hero.mjs
+  h_0f06c286dda36f 325
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a2d2904a58e6e7eac7fbc5b30b5d090c11b0bc9a",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

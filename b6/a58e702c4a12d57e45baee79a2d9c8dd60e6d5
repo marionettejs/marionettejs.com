@@ -1,0 +1,16 @@
+scripts/search-index.mjs
+  h_0f06c286dda36f 1,4-7,13,16-20,22
+test/search-index.test.mjs
+  h_0f06c286dda36f 3,13,19,33-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b6a58e702c4a12d57e45baee79a2d9c8dd60e6d5",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

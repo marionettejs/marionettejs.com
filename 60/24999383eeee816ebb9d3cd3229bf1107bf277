@@ -1,0 +1,20 @@
+README.md
+  h_0f06c286dda36f 100
+planning/analytics.md
+  h_0f06c286dda36f 3,52,61
+site/assets/analytics-config.js
+  h_0f06c286dda36f 2,4-5
+test/browser/analytics.mjs
+  h_0f06c286dda36f 19,72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "6024999383eeee816ebb9d3cd3229bf1107bf277",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+site/assets/demo-project-tools.js
+  h_0f06c286dda36f 23,25,27-30,32-34,36,45,49,52
+test/demo-project.test.mjs
+  h_0f06c286dda36f 91-92
+tools/demo-project.js
+  h_0f06c286dda36f 27-28,31-33,97-99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ce71f91a5eeec1e3ec6ae73ffe77f5985d0691c1",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

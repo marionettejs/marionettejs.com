@@ -1,0 +1,24 @@
+README.md
+  h_0f06c286dda36f 327-329
+content/hero-code.mjs
+  h_0f06c286dda36f 17,21,23-24,27,33-42
+content/pages.mjs
+  h_0f06c286dda36f 6,14
+site/assets/hero.js
+  h_0f06c286dda36f 38,380,540-543,558,575-576,600-601,605
+site/assets/night.css
+  h_0f06c286dda36f 424-428
+test/browser/hero-opening.mjs
+  h_0f06c286dda36f 8-12,17-18,33-37,43-45,64-65,68-86,97-98,115,120,134-138,149,151
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "247b7540014e4271b19819b710a97b4eee318f60",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

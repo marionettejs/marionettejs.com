@@ -1,0 +1,92 @@
+scripts/published-docs.mjs
+  s_930f3c9a37745c::t_30ebd5a800db12 24-28,30-31,43-44
+test/site.test.mjs
+  s_930f3c9a37745c::t_b22a6946e34ec3 7,69-72,78
+scripts/library-docs.mjs
+  s_930f3c9a37745c::t_b22a6946e34ec3 152-154,157-161,165,173,190,194-195
+test/browser/docs-candidate.mjs
+  s_930f3c9a37745c::t_30ebd5a800db12 41-42
+mcp/sections.mjs
+  s_930f3c9a37745c::t_a87bdade1cebeb 13-16
+test/docs.test.mjs
+  s_930f3c9a37745c::t_ce2b5e6a6d6a3f 96-97
+  s_930f3c9a37745c::t_b22a6946e34ec3 25
+test/agent-discovery.test.mjs
+  s_930f3c9a37745c::t_a09e829a4fbc17 3-4,6,139,142-144,146,149-177
+mcp/tools.mjs
+  s_930f3c9a37745c::t_30ebd5a800db12 26
+  s_930f3c9a37745c::t_a87bdade1cebeb 3,28-29,96
+scripts/verify-mcp.mjs
+  s_930f3c9a37745c::t_30ebd5a800db12 100-101,107
+test/docs-sync.test.mjs
+  s_930f3c9a37745c::t_30ebd5a800db12 163
+site/assets/examples.js
+  s_930f3c9a37745c::t_30ebd5a800db12 201
+mcp/load.mjs
+  s_930f3c9a37745c::t_30ebd5a800db12 5,12
+test/browser/agent-workshop.mjs
+  s_930f3c9a37745c::t_30ebd5a800db12 859-860,862
+.github/workflows/check.yml
+  s_930f3c9a37745c::t_30ebd5a800db12 31-32
+test/mcp.test.mjs
+  s_930f3c9a37745c::t_a09e829a4fbc17 193-202
+  s_930f3c9a37745c::t_b22a6946e34ec3 78-81,204
+scripts/docs-sync/README.md
+  s_930f3c9a37745c::t_30ebd5a800db12 38-39
+test/mcp-sections.test.mjs
+  s_930f3c9a37745c::t_a87bdade1cebeb 5,95,98-99
+content/library-docs/docs-sections.json
+  s_930f3c9a37745c::t_1b8dc1fe2b77fa 1
+content/library-docs/docs/api/application.md
+  s_930f3c9a37745c::t_a129a8b081a90d 125-126,128
+content/library-docs/docs/guides/existing-ui.md
+  s_930f3c9a37745c::t_e97372da3becaa 7
+content/library-docs/docs/guides/lists.md
+  s_930f3c9a37745c::t_f60b799d3828cf 93
+content/library-docs/docs/guides/migration.md
+  s_930f3c9a37745c::t_477f6749f8a6e9 7,66
+content/library-docs/docs/guides/production.md
+  s_930f3c9a37745c::t_4e580d4cc1485a 7,29-30
+content/library-docs/docs/guides/routing.md
+  s_930f3c9a37745c::t_570aab862396ed 111,136,142,151
+content/library-docs/docs/guides/testing.md
+  s_930f3c9a37745c::t_b9b76b46c20174 196
+content/library-docs/docs/integrations/setup.md
+  s_930f3c9a37745c::t_f3e7fa22c22038 7,10
+content/library-docs/docs/packages/adapters.md
+  s_930f3c9a37745c::t_f2d72885925ff9 3,7,21-22
+content/library-docs/docs/packages/utils.md
+  s_930f3c9a37745c::t_296ba3310d9c7e 3
+content/library-docs/docs/quick-start.md
+  s_930f3c9a37745c::t_381aad9a677af9 5,7,11,18,22
+content/library-docs/docs/readme.md
+  s_930f3c9a37745c::t_95b7877a1c049f 3
+content/library-docs/docs/records.md
+  s_930f3c9a37745c::t_4aa3595ada3e7c 9,71
+content/library-docs/examples/records/scripts/build-local-packages.mjs
+  s_930f3c9a37745c::t_719f820b606e88 4-6,13,19
+content/library-docs/examples/records/tests/records.spec.js
+  s_930f3c9a37745c::t_eed7dcf803be1b 337
+content/library-docs/manifest.json
+  s_930f3c9a37745c::t_36220aea1be978 7,9,16,23,51,163,170,177,184,191,226,233,240,261,268,301,305,333,369,377
+content/library-docs/skills/marionette/scripts/search.mjs
+  s_930f3c9a37745c::t_c987369a263593 9-10,36-69
+content/library-docs/skills/marionette/scripts/symbols.mjs
+  s_930f3c9a37745c::t_b9b1b5fba558b1 22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "338ce7ae712a94256304cc146d9a69e1b752d2a3",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

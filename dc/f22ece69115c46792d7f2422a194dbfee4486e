@@ -1,0 +1,39 @@
+.github/workflows/check.yml
+  s_ae83c38d2f96e5::t_cfa75fcfb182f8 37
+content/case-studies.mjs
+  s_ae83c38d2f96e5::t_f30902b61b6d05 21
+content/case-studies/vikunja.mjs
+  s_ae83c38d2f96e5::t_f2f8caf37dadda 16,28
+site/assets/case-studies.css
+  s_ae83c38d2f96e5::t_6e8e064ae62926 72,80-83
+test/browser/case-studies.mjs
+  s_c4bc6730547ecf::t_23b62130b0c98d 30,35-38,40-49,65-69,77,80-81,88-91,94
+test/case-studies.test.mjs
+  s_ae83c38d2f96e5::t_3eac2918e8dfbc 9
+test/site.test.mjs
+  s_ae83c38d2f96e5::t_2fee00f228babc 112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dcf22ece69115c46792d7f2422a194dbfee4486e",
+  "prompts": {},
+  "sessions": {
+    "s_ae83c38d2f96e5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a117ac-6107-7512-bc56-b0257b544061",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_c4bc6730547ecf": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1173c-535e-7761-afb0-f2bfe958d8fb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

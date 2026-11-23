@@ -1,0 +1,14 @@
+test/browser/analytics.mjs
+  h_0f06c286dda36f 85-86,91,98
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c826bd4b481be7baa2f2b1f9ddb10bc7ff36732a",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

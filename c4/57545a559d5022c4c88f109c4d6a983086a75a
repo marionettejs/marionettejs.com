@@ -1,0 +1,20 @@
+scripts/docs-sync/README.md
+  h_0f06c286dda36f 63-70
+scripts/docs-sync/prepare.mjs
+  h_0f06c286dda36f 8-10,74,77,79-87,93,97
+scripts/docs-sync/publish.mjs
+  h_0f06c286dda36f 4,14,36-37
+test/docs-sync.test.mjs
+  h_0f06c286dda36f 82,87,223,233,243-246,251,288-326
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c457545a559d5022c4c88f109c4d6a983086a75a",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

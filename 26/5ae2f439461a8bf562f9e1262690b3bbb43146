@@ -1,0 +1,27 @@
+mcp/README.md
+  s_930f3c9a37745c::t_cd5680c62c259c 15-17
+scripts/docs-sync/README.md
+  s_930f3c9a37745c::t_94b10535d722b2 110-139
+site/agent-prompt.md
+  s_930f3c9a37745c::t_4406f9231d233e 118,186-188
+site/assets/playground-recipes.js
+  s_930f3c9a37745c::t_90203a98e73c00 188
+test/playground.test.mjs
+  s_930f3c9a37745c::t_bb69acfe94b443 32,95
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "265ae2f439461a8bf562f9e1262690b3bbb43146",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

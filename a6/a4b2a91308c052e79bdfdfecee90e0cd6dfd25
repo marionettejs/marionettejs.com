@@ -1,0 +1,20 @@
+content/news/maintenance-research.mjs
+  h_0f06c286dda36f 43-44,46,48-49,57,62
+test/browser/news.mjs
+  h_0f06c286dda36f 6-8,29,31-32,36,39,54,63,66,69,102-106,143
+test/release.test.mjs
+  h_0f06c286dda36f 2,137-138,141
+test/seo.test.mjs
+  h_0f06c286dda36f 4,43-44,47-50,53-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a6a4b2a91308c052e79bdfdfecee90e0cd6dfd25",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

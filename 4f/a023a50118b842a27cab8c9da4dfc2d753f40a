@@ -1,0 +1,16 @@
+README.md
+  h_0f06c286dda36f 30-31
+test/runtime-archives.test.mjs
+  h_0f06c286dda36f 4,13,16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4fa023a50118b842a27cab8c9da4dfc2d753f40a",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
