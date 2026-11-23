@@ -113,7 +113,7 @@ for (const [route, page] of pages) {
 const chineseBenchmarkDirectory = resolve(out, chineseBenchmarkPath.slice(1));
 await mkdir(chineseBenchmarkDirectory, { recursive: true });
 await writeFile(resolve(chineseBenchmarkDirectory, 'index.html'), renderChineseBenchmarkPage({
-  stylesheets: ['site', 'night', 'case-studies', 'news'].map(name => stylesheetUrls[name]), siteRevision
+  stylesheets: ['site', 'night', 'news'].map(name => stylesheetUrls[name]), siteRevision
 }));
 await mkdir(resolve(out,'reference'), {recursive:true});
 await cp(resolve(root,'content/provenance.json'),resolve(out,'reference/provenance.json'));
