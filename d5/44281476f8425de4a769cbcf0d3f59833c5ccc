@@ -1,0 +1,33 @@
+content/news/react-show-your-work/article.md
+  h_0f06c286dda36f 1-60
+scripts/build.mjs
+  h_0f06c286dda36f 1,95
+scripts/dev.mjs
+  h_0f06c286dda36f 16
+test/browser/news.mjs
+  h_0f06c286dda36f 7-8,110-137,149-151
+  h_0f06c286dda36f 12,138-148
+test/ai-cost.test.mjs
+  h_0f06c286dda36f 5,10
+content/news/react-show-your-work/index.mjs
+  h_0f06c286dda36f 1-13,16-22,25-38,40-71
+  h_0f06c286dda36f 14-15,23-24,39
+site/assets/news.css
+  h_0f06c286dda36f 123-143
+test/news.test.mjs
+  h_0f06c286dda36f 20,79-90,93,96-104
+  h_0f06c286dda36f 91-92,94-95
+content/news.mjs
+  h_0f06c286dda36f 1,32,34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d544281476f8425de4a769cbcf0d3f59833c5ccc",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
