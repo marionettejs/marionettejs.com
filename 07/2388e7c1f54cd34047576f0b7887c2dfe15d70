@@ -1,0 +1,16 @@
+content/news/react-show-your-work/index.mjs
+  h_0f06c286dda36f 18
+test/news.test.mjs
+  h_0f06c286dda36f 85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "072388e7c1f54cd34047576f0b7887c2dfe15d70",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
