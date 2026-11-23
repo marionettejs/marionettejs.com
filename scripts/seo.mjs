@@ -29,12 +29,13 @@ export function socialImageFor({ image, socialImage } = {}) {
 }
 
 export function socialMetadata(page) {
-  const { title, description, route, article = false, date, dateModified } = page;
+  const { title, description, route, article = false, date, dateModified, locale } = page;
   const image = socialImageFor(page);
   const meta = (property, content, attribute = 'property') => `<meta ${attribute}="${property}" content="${escape(content)}">`;
   return [
     ...(route === undefined ? [] : [`<link rel="canonical" href="${escape(absolute(route))}">`, meta('og:url', absolute(route))]),
     meta('og:type', article ? 'article' : 'website'),
+    ...(locale ? [meta('og:locale', locale)] : []),
     ...(article && validDate(date) ? [meta('article:published_time', date)] : []),
     ...(article && validDate(dateModified) ? [meta('article:modified_time', dateModified)] : []),
     meta('og:site_name', 'Marionette'), meta('og:title', title), meta('og:description', description),
@@ -54,6 +55,7 @@ export function articleMetadata(page) {
     url: absolute(page.route), mainEntityOfPage: { '@type': 'WebPage', '@id': absolute(page.route) },
     image: { '@type': 'ImageObject', url: image.url, width: image.width, height: image.height },
     publisher: { '@type': 'Organization', name: 'Marionette project', url: siteOrigin },
+    ...(page.language ? { inLanguage: page.language } : {}),
     ...(page.author ? { author: page.author } : {}),
     ...(page.contributor ? { contributor: page.contributor } : {}),
     ...(validDate(page.date) ? { datePublished: page.date } : {}),
